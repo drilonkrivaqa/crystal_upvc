@@ -23,6 +23,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
   late TextEditingController discountPercentController;
   late TextEditingController discountAmountController;
   late TextEditingController notesController;
+  late List<TextEditingController> extraDescControllers;
+  late List<TextEditingController> extraAmountControllers;
 
   @override
   void initState() {
@@ -39,7 +41,14 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
     discountAmountController =
         TextEditingController(text: offer.discountAmount.toString());
     notesController = TextEditingController(text: offer.notes);
+    extraDescControllers = [
+      for (var c in offer.extraCharges) TextEditingController(text: c.description)
+    ];
+    extraAmountControllers = [
+      for (var c in offer.extraCharges) TextEditingController(text: c.amount.toString())
+    ];
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -236,10 +245,14 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
               children: [
                 ...List.generate(offer.extraCharges.length, (i) {
                   final charge = offer.extraCharges[i];
-                  final descCtl =
-                  TextEditingController(text: charge.description);
-                  final amtCtl =
-                  TextEditingController(text: charge.amount.toString());
+                  if (extraDescControllers.length <= i) {
+                    extraDescControllers.add(TextEditingController(text: charge.description));
+                  }
+                  if (extraAmountControllers.length <= i) {
+                    extraAmountControllers.add(TextEditingController(text: charge.amount.toString()));
+                  }
+                  final descCtl = extraDescControllers[i];
+                  final amtCtl = extraAmountControllers[i];
                   return Row(
                     children: [
                       Expanded(
@@ -272,6 +285,12 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                         icon: const Icon(Icons.delete),
                         onPressed: () {
                           offer.extraCharges.removeAt(i);
+                          if (i < extraDescControllers.length) {
+                            extraDescControllers.removeAt(i);
+                          }
+                          if (i < extraAmountControllers.length) {
+                            extraAmountControllers.removeAt(i);
+                          }
                           offer.save();
                           setState(() {});
                         },
@@ -284,6 +303,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                   child: TextButton.icon(
                     onPressed: () {
                       offer.extraCharges.add(ExtraCharge());
+                      extraDescControllers.add(TextEditingController());
+                      extraAmountControllers.add(TextEditingController());
                       offer.save();
                       setState(() {});
                     },
@@ -345,5 +366,19 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
         child: const Icon(Icons.add),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    discountPercentController.dispose();
+    discountAmountController.dispose();
+    notesController.dispose();
+    for (final c in extraDescControllers) {
+      c.dispose();
+    }
+    for (final c in extraAmountControllers) {
+      c.dispose();
+    }
+    super.dispose();
   }
 }
