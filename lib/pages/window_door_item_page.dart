@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:flutter/foundation.dart';
+import 'dart:io' show File;
 import '../models.dart';
 
 class WindowDoorItemPage extends StatefulWidget {
@@ -29,6 +32,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   int? blindIndex;
   int? mechanismIndex;
   int? accessoryIndex;
+  String? photoPath;
 
   @override
   void initState() {
@@ -50,6 +54,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     blindIndex = widget.existingItem?.blindIndex;
     mechanismIndex = widget.existingItem?.mechanismIndex;
     accessoryIndex = widget.existingItem?.accessoryIndex;
+    photoPath = widget.existingItem?.photoPath;
   }
 
   @override
@@ -60,6 +65,27 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
+            GestureDetector(
+              onTap: () async {
+                final picker = ImagePicker();
+                final picked = await picker.pickImage(source: ImageSource.gallery);
+                if (picked != null) {
+                  setState(() => photoPath = picked.path);
+                }
+              },
+              child: photoPath != null
+                  ? (kIsWeb
+                      ? Image.network(photoPath!, width: 120, height: 120, fit: BoxFit.cover)
+                      : Image.file(File(photoPath!), width: 120, height: 120, fit: BoxFit.cover))
+                  : Container(
+                      width: 120,
+                      height: 120,
+                      color: Colors.grey[300],
+                      alignment: Alignment.center,
+                      child: const Text('Tap to add photo'),
+                    ),
+            ),
+            const SizedBox(height: 12),
             TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Name')),
             TextField(controller: widthController, decoration: const InputDecoration(labelText: 'Width (mm)'), keyboardType: TextInputType.number),
             TextField(controller: heightController, decoration: const InputDecoration(labelText: 'Height (mm)'), keyboardType: TextInputType.number),
@@ -70,39 +96,37 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
             DropdownButtonFormField<int>(
               value: profileSetIndex,
               decoration: const InputDecoration(labelText: "Profile Set"),
-              items: List.generate(
-                profileSetBox.length,
-                    (i) => DropdownMenuItem(
-                  value: i,
-                  child: Text(profileSetBox.getAt(i)?.name ?? ""),
-                ),
-              ),
+              items: [
+                for (int i = 0; i < profileSetBox.length; i++)
+                  DropdownMenuItem<int>(
+                    value: i,
+                    child: Text(profileSetBox.getAt(i)?.name ?? ""),
+                  ),
+              ],
               onChanged: (val) => setState(() => profileSetIndex = val ?? 0),
             ),
             DropdownButtonFormField<int>(
               value: glassIndex,
               decoration: const InputDecoration(labelText: "Glass"),
-              items: List.generate(
-                glassBox.length,
-                    (i) => DropdownMenuItem(
-                  value: i,
-                  child: Text(glassBox.getAt(i)?.name ?? ""),
-                ),
-              ),
+              items: [
+                for (int i = 0; i < glassBox.length; i++)
+                  DropdownMenuItem<int>(
+                    value: i,
+                    child: Text(glassBox.getAt(i)?.name ?? ""),
+                  ),
+              ],
               onChanged: (val) => setState(() => glassIndex = val ?? 0),
             ),
             DropdownButtonFormField<int?>(
               value: blindIndex,
               decoration: const InputDecoration(labelText: "Blind (optional)"),
               items: [
-                const DropdownMenuItem(value: null, child: Text('None')),
-                ...List.generate(
-                  blindBox.length,
-                      (i) => DropdownMenuItem(
+                const DropdownMenuItem<int?>(value: null, child: Text('None')),
+                for (int i = 0; i < blindBox.length; i++)
+                  DropdownMenuItem<int>(
                     value: i,
                     child: Text(blindBox.getAt(i)?.name ?? ""),
                   ),
-                )
               ],
               onChanged: (val) => setState(() => blindIndex = val),
             ),
@@ -110,14 +134,12 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
               value: mechanismIndex,
               decoration: const InputDecoration(labelText: "Mechanism (optional)"),
               items: [
-                const DropdownMenuItem(value: null, child: Text('None')),
-                ...List.generate(
-                  mechanismBox.length,
-                      (i) => DropdownMenuItem(
+                const DropdownMenuItem<int?>(value: null, child: Text('None')),
+                for (int i = 0; i < mechanismBox.length; i++)
+                  DropdownMenuItem<int>(
                     value: i,
                     child: Text(mechanismBox.getAt(i)?.name ?? ""),
                   ),
-                )
               ],
               onChanged: (val) => setState(() => mechanismIndex = val),
             ),
@@ -125,14 +147,12 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
               value: accessoryIndex,
               decoration: const InputDecoration(labelText: "Accessory (optional)"),
               items: [
-                const DropdownMenuItem(value: null, child: Text('None')),
-                ...List.generate(
-                  accessoryBox.length,
-                      (i) => DropdownMenuItem(
+                const DropdownMenuItem<int?>(value: null, child: Text('None')),
+                for (int i = 0; i < accessoryBox.length; i++)
+                  DropdownMenuItem<int>(
                     value: i,
                     child: Text(accessoryBox.getAt(i)?.name ?? ""),
                   ),
-                )
               ],
               onChanged: (val) => setState(() => accessoryIndex = val),
             ),
@@ -160,6 +180,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                   mechanismIndex: mechanismIndex,
                   accessoryIndex: accessoryIndex,
                   openings: openings,
+                  photoPath: photoPath,
                 ));
                 Navigator.pop(context);
               },
