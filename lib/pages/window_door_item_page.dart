@@ -75,8 +75,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
               },
               child: photoPath != null
                   ? (kIsWeb
-                  ? Image.network(photoPath!, width: 120, height: 120, fit: BoxFit.cover)
-                  : Image.file(File(photoPath!), width: 120, height: 120, fit: BoxFit.cover))
+                  ? Image.network(photoPath!, width: 120, height: 120, fit: BoxFit.contain)
+                  : Image.file(File(photoPath!), width: 120, height: 120, fit: BoxFit.contain))
                   : Container(
                 width: 120,
                 height: 120,

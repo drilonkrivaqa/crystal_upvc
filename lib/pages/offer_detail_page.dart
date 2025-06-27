@@ -5,7 +5,6 @@ import 'window_door_item_page.dart';
 import 'dart:io' show File;
 import 'package:flutter/foundation.dart';
 
-
 class OfferDetailPage extends StatefulWidget {
   final int offerIndex;
   const OfferDetailPage({super.key, required this.offerIndex});
@@ -64,8 +63,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
               child: ListTile(
                 leading: item.photoPath != null
                     ? (kIsWeb
-                    ? Image.network(item.photoPath!, width: 60, height: 60, fit: BoxFit.cover)
-                    : Image.file(File(item.photoPath!), width: 60, height: 60, fit: BoxFit.cover))
+                    ? Image.network(item.photoPath!, width: 60, height: 60, fit: BoxFit.contain)
+                    : Image.file(File(item.photoPath!), width: 60, height: 60, fit: BoxFit.contain))
                     : null,
                 title: Text(item.name),
                 subtitle: Text(
