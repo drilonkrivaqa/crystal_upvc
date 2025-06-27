@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models.dart';
 import 'window_door_item_page.dart';
+import 'dart:io' show File;
+import 'package:flutter/foundation.dart';
+
 
 class OfferDetailPage extends StatefulWidget {
   final int offerIndex;
@@ -59,6 +62,11 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
             return Card(
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: ListTile(
+                leading: item.photoPath != null
+                    ? (kIsWeb
+                    ? Image.network(item.photoPath!, width: 60, height: 60, fit: BoxFit.cover)
+                    : Image.file(File(item.photoPath!), width: 60, height: 60, fit: BoxFit.cover))
+                    : null,
                 title: Text(item.name),
                 subtitle: Text(
                   'Size: ${item.width} x ${item.height} mm\n'
