@@ -29,25 +29,36 @@ class _OffersPageState extends State<OffersPage> {
     }
 
     int selectedCustomer = 0;
+    final TextEditingController profitController = TextEditingController(text: '0');
     showDialog(
       context: context,
       builder: (_) => StatefulBuilder(
         builder: (context, setStateDialog) => AlertDialog(
           title: const Text('Add Offer'),
-          content: DropdownButton<int>(
-            value: selectedCustomer,
-            items: List.generate(
-              customerBox.length,
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DropdownButton<int>(
+                value: selectedCustomer,
+                items: List.generate(
+                  customerBox.length,
                   (index) => DropdownMenuItem(
-                value: index,
-                child: Text(customerBox.getAt(index)?.name ?? ""),
+                    value: index,
+                    child: Text(customerBox.getAt(index)?.name ?? ''),
+                  ),
+                ),
+                onChanged: (val) {
+                  setStateDialog(() {
+                    selectedCustomer = val ?? 0;
+                  });
+                },
               ),
-            ),
-            onChanged: (val) {
-              setStateDialog(() {
-                selectedCustomer = val ?? 0;
-              });
-            },
+              TextField(
+                controller: profitController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: 'Profit %'),
+              ),
+            ],
           ),
           actions: [
             TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
@@ -59,6 +70,7 @@ class _OffersPageState extends State<OffersPage> {
                     customerIndex: selectedCustomer,
                     date: DateTime.now(),
                     items: [],
+                    profitPercent: double.tryParse(profitController.text) ?? 0,
                   ),
                 );
                 Navigator.pop(context);

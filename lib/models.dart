@@ -77,6 +77,15 @@ class Accessory extends HiveObject {
   Accessory({required this.name, required this.price});
 }
 
+@HiveType(typeId: 8)
+class ExtraCharge extends HiveObject {
+  @HiveField(0)
+  String description;
+  @HiveField(1)
+  double amount;
+  ExtraCharge({this.description = '', this.amount = 0});
+}
+
 // Window/Door Item in Offer
 @HiveType(typeId: 6)
 class WindowDoorItem extends HiveObject {
@@ -100,6 +109,18 @@ class WindowDoorItem extends HiveObject {
   int? accessoryIndex;
   @HiveField(9)
   int openings; // Number of sashes/openings, 0 means fixed
+  @HiveField(10)
+  String? photoPath; // path to a photo of this item
+  @HiveField(11)
+  double? manualPrice; // optional manual override for final price
+  @HiveField(12)
+  double? extra1Price; // optional extra price 1
+  @HiveField(13)
+  double? extra2Price; // optional extra price 2
+  @HiveField(14)
+  String? extra1Desc; // description for extra price 1
+  @HiveField(15)
+  String? extra2Desc; // description for extra price 2
 
   WindowDoorItem({
     required this.name,
@@ -112,6 +133,12 @@ class WindowDoorItem extends HiveObject {
     this.mechanismIndex,
     this.accessoryIndex,
     this.openings = 0,
+    this.photoPath,
+    this.manualPrice,
+    this.extra1Price,
+    this.extra2Price,
+    this.extra1Desc,
+    this.extra2Desc,
   });
 
   /// Returns the cost for profiles, given the selected ProfileSet
@@ -177,5 +204,25 @@ class Offer extends HiveObject {
   DateTime date;
   @HiveField(3)
   List<WindowDoorItem> items;
-  Offer({required this.id, required this.customerIndex, required this.date, required this.items});
+  @HiveField(4)
+  double profitPercent;
+  @HiveField(5)
+  List<ExtraCharge> extraCharges;
+  @HiveField(6)
+  double discountPercent;
+  @HiveField(7)
+  double discountAmount;
+  @HiveField(8)
+  String notes;
+  Offer({
+    required this.id,
+    required this.customerIndex,
+    required this.date,
+    required this.items,
+    this.profitPercent = 0,
+    List<ExtraCharge>? extraCharges,
+    this.discountPercent = 0,
+    this.discountAmount = 0,
+    this.notes = '',
+  }) : extraCharges = extraCharges ?? [];
 }

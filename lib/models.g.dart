@@ -267,13 +267,19 @@ class WindowDoorItemAdapter extends TypeAdapter<WindowDoorItem> {
       mechanismIndex: fields[7] as int?,
       accessoryIndex: fields[8] as int?,
       openings: fields[9] as int,
+      photoPath: fields[10] as String?,
+      manualPrice: fields[11] as double?,
+      extra1Price: fields[12] as double?,
+      extra2Price: fields[13] as double?,
+      extra1Desc: fields[14] as String?,
+      extra2Desc: fields[15] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, WindowDoorItem obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(16)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -293,7 +299,19 @@ class WindowDoorItemAdapter extends TypeAdapter<WindowDoorItem> {
       ..writeByte(8)
       ..write(obj.accessoryIndex)
       ..writeByte(9)
-      ..write(obj.openings);
+      ..write(obj.openings)
+      ..writeByte(10)
+      ..write(obj.photoPath)
+      ..writeByte(11)
+      ..write(obj.manualPrice)
+      ..writeByte(12)
+      ..write(obj.extra1Price)
+      ..writeByte(13)
+      ..write(obj.extra2Price)
+      ..writeByte(14)
+      ..write(obj.extra1Desc)
+      ..writeByte(15)
+      ..write(obj.extra2Desc);
   }
 
   @override
@@ -322,13 +340,18 @@ class OfferAdapter extends TypeAdapter<Offer> {
       customerIndex: fields[1] as int,
       date: fields[2] as DateTime,
       items: (fields[3] as List).cast<WindowDoorItem>(),
+      profitPercent: fields[4] as double,
+      extraCharges: (fields[5] as List).cast<ExtraCharge>(),
+      discountPercent: fields[6] as double,
+      discountAmount: fields[7] as double,
+      notes: fields[8] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, Offer obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(9)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -336,7 +359,17 @@ class OfferAdapter extends TypeAdapter<Offer> {
       ..writeByte(2)
       ..write(obj.date)
       ..writeByte(3)
-      ..write(obj.items);
+      ..write(obj.items)
+      ..writeByte(4)
+      ..write(obj.profitPercent)
+      ..writeByte(5)
+      ..write(obj.extraCharges)
+      ..writeByte(6)
+      ..write(obj.discountPercent)
+      ..writeByte(7)
+      ..write(obj.discountAmount)
+      ..writeByte(8)
+      ..write(obj.notes);
   }
 
   @override
@@ -346,6 +379,43 @@ class OfferAdapter extends TypeAdapter<Offer> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is OfferAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class ExtraChargeAdapter extends TypeAdapter<ExtraCharge> {
+  @override
+  final int typeId = 8;
+
+  @override
+  ExtraCharge read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return ExtraCharge(
+      description: fields[0] as String,
+      amount: fields[1] as double,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, ExtraCharge obj) {
+    writer
+      ..writeByte(2)
+      ..writeByte(0)
+      ..write(obj.description)
+      ..writeByte(1)
+      ..write(obj.amount);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ExtraChargeAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

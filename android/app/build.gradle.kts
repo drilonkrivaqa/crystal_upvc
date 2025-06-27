@@ -8,7 +8,9 @@ plugins {
 android {
     namespace = "com.example.crystal_upvc"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    // Override the default Flutter NDK with the version required by
+    // image_picker and related plugins.
+    ndkVersion = "27.0.12077973"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
