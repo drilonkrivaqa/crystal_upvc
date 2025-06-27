@@ -20,6 +20,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
   late Box<Blind> blindBox;
   late Box<Mechanism> mechanismBox;
   late Box<Accessory> accessoryBox;
+  late TextEditingController additionalController;
+  late TextEditingController notesController;
 
   @override
   void initState() {
@@ -30,11 +32,15 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
     blindBox = Hive.box<Blind>('blinds');
     mechanismBox = Hive.box<Mechanism>('mechanisms');
     accessoryBox = Hive.box<Accessory>('accessories');
+    additionalController = TextEditingController();
+    notesController = TextEditingController();
   }
 
   @override
   Widget build(BuildContext context) {
     Offer offer = offerBox.getAt(widget.offerIndex)!;
+    additionalController.text = offer.additionalPrice.toString();
+    notesController.text = offer.notes;
     return Scaffold(
       appBar: AppBar(title: const Text("Offer Details")),
       body: ListView(
@@ -102,8 +108,9 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 : 0;
             double mechanismCost = (mechanism != null) ? mechanism.price * item.quantity : 0;
             double accessoryCost = (accessory != null) ? accessory.price * item.quantity : 0;
+            double extras = (item.extra1Price ?? 0) + (item.extra2Price ?? 0);
 
-            double total = profileCost + glassCost + blindCost + mechanismCost + accessoryCost;
+            double total = profileCost + glassCost + blindCost + mechanismCost + accessoryCost + extras;
             double finalPrice = item.manualPrice ??
                 total * (1 + offer.profitPercent / 100);
             double profitAmount = finalPrice - total;
@@ -123,11 +130,13 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                       'Profile: ${profileSet.name}\n'
                       'Glass: ${glass.name}\n'
                       'Sashes: ${item.openings}\n'
-                      'Profile cost: €${profileCost.toStringAsFixed(2)}\n'
+                  'Profile cost: €${profileCost.toStringAsFixed(2)}\n'
                       'Glass cost: €${glassCost.toStringAsFixed(2)}\n'
                       '${blind != null ? "Blind: ${blind.name}, €${blindCost.toStringAsFixed(2)}\n" : ""}'
                       '${mechanism != null ? "Mechanism: ${mechanism.name}, €${mechanismCost.toStringAsFixed(2)}\n" : ""}'
                       '${accessory != null ? "Accessory: ${accessory.name}, €${accessoryCost.toStringAsFixed(2)}\n" : ""}'
+                      '${item.extra1Price != null ? "Additional 1: €${item.extra1Price!.toStringAsFixed(2)}\n" : ""}'
+                      '${item.extra2Price != null ? "Additional 2: €${item.extra2Price!.toStringAsFixed(2)}\n" : ""}'
                       'Cost (0%): €${total.toStringAsFixed(2)}\n'
                       'With profit: €${finalPrice.toStringAsFixed(2)}\n'
                       'Profit: €${profitAmount.toStringAsFixed(2)}',
@@ -196,11 +205,14 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                     : 0;
                 double mechanismCost = (mechanism != null) ? mechanism.price * item.quantity : 0;
                 double accessoryCost = (accessory != null) ? accessory.price * item.quantity : 0;
-                double base = profileCost + glassCost + blindCost + mechanismCost + accessoryCost;
+                double extras = (item.extra1Price ?? 0) + (item.extra2Price ?? 0);
+                double base = profileCost + glassCost + blindCost + mechanismCost + accessoryCost + extras;
                 double finalPrice = item.manualPrice ?? base * (offer.profitPercent / 100 + 1);
                 baseTotal += base;
                 finalTotal += finalPrice;
               }
+              baseTotal += offer.additionalPrice;
+              finalTotal += offer.additionalPrice;
               double profitTotal = finalTotal - baseTotal;
               return Text(
                 'Grand Total (0%): €${baseTotal.toStringAsFixed(2)}\n'
@@ -210,6 +222,33 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
               );
             }),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                TextField(
+                  controller: additionalController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(labelText: 'Additional Price'),
+                  onChanged: (val) {
+                    offer.additionalPrice = double.tryParse(val) ?? 0;
+                    offer.save();
+                    setState(() {});
+                  },
+                ),
+                TextField(
+                  controller: notesController,
+                  decoration: const InputDecoration(labelText: 'Notes'),
+                  minLines: 1,
+                  maxLines: 3,
+                  onChanged: (val) {
+                    offer.notes = val;
+                    offer.save();
+                  },
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 24),
         ],

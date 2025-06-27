@@ -27,6 +27,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   late TextEditingController quantityController;
   late TextEditingController openingsController;
   late TextEditingController priceController;
+  late TextEditingController extra1Controller;
+  late TextEditingController extra2Controller;
 
   int profileSetIndex = 0;
   int glassIndex = 0;
@@ -35,6 +37,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   int? accessoryIndex;
   String? photoPath;
   double? manualPrice;
+  double? extra1Price;
+  double? extra2Price;
 
   @override
   void initState() {
@@ -51,6 +55,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     quantityController = TextEditingController(text: widget.existingItem?.quantity.toString() ?? '1');
     openingsController = TextEditingController(text: widget.existingItem?.openings.toString() ?? '0');
     priceController = TextEditingController(text: widget.existingItem?.manualPrice?.toString() ?? '');
+    extra1Controller = TextEditingController(text: widget.existingItem?.extra1Price?.toString() ?? '');
+    extra2Controller = TextEditingController(text: widget.existingItem?.extra2Price?.toString() ?? '');
 
     profileSetIndex = widget.existingItem?.profileSetIndex ?? 0;
     glassIndex = widget.existingItem?.glassIndex ?? 0;
@@ -59,6 +65,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     accessoryIndex = widget.existingItem?.accessoryIndex;
     photoPath = widget.existingItem?.photoPath;
     manualPrice = widget.existingItem?.manualPrice;
+    extra1Price = widget.existingItem?.extra1Price;
+    extra2Price = widget.existingItem?.extra2Price;
   }
 
   @override
@@ -96,32 +104,9 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
             TextField(controller: quantityController, decoration: const InputDecoration(labelText: 'Quantity'), keyboardType: TextInputType.number),
             TextField(controller: openingsController, decoration: const InputDecoration(labelText: 'Number of Sashes (0 = fixed)'), keyboardType: TextInputType.number),
             TextField(controller: priceController, decoration: const InputDecoration(labelText: 'Manual Price (optional)'), keyboardType: TextInputType.number),
+            TextField(controller: extra1Controller, decoration: const InputDecoration(labelText: 'Additional Price 1'), keyboardType: TextInputType.number),
+            TextField(controller: extra2Controller, decoration: const InputDecoration(labelText: 'Additional Price 2'), keyboardType: TextInputType.number),
             const SizedBox(height: 12),
-
-            DropdownButtonFormField<int>(
-              value: profileSetIndex,
-              decoration: const InputDecoration(labelText: "Profile Set"),
-              items: [
-                for (int i = 0; i < profileSetBox.length; i++)
-                  DropdownMenuItem<int>(
-                    value: i,
-                    child: Text(profileSetBox.getAt(i)?.name ?? ""),
-                  ),
-              ],
-              onChanged: (val) => setState(() => profileSetIndex = val ?? 0),
-            ),
-            DropdownButtonFormField<int>(
-              value: glassIndex,
-              decoration: const InputDecoration(labelText: "Glass"),
-              items: [
-                for (int i = 0; i < glassBox.length; i++)
-                  DropdownMenuItem<int>(
-                    value: i,
-                    child: Text(glassBox.getAt(i)?.name ?? ""),
-                  ),
-              ],
-              onChanged: (val) => setState(() => glassIndex = val ?? 0),
-            ),
             DropdownButtonFormField<int?>(
               value: blindIndex,
               decoration: const InputDecoration(labelText: "Blind (optional)"),
@@ -188,6 +173,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                   openings: openings,
                   photoPath: photoPath,
                   manualPrice: mPrice,
+                  extra1Price: double.tryParse(extra1Controller.text),
+                  extra2Price: double.tryParse(extra2Controller.text),
                 ));
                 Navigator.pop(context);
               },
