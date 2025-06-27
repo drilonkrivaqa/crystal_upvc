@@ -20,7 +20,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
   late Box<Blind> blindBox;
   late Box<Mechanism> mechanismBox;
   late Box<Accessory> accessoryBox;
-  late TextEditingController additionalController;
+  late TextEditingController discountPercentController;
+  late TextEditingController discountAmountController;
   late TextEditingController notesController;
 
   @override
@@ -32,15 +33,17 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
     blindBox = Hive.box<Blind>('blinds');
     mechanismBox = Hive.box<Mechanism>('mechanisms');
     accessoryBox = Hive.box<Accessory>('accessories');
-    additionalController = TextEditingController();
-    notesController = TextEditingController();
+    final offer = offerBox.getAt(widget.offerIndex)!;
+    discountPercentController =
+        TextEditingController(text: offer.discountPercent.toString());
+    discountAmountController =
+        TextEditingController(text: offer.discountAmount.toString());
+    notesController = TextEditingController(text: offer.notes);
   }
 
   @override
   Widget build(BuildContext context) {
     Offer offer = offerBox.getAt(widget.offerIndex)!;
-    additionalController.text = offer.additionalPrice.toString();
-    notesController.text = offer.notes;
     return Scaffold(
       appBar: AppBar(title: const Text("Offer Details")),
       body: ListView(
@@ -135,8 +138,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                       '${blind != null ? "Blind: ${blind.name}, €${blindCost.toStringAsFixed(2)}\n" : ""}'
                       '${mechanism != null ? "Mechanism: ${mechanism.name}, €${mechanismCost.toStringAsFixed(2)}\n" : ""}'
                       '${accessory != null ? "Accessory: ${accessory.name}, €${accessoryCost.toStringAsFixed(2)}\n" : ""}'
-                      '${item.extra1Price != null ? "Additional 1: €${item.extra1Price!.toStringAsFixed(2)}\n" : ""}'
-                      '${item.extra2Price != null ? "Additional 2: €${item.extra2Price!.toStringAsFixed(2)}\n" : ""}'
+                      '${item.extra1Price != null ? "${item.extra1Desc ?? 'Additional 1'}: €${item.extra1Price!.toStringAsFixed(2)}\n" : ""}'
+                      '${item.extra2Price != null ? "${item.extra2Desc ?? 'Additional 2'}: €${item.extra2Price!.toStringAsFixed(2)}\n" : ""}'
                       'Cost (0%): €${total.toStringAsFixed(2)}\n'
                       'With profit: €${finalPrice.toStringAsFixed(2)}\n'
                       'Profit: €${profitAmount.toStringAsFixed(2)}',
@@ -211,8 +214,12 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 baseTotal += base;
                 finalTotal += finalPrice;
               }
-              baseTotal += offer.additionalPrice;
-              finalTotal += offer.additionalPrice;
+              double extrasTotal =
+                  offer.extraCharges.fold(0, (p, e) => p + e.amount);
+              baseTotal += extrasTotal;
+              finalTotal += extrasTotal;
+              finalTotal -= offer.discountAmount;
+              finalTotal *= (1 - offer.discountPercent / 100);
               double profitTotal = finalTotal - baseTotal;
               return Text(
                 'Grand Total (0%): €${baseTotal.toStringAsFixed(2)}\n'
@@ -227,12 +234,79 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
+                ...List.generate(offer.extraCharges.length, (i) {
+                  final charge = offer.extraCharges[i];
+                  final descCtl =
+                      TextEditingController(text: charge.description);
+                  final amtCtl =
+                      TextEditingController(text: charge.amount.toString());
+                  return Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: descCtl,
+                          decoration:
+                              const InputDecoration(labelText: 'Description'),
+                          onChanged: (v) {
+                            charge.description = v;
+                            offer.save();
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      SizedBox(
+                        width: 100,
+                        child: TextField(
+                          controller: amtCtl,
+                          keyboardType: TextInputType.number,
+                          decoration:
+                              const InputDecoration(labelText: 'Amount'),
+                          onChanged: (v) {
+                            charge.amount = double.tryParse(v) ?? 0;
+                            offer.save();
+                            setState(() {});
+                          },
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: () {
+                          offer.extraCharges.removeAt(i);
+                          offer.save();
+                          setState(() {});
+                        },
+                      ),
+                    ],
+                  );
+                }),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: TextButton.icon(
+                    onPressed: () {
+                      offer.extraCharges.add(ExtraCharge());
+                      offer.save();
+                      setState(() {});
+                    },
+                    icon: const Icon(Icons.add),
+                    label: const Text('Add extra'),
+                  ),
+                ),
                 TextField(
-                  controller: additionalController,
+                  controller: discountPercentController,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: 'Additional Price'),
+                  decoration: const InputDecoration(labelText: 'Discount %'),
                   onChanged: (val) {
-                    offer.additionalPrice = double.tryParse(val) ?? 0;
+                    offer.discountPercent = double.tryParse(val) ?? 0;
+                    offer.save();
+                    setState(() {});
+                  },
+                ),
+                TextField(
+                  controller: discountAmountController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(labelText: 'Discount amount'),
+                  onChanged: (val) {
+                    offer.discountAmount = double.tryParse(val) ?? 0;
                     offer.save();
                     setState(() {});
                   },

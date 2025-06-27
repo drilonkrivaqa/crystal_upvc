@@ -77,6 +77,15 @@ class Accessory extends HiveObject {
   Accessory({required this.name, required this.price});
 }
 
+@HiveType(typeId: 8)
+class ExtraCharge extends HiveObject {
+  @HiveField(0)
+  String description;
+  @HiveField(1)
+  double amount;
+  ExtraCharge({this.description = '', this.amount = 0});
+}
+
 // Window/Door Item in Offer
 @HiveType(typeId: 6)
 class WindowDoorItem extends HiveObject {
@@ -108,6 +117,10 @@ class WindowDoorItem extends HiveObject {
   double? extra1Price; // optional extra price 1
   @HiveField(13)
   double? extra2Price; // optional extra price 2
+  @HiveField(14)
+  String? extra1Desc; // description for extra price 1
+  @HiveField(15)
+  String? extra2Desc; // description for extra price 2
 
   WindowDoorItem({
     required this.name,
@@ -124,6 +137,8 @@ class WindowDoorItem extends HiveObject {
     this.manualPrice,
     this.extra1Price,
     this.extra2Price,
+    this.extra1Desc,
+    this.extra2Desc,
   });
 
   /// Returns the cost for profiles, given the selected ProfileSet
@@ -192,8 +207,12 @@ class Offer extends HiveObject {
   @HiveField(4)
   double profitPercent;
   @HiveField(5)
-  double additionalPrice;
+  List<ExtraCharge> extraCharges;
   @HiveField(6)
+  double discountPercent;
+  @HiveField(7)
+  double discountAmount;
+  @HiveField(8)
   String notes;
   Offer({
     required this.id,
@@ -201,7 +220,9 @@ class Offer extends HiveObject {
     required this.date,
     required this.items,
     this.profitPercent = 0,
-    this.additionalPrice = 0,
+    List<ExtraCharge>? extraCharges,
+    this.discountPercent = 0,
+    this.discountAmount = 0,
     this.notes = '',
-  });
+  }) : extraCharges = extraCharges ?? [];
 }

@@ -29,6 +29,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   late TextEditingController priceController;
   late TextEditingController extra1Controller;
   late TextEditingController extra2Controller;
+  late TextEditingController extra1DescController;
+  late TextEditingController extra2DescController;
 
   int profileSetIndex = 0;
   int glassIndex = 0;
@@ -39,6 +41,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   double? manualPrice;
   double? extra1Price;
   double? extra2Price;
+  String? extra1Desc;
+  String? extra2Desc;
 
   @override
   void initState() {
@@ -57,6 +61,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     priceController = TextEditingController(text: widget.existingItem?.manualPrice?.toString() ?? '');
     extra1Controller = TextEditingController(text: widget.existingItem?.extra1Price?.toString() ?? '');
     extra2Controller = TextEditingController(text: widget.existingItem?.extra2Price?.toString() ?? '');
+    extra1DescController = TextEditingController(text: widget.existingItem?.extra1Desc ?? '');
+    extra2DescController = TextEditingController(text: widget.existingItem?.extra2Desc ?? '');
 
     profileSetIndex = widget.existingItem?.profileSetIndex ?? 0;
     glassIndex = widget.existingItem?.glassIndex ?? 0;
@@ -67,6 +73,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     manualPrice = widget.existingItem?.manualPrice;
     extra1Price = widget.existingItem?.extra1Price;
     extra2Price = widget.existingItem?.extra2Price;
+    extra1Desc = widget.existingItem?.extra1Desc;
+    extra2Desc = widget.existingItem?.extra2Desc;
   }
 
   @override
@@ -104,7 +112,9 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
             TextField(controller: quantityController, decoration: const InputDecoration(labelText: 'Quantity'), keyboardType: TextInputType.number),
             TextField(controller: openingsController, decoration: const InputDecoration(labelText: 'Number of Sashes (0 = fixed)'), keyboardType: TextInputType.number),
             TextField(controller: priceController, decoration: const InputDecoration(labelText: 'Manual Price (optional)'), keyboardType: TextInputType.number),
+            TextField(controller: extra1DescController, decoration: const InputDecoration(labelText: 'Additional 1 Description')),
             TextField(controller: extra1Controller, decoration: const InputDecoration(labelText: 'Additional Price 1'), keyboardType: TextInputType.number),
+            TextField(controller: extra2DescController, decoration: const InputDecoration(labelText: 'Additional 2 Description')),
             TextField(controller: extra2Controller, decoration: const InputDecoration(labelText: 'Additional Price 2'), keyboardType: TextInputType.number),
             const SizedBox(height: 12),
             DropdownButtonFormField<int?>(
@@ -175,6 +185,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                   manualPrice: mPrice,
                   extra1Price: double.tryParse(extra1Controller.text),
                   extra2Price: double.tryParse(extra2Controller.text),
+                  extra1Desc: extra1DescController.text,
+                  extra2Desc: extra2DescController.text,
                 ));
                 Navigator.pop(context);
               },
