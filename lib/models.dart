@@ -100,6 +100,8 @@ class WindowDoorItem extends HiveObject {
   int? accessoryIndex;
   @HiveField(9)
   int openings; // Number of sashes/openings, 0 means fixed
+  @HiveField(10)
+  String? photoPath; // path to a photo of this item
 
   WindowDoorItem({
     required this.name,
@@ -112,6 +114,7 @@ class WindowDoorItem extends HiveObject {
     this.mechanismIndex,
     this.accessoryIndex,
     this.openings = 0,
+    this.photoPath,
   });
 
   /// Returns the cost for profiles, given the selected ProfileSet
