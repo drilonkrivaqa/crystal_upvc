@@ -42,7 +42,49 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
           const SizedBox(height: 16),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Text('Profit: ${offer.profitPercent.toStringAsFixed(2)}%', style: const TextStyle(fontWeight: FontWeight.bold)),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Profit: ${offer.profitPercent.toStringAsFixed(2)}%',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.edit),
+                  onPressed: () async {
+                    final controller = TextEditingController(text: offer.profitPercent.toString());
+                    await showDialog(
+                      context: context,
+                      builder: (_) => AlertDialog(
+                        title: const Text('Set Profit Percentage'),
+                        content: TextField(
+                          controller: controller,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(labelText: 'Profit %'),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text('Cancel'),
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              final val = double.tryParse(controller.text) ?? offer.profitPercent;
+                              offer.profitPercent = val;
+                              offer.save();
+                              setState(() {});
+                              Navigator.pop(context);
+                            },
+                            child: const Text('Save'),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 8),
           ...List.generate(offer.items.length, (i) {
@@ -138,8 +180,10 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
           }),
           const SizedBox(height: 16),
           Center(
-            child: Text(
-              "Grand Total: €${offer.items.fold<double>(0, (prev, item) {
+            child: Builder(builder: (_) {
+              double baseTotal = 0;
+              double finalTotal = 0;
+              for (var item in offer.items) {
                 final profileSet = profileSetBox.getAt(item.profileSetIndex)!;
                 final glass = glassBox.getAt(item.glassIndex)!;
                 final blind = (item.blindIndex != null) ? blindBox.getAt(item.blindIndex!) : null;
@@ -154,10 +198,18 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 double accessoryCost = (accessory != null) ? accessory.price * item.quantity : 0;
                 double base = profileCost + glassCost + blindCost + mechanismCost + accessoryCost;
                 double finalPrice = item.manualPrice ?? base * (offer.profitPercent / 100 + 1);
-                return prev + finalPrice;
-              }).toStringAsFixed(2)}",
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-            ),
+                baseTotal += base;
+                finalTotal += finalPrice;
+              }
+              double profitTotal = finalTotal - baseTotal;
+              return Text(
+                'Grand Total (0%): €${baseTotal.toStringAsFixed(2)}\n'
+                'With profit: €${finalTotal.toStringAsFixed(2)}\n'
+                'Total profit: €${profitTotal.toStringAsFixed(2)}',
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+              );
+            }),
           ),
           const SizedBox(height: 24),
         ],
