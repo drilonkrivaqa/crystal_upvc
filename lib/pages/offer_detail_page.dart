@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models.dart';
 import 'window_door_item_page.dart';
+import 'dart:io' show File;
+import 'package:flutter/foundation.dart';
 
 class OfferDetailPage extends StatefulWidget {
   final int offerIndex;
@@ -38,6 +40,11 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
       body: ListView(
         children: [
           const SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Text('Profit: ${offer.profitPercent.toStringAsFixed(2)}%', style: const TextStyle(fontWeight: FontWeight.bold)),
+          ),
+          const SizedBox(height: 8),
           ...List.generate(offer.items.length, (i) {
             final item = offer.items[i];
             final profileSet = profileSetBox.getAt(item.profileSetIndex)!;
@@ -55,10 +62,18 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
             double accessoryCost = (accessory != null) ? accessory.price * item.quantity : 0;
 
             double total = profileCost + glassCost + blindCost + mechanismCost + accessoryCost;
+            double finalPrice = item.manualPrice ??
+                total * (1 + offer.profitPercent / 100);
+            double profitAmount = finalPrice - total;
 
             return Card(
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: ListTile(
+                leading: item.photoPath != null
+                    ? (kIsWeb
+                        ? Image.network(item.photoPath!, width: 60, height: 60, fit: BoxFit.contain)
+                        : Image.file(File(item.photoPath!), width: 60, height: 60, fit: BoxFit.contain))
+                    : null,
                 title: Text(item.name),
                 subtitle: Text(
                   'Size: ${item.width} x ${item.height} mm\n'
@@ -71,7 +86,9 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                       '${blind != null ? "Blind: ${blind.name}, €${blindCost.toStringAsFixed(2)}\n" : ""}'
                       '${mechanism != null ? "Mechanism: ${mechanism.name}, €${mechanismCost.toStringAsFixed(2)}\n" : ""}'
                       '${accessory != null ? "Accessory: ${accessory.name}, €${accessoryCost.toStringAsFixed(2)}\n" : ""}'
-                      'Total for item: €${total.toStringAsFixed(2)}',
+                      'Cost (0%): €${total.toStringAsFixed(2)}\n'
+                      'With profit: €${finalPrice.toStringAsFixed(2)}\n'
+                      'Profit: €${profitAmount.toStringAsFixed(2)}',
                 ),
                 onTap: () async {
                   await showDialog(
@@ -135,7 +152,9 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                     : 0;
                 double mechanismCost = (mechanism != null) ? mechanism.price * item.quantity : 0;
                 double accessoryCost = (accessory != null) ? accessory.price * item.quantity : 0;
-                return prev + profileCost + glassCost + blindCost + mechanismCost + accessoryCost;
+                double base = profileCost + glassCost + blindCost + mechanismCost + accessoryCost;
+                double finalPrice = item.manualPrice ?? base * (offer.profitPercent / 100 + 1);
+                return prev + finalPrice;
               }).toStringAsFixed(2)}",
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
             ),

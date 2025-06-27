@@ -267,13 +267,15 @@ class WindowDoorItemAdapter extends TypeAdapter<WindowDoorItem> {
       mechanismIndex: fields[7] as int?,
       accessoryIndex: fields[8] as int?,
       openings: fields[9] as int,
+      photoPath: fields[10] as String?,
+      manualPrice: fields[11] as double?,
     );
   }
 
   @override
   void write(BinaryWriter writer, WindowDoorItem obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(12)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -293,7 +295,11 @@ class WindowDoorItemAdapter extends TypeAdapter<WindowDoorItem> {
       ..writeByte(8)
       ..write(obj.accessoryIndex)
       ..writeByte(9)
-      ..write(obj.openings);
+      ..write(obj.openings)
+      ..writeByte(10)
+      ..write(obj.photoPath)
+      ..writeByte(11)
+      ..write(obj.manualPrice);
   }
 
   @override
@@ -322,13 +328,14 @@ class OfferAdapter extends TypeAdapter<Offer> {
       customerIndex: fields[1] as int,
       date: fields[2] as DateTime,
       items: (fields[3] as List).cast<WindowDoorItem>(),
+      profitPercent: fields[4] as double,
     );
   }
 
   @override
   void write(BinaryWriter writer, Offer obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -336,7 +343,9 @@ class OfferAdapter extends TypeAdapter<Offer> {
       ..writeByte(2)
       ..write(obj.date)
       ..writeByte(3)
-      ..write(obj.items);
+      ..write(obj.items)
+      ..writeByte(4)
+      ..write(obj.profitPercent);
   }
 
   @override

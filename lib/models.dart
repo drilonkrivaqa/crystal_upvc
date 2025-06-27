@@ -100,6 +100,10 @@ class WindowDoorItem extends HiveObject {
   int? accessoryIndex;
   @HiveField(9)
   int openings; // Number of sashes/openings, 0 means fixed
+  @HiveField(10)
+  String? photoPath; // path to a photo of this item
+  @HiveField(11)
+  double? manualPrice; // optional manual override for final price
 
   WindowDoorItem({
     required this.name,
@@ -112,6 +116,8 @@ class WindowDoorItem extends HiveObject {
     this.mechanismIndex,
     this.accessoryIndex,
     this.openings = 0,
+    this.photoPath,
+    this.manualPrice,
   });
 
   /// Returns the cost for profiles, given the selected ProfileSet
@@ -177,5 +183,13 @@ class Offer extends HiveObject {
   DateTime date;
   @HiveField(3)
   List<WindowDoorItem> items;
-  Offer({required this.id, required this.customerIndex, required this.date, required this.items});
+  @HiveField(4)
+  double profitPercent;
+  Offer({
+    required this.id,
+    required this.customerIndex,
+    required this.date,
+    required this.items,
+    this.profitPercent = 0,
+  });
 }
