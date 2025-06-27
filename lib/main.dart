@@ -17,6 +17,7 @@ void main() async {
   Hive.registerAdapter(AccessoryAdapter());
   Hive.registerAdapter(WindowDoorItemAdapter());
   Hive.registerAdapter(OfferAdapter());
+  Hive.registerAdapter(ExtraChargeAdapter());
 
   await Hive.openBox<Customer>('customers');
   await Hive.openBox<ProfileSet>('profileSets');
