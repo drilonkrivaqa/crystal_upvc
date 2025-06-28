@@ -312,11 +312,11 @@ class WindowDoorItemAdapter extends TypeAdapter<WindowDoorItem> {
       extra2Desc: fields[15] as String?,
       verticalSections: fields[16] as int,
       horizontalSections: fields[17] as int,
-      fixedSectors: (fields[18] as List).cast<bool>(),
-      sectionWidths: (fields[19] as List).cast<int>(),
-      sectionHeights: (fields[20] as List).cast<int>(),
-      verticalAdapters: (fields[21] as List).cast<bool>(),
-      horizontalAdapters: (fields[22] as List).cast<bool>(),
+      fixedSectors: (fields[18] as List?)?.cast<bool>(),
+      sectionWidths: (fields[19] as List?)?.cast<int>(),
+      sectionHeights: (fields[20] as List?)?.cast<int>(),
+      verticalAdapters: (fields[21] as List?)?.cast<bool>(),
+      horizontalAdapters: (fields[22] as List?)?.cast<bool>(),
     );
   }
 
