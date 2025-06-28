@@ -53,8 +53,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   List<bool> horizontalAdapters = [];
   List<TextEditingController> sectionWidthCtrls = [];
   List<TextEditingController> sectionHeightCtrls = [];
-  bool _updatingWidths = false;
-  bool _updatingHeights = false;
 
   @override
   void initState() {
@@ -96,8 +94,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     verticalAdapters = List<bool>.from(widget.existingItem?.verticalAdapters ?? []);
     horizontalAdapters = List<bool>.from(widget.existingItem?.horizontalAdapters ?? []);
     _ensureGridSize();
-    widthController.addListener(_recalculateSectionWidths);
-    heightController.addListener(_recalculateSectionHeights);
   }
 
   @override
@@ -233,23 +229,16 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     );
   }
 
-
   void _updateGrid() {
-    int newV = int.tryParse(verticalController.text) ?? 1;
-    int newH = int.tryParse(horizontalController.text) ?? 1;
-    if (newV < 1) newV = 1;
-    if (newH < 1) newH = 1;
-    bool vChanged = newV != verticalSections;
-    bool hChanged = newH != horizontalSections;
-    verticalSections = newV;
-    horizontalSections = newH;
-    _ensureGridSize(resetWidths: vChanged, resetHeights: hChanged);
-    _recalculateSectionWidths();
-    _recalculateSectionHeights();
+    verticalSections = int.tryParse(verticalController.text) ?? 1;
+    horizontalSections = int.tryParse(horizontalController.text) ?? 1;
+    if (verticalSections < 1) verticalSections = 1;
+    if (horizontalSections < 1) horizontalSections = 1;
+    _ensureGridSize();
     setState(() {});
   }
 
-  void _ensureGridSize({bool resetWidths = false, bool resetHeights = false}) {
+  void _ensureGridSize() {
     int total = verticalSections * horizontalSections;
     if (fixedSectors.length < total) {
       fixedSectors = List<bool>.from(fixedSectors)
@@ -258,54 +247,22 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
       fixedSectors = fixedSectors.sublist(0, total);
     }
     if (sectionWidths.length < verticalSections) {
-      sectionWidths.addAll(
-          List<int>.filled(verticalSections - sectionWidths.length, 0));
+      sectionWidths.addAll(List<int>.filled(verticalSections - sectionWidths.length, 0));
+      for (int i = sectionWidthCtrls.length; i < verticalSections; i++) {
+        sectionWidthCtrls.add(TextEditingController(text: sectionWidths[i].toString()));
+      }
     } else if (sectionWidths.length > verticalSections) {
       sectionWidths = sectionWidths.sublist(0, verticalSections);
-    }
-    if (resetWidths) {
-      for (int i = 0; i < verticalSections; i++) {
-        sectionWidths[i] = 0;
-      }
-    }
-    if (sectionWidthCtrls.length != verticalSections || resetWidths) {
-      sectionWidthCtrls = [
-        for (int i = 0; i < verticalSections; i++)
-          TextEditingController(
-              text: sectionWidths[i] > 0 ? sectionWidths[i].toString() : '')
-      ];
-    } else {
-      for (int i = 0; i < verticalSections; i++) {
-        final val = sectionWidths[i] > 0 ? sectionWidths[i].toString() : '';
-        if (sectionWidthCtrls[i].text != val) {
-          sectionWidthCtrls[i].text = val;
-        }
-      }
+      sectionWidthCtrls = sectionWidthCtrls.sublist(0, verticalSections);
     }
     if (sectionHeights.length < horizontalSections) {
-      sectionHeights.addAll(
-          List<int>.filled(horizontalSections - sectionHeights.length, 0));
+      sectionHeights.addAll(List<int>.filled(horizontalSections - sectionHeights.length, 0));
+      for (int i = sectionHeightCtrls.length; i < horizontalSections; i++) {
+        sectionHeightCtrls.add(TextEditingController(text: sectionHeights[i].toString()));
+      }
     } else if (sectionHeights.length > horizontalSections) {
       sectionHeights = sectionHeights.sublist(0, horizontalSections);
-    }
-    if (resetHeights) {
-      for (int i = 0; i < horizontalSections; i++) {
-        sectionHeights[i] = 0;
-      }
-    }
-    if (sectionHeightCtrls.length != horizontalSections || resetHeights) {
-      sectionHeightCtrls = [
-        for (int i = 0; i < horizontalSections; i++)
-          TextEditingController(
-              text: sectionHeights[i] > 0 ? sectionHeights[i].toString() : '')
-      ];
-    } else {
-      for (int i = 0; i < horizontalSections; i++) {
-        final val = sectionHeights[i] > 0 ? sectionHeights[i].toString() : '';
-        if (sectionHeightCtrls[i].text != val) {
-          sectionHeightCtrls[i].text = val;
-        }
-      }
+      sectionHeightCtrls = sectionHeightCtrls.sublist(0, horizontalSections);
     }
     if (verticalAdapters.length < verticalSections - 1) {
       verticalAdapters.addAll(List<bool>.filled((verticalSections - 1) - verticalAdapters.length, false));
@@ -317,142 +274,14 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     } else if (horizontalAdapters.length > horizontalSections - 1) {
       horizontalAdapters = horizontalAdapters.sublist(0, horizontalSections - 1);
     }
-    _recalculateSectionWidths();
-    _recalculateSectionHeights();
-  }
-
-  void _recalculateSectionWidths() {
-    if (_updatingWidths) return;
-    _updatingWidths = true;
-    int totalW = int.tryParse(widthController.text) ?? 0;
-    if (verticalSections < 1) verticalSections = 1;
-    if (sectionWidths.length < verticalSections) {
-      sectionWidths.addAll(List<int>.filled(verticalSections - sectionWidths.length, 0));
-    }
-    int manualSum = 0;
-    List<int> autoIdx = [];
-    for (int i = 0; i < verticalSections; i++) {
-      if (i == verticalSections - 1) {
-        autoIdx.add(i);
-      } else {
-        int val = int.tryParse(sectionWidthCtrls[i].text) ?? 0;
-        if (val > 0) {
-          sectionWidths[i] = val;
-          manualSum += val;
-        } else {
-          autoIdx.add(i);
-        }
-      }
-    }
-    int remaining = totalW - manualSum;
-    if (remaining <= 0 && autoIdx.isNotEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Widths exceed total width')));
-      for (int i = 0; i < verticalSections - 1; i++) {
-        sectionWidthCtrls[i].text = '';
-      }
-      _updatingWidths = false;
-      _recalculateSectionWidths();
-      return;
-    }
-    int per = autoIdx.isNotEmpty ? remaining ~/ autoIdx.length : 0;
-    int leftover = autoIdx.isNotEmpty ? remaining - per * autoIdx.length : 0;
-    for (int i = 0; i < autoIdx.length; i++) {
-      int idx = autoIdx[i];
-      int val = per + (i < leftover ? 1 : 0);
-      sectionWidths[idx] = val;
-      if (idx < verticalSections - 1) {
-        if (sectionWidthCtrls[idx].text != val.toString()) {
-          sectionWidthCtrls[idx].text = val.toString();
-        }
-      } else if (idx == verticalSections - 1 && sectionWidthCtrls.length > idx) {
-        if (sectionWidthCtrls[idx].text != val.toString()) {
-          sectionWidthCtrls[idx].text = val.toString();
-        }
-      }
-    }
-    _updatingWidths = false;
-    setState(() {});
-  }
-
-  void _recalculateSectionHeights() {
-    if (_updatingHeights) return;
-    _updatingHeights = true;
-    int totalH = int.tryParse(heightController.text) ?? 0;
-    if (horizontalSections < 1) horizontalSections = 1;
-    if (sectionHeights.length < horizontalSections) {
-      sectionHeights.addAll(List<int>.filled(horizontalSections - sectionHeights.length, 0));
-    }
-    int manualSum = 0;
-    List<int> autoIdx = [];
-    for (int i = 0; i < horizontalSections; i++) {
-      if (i == horizontalSections - 1) {
-        autoIdx.add(i);
-      } else {
-        int val = int.tryParse(sectionHeightCtrls[i].text) ?? 0;
-        if (val > 0) {
-          sectionHeights[i] = val;
-          manualSum += val;
-        } else {
-          autoIdx.add(i);
-        }
-      }
-    }
-    int remaining = totalH - manualSum;
-    if (remaining <= 0 && autoIdx.isNotEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Heights exceed total height')));
-      for (int i = 0; i < horizontalSections - 1; i++) {
-        sectionHeightCtrls[i].text = '';
-      }
-      _updatingHeights = false;
-      _recalculateSectionHeights();
-      return;
-    }
-    int per = autoIdx.isNotEmpty ? remaining ~/ autoIdx.length : 0;
-    int leftover = autoIdx.isNotEmpty ? remaining - per * autoIdx.length : 0;
-    for (int i = 0; i < autoIdx.length; i++) {
-      int idx = autoIdx[i];
-      int val = per + (i < leftover ? 1 : 0);
-      sectionHeights[idx] = val;
-      if (idx < horizontalSections - 1) {
-        if (sectionHeightCtrls[idx].text != val.toString()) {
-          sectionHeightCtrls[idx].text = val.toString();
-        }
-      } else if (idx == horizontalSections - 1 && sectionHeightCtrls.length > idx) {
-        if (sectionHeightCtrls[idx].text != val.toString()) {
-          sectionHeightCtrls[idx].text = val.toString();
-        }
-      }
-    }
-    _updatingHeights = false;
-    setState(() {});
   }
 
   Widget _buildGrid() {
     return Column(
       children: [
-        Row(
-          children: [
-            const SizedBox(width: 40),
-            for (int c = 0; c < verticalSections; c++)
-              Expanded(
-                child: Center(
-                  child: Text(
-                      'W${c + 1}: ${sectionWidths[c] == 0 ? (int.tryParse(widthController.text) ?? 0) ~/ verticalSections : sectionWidths[c]}'),
-                ),
-              ),
-          ],
-        ),
         for (int r = 0; r < horizontalSections; r++)
           Row(
             children: [
-              Container(
-                width: 40,
-                alignment: Alignment.centerRight,
-                child: Text(
-                    'H${r + 1}: ${sectionHeights[r] == 0 ? (int.tryParse(heightController.text) ?? 0) ~/ horizontalSections : sectionHeights[r]}'),
-              ),
               for (int c = 0; c < verticalSections; c++)
                 Expanded(
                   child: GestureDetector(
@@ -486,22 +315,22 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (verticalSections > 1) const Text('Section widths (mm)'),
-        for (int i = 0; i < (verticalSections > 1 ? verticalSections - 1 : 0); i++)
+        if (verticalSections > 0) const Text('Section widths (mm)'),
+        for (int i = 0; i < verticalSections; i++)
           TextField(
             controller: sectionWidthCtrls[i],
             decoration: InputDecoration(labelText: 'Width ${i + 1}'),
             keyboardType: TextInputType.number,
-            onChanged: (_) => _recalculateSectionWidths(),
+            onChanged: (v) => sectionWidths[i] = int.tryParse(v) ?? 0,
           ),
         if (horizontalSections > 0) const SizedBox(height: 8),
-        if (horizontalSections > 1) const Text('Section heights (mm)'),
-        for (int i = 0; i < (horizontalSections > 1 ? horizontalSections - 1 : 0); i++)
+        if (horizontalSections > 0) const Text('Section heights (mm)'),
+        for (int i = 0; i < horizontalSections; i++)
           TextField(
             controller: sectionHeightCtrls[i],
             decoration: InputDecoration(labelText: 'Height ${i + 1}'),
             keyboardType: TextInputType.number,
-            onChanged: (_) => _recalculateSectionHeights(),
+            onChanged: (v) => sectionHeights[i] = int.tryParse(v) ?? 0,
           ),
         if (verticalSections > 1) const SizedBox(height: 8),
         if (verticalSections > 1) const Text('Vertical divisions'),
