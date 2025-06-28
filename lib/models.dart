@@ -160,7 +160,7 @@ class WindowDoorItem extends HiveObject {
     List<bool>? verticalAdapters,
     List<bool>? horizontalAdapters,
   }) : fixedSectors =
-            fixedSectors ?? List<bool>.filled(verticalSections * horizontalSections, false),
+      fixedSectors ?? List<bool>.filled(verticalSections * horizontalSections, false),
         sectionWidths = sectionWidths ?? List<int>.filled(verticalSections, 0),
         sectionHeights = sectionHeights ?? List<int>.filled(horizontalSections, 0),
         verticalAdapters =
@@ -182,13 +182,13 @@ class WindowDoorItem extends HiveObject {
         int index = r * verticalSections + c;
         int w = sectionWidths.isNotEmpty
             ? (sectionWidths[c] == 0
-                ? width ~/ verticalSections
-                : sectionWidths[c])
+            ? width ~/ verticalSections
+            : sectionWidths[c])
             : width ~/ verticalSections;
         int h = sectionHeights.isNotEmpty
             ? (sectionHeights[r] == 0
-                ? height ~/ horizontalSections
-                : sectionHeights[r])
+            ? height ~/ horizontalSections
+            : sectionHeights[r])
             : height ~/ horizontalSections;
         if (!fixedSectors[index]) {
           double sashW = (w - 90).clamp(0, w).toDouble();
@@ -230,13 +230,13 @@ class WindowDoorItem extends HiveObject {
         int index = r * verticalSections + c;
         int w = sectionWidths.isNotEmpty
             ? (sectionWidths[c] == 0
-                ? width ~/ verticalSections
-                : sectionWidths[c])
+            ? width ~/ verticalSections
+            : sectionWidths[c])
             : width ~/ verticalSections;
         int h = sectionHeights.isNotEmpty
             ? (sectionHeights[r] == 0
-                ? height ~/ horizontalSections
-                : sectionHeights[r])
+            ? height ~/ horizontalSections
+            : sectionHeights[r])
             : height ~/ horizontalSections;
         if (!fixedSectors[index]) {
           double sashW = (w - 90).clamp(0, w).toDouble();
