@@ -126,8 +126,18 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
             ),
             const SizedBox(height: 12),
             TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Name')),
-            TextField(controller: widthController, decoration: const InputDecoration(labelText: 'Width (mm)'), keyboardType: TextInputType.number),
-            TextField(controller: heightController, decoration: const InputDecoration(labelText: 'Height (mm)'), keyboardType: TextInputType.number),
+            TextField(
+              controller: widthController,
+              decoration: const InputDecoration(labelText: 'Width (mm)'),
+              keyboardType: TextInputType.number,
+              onChanged: (_) => _recalculateWidths(),
+            ),
+            TextField(
+              controller: heightController,
+              decoration: const InputDecoration(labelText: 'Height (mm)'),
+              keyboardType: TextInputType.number,
+              onChanged: (_) => _recalculateHeights(),
+            ),
             TextField(controller: quantityController, decoration: const InputDecoration(labelText: 'Quantity'), keyboardType: TextInputType.number),
             TextField(controller: verticalController, decoration: const InputDecoration(labelText: 'Vertical Sections'), keyboardType: TextInputType.number, onChanged: (_) => _updateGrid()),
             TextField(controller: horizontalController, decoration: const InputDecoration(labelText: 'Horizontal Sections'), keyboardType: TextInputType.number, onChanged: (_) => _updateGrid()),
@@ -274,14 +284,118 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     } else if (horizontalAdapters.length > horizontalSections - 1) {
       horizontalAdapters = horizontalAdapters.sublist(0, horizontalSections - 1);
     }
+
+    _recalculateWidths();
+    _recalculateHeights();
+  }
+
+  void _recalculateWidths() {
+    if (verticalSections == 0) return;
+    int totalWidth = int.tryParse(widthController.text) ?? 0;
+    int specifiedSum = 0;
+    int unspecified = 0;
+    for (int i = 0; i < verticalSections - 1; i++) {
+      int val = int.tryParse(sectionWidthCtrls[i].text) ?? 0;
+      if (val <= 0) {
+        unspecified++;
+      } else {
+        specifiedSum += val;
+      }
+    }
+    int remaining = totalWidth - specifiedSum;
+    if (remaining < 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Section widths exceed total width')),
+      );
+      remaining = 0;
+    }
+    int autoWidth = (unspecified + 1) > 0 ? remaining ~/ (unspecified + 1) : 0;
+    for (int i = 0; i < verticalSections - 1; i++) {
+      int val = int.tryParse(sectionWidthCtrls[i].text) ?? 0;
+      if (val <= 0) {
+        val = autoWidth;
+        sectionWidthCtrls[i].text = val.toString();
+      }
+      sectionWidths[i] = val;
+    }
+    int used = 0;
+    for (int i = 0; i < verticalSections - 1; i++) used += sectionWidths[i];
+    int last = totalWidth - used;
+    if (last < 0) last = 0;
+    sectionWidths[verticalSections - 1] = last;
+    sectionWidthCtrls[verticalSections - 1].text = last.toString();
+    if (mounted) setState(() {});
+  }
+
+  void _recalculateHeights() {
+    if (horizontalSections == 0) return;
+    int totalHeight = int.tryParse(heightController.text) ?? 0;
+    int specifiedSum = 0;
+    int unspecified = 0;
+    for (int i = 0; i < horizontalSections - 1; i++) {
+      int val = int.tryParse(sectionHeightCtrls[i].text) ?? 0;
+      if (val <= 0) {
+        unspecified++;
+      } else {
+        specifiedSum += val;
+      }
+    }
+    int remaining = totalHeight - specifiedSum;
+    if (remaining < 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Section heights exceed total height')),
+      );
+      remaining = 0;
+    }
+    int autoHeight = (unspecified + 1) > 0 ? remaining ~/ (unspecified + 1) : 0;
+    for (int i = 0; i < horizontalSections - 1; i++) {
+      int val = int.tryParse(sectionHeightCtrls[i].text) ?? 0;
+      if (val <= 0) {
+        val = autoHeight;
+        sectionHeightCtrls[i].text = val.toString();
+      }
+      sectionHeights[i] = val;
+    }
+    int used = 0;
+    for (int i = 0; i < horizontalSections - 1; i++) used += sectionHeights[i];
+    int last = totalHeight - used;
+    if (last < 0) last = 0;
+    sectionHeights[horizontalSections - 1] = last;
+    sectionHeightCtrls[horizontalSections - 1].text = last.toString();
+    if (mounted) setState(() {});
   }
 
   Widget _buildGrid() {
     return Column(
       children: [
-        for (int r = 0; r < horizontalSections; r++)
+        if (verticalSections > 0)
           Row(
             children: [
+              const SizedBox(width: 40),
+              for (int c = 0; c < verticalSections; c++)
+                Expanded(
+                  child: Center(
+                    child: Text(
+                      'W${c + 1}: ${sectionWidths[c]}',
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        for (int r = 0; r < horizontalSections; r++)
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: 40,
+                child: Center(
+                  child: Text(
+                    'H${r + 1}: ${sectionHeights[r]}',
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                ),
+              ),
               for (int c = 0; c < verticalSections; c++)
                 Expanded(
                   child: GestureDetector(
@@ -319,18 +433,32 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
         for (int i = 0; i < verticalSections; i++)
           TextField(
             controller: sectionWidthCtrls[i],
-            decoration: InputDecoration(labelText: 'Width ${i + 1}'),
+            decoration: InputDecoration(
+              labelText: i == verticalSections - 1
+                  ? 'Width ${i + 1} (auto)'
+                  : 'Width ${i + 1}',
+            ),
             keyboardType: TextInputType.number,
-            onChanged: (v) => sectionWidths[i] = int.tryParse(v) ?? 0,
+            enabled: i < verticalSections - 1,
+            onChanged: i < verticalSections - 1
+                ? (_) => _recalculateWidths()
+                : null,
           ),
         if (horizontalSections > 0) const SizedBox(height: 8),
         if (horizontalSections > 0) const Text('Section heights (mm)'),
         for (int i = 0; i < horizontalSections; i++)
           TextField(
             controller: sectionHeightCtrls[i],
-            decoration: InputDecoration(labelText: 'Height ${i + 1}'),
+            decoration: InputDecoration(
+              labelText: i == horizontalSections - 1
+                  ? 'Height ${i + 1} (auto)'
+                  : 'Height ${i + 1}',
+            ),
             keyboardType: TextInputType.number,
-            onChanged: (v) => sectionHeights[i] = int.tryParse(v) ?? 0,
+            enabled: i < horizontalSections - 1,
+            onChanged: i < horizontalSections - 1
+                ? (_) => _recalculateHeights()
+                : null,
           ),
         if (verticalSections > 1) const SizedBox(height: 8),
         if (verticalSections > 1) const Text('Vertical divisions'),
