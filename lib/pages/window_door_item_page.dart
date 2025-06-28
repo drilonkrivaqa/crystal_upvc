@@ -47,6 +47,12 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   int verticalSections = 1;
   int horizontalSections = 1;
   List<bool> fixedSectors = [false];
+  List<int> sectionWidths = [0];
+  List<int> sectionHeights = [0];
+  List<bool> verticalAdapters = [];
+  List<bool> horizontalAdapters = [];
+  List<TextEditingController> sectionWidthCtrls = [];
+  List<TextEditingController> sectionHeightCtrls = [];
 
   @override
   void initState() {
@@ -83,6 +89,10 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     verticalSections = widget.existingItem?.verticalSections ?? 1;
     horizontalSections = widget.existingItem?.horizontalSections ?? 1;
     fixedSectors = List<bool>.from(widget.existingItem?.fixedSectors ?? [false]);
+    sectionWidths = List<int>.from(widget.existingItem?.sectionWidths ?? []);
+    sectionHeights = List<int>.from(widget.existingItem?.sectionHeights ?? []);
+    verticalAdapters = List<bool>.from(widget.existingItem?.verticalAdapters ?? []);
+    horizontalAdapters = List<bool>.from(widget.existingItem?.horizontalAdapters ?? []);
     _ensureGridSize();
   }
 
@@ -123,6 +133,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
             TextField(controller: horizontalController, decoration: const InputDecoration(labelText: 'Horizontal Sections'), keyboardType: TextInputType.number, onChanged: (_) => _updateGrid()),
             const SizedBox(height: 12),
             _buildGrid(),
+            const SizedBox(height: 12),
+            _buildDimensionInputs(),
             TextField(controller: priceController, decoration: const InputDecoration(labelText: 'Manual Price (optional)'), keyboardType: TextInputType.number),
             TextField(controller: extra1DescController, decoration: const InputDecoration(labelText: 'Additional 1 Description')),
             TextField(controller: extra1Controller, decoration: const InputDecoration(labelText: 'Additional Price 1'), keyboardType: TextInputType.number),
@@ -196,6 +208,10 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                   verticalSections: verticalSections,
                   horizontalSections: horizontalSections,
                   fixedSectors: fixedSectors,
+                  sectionWidths: sectionWidths,
+                  sectionHeights: sectionHeights,
+                  verticalAdapters: verticalAdapters,
+                  horizontalAdapters: horizontalAdapters,
                   photoPath: photoPath,
                   manualPrice: mPrice,
                   extra1Price: double.tryParse(extra1Controller.text),
@@ -230,6 +246,34 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     } else if (fixedSectors.length > total) {
       fixedSectors = fixedSectors.sublist(0, total);
     }
+    if (sectionWidths.length < verticalSections) {
+      sectionWidths.addAll(List<int>.filled(verticalSections - sectionWidths.length, 0));
+      for (int i = sectionWidthCtrls.length; i < verticalSections; i++) {
+        sectionWidthCtrls.add(TextEditingController(text: sectionWidths[i].toString()));
+      }
+    } else if (sectionWidths.length > verticalSections) {
+      sectionWidths = sectionWidths.sublist(0, verticalSections);
+      sectionWidthCtrls = sectionWidthCtrls.sublist(0, verticalSections);
+    }
+    if (sectionHeights.length < horizontalSections) {
+      sectionHeights.addAll(List<int>.filled(horizontalSections - sectionHeights.length, 0));
+      for (int i = sectionHeightCtrls.length; i < horizontalSections; i++) {
+        sectionHeightCtrls.add(TextEditingController(text: sectionHeights[i].toString()));
+      }
+    } else if (sectionHeights.length > horizontalSections) {
+      sectionHeights = sectionHeights.sublist(0, horizontalSections);
+      sectionHeightCtrls = sectionHeightCtrls.sublist(0, horizontalSections);
+    }
+    if (verticalAdapters.length < verticalSections - 1) {
+      verticalAdapters.addAll(List<bool>.filled((verticalSections - 1) - verticalAdapters.length, false));
+    } else if (verticalAdapters.length > verticalSections - 1) {
+      verticalAdapters = verticalAdapters.sublist(0, verticalSections - 1);
+    }
+    if (horizontalAdapters.length < horizontalSections - 1) {
+      horizontalAdapters.addAll(List<bool>.filled((horizontalSections - 1) - horizontalAdapters.length, false));
+    } else if (horizontalAdapters.length > horizontalSections - 1) {
+      horizontalAdapters = horizontalAdapters.sublist(0, horizontalSections - 1);
+    }
   }
 
   Widget _buildGrid() {
@@ -262,6 +306,53 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                   ),
                 ),
             ],
+          ),
+      ],
+    );
+  }
+
+  Widget _buildDimensionInputs() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (verticalSections > 0) const Text('Section widths (mm)'),
+        for (int i = 0; i < verticalSections; i++)
+          TextField(
+            controller: sectionWidthCtrls[i],
+            decoration: InputDecoration(labelText: 'Width ${i + 1}'),
+            keyboardType: TextInputType.number,
+            onChanged: (v) => sectionWidths[i] = int.tryParse(v) ?? 0,
+          ),
+        if (horizontalSections > 0) const SizedBox(height: 8),
+        if (horizontalSections > 0) const Text('Section heights (mm)'),
+        for (int i = 0; i < horizontalSections; i++)
+          TextField(
+            controller: sectionHeightCtrls[i],
+            decoration: InputDecoration(labelText: 'Height ${i + 1}'),
+            keyboardType: TextInputType.number,
+            onChanged: (v) => sectionHeights[i] = int.tryParse(v) ?? 0,
+          ),
+        if (verticalSections > 1) const SizedBox(height: 8),
+        if (verticalSections > 1) const Text('Vertical divisions'),
+        for (int i = 0; i < verticalSections - 1; i++)
+          DropdownButton<bool>(
+            value: verticalAdapters[i],
+            items: const [
+              DropdownMenuItem(value: false, child: Text('T profile')),
+              DropdownMenuItem(value: true, child: Text('Adapter')),
+            ],
+            onChanged: (val) => setState(() => verticalAdapters[i] = val ?? false),
+          ),
+        if (horizontalSections > 1) const SizedBox(height: 8),
+        if (horizontalSections > 1) const Text('Horizontal divisions'),
+        for (int i = 0; i < horizontalSections - 1; i++)
+          DropdownButton<bool>(
+            value: horizontalAdapters[i],
+            items: const [
+              DropdownMenuItem(value: false, child: Text('T profile')),
+              DropdownMenuItem(value: true, child: Text('Adapter')),
+            ],
+            onChanged: (val) => setState(() => horizontalAdapters[i] = val ?? false),
           ),
       ],
     );
