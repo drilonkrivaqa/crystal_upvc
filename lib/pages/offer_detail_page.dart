@@ -118,7 +118,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
             double blindCost = (blind != null)
                 ? ((item.width / 1000.0) * (item.height / 1000.0) * blind.pricePerM2 * item.quantity)
                 : 0;
-            double mechanismCost = (mechanism != null) ? mechanism.price * item.quantity : 0;
+            double mechanismCost =
+                (mechanism != null) ? mechanism.price * item.openings * item.quantity : 0;
             double accessoryCost = (accessory != null) ? accessory.price * item.quantity : 0;
             double extras = (item.extra1Price ?? 0) + (item.extra2Price ?? 0);
 
@@ -141,7 +142,12 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                       'Qty: ${item.quantity}\n'
                       'Profile: ${profileSet.name}\n'
                       'Glass: ${glass.name}\n'
+                      'Sectors: ${item.horizontalSections}x${item.verticalSections}\n'
                       'Sashes: ${item.openings}\n'
+                      'Widths: ${item.sectionWidths.join(', ')}\n'
+                      'Heights: ${item.sectionHeights.join(', ')}\n'
+                      'V div: ${item.verticalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ')}\n'
+                      'H div: ${item.horizontalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ')}\n'
                       'Profile cost: €${profileCost.toStringAsFixed(2)}\n'
                       'Glass cost: €${glassCost.toStringAsFixed(2)}\n'
                       '${blind != null ? "Blind: ${blind.name}, €${blindCost.toStringAsFixed(2)}\n" : ""}'
@@ -215,7 +221,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 double blindCost = (blind != null)
                     ? ((item.width / 1000.0) * (item.height / 1000.0) * blind.pricePerM2 * item.quantity)
                     : 0;
-                double mechanismCost = (mechanism != null) ? mechanism.price * item.quantity : 0;
+                double mechanismCost =
+                    (mechanism != null) ? mechanism.price * item.openings * item.quantity : 0;
                 double accessoryCost = (accessory != null) ? accessory.price * item.quantity : 0;
                 double extras = (item.extra1Price ?? 0) + (item.extra2Price ?? 0);
                 double base = profileCost + glassCost + blindCost + mechanismCost + accessoryCost + extras;
