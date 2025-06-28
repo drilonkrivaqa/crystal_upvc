@@ -118,7 +118,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
             double blindCost = (blind != null)
                 ? ((item.width / 1000.0) * (item.height / 1000.0) * blind.pricePerM2 * item.quantity)
                 : 0;
-            double mechanismCost = (mechanism != null) ? mechanism.price * item.quantity : 0;
+            double mechanismCost =
+                (mechanism != null) ? mechanism.price * item.openings * item.quantity : 0;
             double accessoryCost = (accessory != null) ? accessory.price * item.quantity : 0;
             double extras = (item.extra1Price ?? 0) + (item.extra2Price ?? 0);
 
@@ -220,7 +221,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 double blindCost = (blind != null)
                     ? ((item.width / 1000.0) * (item.height / 1000.0) * blind.pricePerM2 * item.quantity)
                     : 0;
-                double mechanismCost = (mechanism != null) ? mechanism.price * item.quantity : 0;
+                double mechanismCost =
+                    (mechanism != null) ? mechanism.price * item.openings * item.quantity : 0;
                 double accessoryCost = (accessory != null) ? accessory.price * item.quantity : 0;
                 double extras = (item.extra1Price ?? 0) + (item.extra2Price ?? 0);
                 double base = profileCost + glassCost + blindCost + mechanismCost + accessoryCost + extras;
