@@ -126,6 +126,14 @@ class WindowDoorItem extends HiveObject {
   int horizontalSections; // number of sections vertically
   @HiveField(18)
   List<bool> fixedSectors; // true if sector is fixed, false if it has a sash
+  @HiveField(19)
+  List<int> sectionWidths; // width of each vertical section
+  @HiveField(20)
+  List<int> sectionHeights; // height of each horizontal section
+  @HiveField(21)
+  List<bool> verticalAdapters; // true = adapter, false = T profile
+  @HiveField(22)
+  List<bool> horizontalAdapters; // true = adapter, false = T profile
 
   WindowDoorItem({
     required this.name,
@@ -147,8 +155,18 @@ class WindowDoorItem extends HiveObject {
     this.verticalSections = 1,
     this.horizontalSections = 1,
     List<bool>? fixedSectors,
+    List<int>? sectionWidths,
+    List<int>? sectionHeights,
+    List<bool>? verticalAdapters,
+    List<bool>? horizontalAdapters,
   }) : fixedSectors =
-            fixedSectors ?? List<bool>.filled(verticalSections * horizontalSections, false);
+            fixedSectors ?? List<bool>.filled(verticalSections * horizontalSections, false),
+        sectionWidths = sectionWidths ?? List<int>.filled(verticalSections, 0),
+        sectionHeights = sectionHeights ?? List<int>.filled(horizontalSections, 0),
+        verticalAdapters =
+            verticalAdapters ?? List<bool>.filled(verticalSections > 0 ? verticalSections - 1 : 0, false),
+        horizontalAdapters =
+            horizontalAdapters ?? List<bool>.filled(horizontalSections > 0 ? horizontalSections - 1 : 0, false);
 
   /// Returns the cost for profiles, given the selected ProfileSet
   double calculateProfileCost(ProfileSet set) {
