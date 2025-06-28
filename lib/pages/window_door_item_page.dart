@@ -250,6 +250,16 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   }
 
   void _ensureGridSize({bool resetWidths = false, bool resetHeights = false}) {
+  void _updateGrid() {
+    verticalSections = int.tryParse(verticalController.text) ?? 1;
+    horizontalSections = int.tryParse(horizontalController.text) ?? 1;
+    if (verticalSections < 1) verticalSections = 1;
+    if (horizontalSections < 1) horizontalSections = 1;
+    _ensureGridSize();
+    setState(() {});
+  }
+
+  void _ensureGridSize() {
     int total = verticalSections * horizontalSections;
     if (fixedSectors.length < total) {
       fixedSectors = List<bool>.from(fixedSectors)
@@ -306,6 +316,22 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
           sectionHeightCtrls[i].text = val;
         }
       }
+      sectionWidths.addAll(List<int>.filled(verticalSections - sectionWidths.length, 0));
+      for (int i = sectionWidthCtrls.length; i < verticalSections; i++) {
+        sectionWidthCtrls.add(TextEditingController(text: sectionWidths[i].toString()));
+      }
+    } else if (sectionWidths.length > verticalSections) {
+      sectionWidths = sectionWidths.sublist(0, verticalSections);
+      sectionWidthCtrls = sectionWidthCtrls.sublist(0, verticalSections);
+    }
+    if (sectionHeights.length < horizontalSections) {
+      sectionHeights.addAll(List<int>.filled(horizontalSections - sectionHeights.length, 0));
+      for (int i = sectionHeightCtrls.length; i < horizontalSections; i++) {
+        sectionHeightCtrls.add(TextEditingController(text: sectionHeights[i].toString()));
+      }
+    } else if (sectionHeights.length > horizontalSections) {
+      sectionHeights = sectionHeights.sublist(0, horizontalSections);
+      sectionHeightCtrls = sectionHeightCtrls.sublist(0, horizontalSections);
     }
     if (verticalAdapters.length < verticalSections - 1) {
       verticalAdapters.addAll(List<bool>.filled((verticalSections - 1) - verticalAdapters.length, false));
@@ -453,6 +479,9 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                 child: Text(
                     'H${r + 1}: ${sectionHeights[r] == 0 ? (int.tryParse(heightController.text) ?? 0) ~/ horizontalSections : sectionHeights[r]}'),
               ),
+        for (int r = 0; r < horizontalSections; r++)
+          Row(
+            children: [
               for (int c = 0; c < verticalSections; c++)
                 Expanded(
                   child: GestureDetector(
@@ -488,6 +517,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
       children: [
         if (verticalSections > 1) const Text('Section widths (mm)'),
         for (int i = 0; i < (verticalSections > 1 ? verticalSections - 1 : 0); i++)
+        if (verticalSections > 0) const Text('Section widths (mm)'),
+        for (int i = 0; i < verticalSections; i++)
           TextField(
             controller: sectionWidthCtrls[i],
             decoration: InputDecoration(labelText: 'Width ${i + 1}'),
@@ -497,11 +528,17 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
         if (horizontalSections > 0) const SizedBox(height: 8),
         if (horizontalSections > 1) const Text('Section heights (mm)'),
         for (int i = 0; i < (horizontalSections > 1 ? horizontalSections - 1 : 0); i++)
+            onChanged: (v) => sectionWidths[i] = int.tryParse(v) ?? 0,
+          ),
+        if (horizontalSections > 0) const SizedBox(height: 8),
+        if (horizontalSections > 0) const Text('Section heights (mm)'),
+        for (int i = 0; i < horizontalSections; i++)
           TextField(
             controller: sectionHeightCtrls[i],
             decoration: InputDecoration(labelText: 'Height ${i + 1}'),
             keyboardType: TextInputType.number,
             onChanged: (_) => _recalculateSectionHeights(),
+            onChanged: (v) => sectionHeights[i] = int.tryParse(v) ?? 0,
           ),
         if (verticalSections > 1) const SizedBox(height: 8),
         if (verticalSections > 1) const Text('Vertical divisions'),
