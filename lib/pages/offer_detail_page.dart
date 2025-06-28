@@ -141,6 +141,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                       'Qty: ${item.quantity}\n'
                       'Profile: ${profileSet.name}\n'
                       'Glass: ${glass.name}\n'
+                      'Sectors: ${item.horizontalSections}x${item.verticalSections}\n'
                       'Sashes: ${item.openings}\n'
                       'Profile cost: €${profileCost.toStringAsFixed(2)}\n'
                       'Glass cost: €${glassCost.toStringAsFixed(2)}\n'

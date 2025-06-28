@@ -120,6 +120,12 @@ class WindowDoorItem extends HiveObject {
   String? extra1Desc; // description for extra price 1
   @HiveField(15)
   String? extra2Desc; // description for extra price 2
+  @HiveField(16)
+  int verticalSections; // number of sections horizontally
+  @HiveField(17)
+  int horizontalSections; // number of sections vertically
+  @HiveField(18)
+  List<bool> fixedSectors; // true if sector is fixed, false if it has a sash
 
   WindowDoorItem({
     required this.name,
@@ -138,7 +144,11 @@ class WindowDoorItem extends HiveObject {
     this.extra2Price,
     this.extra1Desc,
     this.extra2Desc,
-  });
+    this.verticalSections = 1,
+    this.horizontalSections = 1,
+    List<bool>? fixedSectors,
+  }) : fixedSectors =
+            fixedSectors ?? List<bool>.filled(verticalSections * horizontalSections, false);
 
   /// Returns the cost for profiles, given the selected ProfileSet
   double calculateProfileCost(ProfileSet set) {
