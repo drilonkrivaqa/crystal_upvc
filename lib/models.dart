@@ -120,6 +120,20 @@ class WindowDoorItem extends HiveObject {
   String? extra1Desc; // description for extra price 1
   @HiveField(15)
   String? extra2Desc; // description for extra price 2
+  @HiveField(16)
+  int verticalSections; // number of sections horizontally
+  @HiveField(17)
+  int horizontalSections; // number of sections vertically
+  @HiveField(18)
+  List<bool> fixedSectors; // true if sector is fixed, false if it has a sash
+  @HiveField(19)
+  List<int> sectionWidths; // width of each vertical section
+  @HiveField(20)
+  List<int> sectionHeights; // height of each horizontal section
+  @HiveField(21)
+  List<bool> verticalAdapters; // true = adapter, false = T profile
+  @HiveField(22)
+  List<bool> horizontalAdapters; // true = adapter, false = T profile
 
   WindowDoorItem({
     required this.name,
@@ -138,56 +152,102 @@ class WindowDoorItem extends HiveObject {
     this.extra2Price,
     this.extra1Desc,
     this.extra2Desc,
-  });
+    this.verticalSections = 1,
+    this.horizontalSections = 1,
+    List<bool>? fixedSectors,
+    List<int>? sectionWidths,
+    List<int>? sectionHeights,
+    List<bool>? verticalAdapters,
+    List<bool>? horizontalAdapters,
+  }) : fixedSectors =
+            fixedSectors ?? List<bool>.filled(verticalSections * horizontalSections, false),
+        sectionWidths = sectionWidths ?? List<int>.filled(verticalSections, 0),
+        sectionHeights = sectionHeights ?? List<int>.filled(horizontalSections, 0),
+        verticalAdapters =
+            verticalAdapters ?? List<bool>.filled(verticalSections > 0 ? verticalSections - 1 : 0, false),
+        horizontalAdapters =
+            horizontalAdapters ?? List<bool>.filled(horizontalSections > 0 ? horizontalSections - 1 : 0, false);
 
   /// Returns the cost for profiles, given the selected ProfileSet
   double calculateProfileCost(ProfileSet set) {
-    double frameLength = 2 * (width + height) / 1000.0 * set.priceL; // in meters
+    double frameLength = 2 * (width + height) / 1000.0 * set.priceL;
     double sashLength = 0;
     double adapterLength = 0;
     double tLength = 0;
     double glazingBeadLength = 0;
-    // For every opening, add a sash. Sash size = (width-90) x (height-90)
-    if (openings > 0) {
-      double sashW = (width - 90).clamp(0, width).toDouble();
-      double sashH = (height - 90).clamp(0, height).toDouble();
-      sashLength = openings * 2 * (sashW + sashH) / 1000.0 * set.priceZ;
-      // Adapter or T profile for multiple sashes
-      if (openings == 2) {
-        // For double sash: use adapter (vertical, frame height)
-        adapterLength = (height / 1000.0) * set.priceAdapter;
-      } else if (openings > 2) {
-        // For more than 2 sashes: T profiles, (openings-1) verticals
-        tLength = ((openings - 1) * height / 1000.0) * set.priceT;
+
+    // Calculate sash and bead for each sector
+    for (int r = 0; r < horizontalSections; r++) {
+      for (int c = 0; c < verticalSections; c++) {
+        int index = r * verticalSections + c;
+        int w = sectionWidths.isNotEmpty
+            ? (sectionWidths[c] == 0
+                ? width ~/ verticalSections
+                : sectionWidths[c])
+            : width ~/ verticalSections;
+        int h = sectionHeights.isNotEmpty
+            ? (sectionHeights[r] == 0
+                ? height ~/ horizontalSections
+                : sectionHeights[r])
+            : height ~/ horizontalSections;
+        if (!fixedSectors[index]) {
+          double sashW = (w - 90).clamp(0, w).toDouble();
+          double sashH = (h - 90).clamp(0, h).toDouble();
+          sashLength += 2 * (sashW + sashH) / 1000.0 * set.priceZ;
+          glazingBeadLength += 2 * (sashW + sashH) / 1000.0 * set.priceLlajsne;
+        } else {
+          glazingBeadLength += 2 * (w + h - 40) / 1000.0 * set.priceLlajsne;
+        }
       }
     }
-    if (openings > 0) {
-      double sashW = (width - 90).clamp(0, width).toDouble();
-      double sashH = (height - 90).clamp(0, height).toDouble();
-      // Perimeter of glazing per sash
-      glazingBeadLength = openings * 2 * (sashW + sashH) / 1000.0 * set.priceLlajsne;
-    } else {
-      // Fixed window
-      glazingBeadLength = 2 * (width + height - 40) / 1000.0 * set.priceLlajsne;
+
+    // Divisions
+    for (int i = 0; i < verticalSections - 1; i++) {
+      double length = height / 1000.0;
+      if (verticalAdapters[i]) {
+        adapterLength += length * set.priceAdapter;
+      } else {
+        tLength += length * set.priceT;
+      }
     }
+    for (int i = 0; i < horizontalSections - 1; i++) {
+      double length = width / 1000.0;
+      if (horizontalAdapters[i]) {
+        adapterLength += length * set.priceAdapter;
+      } else {
+        tLength += length * set.priceT;
+      }
+    }
+
     return frameLength + sashLength + adapterLength + tLength + glazingBeadLength;
   }
 
   /// Returns cost for glass, given selected Glass
   double calculateGlassCost(Glass glass) {
     double total = 0;
-    if (openings > 0) {
-      // For each sash/opening
-      double sashW = (width - 90).clamp(0, width).toDouble();
-      double sashH = (height - 90).clamp(0, height).toDouble();
-      // Glass size per sash: (sashW - 10) x (sashH - 10)
-      double area = ((sashW - 10) / 1000.0) * ((sashH - 10) / 1000.0);
-      total += openings * area * glass.pricePerM2;
-    }
-    if (openings == 0) {
-      // Fixed section, glass size: (width-20) x (height-20)
-      double area = ((width - 20) / 1000.0) * ((height - 20) / 1000.0);
-      total += area * glass.pricePerM2;
+    for (int r = 0; r < horizontalSections; r++) {
+      for (int c = 0; c < verticalSections; c++) {
+        int index = r * verticalSections + c;
+        int w = sectionWidths.isNotEmpty
+            ? (sectionWidths[c] == 0
+                ? width ~/ verticalSections
+                : sectionWidths[c])
+            : width ~/ verticalSections;
+        int h = sectionHeights.isNotEmpty
+            ? (sectionHeights[r] == 0
+                ? height ~/ horizontalSections
+                : sectionHeights[r])
+            : height ~/ horizontalSections;
+        if (!fixedSectors[index]) {
+          double sashW = (w - 90).clamp(0, w).toDouble();
+          double sashH = (h - 90).clamp(0, h).toDouble();
+          double area = ((sashW - 10) / 1000.0) * ((sashH - 10) / 1000.0);
+          total += area * glass.pricePerM2;
+        } else {
+          double area = ((w - 20) / 1000.0) * ((h - 20) / 1000.0);
+          total += area * glass.pricePerM2;
+        }
+      }
     }
     return total;
   }
@@ -202,7 +262,8 @@ class Offer extends HiveObject {
   @HiveField(2)
   DateTime date;
   @HiveField(3)
-  List<WindowDoorItem> items;  @HiveField(4)
+  List<WindowDoorItem> items;
+  @HiveField(4)
   double profitPercent;
   @HiveField(5)
   List<ExtraCharge> extraCharges;
