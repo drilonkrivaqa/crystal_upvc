@@ -25,7 +25,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   late TextEditingController widthController;
   late TextEditingController heightController;
   late TextEditingController quantityController;
-  late TextEditingController openingsController;
+  late TextEditingController verticalController;
+  late TextEditingController horizontalController;
   late TextEditingController priceController;
   late TextEditingController extra1Controller;
   late TextEditingController extra2Controller;
@@ -43,6 +44,9 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   double? extra2Price;
   String? extra1Desc;
   String? extra2Desc;
+  int verticalSections = 1;
+  int horizontalSections = 1;
+  List<bool> fixedSectors = [false];
 
   @override
   void initState() {
@@ -57,7 +61,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     widthController = TextEditingController(text: widget.existingItem?.width.toString() ?? '');
     heightController = TextEditingController(text: widget.existingItem?.height.toString() ?? '');
     quantityController = TextEditingController(text: widget.existingItem?.quantity.toString() ?? '1');
-    openingsController = TextEditingController(text: widget.existingItem?.openings.toString() ?? '0');
+    verticalController = TextEditingController(text: widget.existingItem?.verticalSections.toString() ?? '1');
+    horizontalController = TextEditingController(text: widget.existingItem?.horizontalSections.toString() ?? '1');
     priceController = TextEditingController(text: widget.existingItem?.manualPrice?.toString() ?? '');
     extra1Controller = TextEditingController(text: widget.existingItem?.extra1Price?.toString() ?? '');
     extra2Controller = TextEditingController(text: widget.existingItem?.extra2Price?.toString() ?? '');
@@ -75,6 +80,10 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     extra2Price = widget.existingItem?.extra2Price;
     extra1Desc = widget.existingItem?.extra1Desc;
     extra2Desc = widget.existingItem?.extra2Desc;
+    verticalSections = widget.existingItem?.verticalSections ?? 1;
+    horizontalSections = widget.existingItem?.horizontalSections ?? 1;
+    fixedSectors = List<bool>.from(widget.existingItem?.fixedSectors ?? [false]);
+    _ensureGridSize();
   }
 
   @override
@@ -110,7 +119,10 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
             TextField(controller: widthController, decoration: const InputDecoration(labelText: 'Width (mm)'), keyboardType: TextInputType.number),
             TextField(controller: heightController, decoration: const InputDecoration(labelText: 'Height (mm)'), keyboardType: TextInputType.number),
             TextField(controller: quantityController, decoration: const InputDecoration(labelText: 'Quantity'), keyboardType: TextInputType.number),
-            TextField(controller: openingsController, decoration: const InputDecoration(labelText: 'Number of Sashes (0 = fixed)'), keyboardType: TextInputType.number),
+            TextField(controller: verticalController, decoration: const InputDecoration(labelText: 'Vertical Sections'), keyboardType: TextInputType.number, onChanged: (_) => _updateGrid()),
+            TextField(controller: horizontalController, decoration: const InputDecoration(labelText: 'Horizontal Sections'), keyboardType: TextInputType.number, onChanged: (_) => _updateGrid()),
+            const SizedBox(height: 12),
+            _buildGrid(),
             TextField(controller: priceController, decoration: const InputDecoration(labelText: 'Manual Price (optional)'), keyboardType: TextInputType.number),
             TextField(controller: extra1DescController, decoration: const InputDecoration(labelText: 'Additional 1 Description')),
             TextField(controller: extra1Controller, decoration: const InputDecoration(labelText: 'Additional Price 1'), keyboardType: TextInputType.number),
@@ -163,7 +175,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                 final width = int.tryParse(widthController.text) ?? 0;
                 final height = int.tryParse(heightController.text) ?? 0;
                 final quantity = int.tryParse(quantityController.text) ?? 1;
-                final openings = int.tryParse(openingsController.text) ?? 0;
+                final openings = fixedSectors.where((f) => !f).length;
                 final mPrice = double.tryParse(priceController.text);
 
                 if (name.isEmpty || width <= 0 || height <= 0) {
@@ -181,6 +193,9 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                   mechanismIndex: mechanismIndex,
                   accessoryIndex: accessoryIndex,
                   openings: openings,
+                  verticalSections: verticalSections,
+                  horizontalSections: horizontalSections,
+                  fixedSectors: fixedSectors,
                   photoPath: photoPath,
                   manualPrice: mPrice,
                   extra1Price: double.tryParse(extra1Controller.text),
@@ -195,6 +210,60 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
           ],
         ),
       ),
+    );
+  }
+
+  void _updateGrid() {
+    verticalSections = int.tryParse(verticalController.text) ?? 1;
+    horizontalSections = int.tryParse(horizontalController.text) ?? 1;
+    if (verticalSections < 1) verticalSections = 1;
+    if (horizontalSections < 1) horizontalSections = 1;
+    _ensureGridSize();
+    setState(() {});
+  }
+
+  void _ensureGridSize() {
+    int total = verticalSections * horizontalSections;
+    if (fixedSectors.length < total) {
+      fixedSectors = List<bool>.from(fixedSectors)
+        ..addAll(List<bool>.filled(total - fixedSectors.length, false));
+    } else if (fixedSectors.length > total) {
+      fixedSectors = fixedSectors.sublist(0, total);
+    }
+  }
+
+  Widget _buildGrid() {
+    return Column(
+      children: [
+        for (int r = 0; r < horizontalSections; r++)
+          Row(
+            children: [
+              for (int c = 0; c < verticalSections; c++)
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      int index = r * verticalSections + c;
+                      setState(() => fixedSectors[index] = !fixedSectors[index]);
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.all(4),
+                      height: 50,
+                      color: fixedSectors[r * verticalSections + c]
+                          ? Colors.grey[400]
+                          : Colors.lightGreen[300],
+                      child: Center(
+                        child: Text(
+                          fixedSectors[r * verticalSections + c]
+                              ? 'Fixed'
+                              : 'Sash',
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+      ],
     );
   }
 }
