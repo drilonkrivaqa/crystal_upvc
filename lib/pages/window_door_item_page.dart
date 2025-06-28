@@ -25,7 +25,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   late TextEditingController widthController;
   late TextEditingController heightController;
   late TextEditingController quantityController;
-  late TextEditingController openingsController;
+  late TextEditingController verticalController;
+  late TextEditingController horizontalController;
   late TextEditingController priceController;
   late TextEditingController extra1Controller;
   late TextEditingController extra2Controller;
@@ -43,6 +44,17 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   double? extra2Price;
   String? extra1Desc;
   String? extra2Desc;
+  int verticalSections = 1;
+  int horizontalSections = 1;
+  List<bool> fixedSectors = [false];
+  List<int> sectionWidths = [0];
+  List<int> sectionHeights = [0];
+  List<bool> verticalAdapters = [];
+  List<bool> horizontalAdapters = [];
+  List<TextEditingController> sectionWidthCtrls = [];
+  List<TextEditingController> sectionHeightCtrls = [];
+  bool _updatingWidths = false;
+  bool _updatingHeights = false;
 
   @override
   void initState() {
@@ -57,7 +69,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     widthController = TextEditingController(text: widget.existingItem?.width.toString() ?? '');
     heightController = TextEditingController(text: widget.existingItem?.height.toString() ?? '');
     quantityController = TextEditingController(text: widget.existingItem?.quantity.toString() ?? '1');
-    openingsController = TextEditingController(text: widget.existingItem?.openings.toString() ?? '0');
+    verticalController = TextEditingController(text: widget.existingItem?.verticalSections.toString() ?? '1');
+    horizontalController = TextEditingController(text: widget.existingItem?.horizontalSections.toString() ?? '1');
     priceController = TextEditingController(text: widget.existingItem?.manualPrice?.toString() ?? '');
     extra1Controller = TextEditingController(text: widget.existingItem?.extra1Price?.toString() ?? '');
     extra2Controller = TextEditingController(text: widget.existingItem?.extra2Price?.toString() ?? '');
@@ -75,6 +88,16 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     extra2Price = widget.existingItem?.extra2Price;
     extra1Desc = widget.existingItem?.extra1Desc;
     extra2Desc = widget.existingItem?.extra2Desc;
+    verticalSections = widget.existingItem?.verticalSections ?? 1;
+    horizontalSections = widget.existingItem?.horizontalSections ?? 1;
+    fixedSectors = List<bool>.from(widget.existingItem?.fixedSectors ?? [false]);
+    sectionWidths = List<int>.from(widget.existingItem?.sectionWidths ?? []);
+    sectionHeights = List<int>.from(widget.existingItem?.sectionHeights ?? []);
+    verticalAdapters = List<bool>.from(widget.existingItem?.verticalAdapters ?? []);
+    horizontalAdapters = List<bool>.from(widget.existingItem?.horizontalAdapters ?? []);
+    _ensureGridSize();
+    widthController.addListener(_recalculateSectionWidths);
+    heightController.addListener(_recalculateSectionHeights);
   }
 
   @override
@@ -110,7 +133,12 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
             TextField(controller: widthController, decoration: const InputDecoration(labelText: 'Width (mm)'), keyboardType: TextInputType.number),
             TextField(controller: heightController, decoration: const InputDecoration(labelText: 'Height (mm)'), keyboardType: TextInputType.number),
             TextField(controller: quantityController, decoration: const InputDecoration(labelText: 'Quantity'), keyboardType: TextInputType.number),
-            TextField(controller: openingsController, decoration: const InputDecoration(labelText: 'Number of Sashes (0 = fixed)'), keyboardType: TextInputType.number),
+            TextField(controller: verticalController, decoration: const InputDecoration(labelText: 'Vertical Sections'), keyboardType: TextInputType.number, onChanged: (_) => _updateGrid()),
+            TextField(controller: horizontalController, decoration: const InputDecoration(labelText: 'Horizontal Sections'), keyboardType: TextInputType.number, onChanged: (_) => _updateGrid()),
+            const SizedBox(height: 12),
+            _buildGrid(),
+            const SizedBox(height: 12),
+            _buildDimensionInputs(),
             TextField(controller: priceController, decoration: const InputDecoration(labelText: 'Manual Price (optional)'), keyboardType: TextInputType.number),
             TextField(controller: extra1DescController, decoration: const InputDecoration(labelText: 'Additional 1 Description')),
             TextField(controller: extra1Controller, decoration: const InputDecoration(labelText: 'Additional Price 1'), keyboardType: TextInputType.number),
@@ -163,7 +191,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                 final width = int.tryParse(widthController.text) ?? 0;
                 final height = int.tryParse(heightController.text) ?? 0;
                 final quantity = int.tryParse(quantityController.text) ?? 1;
-                final openings = int.tryParse(openingsController.text) ?? 0;
+                final openings = fixedSectors.where((f) => !f).length;
                 final mPrice = double.tryParse(priceController.text);
 
                 if (name.isEmpty || width <= 0 || height <= 0) {
@@ -181,6 +209,13 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                   mechanismIndex: mechanismIndex,
                   accessoryIndex: accessoryIndex,
                   openings: openings,
+                  verticalSections: verticalSections,
+                  horizontalSections: horizontalSections,
+                  fixedSectors: fixedSectors,
+                  sectionWidths: sectionWidths,
+                  sectionHeights: sectionHeights,
+                  verticalAdapters: verticalAdapters,
+                  horizontalAdapters: horizontalAdapters,
                   photoPath: photoPath,
                   manualPrice: mPrice,
                   extra1Price: double.tryParse(extra1Controller.text),
@@ -195,6 +230,302 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
           ],
         ),
       ),
+    );
+  }
+
+
+  void _updateGrid() {
+    int newV = int.tryParse(verticalController.text) ?? 1;
+    int newH = int.tryParse(horizontalController.text) ?? 1;
+    if (newV < 1) newV = 1;
+    if (newH < 1) newH = 1;
+    bool vChanged = newV != verticalSections;
+    bool hChanged = newH != horizontalSections;
+    verticalSections = newV;
+    horizontalSections = newH;
+    _ensureGridSize(resetWidths: vChanged, resetHeights: hChanged);
+    _recalculateSectionWidths();
+    _recalculateSectionHeights();
+    setState(() {});
+  }
+
+  void _ensureGridSize({bool resetWidths = false, bool resetHeights = false}) {
+    int total = verticalSections * horizontalSections;
+    if (fixedSectors.length < total) {
+      fixedSectors = List<bool>.from(fixedSectors)
+        ..addAll(List<bool>.filled(total - fixedSectors.length, false));
+    } else if (fixedSectors.length > total) {
+      fixedSectors = fixedSectors.sublist(0, total);
+    }
+    if (sectionWidths.length < verticalSections) {
+      sectionWidths.addAll(
+          List<int>.filled(verticalSections - sectionWidths.length, 0));
+    } else if (sectionWidths.length > verticalSections) {
+      sectionWidths = sectionWidths.sublist(0, verticalSections);
+    }
+    if (resetWidths) {
+      for (int i = 0; i < verticalSections; i++) {
+        sectionWidths[i] = 0;
+      }
+    }
+    if (sectionWidthCtrls.length != verticalSections || resetWidths) {
+      sectionWidthCtrls = [
+        for (int i = 0; i < verticalSections; i++)
+          TextEditingController(
+              text: sectionWidths[i] > 0 ? sectionWidths[i].toString() : '')
+      ];
+    } else {
+      for (int i = 0; i < verticalSections; i++) {
+        final val = sectionWidths[i] > 0 ? sectionWidths[i].toString() : '';
+        if (sectionWidthCtrls[i].text != val) {
+          sectionWidthCtrls[i].text = val;
+        }
+      }
+    }
+    if (sectionHeights.length < horizontalSections) {
+      sectionHeights.addAll(
+          List<int>.filled(horizontalSections - sectionHeights.length, 0));
+    } else if (sectionHeights.length > horizontalSections) {
+      sectionHeights = sectionHeights.sublist(0, horizontalSections);
+    }
+    if (resetHeights) {
+      for (int i = 0; i < horizontalSections; i++) {
+        sectionHeights[i] = 0;
+      }
+    }
+    if (sectionHeightCtrls.length != horizontalSections || resetHeights) {
+      sectionHeightCtrls = [
+        for (int i = 0; i < horizontalSections; i++)
+          TextEditingController(
+              text: sectionHeights[i] > 0 ? sectionHeights[i].toString() : '')
+      ];
+    } else {
+      for (int i = 0; i < horizontalSections; i++) {
+        final val = sectionHeights[i] > 0 ? sectionHeights[i].toString() : '';
+        if (sectionHeightCtrls[i].text != val) {
+          sectionHeightCtrls[i].text = val;
+        }
+      }
+    }
+    if (verticalAdapters.length < verticalSections - 1) {
+      verticalAdapters.addAll(List<bool>.filled((verticalSections - 1) - verticalAdapters.length, false));
+    } else if (verticalAdapters.length > verticalSections - 1) {
+      verticalAdapters = verticalAdapters.sublist(0, verticalSections - 1);
+    }
+    if (horizontalAdapters.length < horizontalSections - 1) {
+      horizontalAdapters.addAll(List<bool>.filled((horizontalSections - 1) - horizontalAdapters.length, false));
+    } else if (horizontalAdapters.length > horizontalSections - 1) {
+      horizontalAdapters = horizontalAdapters.sublist(0, horizontalSections - 1);
+    }
+    _recalculateSectionWidths();
+    _recalculateSectionHeights();
+  }
+
+  void _recalculateSectionWidths() {
+    if (_updatingWidths) return;
+    _updatingWidths = true;
+    int totalW = int.tryParse(widthController.text) ?? 0;
+    if (verticalSections < 1) verticalSections = 1;
+    if (sectionWidths.length < verticalSections) {
+      sectionWidths.addAll(List<int>.filled(verticalSections - sectionWidths.length, 0));
+    }
+    int manualSum = 0;
+    List<int> autoIdx = [];
+    for (int i = 0; i < verticalSections; i++) {
+      if (i == verticalSections - 1) {
+        autoIdx.add(i);
+      } else {
+        int val = int.tryParse(sectionWidthCtrls[i].text) ?? 0;
+        if (val > 0) {
+          sectionWidths[i] = val;
+          manualSum += val;
+        } else {
+          autoIdx.add(i);
+        }
+      }
+    }
+    int remaining = totalW - manualSum;
+    if (remaining <= 0 && autoIdx.isNotEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Widths exceed total width')));
+      for (int i = 0; i < verticalSections - 1; i++) {
+        sectionWidthCtrls[i].text = '';
+      }
+      _updatingWidths = false;
+      _recalculateSectionWidths();
+      return;
+    }
+    int per = autoIdx.isNotEmpty ? remaining ~/ autoIdx.length : 0;
+    int leftover = autoIdx.isNotEmpty ? remaining - per * autoIdx.length : 0;
+    for (int i = 0; i < autoIdx.length; i++) {
+      int idx = autoIdx[i];
+      int val = per + (i < leftover ? 1 : 0);
+      sectionWidths[idx] = val;
+      if (idx < verticalSections - 1) {
+        if (sectionWidthCtrls[idx].text != val.toString()) {
+          sectionWidthCtrls[idx].text = val.toString();
+        }
+      } else if (idx == verticalSections - 1 && sectionWidthCtrls.length > idx) {
+        if (sectionWidthCtrls[idx].text != val.toString()) {
+          sectionWidthCtrls[idx].text = val.toString();
+        }
+      }
+    }
+    _updatingWidths = false;
+    setState(() {});
+  }
+
+  void _recalculateSectionHeights() {
+    if (_updatingHeights) return;
+    _updatingHeights = true;
+    int totalH = int.tryParse(heightController.text) ?? 0;
+    if (horizontalSections < 1) horizontalSections = 1;
+    if (sectionHeights.length < horizontalSections) {
+      sectionHeights.addAll(List<int>.filled(horizontalSections - sectionHeights.length, 0));
+    }
+    int manualSum = 0;
+    List<int> autoIdx = [];
+    for (int i = 0; i < horizontalSections; i++) {
+      if (i == horizontalSections - 1) {
+        autoIdx.add(i);
+      } else {
+        int val = int.tryParse(sectionHeightCtrls[i].text) ?? 0;
+        if (val > 0) {
+          sectionHeights[i] = val;
+          manualSum += val;
+        } else {
+          autoIdx.add(i);
+        }
+      }
+    }
+    int remaining = totalH - manualSum;
+    if (remaining <= 0 && autoIdx.isNotEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Heights exceed total height')));
+      for (int i = 0; i < horizontalSections - 1; i++) {
+        sectionHeightCtrls[i].text = '';
+      }
+      _updatingHeights = false;
+      _recalculateSectionHeights();
+      return;
+    }
+    int per = autoIdx.isNotEmpty ? remaining ~/ autoIdx.length : 0;
+    int leftover = autoIdx.isNotEmpty ? remaining - per * autoIdx.length : 0;
+    for (int i = 0; i < autoIdx.length; i++) {
+      int idx = autoIdx[i];
+      int val = per + (i < leftover ? 1 : 0);
+      sectionHeights[idx] = val;
+      if (idx < horizontalSections - 1) {
+        if (sectionHeightCtrls[idx].text != val.toString()) {
+          sectionHeightCtrls[idx].text = val.toString();
+        }
+      } else if (idx == horizontalSections - 1 && sectionHeightCtrls.length > idx) {
+        if (sectionHeightCtrls[idx].text != val.toString()) {
+          sectionHeightCtrls[idx].text = val.toString();
+        }
+      }
+    }
+    _updatingHeights = false;
+    setState(() {});
+  }
+
+  Widget _buildGrid() {
+    return Column(
+      children: [
+        Row(
+          children: [
+            const SizedBox(width: 40),
+            for (int c = 0; c < verticalSections; c++)
+              Expanded(
+                child: Center(
+                  child: Text(
+                      'W${c + 1}: ${sectionWidths[c] == 0 ? (int.tryParse(widthController.text) ?? 0) ~/ verticalSections : sectionWidths[c]}'),
+                ),
+              ),
+          ],
+        ),
+        for (int r = 0; r < horizontalSections; r++)
+          Row(
+            children: [
+              Container(
+                width: 40,
+                alignment: Alignment.centerRight,
+                child: Text(
+                    'H${r + 1}: ${sectionHeights[r] == 0 ? (int.tryParse(heightController.text) ?? 0) ~/ horizontalSections : sectionHeights[r]}'),
+              ),
+              for (int c = 0; c < verticalSections; c++)
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      int index = r * verticalSections + c;
+                      setState(() => fixedSectors[index] = !fixedSectors[index]);
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.all(4),
+                      height: 50,
+                      color: fixedSectors[r * verticalSections + c]
+                          ? Colors.grey[400]
+                          : Colors.lightGreen[300],
+                      child: Center(
+                        child: Text(
+                          fixedSectors[r * verticalSections + c]
+                              ? 'Fixed'
+                              : 'Sash',
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+      ],
+    );
+  }
+
+  Widget _buildDimensionInputs() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (verticalSections > 1) const Text('Section widths (mm)'),
+        for (int i = 0; i < (verticalSections > 1 ? verticalSections - 1 : 0); i++)
+          TextField(
+            controller: sectionWidthCtrls[i],
+            decoration: InputDecoration(labelText: 'Width ${i + 1}'),
+            keyboardType: TextInputType.number,
+            onChanged: (_) => _recalculateSectionWidths(),
+          ),
+        if (horizontalSections > 0) const SizedBox(height: 8),
+        if (horizontalSections > 1) const Text('Section heights (mm)'),
+        for (int i = 0; i < (horizontalSections > 1 ? horizontalSections - 1 : 0); i++)
+          TextField(
+            controller: sectionHeightCtrls[i],
+            decoration: InputDecoration(labelText: 'Height ${i + 1}'),
+            keyboardType: TextInputType.number,
+            onChanged: (_) => _recalculateSectionHeights(),
+          ),
+        if (verticalSections > 1) const SizedBox(height: 8),
+        if (verticalSections > 1) const Text('Vertical divisions'),
+        for (int i = 0; i < verticalSections - 1; i++)
+          DropdownButton<bool>(
+            value: verticalAdapters[i],
+            items: const [
+              DropdownMenuItem(value: false, child: Text('T profile')),
+              DropdownMenuItem(value: true, child: Text('Adapter')),
+            ],
+            onChanged: (val) => setState(() => verticalAdapters[i] = val ?? false),
+          ),
+        if (horizontalSections > 1) const SizedBox(height: 8),
+        if (horizontalSections > 1) const Text('Horizontal divisions'),
+        for (int i = 0; i < horizontalSections - 1; i++)
+          DropdownButton<bool>(
+            value: horizontalAdapters[i],
+            items: const [
+              DropdownMenuItem(value: false, child: Text('T profile')),
+              DropdownMenuItem(value: true, child: Text('Adapter')),
+            ],
+            onChanged: (val) => setState(() => horizontalAdapters[i] = val ?? false),
+          ),
+      ],
     );
   }
 }
