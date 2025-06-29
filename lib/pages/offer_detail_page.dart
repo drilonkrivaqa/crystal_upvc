@@ -58,7 +58,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
     Offer offer = offerBox.getAt(widget.offerIndex)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Offer Details"),
+        title: Text('Offer ${widget.offerIndex + 1}'),
         actions: [
           IconButton(
             icon: const Icon(Icons.picture_as_pdf),
@@ -66,6 +66,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
               final offer = offerBox.getAt(widget.offerIndex)!;
               await printOfferPdf(
                 offer: offer,
+                offerNumber: widget.offerIndex + 1,
                 customerBox: customerBox,
                 profileSetBox: profileSetBox,
                 glassBox: glassBox,
