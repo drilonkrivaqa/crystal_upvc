@@ -141,8 +141,35 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
             TextField(controller: quantityController, decoration: const InputDecoration(labelText: 'Quantity'), keyboardType: TextInputType.number),
             TextField(controller: verticalController, decoration: const InputDecoration(labelText: 'Vertical Sections'), keyboardType: TextInputType.number, onChanged: (_) => _updateGrid()),
             TextField(controller: horizontalController, decoration: const InputDecoration(labelText: 'Horizontal Sections'), keyboardType: TextInputType.number, onChanged: (_) => _updateGrid()),
+            DropdownButtonFormField<int>(
+              value: profileSetIndex,
+              decoration: const InputDecoration(labelText: 'Profile Set'),
+              items: [
+                for (int i = 0; i < profileSetBox.length; i++)
+                  DropdownMenuItem<int>(
+                    value: i,
+                    child: Text(profileSetBox.getAt(i)?.name ?? ''),
+                  ),
+              ],
+              onChanged: (val) => setState(() => profileSetIndex = val ?? 0),
+            ),
+            DropdownButtonFormField<int>(
+              value: glassIndex,
+              decoration: const InputDecoration(labelText: 'Glass'),
+              items: [
+                for (int i = 0; i < glassBox.length; i++)
+                  DropdownMenuItem<int>(
+                    value: i,
+                    child: Text(glassBox.getAt(i)?.name ?? ''),
+                  ),
+              ],
+              onChanged: (val) => setState(() => glassIndex = val ?? 0),
+            ),
             const SizedBox(height: 12),
-            _buildGrid(),
+            SizedBox(
+              height: 200,
+              child: _buildGrid(),
+            ),
             const SizedBox(height: 12),
             _buildDimensionInputs(),
             TextField(controller: priceController, decoration: const InputDecoration(labelText: 'Manual Price (optional)'), keyboardType: TextInputType.number),
@@ -420,6 +447,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
               const SizedBox(width: 40),
               for (int c = 0; c < verticalSections; c++)
                 Expanded(
+                  flex: sectionWidths[c] > 0 ? sectionWidths[c] : 1,
                   child: Center(
                     child: Text(
                       'W${c + 1}: ${sectionWidths[c]}',
@@ -430,42 +458,46 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
             ],
           ),
         for (int r = 0; r < horizontalSections; r++)
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SizedBox(
-                width: 40,
-                child: Center(
-                  child: Text(
-                    'H${r + 1}: ${sectionHeights[r]}',
-                    style: const TextStyle(fontSize: 12),
+          Expanded(
+            flex: sectionHeights[r] > 0 ? sectionHeights[r] : 1,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SizedBox(
+                  width: 40,
+                  child: Center(
+                    child: Text(
+                      'H${r + 1}: ${sectionHeights[r]}',
+                      style: const TextStyle(fontSize: 12),
+                    ),
                   ),
                 ),
-              ),
-              for (int c = 0; c < verticalSections; c++)
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () {
-                      int index = r * verticalSections + c;
-                      setState(() => fixedSectors[index] = !fixedSectors[index]);
-                    },
-                    child: Container(
-                      margin: const EdgeInsets.all(4),
-                      height: 50,
-                      color: fixedSectors[r * verticalSections + c]
-                          ? Colors.grey[400]
-                          : Colors.lightGreen[300],
-                      child: Center(
-                        child: Text(
-                          fixedSectors[r * verticalSections + c]
-                              ? 'Fixed'
-                              : 'Sash',
+                for (int c = 0; c < verticalSections; c++)
+                  Expanded(
+                    flex: sectionWidths[c] > 0 ? sectionWidths[c] : 1,
+                    child: GestureDetector(
+                      onTap: () {
+                        int index = r * verticalSections + c;
+                        setState(() =>
+                            fixedSectors[index] = !fixedSectors[index]);
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.all(4),
+                        color: fixedSectors[r * verticalSections + c]
+                            ? Colors.grey[400]
+                            : Colors.lightGreen[300],
+                        child: Center(
+                          child: Text(
+                            fixedSectors[r * verticalSections + c]
+                                ? 'Fixed'
+                                : 'Sash',
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
       ],
     );
