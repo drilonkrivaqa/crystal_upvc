@@ -240,10 +240,46 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   }
 
   void _updateGrid() {
-    verticalSections = int.tryParse(verticalController.text) ?? 1;
-    horizontalSections = int.tryParse(horizontalController.text) ?? 1;
-    if (verticalSections < 1) verticalSections = 1;
-    if (horizontalSections < 1) horizontalSections = 1;
+    int newVertical = int.tryParse(verticalController.text) ?? 1;
+    int newHorizontal = int.tryParse(horizontalController.text) ?? 1;
+    if (newVertical < 1) newVertical = 1;
+    if (newHorizontal < 1) newHorizontal = 1;
+
+    bool vChanged = newVertical != verticalSections;
+    bool hChanged = newHorizontal != horizontalSections;
+
+    verticalSections = newVertical;
+    horizontalSections = newHorizontal;
+
+    if (vChanged) {
+      for (final c in sectionWidthCtrls) {
+        c.dispose();
+      }
+      sectionWidths = List<int>.filled(verticalSections, 0);
+      sectionWidthCtrls = [
+        for (int i = 0; i < verticalSections; i++)
+          TextEditingController(text: '0')
+      ];
+      verticalAdapters = List<bool>.filled(verticalSections - 1, false);
+    }
+
+    if (hChanged) {
+      for (final c in sectionHeightCtrls) {
+        c.dispose();
+      }
+      sectionHeights = List<int>.filled(horizontalSections, 0);
+      sectionHeightCtrls = [
+        for (int i = 0; i < horizontalSections; i++)
+          TextEditingController(text: '0')
+      ];
+      horizontalAdapters = List<bool>.filled(horizontalSections - 1, false);
+    }
+
+    if (vChanged || hChanged) {
+      fixedSectors =
+          List<bool>.filled(verticalSections * horizontalSections, false);
+    }
+
     _ensureGridSize();
     setState(() {});
   }
@@ -257,21 +293,31 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
       fixedSectors = fixedSectors.sublist(0, total);
     }
     if (sectionWidths.length < verticalSections) {
-      sectionWidths.addAll(List<int>.filled(verticalSections - sectionWidths.length, 0));
-      for (int i = sectionWidthCtrls.length; i < verticalSections; i++) {
-        sectionWidthCtrls.add(TextEditingController(text: sectionWidths[i].toString()));
-      }
+      sectionWidths
+          .addAll(List<int>.filled(verticalSections - sectionWidths.length, 0));
     } else if (sectionWidths.length > verticalSections) {
       sectionWidths = sectionWidths.sublist(0, verticalSections);
+    }
+    if (sectionWidthCtrls.length < verticalSections) {
+      for (int i = sectionWidthCtrls.length; i < verticalSections; i++) {
+        sectionWidthCtrls.add(TextEditingController(
+            text: (i < sectionWidths.length ? sectionWidths[i] : 0).toString()));
+      }
+    } else if (sectionWidthCtrls.length > verticalSections) {
       sectionWidthCtrls = sectionWidthCtrls.sublist(0, verticalSections);
     }
     if (sectionHeights.length < horizontalSections) {
-      sectionHeights.addAll(List<int>.filled(horizontalSections - sectionHeights.length, 0));
-      for (int i = sectionHeightCtrls.length; i < horizontalSections; i++) {
-        sectionHeightCtrls.add(TextEditingController(text: sectionHeights[i].toString()));
-      }
+      sectionHeights
+          .addAll(List<int>.filled(horizontalSections - sectionHeights.length, 0));
     } else if (sectionHeights.length > horizontalSections) {
       sectionHeights = sectionHeights.sublist(0, horizontalSections);
+    }
+    if (sectionHeightCtrls.length < horizontalSections) {
+      for (int i = sectionHeightCtrls.length; i < horizontalSections; i++) {
+        sectionHeightCtrls.add(TextEditingController(
+            text: (i < sectionHeights.length ? sectionHeights[i] : 0).toString()));
+      }
+    } else if (sectionHeightCtrls.length > horizontalSections) {
       sectionHeightCtrls = sectionHeightCtrls.sublist(0, horizontalSections);
     }
     if (verticalAdapters.length < verticalSections - 1) {
