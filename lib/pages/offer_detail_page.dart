@@ -4,6 +4,7 @@ import '../models.dart';
 import 'window_door_item_page.dart';
 import 'dart:io' show File;
 import 'package:flutter/foundation.dart';
+import '../pdf/offer_pdf.dart';
 
 class OfferDetailPage extends StatefulWidget {
   final int offerIndex;
@@ -15,6 +16,7 @@ class OfferDetailPage extends StatefulWidget {
 
 class _OfferDetailPageState extends State<OfferDetailPage> {
   late Box<Offer> offerBox;
+  late Box<Customer> customerBox;
   late Box<ProfileSet> profileSetBox;
   late Box<Glass> glassBox;
   late Box<Blind> blindBox;
@@ -30,6 +32,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
   void initState() {
     super.initState();
     offerBox = Hive.box<Offer>('offers');
+    customerBox = Hive.box<Customer>('customers');
     profileSetBox = Hive.box<ProfileSet>('profileSets');
     glassBox = Hive.box<Glass>('glasses');
     blindBox = Hive.box<Blind>('blinds');
@@ -54,7 +57,26 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
   Widget build(BuildContext context) {
     Offer offer = offerBox.getAt(widget.offerIndex)!;
     return Scaffold(
-      appBar: AppBar(title: const Text("Offer Details")),
+      appBar: AppBar(
+        title: const Text("Offer Details"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.picture_as_pdf),
+            onPressed: () async {
+              final offer = offerBox.getAt(widget.offerIndex)!;
+              await printOfferPdf(
+                offer: offer,
+                customerBox: customerBox,
+                profileSetBox: profileSetBox,
+                glassBox: glassBox,
+                blindBox: blindBox,
+                mechanismBox: mechanismBox,
+                accessoryBox: accessoryBox,
+              );
+            },
+          ),
+        ],
+      ),
       body: ListView(
         children: [
           const SizedBox(height: 16),

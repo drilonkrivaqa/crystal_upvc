@@ -277,7 +277,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
 
     if (vChanged || hChanged) {
       fixedSectors =
-          List<bool>.filled(verticalSections * horizontalSections, false);
+      List<bool>.filled(verticalSections * horizontalSections, false);
     }
 
     _ensureGridSize();
