@@ -141,6 +141,30 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
             TextField(controller: quantityController, decoration: const InputDecoration(labelText: 'Quantity'), keyboardType: TextInputType.number),
             TextField(controller: verticalController, decoration: const InputDecoration(labelText: 'Vertical Sections'), keyboardType: TextInputType.number, onChanged: (_) => _updateGrid()),
             TextField(controller: horizontalController, decoration: const InputDecoration(labelText: 'Horizontal Sections'), keyboardType: TextInputType.number, onChanged: (_) => _updateGrid()),
+            DropdownButtonFormField<int>(
+              value: profileSetIndex,
+              decoration: const InputDecoration(labelText: 'Profile Set'),
+              items: [
+                for (int i = 0; i < profileSetBox.length; i++)
+                  DropdownMenuItem<int>(
+                    value: i,
+                    child: Text(profileSetBox.getAt(i)?.name ?? ''),
+                  ),
+              ],
+              onChanged: (val) => setState(() => profileSetIndex = val ?? 0),
+            ),
+            DropdownButtonFormField<int>(
+              value: glassIndex,
+              decoration: const InputDecoration(labelText: 'Glass'),
+              items: [
+                for (int i = 0; i < glassBox.length; i++)
+                  DropdownMenuItem<int>(
+                    value: i,
+                    child: Text(glassBox.getAt(i)?.name ?? ''),
+                  ),
+              ],
+              onChanged: (val) => setState(() => glassIndex = val ?? 0),
+            ),
             const SizedBox(height: 12),
             _buildGrid(),
             const SizedBox(height: 12),
