@@ -10,6 +10,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 Future<void> printOfferPdf({
   required Offer offer,
+  required int offerNumber,
   required Box<Customer> customerBox,
   required Box<ProfileSet> profileSetBox,
   required Box<Glass> glassBox,
@@ -45,7 +46,7 @@ Future<void> printOfferPdf({
         final headerStyle = pw.TextStyle(fontWeight: pw.FontWeight.bold);
 
         final widgets = <pw.Widget>[];
-        widgets.add(pw.Header(level: 0, child: pw.Text('Offer ${offer.id}', style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold))));
+        widgets.add(pw.Header(level: 0, child: pw.Text('Offer $offerNumber', style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold))));
 
         if (customer != null) {
           widgets.add(pw.Text('Customer: ${customer.name}'));

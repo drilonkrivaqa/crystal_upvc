@@ -12,6 +12,7 @@ class OffersPage extends StatefulWidget {
 class _OffersPageState extends State<OffersPage> {
   late Box<Offer> offerBox;
   late Box<Customer> customerBox;
+  String _searchQuery = '';
 
   @override
   void initState() {
@@ -88,29 +89,60 @@ class _OffersPageState extends State<OffersPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Offers')),
-      body: ValueListenableBuilder(
-        valueListenable: offerBox.listenable(),
-        builder: (context, Box<Offer> box, _) {
-          return ListView.builder(
-            itemCount: box.length,
-            itemBuilder: (context, i) {
-              final offer = box.getAt(i);
-              final customer = offer != null && offer.customerIndex < customerBox.length
-                  ? customerBox.getAt(offer.customerIndex)
-                  : null;
-              return ListTile(
-                title: Text('Offer ${offer?.id ?? ""}'),
-                subtitle: Text('Customer: ${customer?.name ?? "-"}\nDate: ${offer?.date.toString().split(' ').first ?? "-"}'),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => OfferDetailPage(offerIndex: i)),
-                  );
-                },
-              );
-            },
-          );
-        },
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              decoration: const InputDecoration(
+                labelText: 'Search by client or offer number',
+                prefixIcon: Icon(Icons.search),
+              ),
+              onChanged: (val) => setState(() => _searchQuery = val.trim()),
+            ),
+          ),
+          Expanded(
+            child: ValueListenableBuilder(
+              valueListenable: offerBox.listenable(),
+              builder: (context, Box<Offer> box, _) {
+                final results = <int>[];
+                final query = _searchQuery.toLowerCase();
+                for (int i = 0; i < box.length; i++) {
+                  final offer = box.getAt(i);
+                  final customer = offer != null && offer.customerIndex < customerBox.length
+                      ? customerBox.getAt(offer.customerIndex)
+                      : null;
+                  final numStr = (i + 1).toString();
+                  if (query.isEmpty ||
+                      numStr.contains(query) ||
+                      (customer != null && customer.name.toLowerCase().contains(query))) {
+                    results.add(i);
+                  }
+                }
+                return ListView.builder(
+                  itemCount: results.length,
+                  itemBuilder: (context, idx) {
+                    final i = results[idx];
+                    final offer = box.getAt(i);
+                    final customer = offer != null && offer.customerIndex < customerBox.length
+                        ? customerBox.getAt(offer.customerIndex)
+                        : null;
+                    return ListTile(
+                      title: Text('Offer ${i + 1}'),
+                      subtitle: Text('Customer: ${customer?.name ?? "-"}\nDate: ${offer?.date.toString().split(' ').first ?? "-"}'),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => OfferDetailPage(offerIndex: i)),
+                        );
+                      },
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _addOffer,
