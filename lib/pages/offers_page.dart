@@ -29,7 +29,8 @@ class _OffersPageState extends State<OffersPage> {
       return;
     }
 
-    int selectedCustomer = 0;
+    // Default to the most recently added customer
+    int selectedCustomer = customerBox.length - 1;
     final TextEditingController profitController = TextEditingController(text: '0');
     showDialog(
       context: context,
@@ -119,6 +120,12 @@ class _OffersPageState extends State<OffersPage> {
                     results.add(i);
                   }
                 }
+                // Order results so the most recent offers appear first
+                results.sort((a, b) {
+                  final dateA = box.getAt(a)?.date ?? DateTime.fromMillisecondsSinceEpoch(0);
+                  final dateB = box.getAt(b)?.date ?? DateTime.fromMillisecondsSinceEpoch(0);
+                  return dateB.compareTo(dateA);
+                });
                 return ListView.builder(
                   itemCount: results.length,
                   itemBuilder: (context, idx) {

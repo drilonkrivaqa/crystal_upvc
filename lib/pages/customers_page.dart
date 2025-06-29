@@ -118,7 +118,8 @@ class _CustomersPageState extends State<CustomersPage> {
           return ListView.builder(
             itemCount: box.length,
             itemBuilder: (context, i) {
-              final customer = box.getAt(i);
+              final index = box.length - 1 - i;
+              final customer = box.getAt(index);
               return ListTile(
                 title: Text(customer?.name ?? ""),
                 subtitle: Text(
@@ -126,7 +127,7 @@ class _CustomersPageState extends State<CustomersPage> {
                       'Phone: ${customer?.phone ?? ""}\n'
                       'Email: ${customer?.email ?? ""}',
                 ),
-                onTap: () => _editCustomer(i),
+                onTap: () => _editCustomer(index),
               );
             },
           );
