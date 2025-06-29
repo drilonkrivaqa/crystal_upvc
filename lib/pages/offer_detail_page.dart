@@ -49,6 +49,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
     ];
   }
 
+
   @override
   Widget build(BuildContext context) {
     Offer offer = offerBox.getAt(widget.offerIndex)!;
