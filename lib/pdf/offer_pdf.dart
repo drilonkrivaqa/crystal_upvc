@@ -8,6 +8,7 @@ import 'package:printing/printing.dart';
 import '../models.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
+
 Future<void> printOfferPdf({
   required Offer offer,
   required int offerNumber,
@@ -21,7 +22,7 @@ Future<void> printOfferPdf({
   final doc = pw.Document();
   final customer = offer.customerIndex < customerBox.length
       ? customerBox.getAt(offer.customerIndex)
-      : null;
+      : null; // kept for potential future use
 
   final itemImages = <pw.MemoryImage?>[];
   for (final item in offer.items) {
@@ -37,24 +38,126 @@ Future<void> printOfferPdf({
     itemImages.add(img);
   }
 
+  final currency = NumberFormat.currency(symbol: '€');
+  double baseTotal = 0;
+  double finalTotal = 0;
+  for (final item in offer.items) {
+    final profile = profileSetBox.getAt(item.profileSetIndex)!;
+    final glass = glassBox.getAt(item.glassIndex)!;
+    final blind =
+    item.blindIndex != null ? blindBox.getAt(item.blindIndex!) : null;
+    final mechanism = item.mechanismIndex != null
+        ? mechanismBox.getAt(item.mechanismIndex!)
+        : null;
+    final accessory = item.accessoryIndex != null
+        ? accessoryBox.getAt(item.accessoryIndex!)
+        : null;
+
+    final profileCost = item.calculateProfileCost(profile) * item.quantity;
+    final glassCost = item.calculateGlassCost(glass) * item.quantity;
+    final blindCost = blind != null
+        ? ((item.width / 1000.0) * (item.height / 1000.0) * blind.pricePerM2 *
+        item.quantity)
+        : 0;
+    final mechanismCost = mechanism != null
+        ? mechanism.price * item.quantity * item.openings
+        : 0;
+    final accessoryCost =
+    accessory != null ? accessory.price * item.quantity : 0;
+    final extras = (item.extra1Price ?? 0) + (item.extra2Price ?? 0);
+
+    final total = profileCost + glassCost + blindCost + mechanismCost +
+        accessoryCost + extras;
+    final price = item.manualPrice ?? total * (1 + offer.profitPercent / 100);
+
+    baseTotal += total;
+    finalTotal += price;
+  }
+  final extrasTotal =
+  offer.extraCharges.fold<double>(0.0, (p, e) => p + e.amount);
+  baseTotal += extrasTotal;
+  finalTotal += extrasTotal;
+  finalTotal -= offer.discountAmount;
+  finalTotal *= (1 - offer.discountPercent / 100);
+  final profitTotal = finalTotal - baseTotal;
+
+
   doc.addPage(
     pw.MultiPage(
       pageFormat: PdfPageFormat.a4,
       margin: const pw.EdgeInsets.all(24),
+      header: (context) => context.pageNumber == 1
+          ? pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Text('Crystal Upvc',
+              style: pw.TextStyle(
+                  fontSize: 16, fontWeight: pw.FontWeight.bold)),
+          pw.SizedBox(height: 4),
+        ],
+      )
+          : pw.SizedBox(),
+      footer: (context) {
+        if (context.pageNumber != context.pagesCount) return pw.SizedBox();
+        final widgets = <pw.Widget>[];
+        if (offer.extraCharges.isNotEmpty) {
+          widgets.add(pw.Text('Extras:',
+              style: pw.TextStyle(fontWeight: pw.FontWeight.bold)));
+          widgets.add(
+            pw.Table(
+              border: pw.TableBorder.all(),
+              children: [
+                for (final c in offer.extraCharges)
+                  pw.TableRow(children: [
+                    pw.Padding(
+                        padding: const pw.EdgeInsets.all(4),
+                        child: pw.Text(c.description)),
+                    pw.Padding(
+                        padding: const pw.EdgeInsets.all(4),
+                        child: pw.Text(currency.format(c.amount))),
+                  ])
+              ],
+            ),
+          );
+          widgets.add(pw.SizedBox(height: 8));
+        }
+
+        if (offer.discountPercent != 0 || offer.discountAmount != 0) {
+          final parts = <String>[];
+          if (offer.discountPercent != 0) {
+            parts.add('${offer.discountPercent.toStringAsFixed(2)}%');
+          }
+          if (offer.discountAmount != 0) {
+            parts.add(currency.format(offer.discountAmount));
+          }
+          widgets.add(pw.Text('Discount: ${parts.join(' + ')}'));
+          widgets.add(pw.SizedBox(height: 8));
+        }
+
+        if (offer.notes.isNotEmpty) {
+          widgets.add(pw.Text('Notes: ${offer.notes}'));
+          widgets.add(pw.SizedBox(height: 8));
+        }
+
+        widgets.add(
+          pw.Text(
+            'Grand Total (0%): ${currency.format(baseTotal)}\n'
+                'With profit: ${currency.format(finalTotal)}\n'
+                'Total profit: ${currency.format(profitTotal)}',
+            textAlign: pw.TextAlign.center,
+            style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+          ),
+        );
+
+        return pw.Column(children: widgets);
+      },
       build: (context) {
-        final currency = NumberFormat.currency(symbol: '€');
         final headerStyle = pw.TextStyle(fontWeight: pw.FontWeight.bold);
 
         final widgets = <pw.Widget>[];
         widgets.add(pw.Header(level: 0, child: pw.Text('Offer $offerNumber', style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold))));
-
-        if (customer != null) {
-          widgets.add(pw.Text('Customer: ${customer.name}'));
-          widgets.add(pw.Text('Date: ${DateFormat.yMd().format(offer.date)}'));
-          widgets.add(pw.SizedBox(height: 12));
-        }
-
-        double finalTotal = 0;
+        widgets.add(pw.Text('Profit: ${offer.profitPercent.toStringAsFixed(2)}%'));
+        widgets.add(pw.SizedBox(height: 12));
 
         for (var i = 0; i < offer.items.length; i++) {
           final item = offer.items[i];
@@ -64,29 +167,40 @@ Future<void> printOfferPdf({
           final blind = item.blindIndex != null ? blindBox.getAt(item.blindIndex!) : null;
           final accessory = item.accessoryIndex != null ? accessoryBox.getAt(item.accessoryIndex!) : null;
 
-          final profileCost = item.calculateProfileCost(profile);
-          final glassCost = item.calculateGlassCost(glass);
-          final blindCost = blind != null ? ((item.width / 1000.0) * (item.height / 1000.0) * blind.pricePerM2) : 0;
-          final mechanismCost = mechanism != null ? mechanism.price * item.openings : 0;
-          final accessoryCost = accessory != null ? accessory.price : 0;
-          final extrasCost = (item.extra1Price ?? 0) + (item.extra2Price ?? 0);
+          final profileCost = item.calculateProfileCost(profile) * item.quantity;
+          final glassCost = item.calculateGlassCost(glass) * item.quantity;
+          final blindCost = blind != null
+              ? ((item.width / 1000.0) * (item.height / 1000.0) * blind.pricePerM2 * item.quantity)
+              : 0;
+          final mechanismCost =
+          mechanism != null ? mechanism.price * item.quantity * item.openings : 0;
+          final accessoryCost = accessory != null ? accessory.price * item.quantity : 0;
+          final extras = (item.extra1Price ?? 0) + (item.extra2Price ?? 0);
 
-          final basePerPiece = profileCost + glassCost + blindCost + mechanismCost + accessoryCost + extrasCost;
-          final pricePerPiece = item.manualPrice ?? basePerPiece * (1 + offer.profitPercent / 100);
-          final totalPrice = pricePerPiece * item.quantity;
+          final total =
+              profileCost + glassCost + blindCost + mechanismCost + accessoryCost + extras;
+          final finalPrice = item.manualPrice ?? total * (1 + offer.profitPercent / 100);
+          final profitAmount = finalPrice - total;
 
-          finalTotal += totalPrice;
+          final vAdapters =
+          item.verticalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ');
+          final hAdapters =
+          item.horizontalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ');
 
           final details = <pw.Widget>[
-            pw.Text('Material: ${profile.name}'),
+            pw.Text(item.name, style: headerStyle),
+            pw.Text('Size: ${item.width} x ${item.height} mm'),
+            pw.Text('Qty: ${item.quantity}'),
+            pw.Text('Profile: ${profile.name}'),
             pw.Text('Glass: ${glass.name}'),
-            pw.Text('Mechanism: ${mechanism?.name ?? '-'}'),
-            pw.Text('Sections: ${item.verticalSections}x${item.horizontalSections}  Sashes: ${item.openings}'),
-            pw.Text('${item.extra1Desc ?? 'Additional 1'}: ${currency.format(item.extra1Price ?? 0)}'),
-            pw.Text('${item.extra2Desc ?? 'Additional 2'}: ${currency.format(item.extra2Price ?? 0)}'),
-            pw.Text('Quantity: ${item.quantity}'),
-            pw.Text('Price per piece: ${currency.format(pricePerPiece)}'),
-            pw.Text('Total: ${currency.format(totalPrice)}'),
+            pw.Text('Sectors: ${item.horizontalSections}x${item.verticalSections}'),
+            pw.Text('Sashes: ${item.openings}'),
+            pw.Text('Widths: ${item.sectionWidths.join(', ')}'),
+            pw.Text('Heights: ${item.sectionHeights.join(', ')}'),
+            pw.Text('V div: $vAdapters'),
+            pw.Text('H div: $hAdapters'),
+            pw.Text('Price per piece: ${currency.format(finalPrice / item.quantity)}'),
+            pw.Text('Total: ${currency.format(finalPrice)}'),
           ];
 
           widgets.add(
@@ -111,51 +225,6 @@ Future<void> printOfferPdf({
           );
           widgets.add(pw.SizedBox(height: 12));
         }
-
-        final extrasTotal = offer.extraCharges.fold<double>(0.0, (p, e) => p + e.amount);
-        if (offer.extraCharges.isNotEmpty) {
-          widgets.add(pw.Text('Extras:', style: headerStyle));
-          widgets.add(
-            pw.Table(
-              border: pw.TableBorder.all(),
-              children: [
-                for (final c in offer.extraCharges)
-                  pw.TableRow(children: [
-                    pw.Padding(padding: const pw.EdgeInsets.all(4), child: pw.Text(c.description)),
-                    pw.Padding(padding: const pw.EdgeInsets.all(4), child: pw.Text(currency.format(c.amount))),
-                  ])
-              ],
-            ),
-          );
-          widgets.add(pw.SizedBox(height: 8));
-        }
-        finalTotal += extrasTotal;
-        finalTotal -= offer.discountAmount;
-        finalTotal *= (1 - offer.discountPercent / 100);
-
-        if (offer.notes.isNotEmpty) {
-          widgets.add(pw.Text('Notes: ${offer.notes}'));
-          widgets.add(pw.SizedBox(height: 8));
-        }
-
-        if (offer.discountPercent != 0 || offer.discountAmount != 0) {
-          final discountParts = <String>[];
-          if (offer.discountPercent != 0) {
-            discountParts.add('${offer.discountPercent.toStringAsFixed(2)}%');
-          }
-          if (offer.discountAmount != 0) {
-            discountParts.add(currency.format(offer.discountAmount));
-          }
-          widgets.add(pw.Text('Discount: ${discountParts.join(' + ')}'));
-          widgets.add(pw.SizedBox(height: 8));
-        }
-
-        widgets.add(
-          pw.Text(
-            'Total price: ${currency.format(finalTotal)}',
-            style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
-          ),
-        );
 
         return widgets;
       },
