@@ -45,7 +45,7 @@ Future<void> printOfferPdf({
     final profile = profileSetBox.getAt(item.profileSetIndex)!;
     final glass = glassBox.getAt(item.glassIndex)!;
     final blind =
-        item.blindIndex != null ? blindBox.getAt(item.blindIndex!) : null;
+    item.blindIndex != null ? blindBox.getAt(item.blindIndex!) : null;
     final mechanism = item.mechanismIndex != null
         ? mechanismBox.getAt(item.mechanismIndex!)
         : null;
@@ -57,13 +57,13 @@ Future<void> printOfferPdf({
     final glassCost = item.calculateGlassCost(glass) * item.quantity;
     final blindCost = blind != null
         ? ((item.width / 1000.0) * (item.height / 1000.0) * blind.pricePerM2 *
-            item.quantity)
+        item.quantity)
         : 0;
     final mechanismCost = mechanism != null
         ? mechanism.price * item.quantity * item.openings
         : 0;
     final accessoryCost =
-        accessory != null ? accessory.price * item.quantity : 0;
+    accessory != null ? accessory.price * item.quantity : 0;
     final extras = (item.extra1Price ?? 0) + (item.extra2Price ?? 0);
 
     final total = profileCost + glassCost + blindCost + mechanismCost +
@@ -74,7 +74,7 @@ Future<void> printOfferPdf({
     finalTotal += price;
   }
   final extrasTotal =
-      offer.extraCharges.fold<double>(0.0, (p, e) => p + e.amount);
+  offer.extraCharges.fold<double>(0.0, (p, e) => p + e.amount);
   baseTotal += extrasTotal;
   finalTotal += extrasTotal;
   finalTotal -= offer.discountAmount;
@@ -88,14 +88,14 @@ Future<void> printOfferPdf({
       margin: const pw.EdgeInsets.all(24),
       header: (context) => context.pageNumber == 1
           ? pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                pw.Text('Crystal Upvc',
-                    style: pw.TextStyle(
-                        fontSize: 16, fontWeight: pw.FontWeight.bold)),
-                pw.SizedBox(height: 4),
-              ],
-            )
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Text('Crystal Upvc',
+              style: pw.TextStyle(
+                  fontSize: 16, fontWeight: pw.FontWeight.bold)),
+          pw.SizedBox(height: 4),
+        ],
+      )
           : pw.SizedBox(),
       footer: (context) {
         if (context.pageNumber != context.pagesCount) return pw.SizedBox();
@@ -148,8 +148,8 @@ Future<void> printOfferPdf({
         widgets.add(
           pw.Text(
             'Grand Total (0%): ${currency.format(baseTotal)}\n'
-            'With profit: ${currency.format(finalTotal)}\n'
-            'Total profit: ${currency.format(profitTotal)}',
+                'With profit: ${currency.format(finalTotal)}\n'
+                'Total profit: ${currency.format(profitTotal)}',
             textAlign: pw.TextAlign.center,
             style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
           ),
@@ -170,19 +170,19 @@ Future<void> printOfferPdf({
           final profile = profileSetBox.getAt(item.profileSetIndex)!;
           final glass = glassBox.getAt(item.glassIndex)!;
           final mechanism =
-              item.mechanismIndex != null ? mechanismBox.getAt(item.mechanismIndex!) : null;
+          item.mechanismIndex != null ? mechanismBox.getAt(item.mechanismIndex!) : null;
           final blind = item.blindIndex != null ? blindBox.getAt(item.blindIndex!) : null;
           final accessory =
-              item.accessoryIndex != null ? accessoryBox.getAt(item.accessoryIndex!) : null;
+          item.accessoryIndex != null ? accessoryBox.getAt(item.accessoryIndex!) : null;
 
           final profileCost = item.calculateProfileCost(profile) * item.quantity;
           final glassCost = item.calculateGlassCost(glass) * item.quantity;
           final blindCost = blind != null
               ? ((item.width / 1000.0) * (item.height / 1000.0) * blind.pricePerM2 *
-                  item.quantity)
+              item.quantity)
               : 0;
           final mechanismCost =
-              mechanism != null ? mechanism.price * item.quantity * item.openings : 0;
+          mechanism != null ? mechanism.price * item.quantity * item.openings : 0;
           final accessoryCost = accessory != null ? accessory.price * item.quantity : 0;
           final extras = (item.extra1Price ?? 0) + (item.extra2Price ?? 0);
 
@@ -192,9 +192,9 @@ Future<void> printOfferPdf({
           final pricePerPiece = finalPrice / item.quantity;
 
           final vAdapters =
-              item.verticalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ');
+          item.verticalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ');
           final hAdapters =
-              item.horizontalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ');
+          item.horizontalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ');
 
           final details = <pw.Widget>[
             pw.Text(item.name, style: headerStyle),
