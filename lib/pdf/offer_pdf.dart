@@ -4,9 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:pdf/widgets.dart' show PdfGoogleFonts;
-import 'dart:math' as math;
 import 'package:printing/printing.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import '../models.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -22,13 +21,14 @@ Future<void> printOfferPdf({
   required Box<Accessory> accessoryBox,
 }) async {
   // Load custom font if available so symbols render correctly
-  // Use Google Noto fonts which support the Euro sign
-  final baseFont = await PdfGoogleFonts.notoSansRegular();
-  final boldFont = await PdfGoogleFonts.notoSansBold();
-
-  final doc = pw.Document(
-    theme: pw.ThemeData.withFont(base: baseFont, bold: boldFont),
-  );
+  pw.Font baseFont;
+  try {
+    baseFont = pw.Font.ttf(await rootBundle.load('assets/fonts/DejaVuSans.ttf'));
+  } catch (_) {
+    // Fall back to the default font when the asset isn't bundled
+    baseFont = pw.Font.helvetica();
+  }
+  final doc = pw.Document(theme: pw.ThemeData.withFont(base: baseFont));
   final customer = offer.customerIndex < customerBox.length
       ? customerBox.getAt(offer.customerIndex)
       : null; // kept for potential future use
@@ -50,7 +50,7 @@ Future<void> printOfferPdf({
     itemImages.add(img);
   }
 
-  final currency = NumberFormat.currency(locale: 'en_US', symbol: '€');
+  final currency = NumberFormat.currency(symbol: '€');
   double baseTotal = 0;
   double finalTotal = 0;
   for (final item in offer.items) {
@@ -91,7 +91,7 @@ Future<void> printOfferPdf({
   finalTotal += extrasTotal;
   finalTotal -= offer.discountAmount;
   finalTotal *= (1 - offer.discountPercent / 100);
-  final itemCostTotal = baseTotal - extrasTotal;
+  final profitTotal = finalTotal - baseTotal;
 
 
   doc.addPage(
@@ -99,59 +99,88 @@ Future<void> printOfferPdf({
       pageFormat: PdfPageFormat.a4,
       margin: const pw.EdgeInsets.all(24),
       header: (context) => context.pageNumber == 1
-          ? pw.Container(
-        padding: const pw.EdgeInsets.all(8),
-        decoration: pw.BoxDecoration(color: PdfColors.blue100),
-        child: pw.Row(
-          crossAxisAlignment: pw.CrossAxisAlignment.start,
-          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-          children: [
-            pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                pw.Text('Crystal Upvc',
-                    style: pw.TextStyle(
-                        fontSize: 16,
-                        fontWeight: pw.FontWeight.bold,
-                        color: PdfColors.blue800)),
-                pw.Text('Street 123, City'),
-                pw.Text('Phone: 0123456789'),
-                pw.Text('info@crystal-upvc.com'),
-              ],
-            ),
-            if (customer != null)
-              pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                children: [
-                  pw.Text('Customer',
-                      style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                  pw.Text(customer.name),
-                  pw.Text(customer.address),
-                  pw.Text(customer.phone),
-                  pw.Text(customer.email),
-                ],
-              ),
-          ],
-        ),
+          ? pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Text('Crystal Upvc',
+              style: pw.TextStyle(
+                  fontSize: 16, fontWeight: pw.FontWeight.bold)),
+          pw.SizedBox(height: 4),
+        ],
       )
           : pw.SizedBox(),
-      footer: (context) => pw.Align(
-        alignment: pw.Alignment.centerRight,
-        child: pw.Text(
-            'Page ${context.pageNumber} / ${context.pagesCount}',
-            style: const pw.TextStyle(fontSize: 12)),
-      ),
+      footer: (context) {
+        if (context.pageNumber != context.pagesCount) return pw.SizedBox();
+        final widgets = <pw.Widget>[];
+        if (offer.extraCharges.isNotEmpty) {
+          widgets.add(
+            pw.Padding(
+              padding: const pw.EdgeInsets.only(bottom: 4),
+              child: pw.Text('Extras',
+                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+            ),
+          );
+          widgets.add(
+            pw.Table(
+              border: pw.TableBorder.all(width: 0.5),
+              defaultVerticalAlignment: pw.TableCellVerticalAlignment.middle,
+              children: [
+                for (final c in offer.extraCharges)
+                  pw.TableRow(children: [
+                    pw.Padding(
+                        padding: const pw.EdgeInsets.all(4),
+                        child: pw.Text(c.description)),
+                    pw.Padding(
+                        padding: const pw.EdgeInsets.all(4),
+                        child: pw.Text(currency.format(c.amount))),
+                  ])
+              ],
+            ),
+          );
+          widgets.add(pw.SizedBox(height: 8));
+        }
+
+        if (offer.discountPercent != 0 || offer.discountAmount != 0) {
+          final parts = <String>[];
+          if (offer.discountPercent != 0) {
+            parts.add('${offer.discountPercent.toStringAsFixed(2)}%');
+          }
+          if (offer.discountAmount != 0) {
+            parts.add(currency.format(offer.discountAmount));
+          }
+          widgets.add(pw.Text('Discount: ${parts.join(' + ')}'));
+          widgets.add(pw.SizedBox(height: 8));
+        }
+
+        if (offer.notes.isNotEmpty) {
+          widgets.add(pw.Text('Notes: ${offer.notes}'));
+          widgets.add(pw.SizedBox(height: 8));
+        }
+
+        widgets.add(
+          pw.Text(
+            'Grand Total (0%): ${currency.format(baseTotal)}\n'
+                'With profit: ${currency.format(finalTotal)}\n'
+                'Total profit: ${currency.format(profitTotal)}',
+            textAlign: pw.TextAlign.center,
+            style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+          ),
+        );
+
+        return pw.Column(children: widgets);
+      },
       build: (context) {
         final headerStyle = pw.TextStyle(fontWeight: pw.FontWeight.bold);
 
         final widgets = <pw.Widget>[];
         widgets.add(pw.Header(level: 0, child: pw.Text('Offer $offerNumber', style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold))));
+        widgets.add(pw.Text('Profit: ${offer.profitPercent.toStringAsFixed(2)}%'));
         widgets.add(pw.SizedBox(height: 12));
 
         final rows = <pw.TableRow>[];
         rows.add(
           pw.TableRow(
-            decoration: pw.BoxDecoration(color: PdfColors.blueGrey200),
+            decoration: pw.BoxDecoration(color: PdfColors.grey300),
             children: [
               pw.Padding(
                 padding: const pw.EdgeInsets.all(4),
@@ -219,47 +248,9 @@ Future<void> printOfferPdf({
               children: [
                 pw.Padding(
                   padding: const pw.EdgeInsets.all(4),
-                  child: pw.Column(
-                    mainAxisSize: pw.MainAxisSize.min,
-                    children: [
-                      pw.Row(
-                        crossAxisAlignment: pw.CrossAxisAlignment.start,
-                        children: [
-                          pw.Container(
-                            width: 90,
-                            height: 90 * (item.height / item.width),
-                            alignment: pw.Alignment.center,
-                            child: itemImages[i] != null
-                                ? pw.Image(
-                              itemImages[i]!,
-                              width: 90,
-                              height: 90 * (item.height / item.width),
-                              fit: pw.BoxFit.contain,
-                            )
-                                : pw.SizedBox(
-                              width: 90,
-                              height: 90 * (item.height / item.width),
-                            ),
-                          ),
-                          pw.Container(
-                            width: 20,
-                            height: 90 * (item.height / item.width),
-                            alignment: pw.Alignment.center,
-                            child: pw.Transform.rotate(
-                              angle: -math.pi / 2,
-                              child: pw.Text(
-                                '${item.height}',
-                                style: const pw.TextStyle(fontSize: 10),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      pw.SizedBox(height: 2),
-                      pw.Text('${item.width}',
-                          style: const pw.TextStyle(fontSize: 10)),
-                    ],
-                  ),
+                  child: itemImages[i] != null
+                      ? pw.Image(itemImages[i]!, width: 100, height: 100, fit: pw.BoxFit.contain)
+                      : pw.SizedBox(width: 100, height: 100),
                 ),
                 pw.Padding(
                   padding: const pw.EdgeInsets.all(4),
@@ -290,89 +281,12 @@ Future<void> printOfferPdf({
             border: pw.TableBorder.all(width: 0.5),
             defaultVerticalAlignment: pw.TableCellVerticalAlignment.middle,
             columnWidths: {
-              0: const pw.FixedColumnWidth(110),
-              2: const pw.FixedColumnWidth(70),
+              0: const pw.FixedColumnWidth(100),
+              2: const pw.FixedColumnWidth(80),
             },
             children: rows,
           ),
         );
-        widgets.add(pw.SizedBox(height: 12));
-
-        final summaryRows = <pw.TableRow>[];
-        summaryRows.add(
-          pw.TableRow(children: [
-            pw.Padding(
-                padding: const pw.EdgeInsets.all(4),
-                child: pw.Text('Items total')),
-            pw.Padding(
-                padding: const pw.EdgeInsets.all(4),
-                child: pw.Text(currency.format(itemCostTotal))),
-          ]),
-        );
-        if (offer.extraCharges.isNotEmpty) {
-          summaryRows.add(
-            pw.TableRow(children: [
-              pw.Padding(
-                  padding: const pw.EdgeInsets.all(4),
-                  child: pw.Text('Extras')),
-              pw.Padding(
-                  padding: const pw.EdgeInsets.all(4),
-                  child: pw.Text(currency.format(extrasTotal))),
-            ]),
-          );
-        }
-        if (offer.discountPercent != 0) {
-          summaryRows.add(
-            pw.TableRow(children: [
-              pw.Padding(
-                  padding: const pw.EdgeInsets.all(4),
-                  child: pw.Text('Discount %')),
-              pw.Padding(
-                  padding: const pw.EdgeInsets.all(4),
-                  child: pw.Text('${offer.discountPercent.toStringAsFixed(2)}%')),
-            ]),
-          );
-        }
-        if (offer.discountAmount != 0) {
-          summaryRows.add(
-            pw.TableRow(children: [
-              pw.Padding(
-                  padding: const pw.EdgeInsets.all(4),
-                  child: pw.Text('Discount amount')),
-              pw.Padding(
-                  padding: const pw.EdgeInsets.all(4),
-                  child: pw.Text(currency.format(offer.discountAmount))),
-            ]),
-          );
-        }
-        summaryRows.add(
-          pw.TableRow(children: [
-            pw.Padding(
-                padding: const pw.EdgeInsets.all(4),
-                child: pw.Text('Total', style: headerStyle)),
-            pw.Padding(
-                padding: const pw.EdgeInsets.all(4),
-                child: pw.Text(currency.format(finalTotal), style: headerStyle)),
-          ]),
-        );
-
-        widgets.add(
-          pw.Table(
-            border: pw.TableBorder.all(width: 0.5),
-            defaultVerticalAlignment: pw.TableCellVerticalAlignment.middle,
-            columnWidths: {
-              0: const pw.FlexColumnWidth(),
-              1: const pw.FixedColumnWidth(70),
-            },
-            children: summaryRows,
-          ),
-        );
-        if (offer.notes.isNotEmpty) {
-          widgets.add(pw.SizedBox(height: 8));
-          widgets.add(pw.Text('Notes: ${offer.notes}'));
-        }
-
-        widgets.add(pw.SizedBox(height: 8));
 
         return widgets;
       },

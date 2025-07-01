@@ -70,6 +70,7 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
+<<<<<<< HEAD
 #  assets:
 #    - assets/fonts/DejaVuSans.ttf
 #
@@ -79,6 +80,9 @@ flutter:
 #        - asset: assets/fonts/DejaVuSans.ttf
 #        - asset: assets/fonts/DejaVuSans-Bold.ttf
 #          weight: 700
+=======
+  # Fonts are loaded dynamically from Google Fonts
+>>>>>>> 023680cde8e96b3141b9dbd7bb8d1f207a584da9
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
