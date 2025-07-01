@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import '../models.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -19,7 +20,15 @@ Future<void> printOfferPdf({
   required Box<Mechanism> mechanismBox,
   required Box<Accessory> accessoryBox,
 }) async {
-  final doc = pw.Document();
+  // Load custom font if available so symbols render correctly
+  pw.Font baseFont;
+  try {
+    baseFont = pw.Font.ttf(await rootBundle.load('assets/fonts/DejaVuSans.ttf'));
+  } catch (_) {
+    // Fall back to the default font when the asset isn't bundled
+    baseFont = pw.Font.helvetica();
+  }
+  final doc = pw.Document(theme: pw.ThemeData.withFont(base: baseFont));
   final customer = offer.customerIndex < customerBox.length
       ? customerBox.getAt(offer.customerIndex)
       : null; // kept for potential future use
@@ -27,14 +36,17 @@ Future<void> printOfferPdf({
   final itemImages = <pw.MemoryImage?>[];
   for (final item in offer.items) {
     pw.MemoryImage? img;
-    if (item.photoPath != null) {
-      try {
-        final bytes = kIsWeb
+    try {
+      Uint8List? bytes = item.photoBytes;
+      if (bytes == null && item.photoPath != null) {
+        bytes = kIsWeb
             ? await networkImage(item.photoPath!) as Uint8List
             : await File(item.photoPath!).readAsBytes();
+      }
+      if (bytes != null) {
         img = pw.MemoryImage(bytes);
-      } catch (_) {}
-    }
+      }
+    } catch (_) {}
     itemImages.add(img);
   }
 
@@ -165,6 +177,27 @@ Future<void> printOfferPdf({
         widgets.add(pw.Text('Profit: ${offer.profitPercent.toStringAsFixed(2)}%'));
         widgets.add(pw.SizedBox(height: 12));
 
+        final rows = <pw.TableRow>[];
+        rows.add(
+          pw.TableRow(
+            decoration: pw.BoxDecoration(color: PdfColors.grey300),
+            children: [
+              pw.Padding(
+                padding: const pw.EdgeInsets.all(4),
+                child: pw.Text('Photo', style: headerStyle),
+              ),
+              pw.Padding(
+                padding: const pw.EdgeInsets.all(4),
+                child: pw.Text('Details', style: headerStyle),
+              ),
+              pw.Padding(
+                padding: const pw.EdgeInsets.all(4),
+                child: pw.Text('Price', style: headerStyle),
+              ),
+            ],
+          ),
+        );
+
         for (var i = 0; i < offer.items.length; i++) {
           final item = offer.items[i];
           final profile = profileSetBox.getAt(item.profileSetIndex)!;
@@ -178,23 +211,19 @@ Future<void> printOfferPdf({
           final profileCost = item.calculateProfileCost(profile) * item.quantity;
           final glassCost = item.calculateGlassCost(glass) * item.quantity;
           final blindCost = blind != null
-              ? ((item.width / 1000.0) * (item.height / 1000.0) * blind.pricePerM2 *
-              item.quantity)
+              ? ((item.width / 1000.0) * (item.height / 1000.0) * blind.pricePerM2 * item.quantity)
               : 0;
           final mechanismCost =
           mechanism != null ? mechanism.price * item.quantity * item.openings : 0;
           final accessoryCost = accessory != null ? accessory.price * item.quantity : 0;
           final extras = (item.extra1Price ?? 0) + (item.extra2Price ?? 0);
 
-          final total =
-              profileCost + glassCost + blindCost + mechanismCost + accessoryCost + extras;
+          final total = profileCost + glassCost + blindCost + mechanismCost + accessoryCost + extras;
           final finalPrice = item.manualPrice ?? total * (1 + offer.profitPercent / 100);
           final pricePerPiece = finalPrice / item.quantity;
 
-          final vAdapters =
-          item.verticalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ');
-          final hAdapters =
-          item.horizontalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ');
+          final vAdapters = item.verticalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ');
+          final hAdapters = item.horizontalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ');
 
           final details = <pw.Widget>[
             pw.Text(item.name, style: headerStyle),
@@ -214,32 +243,25 @@ Future<void> printOfferPdf({
             pw.Text('H div: $hAdapters'),
           ];
 
-          widgets.add(
-            pw.Container(
-              decoration: pw.BoxDecoration(
-                border: pw.Border.all(color: PdfColors.grey),
-                borderRadius: pw.BorderRadius.circular(4),
-              ),
-              padding: const pw.EdgeInsets.all(8),
-              margin: const pw.EdgeInsets.only(bottom: 12),
-              child: pw.Row(
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                children: [
-                  if (itemImages[i] != null)
-                    pw.Container(
-                      width: 80,
-                      height: 80,
-                      margin: const pw.EdgeInsets.only(right: 8),
-                      child: pw.Image(itemImages[i]!, fit: pw.BoxFit.cover),
-                    ),
-                  pw.Expanded(
-                    child: pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.start,
-                      children: details,
-                    ),
+          rows.add(
+            pw.TableRow(
+              children: [
+                pw.Padding(
+                  padding: const pw.EdgeInsets.all(4),
+                  child: itemImages[i] != null
+                      ? pw.Image(itemImages[i]!, width: 100, height: 100, fit: pw.BoxFit.contain)
+                      : pw.SizedBox(width: 100, height: 100),
+                ),
+                pw.Padding(
+                  padding: const pw.EdgeInsets.all(4),
+                  child: pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: details,
                   ),
-                  pw.SizedBox(width: 8),
-                  pw.Column(
+                ),
+                pw.Padding(
+                  padding: const pw.EdgeInsets.all(4),
+                  child: pw.Column(
                     crossAxisAlignment: pw.CrossAxisAlignment.end,
                     children: [
                       pw.Text(currency.format(pricePerPiece), style: headerStyle),
@@ -248,16 +270,35 @@ Future<void> printOfferPdf({
                       pw.Text(currency.format(finalPrice), style: headerStyle),
                     ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           );
         }
+
+        widgets.add(
+          pw.Table(
+            border: pw.TableBorder.all(width: 0.5),
+            defaultVerticalAlignment: pw.TableCellVerticalAlignment.middle,
+            columnWidths: {
+              0: const pw.FixedColumnWidth(100),
+              2: const pw.FixedColumnWidth(80),
+            },
+            children: rows,
+          ),
+        );
 
         return widgets;
       },
     ),
   );
 
-  await Printing.layoutPdf(onLayout: (PdfPageFormat format) async => doc.save());
+  try {
+    await Printing.layoutPdf(
+      onLayout: (PdfPageFormat format) async => doc.save(),
+    );
+  } catch (e) {
+    // Log the error so the caller can see why the PDF didn't open
+    debugPrint('Error printing PDF: $e');
+  }
 }

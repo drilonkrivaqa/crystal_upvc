@@ -3,6 +3,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:io' show File;
+import 'dart:typed_data';
 import '../models.dart';
 
 class WindowDoorItemPage extends StatefulWidget {
@@ -39,6 +40,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   int? mechanismIndex;
   int? accessoryIndex;
   String? photoPath;
+  Uint8List? photoBytes;
   double? manualPrice;
   double? extra1Price;
   double? extra2Price;
@@ -81,6 +83,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     mechanismIndex = widget.existingItem?.mechanismIndex;
     accessoryIndex = widget.existingItem?.accessoryIndex;
     photoPath = widget.existingItem?.photoPath;
+    photoBytes = widget.existingItem?.photoBytes;
     manualPrice = widget.existingItem?.manualPrice;
     extra1Price = widget.existingItem?.extra1Price;
     extra2Price = widget.existingItem?.extra2Price;
@@ -109,10 +112,16 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                 final picker = ImagePicker();
                 final picked = await picker.pickImage(source: ImageSource.gallery);
                 if (picked != null) {
-                  setState(() => photoPath = picked.path);
+                  final bytes = await picked.readAsBytes();
+                  setState(() {
+                    photoPath = picked.path;
+                    photoBytes = bytes;
+                  });
                 }
               },
-              child: photoPath != null
+              child: photoBytes != null
+                  ? Image.memory(photoBytes!, width: 120, height: 120, fit: BoxFit.contain)
+                  : photoPath != null
                   ? (kIsWeb
                   ? Image.network(photoPath!, width: 120, height: 120, fit: BoxFit.contain)
                   : Image.file(File(photoPath!), width: 120, height: 120, fit: BoxFit.contain))
@@ -250,6 +259,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                   verticalAdapters: verticalAdapters,
                   horizontalAdapters: horizontalAdapters,
                   photoPath: photoPath,
+                  photoBytes: photoBytes,
                   manualPrice: mPrice,
                   extra1Price: double.tryParse(extra1Controller.text),
                   extra2Price: double.tryParse(extra2Controller.text),
