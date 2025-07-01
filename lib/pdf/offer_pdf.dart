@@ -100,40 +100,40 @@ Future<void> printOfferPdf({
       margin: const pw.EdgeInsets.all(24),
       header: (context) => context.pageNumber == 1
           ? pw.Container(
-              padding: const pw.EdgeInsets.all(8),
-              decoration: pw.BoxDecoration(color: PdfColors.blue100),
-              child: pw.Row(
+        padding: const pw.EdgeInsets.all(8),
+        decoration: pw.BoxDecoration(color: PdfColors.blue100),
+        child: pw.Row(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+          children: [
+            pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Text('Crystal Upvc',
+                    style: pw.TextStyle(
+                        fontSize: 16,
+                        fontWeight: pw.FontWeight.bold,
+                        color: PdfColors.blue800)),
+                pw.Text('Street 123, City'),
+                pw.Text('Phone: 0123456789'),
+                pw.Text('info@crystal-upvc.com'),
+              ],
+            ),
+            if (customer != null)
+              pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
-                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                 children: [
-                  pw.Column(
-                    crossAxisAlignment: pw.CrossAxisAlignment.start,
-                    children: [
-                      pw.Text('Crystal Upvc',
-                          style: pw.TextStyle(
-                              fontSize: 16,
-                              fontWeight: pw.FontWeight.bold,
-                              color: PdfColors.blue800)),
-                      pw.Text('Street 123, City'),
-                      pw.Text('Phone: 0123456789'),
-                      pw.Text('info@crystal-upvc.com'),
-                    ],
-                  ),
-                  if (customer != null)
-                    pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.start,
-                      children: [
-                        pw.Text('Customer',
-                            style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                        pw.Text(customer.name),
-                        pw.Text(customer.address),
-                        pw.Text(customer.phone),
-                        pw.Text(customer.email),
-                      ],
-                    ),
+                  pw.Text('Customer',
+                      style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                  pw.Text(customer.name),
+                  pw.Text(customer.address),
+                  pw.Text(customer.phone),
+                  pw.Text(customer.email),
                 ],
               ),
-            )
+          ],
+        ),
+      )
           : pw.SizedBox(),
       footer: (context) => pw.Align(
         alignment: pw.Alignment.centerRight,
@@ -222,42 +222,74 @@ Future<void> printOfferPdf({
                   child: pw.Column(
                     mainAxisSize: pw.MainAxisSize.min,
                     children: [
-                      pw.Row(
-                        crossAxisAlignment: pw.CrossAxisAlignment.start,
-                        children: [
-                          pw.Container(
-                            width: 90,
-                            height: 90 * (item.height / item.width),
-                            alignment: pw.Alignment.center,
-                            child: itemImages[i] != null
-                                ? pw.Image(
-                                    itemImages[i]!,
-                                    width: 90,
-                                    height: 90 * (item.height / item.width),
-                                    fit: pw.BoxFit.contain,
-                                  )
-                                : pw.SizedBox(
-                                    width: 90,
-                                    height: 90 * (item.height / item.width),
-                                  ),
-                          ),
-                          pw.Container(
-                            width: 20,
-                            height: 90 * (item.height / item.width),
-                            alignment: pw.Alignment.center,
-                            child: pw.Transform.rotate(
-                              angle: -math.pi / 2,
-                              child: pw.Text(
-                                '${item.height}',
-                                style: const pw.TextStyle(fontSize: 10),
+                      // Display the photo with the dimension labels placed just
+                      // outside the image. The width value is centered below
+                      // the photo while the height value is rotated and
+                      // centered to the right side.
+                      pw.Container(
+                        width: 110,
+                        height: 20 + 90 * (item.height / item.width),
+                        child: pw.Stack(
+                          children: [
+                            // Center the image within the available space so it
+                            // does not touch the dimension labels.
+                            pw.Positioned(
+                              top: 0,
+                              left: 0,
+                              right: 20,
+                              bottom: 20,
+                              child: pw.Container(
+                                alignment: pw.Alignment.center,
+                                child: itemImages[i] != null
+                                    ? pw.Image(
+                                  itemImages[i]!,
+                                  width: 90,
+                                  height: 90 * (item.height / item.width),
+                                  fit: pw.BoxFit.contain,
+                                )
+                                    : pw.SizedBox(
+                                  width: 90,
+                                  height: 90 * (item.height / item.width),
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                            // Width label below the photo
+                            pw.Positioned(
+                              bottom: 0,
+                              left: 0,
+                              right: 20,
+                              child: pw.Container(
+                                alignment: pw.Alignment.center,
+                                child: pw.Text(
+                                  '${item.width}',
+                                  style: const pw.TextStyle(fontSize: 16),
+                                  maxLines: 1,
+                                  textAlign: pw.TextAlign.center,
+                                ),
+                              ),
+                            ),
+                            // Height label to the right of the photo
+                            pw.Positioned(
+                              top: 0,
+                              bottom: 20,
+                              left: 90,
+                              right: -10,
+                              child: pw.Container(
+                                alignment: pw.Alignment.center,
+                                child: pw.Transform.rotate(
+                                  angle: -math.pi / 2,
+                                  child: pw.Text(
+                                    '${item.height}',
+                                    style: const pw.TextStyle(fontSize: 16),
+                                    maxLines: 1,
+                                    textAlign: pw.TextAlign.center,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      pw.SizedBox(height: 2),
-                      pw.Text('${item.width}',
-                          style: const pw.TextStyle(fontSize: 10)),
                     ],
                   ),
                 ),
