@@ -228,7 +228,7 @@ Future<void> printOfferPdf({
                       // centered to the right side.
                       pw.Container(
                         width: 110,
-                        height: 20 + 90 * (item.height / item.width),
+                        height: 100 + 90 * (item.height / item.width),
                         child: pw.Stack(
                           children: [
                             // Center the image within the available space so it
@@ -255,7 +255,7 @@ Future<void> printOfferPdf({
                             ),
                             // Width label below the photo
                             pw.Positioned(
-                              bottom: 0,
+                              bottom: 20,
                               left: 0,
                               right: 20,
                               child: pw.Container(
@@ -272,9 +272,9 @@ Future<void> printOfferPdf({
                             pw.Positioned(
                               top: 0,
                               bottom: 20,
-                              left: 90,
-                              right: -10,
+                              left: 80,
                               child: pw.Container(
+                                width: 50,
                                 alignment: pw.Alignment.center,
                                 child: pw.Transform.rotate(
                                   angle: -math.pi / 2,
