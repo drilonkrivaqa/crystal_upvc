@@ -87,6 +87,63 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
               children: [
                 Expanded(
                   child: Text(
+                    'Customer: ${customerBox.getAt(offer.customerIndex)?.name ?? ''}',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.edit),
+                  onPressed: () async {
+                    if (customerBox.isEmpty) return;
+                    int selected = offer.customerIndex;
+                    await showDialog(
+                      context: context,
+                      builder: (_) => StatefulBuilder(
+                        builder: (context, setStateDialog) {
+                          return AlertDialog(
+                            title: const Text('Select Customer'),
+                            content: DropdownButton<int>(
+                              value: selected,
+                              items: List.generate(
+                                customerBox.length,
+                                (i) => DropdownMenuItem(
+                                  value: i,
+                                  child: Text(customerBox.getAt(i)?.name ?? ''),
+                                ),
+                              ),
+                              onChanged: (v) => setStateDialog(() => selected = v ?? selected),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text('Cancel'),
+                              ),
+                              ElevatedButton(
+                                onPressed: () {
+                                  offer.customerIndex = selected;
+                                  offer.save();
+                                  setState(() {});
+                                  Navigator.pop(context);
+                                },
+                                child: const Text('Save'),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
                     'Profit: ${offer.profitPercent.toStringAsFixed(2)}%',
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
@@ -232,8 +289,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
           const SizedBox(height: 16),
           Center(
             child: Builder(builder: (_) {
-              double baseTotal = 0;
-              double finalTotal = 0;
+              double itemsBase = 0;
+              double itemsFinal = 0;
               for (var item in offer.items) {
                 final profileSet = profileSetBox.getAt(item.profileSetIndex)!;
                 final glass = glassBox.getAt(item.glassIndex)!;
@@ -252,20 +309,29 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 double extras = (item.extra1Price ?? 0) + (item.extra2Price ?? 0);
                 double base = profileCost + glassCost + blindCost + mechanismCost + accessoryCost + extras;
                 double finalPrice = item.manualPrice ?? base * (offer.profitPercent / 100 + 1);
-                baseTotal += base;
-                finalTotal += finalPrice;
+                itemsBase += base;
+                itemsFinal += finalPrice;
               }
-              double extrasTotal =
-              offer.extraCharges.fold(0, (p, e) => p + e.amount);
-              baseTotal += extrasTotal;
-              finalTotal += extrasTotal;
-              finalTotal -= offer.discountAmount;
-              finalTotal *= (1 - offer.discountPercent / 100);
+              double extrasTotal = offer.extraCharges.fold(0, (p, e) => p + e.amount);
+              double baseTotal = itemsBase + extrasTotal;
+              double subtotal = itemsFinal + extrasTotal;
+              subtotal -= offer.discountAmount;
+              double percentAmount = subtotal * (offer.discountPercent / 100);
+              double finalTotal = subtotal - percentAmount;
               double profitTotal = finalTotal - baseTotal;
+              String summary = 'Grand Total (0%): €${baseTotal.toStringAsFixed(2)}\n';
+              for (var charge in offer.extraCharges) {
+                summary += '${charge.description.isNotEmpty ? charge.description : 'Extra'}: €${charge.amount.toStringAsFixed(2)}\n';
+              }
+              if (offer.discountAmount != 0) {
+                summary += 'Discount amount: -€${offer.discountAmount.toStringAsFixed(2)}\n';
+              }
+              if (offer.discountPercent != 0) {
+                summary += 'Discount %: ${offer.discountPercent.toStringAsFixed(2)}% (-€${percentAmount.toStringAsFixed(2)})\n';
+              }
+              summary += 'With profit: €${finalTotal.toStringAsFixed(2)}\nTotal profit: €${profitTotal.toStringAsFixed(2)}';
               return Text(
-                'Grand Total (0%): €${baseTotal.toStringAsFixed(2)}\n'
-                    'With profit: €${finalTotal.toStringAsFixed(2)}\n'
-                    'Total profit: €${profitTotal.toStringAsFixed(2)}',
+                summary,
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
               );

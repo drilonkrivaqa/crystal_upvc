@@ -54,8 +54,8 @@ Future<void> printOfferPdf({
   }
 
   final currency = NumberFormat.currency(locale: 'en_US', symbol: '€');
-  double baseTotal = 0;
-  double finalTotal = 0;
+  double itemsBase = 0;
+  double itemsFinal = 0;
   for (final item in offer.items) {
     final profile = profileSetBox.getAt(item.profileSetIndex)!;
     final glass = glassBox.getAt(item.glassIndex)!;
@@ -85,15 +85,16 @@ Future<void> printOfferPdf({
         accessoryCost + extras;
     final price = item.manualPrice ?? total * (1 + offer.profitPercent / 100);
 
-    baseTotal += total;
-    finalTotal += price;
+    itemsBase += total;
+    itemsFinal += price;
   }
   final extrasTotal =
-  offer.extraCharges.fold<double>(0.0, (p, e) => p + e.amount);
-  baseTotal += extrasTotal;
-  finalTotal += extrasTotal;
-  finalTotal -= offer.discountAmount;
-  finalTotal *= (1 - offer.discountPercent / 100);
+      offer.extraCharges.fold<double>(0.0, (p, e) => p + e.amount);
+  final baseTotal = itemsBase + extrasTotal;
+  double subtotal = itemsFinal + extrasTotal;
+  subtotal -= offer.discountAmount;
+  final percentAmount = subtotal * (offer.discountPercent / 100);
+  final finalTotal = subtotal - percentAmount;
   final itemCostTotal = baseTotal - extrasTotal;
 
 
@@ -345,14 +346,28 @@ Future<void> printOfferPdf({
           ]),
         );
         if (offer.extraCharges.isNotEmpty) {
+          for (final c in offer.extraCharges) {
+            summaryRows.add(
+              pw.TableRow(children: [
+                pw.Padding(
+                    padding: const pw.EdgeInsets.all(4),
+                    child: pw.Text(c.description.isNotEmpty ? c.description : 'Extra')),
+                pw.Padding(
+                    padding: const pw.EdgeInsets.all(4),
+                    child: pw.Text(currency.format(c.amount))),
+              ]),
+            );
+          }
+        }
+        if (offer.discountAmount != 0) {
           summaryRows.add(
             pw.TableRow(children: [
               pw.Padding(
                   padding: const pw.EdgeInsets.all(4),
-                  child: pw.Text('Extras')),
+                  child: pw.Text('Discount amount')),
               pw.Padding(
                   padding: const pw.EdgeInsets.all(4),
-                  child: pw.Text(currency.format(extrasTotal))),
+                  child: pw.Text('-' + currency.format(offer.discountAmount))),
             ]),
           );
         }
@@ -364,19 +379,7 @@ Future<void> printOfferPdf({
                   child: pw.Text('Discount %')),
               pw.Padding(
                   padding: const pw.EdgeInsets.all(4),
-                  child: pw.Text('${offer.discountPercent.toStringAsFixed(2)}%')),
-            ]),
-          );
-        }
-        if (offer.discountAmount != 0) {
-          summaryRows.add(
-            pw.TableRow(children: [
-              pw.Padding(
-                  padding: const pw.EdgeInsets.all(4),
-                  child: pw.Text('Discount amount')),
-              pw.Padding(
-                  padding: const pw.EdgeInsets.all(4),
-                  child: pw.Text(currency.format(offer.discountAmount))),
+                  child: pw.Text('${offer.discountPercent.toStringAsFixed(2)}% (-' + currency.format(percentAmount) + ')')),
             ]),
           );
         }

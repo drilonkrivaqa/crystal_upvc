@@ -143,6 +143,29 @@ class _OffersPageState extends State<OffersPage> {
                           MaterialPageRoute(builder: (_) => OfferDetailPage(offerIndex: i)),
                         );
                       },
+                      onLongPress: () async {
+                        final confirm = await showDialog<bool>(
+                          context: context,
+                          builder: (_) => AlertDialog(
+                            title: const Text('Delete Offer'),
+                            content: const Text('Are you sure you want to delete this offer?'),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, false),
+                                child: const Text('Cancel'),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, true),
+                                child: const Text('Delete', style: TextStyle(color: Colors.red)),
+                              ),
+                            ],
+                          ),
+                        );
+                        if (confirm == true) {
+                          offerBox.deleteAt(i);
+                          setState(() {});
+                        }
+                      },
                     );
                   },
                 );
