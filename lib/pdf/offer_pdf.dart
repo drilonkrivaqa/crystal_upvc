@@ -89,7 +89,7 @@ Future<void> printOfferPdf({
     itemsFinal += price;
   }
   final extrasTotal =
-      offer.extraCharges.fold<double>(0.0, (p, e) => p + e.amount);
+  offer.extraCharges.fold<double>(0.0, (p, e) => p + e.amount);
   final baseTotal = itemsBase + extrasTotal;
   double subtotal = itemsFinal + extrasTotal;
   subtotal -= offer.discountAmount;
