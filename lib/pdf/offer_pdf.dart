@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:pdf/widgets.dart' show PdfGoogleFonts;
+import 'package:flutter/services.dart' show rootBundle;
 import 'dart:math' as math;
 import 'package:printing/printing.dart';
 import '../models.dart';
@@ -21,10 +21,13 @@ Future<void> printOfferPdf({
   required Box<Mechanism> mechanismBox,
   required Box<Accessory> accessoryBox,
 }) async {
-  // Load custom font if available so symbols render correctly
-  // Use Google Noto fonts which support the Euro sign
-  final baseFont = await PdfGoogleFonts.notoSansRegular();
-  final boldFont = await PdfGoogleFonts.notoSansBold();
+  // Load bundled fonts so symbols render correctly without relying on
+  // network access in release mode
+  final fontData = await rootBundle.load('assets/fonts/DejaVuSans.ttf');
+  final boldFontData =
+  await rootBundle.load('assets/fonts/DejaVuSans-Bold.ttf');
+  final baseFont = pw.Font.ttf(fontData);
+  final boldFont = pw.Font.ttf(boldFontData);
 
   final doc = pw.Document(
     theme: pw.ThemeData.withFont(base: baseFont, bold: boldFont),
