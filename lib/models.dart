@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:hive/hive.dart';
 part 'models.g.dart';
 
@@ -134,6 +135,8 @@ class WindowDoorItem extends HiveObject {
   List<bool> verticalAdapters; // true = adapter, false = T profile
   @HiveField(22)
   List<bool> horizontalAdapters; // true = adapter, false = T profile
+  @HiveField(23)
+  Uint8List? photoBytes; // raw image bytes
 
   WindowDoorItem({
     required this.name,
@@ -147,6 +150,7 @@ class WindowDoorItem extends HiveObject {
     this.accessoryIndex,
     this.openings = 0,
     this.photoPath,
+    this.photoBytes,
     this.manualPrice,
     this.extra1Price,
     this.extra2Price,
