@@ -10,7 +10,6 @@ import 'package:printing/printing.dart';
 import '../models.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-
 Future<void> printOfferPdf({
   required Offer offer,
   required int offerNumber,
@@ -21,11 +20,8 @@ Future<void> printOfferPdf({
   required Box<Mechanism> mechanismBox,
   required Box<Accessory> accessoryBox,
 }) async {
-  // Load bundled fonts so symbols render correctly without relying on
-  // network access in release mode
   final fontData = await rootBundle.load('assets/fonts/DejaVuSans.ttf');
-  final boldFontData =
-  await rootBundle.load('assets/fonts/DejaVuSans-Bold.ttf');
+  final boldFontData = await rootBundle.load('assets/fonts/DejaVuSans-Bold.ttf');
   final baseFont = pw.Font.ttf(fontData);
   final boldFont = pw.Font.ttf(boldFontData);
 
@@ -34,7 +30,7 @@ Future<void> printOfferPdf({
   );
   final customer = offer.customerIndex < customerBox.length
       ? customerBox.getAt(offer.customerIndex)
-      : null; // kept for potential future use
+      : null;
 
   final itemImages = <pw.MemoryImage?>[];
   for (final item in offer.items) {
@@ -59,8 +55,7 @@ Future<void> printOfferPdf({
   for (final item in offer.items) {
     final profile = profileSetBox.getAt(item.profileSetIndex)!;
     final glass = glassBox.getAt(item.glassIndex)!;
-    final blind =
-    item.blindIndex != null ? blindBox.getAt(item.blindIndex!) : null;
+    final blind = item.blindIndex != null ? blindBox.getAt(item.blindIndex!) : null;
     final mechanism = item.mechanismIndex != null
         ? mechanismBox.getAt(item.mechanismIndex!)
         : null;
@@ -71,8 +66,7 @@ Future<void> printOfferPdf({
     final profileCost = item.calculateProfileCost(profile) * item.quantity;
     final glassCost = item.calculateGlassCost(glass) * item.quantity;
     final blindCost = blind != null
-        ? ((item.width / 1000.0) * (item.height / 1000.0) * blind.pricePerM2 *
-        item.quantity)
+        ? ((item.width / 1000.0) * (item.height / 1000.0) * blind.pricePerM2 * item.quantity)
         : 0;
     final mechanismCost = mechanism != null
         ? mechanism.price * item.quantity * item.openings
@@ -81,15 +75,13 @@ Future<void> printOfferPdf({
     accessory != null ? accessory.price * item.quantity : 0;
     final extras = (item.extra1Price ?? 0) + (item.extra2Price ?? 0);
 
-    final total = profileCost + glassCost + blindCost + mechanismCost +
-        accessoryCost + extras;
+    final total = profileCost + glassCost + blindCost + mechanismCost + accessoryCost + extras;
     final price = item.manualPrice ?? total * (1 + offer.profitPercent / 100);
 
     itemsBase += total;
     itemsFinal += price;
   }
-  final extrasTotal =
-  offer.extraCharges.fold<double>(0.0, (p, e) => p + e.amount);
+  final extrasTotal = offer.extraCharges.fold<double>(0.0, (p, e) => p + e.amount);
   final baseTotal = itemsBase + extrasTotal;
   double subtotal = itemsFinal + extrasTotal;
   subtotal -= offer.discountAmount;
@@ -97,14 +89,20 @@ Future<void> printOfferPdf({
   final finalTotal = subtotal - percentAmount;
   final itemCostTotal = baseTotal - extrasTotal;
 
+  // ---- PHOTO CONTAINER SETTINGS ----
+  final containerWidth = 150.0;
+  final containerHeight = 110.0;
+  final detailsWidth = 230.0; // <--- add this: fixed width for Details!
+  final imagePadding = 3.0; // Padding so image never touches border
+  // ----------------------------------
 
   doc.addPage(
     pw.MultiPage(
       pageFormat: PdfPageFormat.a4,
-      margin: const pw.EdgeInsets.all(24),
+      margin: pw.EdgeInsets.all(24),
       header: (context) => context.pageNumber == 1
           ? pw.Container(
-        padding: const pw.EdgeInsets.all(8),
+        padding: pw.EdgeInsets.all(8),
         decoration: pw.BoxDecoration(color: PdfColors.blue100),
         child: pw.Row(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -142,8 +140,9 @@ Future<void> printOfferPdf({
       footer: (context) => pw.Align(
         alignment: pw.Alignment.centerRight,
         child: pw.Text(
-            'Page ${context.pageNumber} / ${context.pagesCount}',
-            style: const pw.TextStyle(fontSize: 12)),
+          'Page ${context.pageNumber} / ${context.pagesCount}',
+          style: pw.TextStyle(fontSize: 12),
+        ),
       ),
       build: (context) {
         final headerStyle = pw.TextStyle(fontWeight: pw.FontWeight.bold);
@@ -158,15 +157,15 @@ Future<void> printOfferPdf({
             decoration: pw.BoxDecoration(color: PdfColors.blueGrey200),
             children: [
               pw.Padding(
-                padding: const pw.EdgeInsets.all(4),
+                padding: pw.EdgeInsets.all(4),
                 child: pw.Text('Photo', style: headerStyle),
               ),
               pw.Padding(
-                padding: const pw.EdgeInsets.all(4),
+                padding: pw.EdgeInsets.all(4),
                 child: pw.Text('Details', style: headerStyle),
               ),
               pw.Padding(
-                padding: const pw.EdgeInsets.all(4),
+                padding: pw.EdgeInsets.all(4),
                 child: pw.Text('Price', style: headerStyle),
               ),
             ],
@@ -177,19 +176,16 @@ Future<void> printOfferPdf({
           final item = offer.items[i];
           final profile = profileSetBox.getAt(item.profileSetIndex)!;
           final glass = glassBox.getAt(item.glassIndex)!;
-          final mechanism =
-          item.mechanismIndex != null ? mechanismBox.getAt(item.mechanismIndex!) : null;
+          final mechanism = item.mechanismIndex != null ? mechanismBox.getAt(item.mechanismIndex!) : null;
           final blind = item.blindIndex != null ? blindBox.getAt(item.blindIndex!) : null;
-          final accessory =
-          item.accessoryIndex != null ? accessoryBox.getAt(item.accessoryIndex!) : null;
+          final accessory = item.accessoryIndex != null ? accessoryBox.getAt(item.accessoryIndex!) : null;
 
           final profileCost = item.calculateProfileCost(profile) * item.quantity;
           final glassCost = item.calculateGlassCost(glass) * item.quantity;
           final blindCost = blind != null
               ? ((item.width / 1000.0) * (item.height / 1000.0) * blind.pricePerM2 * item.quantity)
               : 0;
-          final mechanismCost =
-          mechanism != null ? mechanism.price * item.quantity * item.openings : 0;
+          final mechanismCost = mechanism != null ? mechanism.price * item.quantity * item.openings : 0;
           final accessoryCost = accessory != null ? accessory.price * item.quantity : 0;
           final extras = (item.extra1Price ?? 0) + (item.extra2Price ?? 0);
 
@@ -222,90 +218,86 @@ Future<void> printOfferPdf({
             pw.TableRow(
               children: [
                 pw.Padding(
-                  padding: const pw.EdgeInsets.all(4),
-                  child: pw.Column(
-                    mainAxisSize: pw.MainAxisSize.min,
-                    children: [
-                      // Display the photo with the dimension labels placed just
-                      // outside the image. The width value is centered below
-                      // the photo while the height value is rotated and
-                      // centered to the right side.
-                      pw.Container(
-                        width: 110,
-                        height: 100 + 90 * (item.height / item.width),
-                        child: pw.Stack(
-                          children: [
-                            // Center the image within the available space so it
-                            // does not touch the dimension labels.
-                            pw.Positioned(
-                              top: 0,
-                              left: 0,
-                              right: 20,
-                              bottom: 20,
-                              child: pw.Container(
-                                alignment: pw.Alignment.center,
-                                child: itemImages[i] != null
-                                    ? pw.Image(
-                                  itemImages[i]!,
-                                  width: 90,
-                                  height: 90 * (item.height / item.width),
-                                  fit: pw.BoxFit.contain,
-                                )
-                                    : pw.SizedBox(
-                                  width: 90,
-                                  height: 90 * (item.height / item.width),
-                                ),
-                              ),
+                  padding: pw.EdgeInsets.all(4),
+                  child: pw.Container(
+                    height: containerHeight + 35,
+                    alignment: pw.Alignment.center,
+                    child: pw.Stack(
+                      children: [
+                        pw.Positioned(
+                          left: 20,
+                          top: 10,
+                          child: pw.Container(
+                            width: containerWidth,
+                            height: containerHeight,
+                            decoration: pw.BoxDecoration(
+                              border: pw.Border.all(color: PdfColors.black, width: 1.5),
+                              color: PdfColors.grey200,
+                              borderRadius: pw.BorderRadius.circular(5),
                             ),
-                            // Width label below the photo
-                            pw.Positioned(
-                              bottom: 20,
-                              left: 0,
-                              right: 20,
-                              child: pw.Container(
-                                alignment: pw.Alignment.center,
-                                child: pw.Text(
-                                  '${item.width}',
-                                  style: const pw.TextStyle(fontSize: 16),
-                                  maxLines: 1,
-                                  textAlign: pw.TextAlign.center,
-                                ),
+                            alignment: pw.Alignment.center,
+                            child: itemImages[i] != null
+                                ? pw.Padding(
+                              padding: pw.EdgeInsets.all(imagePadding),
+                              child: pw.Image(
+                                itemImages[i]!,
+                                width: containerWidth - 2 * imagePadding,
+                                height: containerHeight - 2 * imagePadding,
+                                fit: pw.BoxFit.contain,
                               ),
+                            )
+                                : pw.SizedBox(
+                              width: containerWidth - 2 * imagePadding,
+                              height: containerHeight - 2 * imagePadding,
                             ),
-                            // Height label to the right of the photo
-                            pw.Positioned(
-                              top: 0,
-                              bottom: 20,
-                              left: 80,
-                              child: pw.Container(
-                                width: 50,
-                                alignment: pw.Alignment.center,
-                                child: pw.Transform.rotate(
-                                  angle: -math.pi / 2,
-                                  child: pw.Text(
-                                    '${item.height}',
-                                    style: const pw.TextStyle(fontSize: 16),
-                                    maxLines: 1,
-                                    textAlign: pw.TextAlign.center,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
-                    ],
+                        pw.Positioned(
+                          left: 20,
+                          top: 10 + containerHeight + 4,
+                          child: pw.Container(
+                            width: containerWidth,
+                            alignment: pw.Alignment.center,
+                            child: pw.Text(
+                              '${item.width} mm',
+                              style: pw.TextStyle(
+                                fontSize: 14,
+                                fontWeight: pw.FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                        pw.Positioned(
+                          left: containerWidth + 4,
+                          top: 10 + (containerHeight / 2) - 18,
+                          child: pw.Transform.rotate(
+                            angle: -math.pi / 2,
+                            child: pw.Text(
+                              '${item.height} mm',
+                              style: pw.TextStyle(
+                                fontSize: 14,
+                                fontWeight: pw.FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 pw.Padding(
-                  padding: const pw.EdgeInsets.all(4),
-                  child: pw.Column(
-                    crossAxisAlignment: pw.CrossAxisAlignment.start,
-                    children: details,
+                  padding: pw.EdgeInsets.all(4),
+                  child: pw.Container(
+                    width: detailsWidth, // <--- force wrapping in details column
+                    constraints: pw.BoxConstraints(minHeight: containerHeight + 35),
+                    child: pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                      children: details,
+                    ),
                   ),
                 ),
                 pw.Padding(
-                  padding: const pw.EdgeInsets.all(4),
+                  padding: pw.EdgeInsets.all(4),
                   child: pw.Column(
                     crossAxisAlignment: pw.CrossAxisAlignment.end,
                     children: [
@@ -326,8 +318,9 @@ Future<void> printOfferPdf({
             border: pw.TableBorder.all(width: 0.5),
             defaultVerticalAlignment: pw.TableCellVerticalAlignment.middle,
             columnWidths: {
-              0: const pw.FixedColumnWidth(110),
-              2: const pw.FixedColumnWidth(70),
+              0: pw.FixedColumnWidth(containerWidth + 40),
+              1: pw.FixedColumnWidth(detailsWidth), // <--- set fixed width!
+              2: pw.FixedColumnWidth(70),
             },
             children: rows,
           ),
@@ -338,10 +331,10 @@ Future<void> printOfferPdf({
         summaryRows.add(
           pw.TableRow(children: [
             pw.Padding(
-                padding: const pw.EdgeInsets.all(4),
+                padding: pw.EdgeInsets.all(4),
                 child: pw.Text('Items total')),
             pw.Padding(
-                padding: const pw.EdgeInsets.all(4),
+                padding: pw.EdgeInsets.all(4),
                 child: pw.Text(currency.format(itemCostTotal))),
           ]),
         );
@@ -350,10 +343,10 @@ Future<void> printOfferPdf({
             summaryRows.add(
               pw.TableRow(children: [
                 pw.Padding(
-                    padding: const pw.EdgeInsets.all(4),
+                    padding: pw.EdgeInsets.all(4),
                     child: pw.Text(c.description.isNotEmpty ? c.description : 'Extra')),
                 pw.Padding(
-                    padding: const pw.EdgeInsets.all(4),
+                    padding: pw.EdgeInsets.all(4),
                     child: pw.Text(currency.format(c.amount))),
               ]),
             );
@@ -363,10 +356,10 @@ Future<void> printOfferPdf({
           summaryRows.add(
             pw.TableRow(children: [
               pw.Padding(
-                  padding: const pw.EdgeInsets.all(4),
+                  padding: pw.EdgeInsets.all(4),
                   child: pw.Text('Discount amount')),
               pw.Padding(
-                  padding: const pw.EdgeInsets.all(4),
+                  padding: pw.EdgeInsets.all(4),
                   child: pw.Text('-' + currency.format(offer.discountAmount))),
             ]),
           );
@@ -375,10 +368,10 @@ Future<void> printOfferPdf({
           summaryRows.add(
             pw.TableRow(children: [
               pw.Padding(
-                  padding: const pw.EdgeInsets.all(4),
+                  padding: pw.EdgeInsets.all(4),
                   child: pw.Text('Discount %')),
               pw.Padding(
-                  padding: const pw.EdgeInsets.all(4),
+                  padding: pw.EdgeInsets.all(4),
                   child: pw.Text('${offer.discountPercent.toStringAsFixed(2)}% (-' + currency.format(percentAmount) + ')')),
             ]),
           );
@@ -386,10 +379,10 @@ Future<void> printOfferPdf({
         summaryRows.add(
           pw.TableRow(children: [
             pw.Padding(
-                padding: const pw.EdgeInsets.all(4),
+                padding: pw.EdgeInsets.all(4),
                 child: pw.Text('Total', style: headerStyle)),
             pw.Padding(
-                padding: const pw.EdgeInsets.all(4),
+                padding: pw.EdgeInsets.all(4),
                 child: pw.Text(currency.format(finalTotal), style: headerStyle)),
           ]),
         );
@@ -399,8 +392,8 @@ Future<void> printOfferPdf({
             border: pw.TableBorder.all(width: 0.5),
             defaultVerticalAlignment: pw.TableCellVerticalAlignment.middle,
             columnWidths: {
-              0: const pw.FlexColumnWidth(),
-              1: const pw.FixedColumnWidth(70),
+              0: pw.FlexColumnWidth(),
+              1: pw.FixedColumnWidth(70),
             },
             children: summaryRows,
           ),
@@ -422,7 +415,6 @@ Future<void> printOfferPdf({
       onLayout: (PdfPageFormat format) async => doc.save(),
     );
   } catch (e) {
-    // Log the error so the caller can see why the PDF didn't open
     debugPrint('Error printing PDF: $e');
   }
 }

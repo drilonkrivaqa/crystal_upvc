@@ -489,7 +489,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                       onTap: () {
                         int index = r * verticalSections + c;
                         setState(() =>
-                            fixedSectors[index] = !fixedSectors[index]);
+                        fixedSectors[index] = !fixedSectors[index]);
                       },
                       child: Container(
                         margin: const EdgeInsets.all(4),
