@@ -50,7 +50,6 @@ Future<void> printOfferPdf({
   }
 
   final currency = NumberFormat.currency(locale: 'en_US', symbol: '€');
-  double itemsBase = 0;
   double itemsFinal = 0;
   for (final item in offer.items) {
     final profile = profileSetBox.getAt(item.profileSetIndex)!;
@@ -78,16 +77,13 @@ Future<void> printOfferPdf({
     final total = profileCost + glassCost + blindCost + mechanismCost + accessoryCost + extras;
     final price = item.manualPrice ?? total * (1 + offer.profitPercent / 100);
 
-    itemsBase += total;
     itemsFinal += price;
   }
   final extrasTotal = offer.extraCharges.fold<double>(0.0, (p, e) => p + e.amount);
-  final baseTotal = itemsBase + extrasTotal;
   double subtotal = itemsFinal + extrasTotal;
   subtotal -= offer.discountAmount;
   final percentAmount = subtotal * (offer.discountPercent / 100);
   final finalTotal = subtotal - percentAmount;
-  final itemCostTotal = baseTotal - extrasTotal;
 
   // ---- PHOTO CONTAINER SETTINGS ----
   final containerWidth = 150.0;
@@ -335,7 +331,7 @@ Future<void> printOfferPdf({
                 child: pw.Text('Items total')),
             pw.Padding(
                 padding: pw.EdgeInsets.all(4),
-                child: pw.Text(currency.format(itemCostTotal))),
+                child: pw.Text(currency.format(itemsFinal))),
           ]),
         );
         if (offer.extraCharges.isNotEmpty) {
