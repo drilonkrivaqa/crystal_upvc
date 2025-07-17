@@ -107,14 +107,14 @@ Future<void> printOfferPdf({
             pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
-                pw.Text('Crystal Upvc',
+                pw.Text('Toni Al-Pvc',
                     style: pw.TextStyle(
                         fontSize: 16,
                         fontWeight: pw.FontWeight.bold,
                         color: PdfColors.blue800)),
-                pw.Text('Street 123, City'),
-                pw.Text('Phone: 0123456789'),
-                pw.Text('info@crystal-upvc.com'),
+                pw.Text('Rr. Ilir Konushevci, Kamenice, Kosove, 62000'),
+                pw.Text('+38344357639 | +38344268300'),
+                pw.Text('www.tonialpvc.com | tonialpvc@gmail.com'),
               ],
             ),
             if (customer != null)
