@@ -71,11 +71,18 @@ Future<void> printOfferPdf({
         ? mechanism.price * item.quantity * item.openings
         : 0;
     final accessoryCost =
-    accessory != null ? accessory.price * item.quantity : 0;
+        accessory != null ? accessory.price * item.quantity : 0;
     final extras = (item.extra1Price ?? 0) + (item.extra2Price ?? 0);
 
-    final total = profileCost + glassCost + blindCost + mechanismCost + accessoryCost + extras;
-    final price = item.manualPrice ?? total * (1 + offer.profitPercent / 100);
+    final base =
+        profileCost + glassCost + blindCost + mechanismCost + accessoryCost;
+    final total = base + extras;
+    double price;
+    if (item.manualPrice != null) {
+      price = item.manualPrice!;
+    } else {
+      price = base * (1 + offer.profitPercent / 100) + extras;
+    }
 
     itemsFinal += price;
   }
@@ -185,8 +192,14 @@ Future<void> printOfferPdf({
           final accessoryCost = accessory != null ? accessory.price * item.quantity : 0;
           final extras = (item.extra1Price ?? 0) + (item.extra2Price ?? 0);
 
-          final total = profileCost + glassCost + blindCost + mechanismCost + accessoryCost + extras;
-          final finalPrice = item.manualPrice ?? total * (1 + offer.profitPercent / 100);
+          final base = profileCost + glassCost + blindCost + mechanismCost + accessoryCost;
+          final total = base + extras;
+          double finalPrice;
+          if (item.manualPrice != null) {
+            finalPrice = item.manualPrice!;
+          } else {
+            finalPrice = base * (1 + offer.profitPercent / 100) + extras;
+          }
           final pricePerPiece = finalPrice / item.quantity;
 
           final vAdapters = item.verticalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ');

@@ -204,9 +204,14 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
             double accessoryCost = (accessory != null) ? accessory.price * item.quantity : 0;
             double extras = (item.extra1Price ?? 0) + (item.extra2Price ?? 0);
 
-            double total = profileCost + glassCost + blindCost + mechanismCost + accessoryCost + extras;
-            double finalPrice = item.manualPrice ??
-                total * (1 + offer.profitPercent / 100);
+            double base = profileCost + glassCost + blindCost + mechanismCost + accessoryCost;
+            double total = base + extras;
+            double finalPrice;
+            if (item.manualPrice != null) {
+              finalPrice = item.manualPrice!;
+            } else {
+              finalPrice = base * (1 + offer.profitPercent / 100) + extras;
+            }
             double profitAmount = finalPrice - total;
 
             return Card(
@@ -307,9 +312,15 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                     : 0;
                 double accessoryCost = (accessory != null) ? accessory.price * item.quantity : 0;
                 double extras = (item.extra1Price ?? 0) + (item.extra2Price ?? 0);
-                double base = profileCost + glassCost + blindCost + mechanismCost + accessoryCost + extras;
-                double finalPrice = item.manualPrice ?? base * (offer.profitPercent / 100 + 1);
-                itemsBase += base;
+                double base = profileCost + glassCost + blindCost + mechanismCost + accessoryCost;
+                double total = base + extras;
+                double finalPrice;
+                if (item.manualPrice != null) {
+                  finalPrice = item.manualPrice!;
+                } else {
+                  finalPrice = base * (offer.profitPercent / 100 + 1) + extras;
+                }
+                itemsBase += total;
                 itemsFinal += finalPrice;
               }
               double extrasTotal = offer.extraCharges.fold(0, (p, e) => p + e.amount);
