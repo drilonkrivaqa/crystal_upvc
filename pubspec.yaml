@@ -73,8 +73,8 @@ flutter:
   assets:
     - assets/fonts/DejaVuSans.ttf
     - assets/fonts/DejaVuSans-Bold.ttf
+    - assets/logo.png
     - assets/sample_photos/
-
 
   fonts:
     - family: DejaVuSans
