@@ -25,6 +25,15 @@ Future<void> printOfferPdf({
   final baseFont = pw.Font.ttf(fontData);
   final boldFont = pw.Font.ttf(boldFontData);
 
+  // Load company logo
+  pw.MemoryImage? logoImage;
+  try {
+    final logoData = await rootBundle.load('assets/logo.png');
+    logoImage = pw.MemoryImage(logoData.buffer.asUint8List());
+  } catch (_) {
+    logoImage = null;
+  }
+
   final doc = pw.Document(
     theme: pw.ThemeData.withFont(base: baseFont, bold: boldFont),
   );
@@ -111,17 +120,27 @@ Future<void> printOfferPdf({
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
           children: [
-            pw.Column(
+            pw.Row(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
-                pw.Text('Toni Al-Pvc',
-                    style: pw.TextStyle(
-                        fontSize: 16,
-                        fontWeight: pw.FontWeight.bold,
-                        color: PdfColors.blue800)),
-                pw.Text('Rr. Ilir Konushevci, Kamenice, Kosove, 62000'),
-                pw.Text('+38344357639 | +38344268300'),
-                pw.Text('www.tonialpvc.com | tonialpvc@gmail.com'),
+                if (logoImage != null)
+                  pw.Padding(
+                    padding: pw.EdgeInsets.only(right: 8),
+                    child: pw.Image(logoImage!, width: 48, height: 48),
+                  ),
+                pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.Text('Toni Al-Pvc',
+                        style: pw.TextStyle(
+                            fontSize: 16,
+                            fontWeight: pw.FontWeight.bold,
+                            color: PdfColors.blue800)),
+                    pw.Text('Rr. Ilir Konushevci, Kamenice, Kosove, 62000'),
+                    pw.Text('+38344357639 | +38344268300'),
+                    pw.Text('www.tonialpvc.com | tonialpvc@gmail.com'),
+                  ],
+                ),
               ],
             ),
             if (customer != null)
@@ -214,7 +233,7 @@ Future<void> printOfferPdf({
             pw.Text('Glass: ${glass.name}'),
             if (blind != null) pw.Text('Blind: ${blind.name}'),
             if (mechanism != null) pw.Text('Mechanism: ${mechanism.name}'),
-            if (accessory != null) pw.Text('Accessory: ${accessory.name}'),
+            if (accessory != null) pw.Text('Accessory: ${accessory.name} = €${accessory.price}'),
             pw.Text('Sectors: ${item.horizontalSections}x${item.verticalSections}'),
             pw.Text('Sashes: ${item.openings}'),
             pw.Text('Widths: ${item.sectionWidths.join(', ')}'),
