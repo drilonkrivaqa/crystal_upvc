@@ -46,6 +46,8 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
     final priceLlajsneController = TextEditingController(text: item is ProfileSet ? item.priceLlajsne.toString() : "");
     final pricePerM2Controller = TextEditingController(
         text: (item is Glass || item is Blind) ? item.pricePerM2.toString() : "");
+    final boxHeightController =
+    TextEditingController(text: item is Blind ? item.boxHeight.toString() : "");
     final priceController =
     TextEditingController(text: (item is Mechanism || item is Accessory) ? item.price.toString() : "");
 
@@ -66,6 +68,8 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
               ],
               if (widget.type == CatalogType.glass || widget.type == CatalogType.blind)
                 TextField(controller: pricePerM2Controller, decoration: const InputDecoration(labelText: 'Çmimi €/m²')),
+              if (widget.type == CatalogType.blind)
+                TextField(controller: boxHeightController, decoration: const InputDecoration(labelText: 'Lartësia e kutisë (mm)')),
               if (widget.type == CatalogType.mechanism || widget.type == CatalogType.accessory)
                 TextField(controller: priceController, decoration: const InputDecoration(labelText: 'Çmimi (€)')),
             ],
@@ -111,6 +115,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                       Blind(
                         name: nameController.text,
                         pricePerM2: double.tryParse(pricePerM2Controller.text) ?? 0,
+                        boxHeight: int.tryParse(boxHeightController.text) ?? 0,
                       ));
                   break;
                 case CatalogType.mechanism:
@@ -148,6 +153,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
     final priceAdapterController = TextEditingController();
     final priceLlajsneController = TextEditingController();
     final pricePerM2Controller = TextEditingController();
+    final boxHeightController = TextEditingController();
     final priceController = TextEditingController();
 
     showDialog(
@@ -167,6 +173,8 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
               ],
               if (widget.type == CatalogType.glass || widget.type == CatalogType.blind)
                 TextField(controller: pricePerM2Controller, decoration: const InputDecoration(labelText: 'Çmimi €/m²')),
+              if (widget.type == CatalogType.blind)
+                TextField(controller: boxHeightController, decoration: const InputDecoration(labelText: 'Lartësia e kutisë (mm)')),
               if (widget.type == CatalogType.mechanism || widget.type == CatalogType.accessory)
                 TextField(controller: priceController, decoration: const InputDecoration(labelText: 'Çmimi (€)')),
             ],
@@ -198,6 +206,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                   box.add(Blind(
                     name: nameController.text,
                     pricePerM2: double.tryParse(pricePerM2Controller.text) ?? 0,
+                    boxHeight: int.tryParse(boxHeightController.text) ?? 0,
                   ));
                   break;
                 case CatalogType.mechanism:
@@ -258,8 +267,10 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                         "T: €${item.priceT.toStringAsFixed(2)}/m\n"
                         "Adapter: €${item.priceAdapter.toStringAsFixed(2)}/m\n"
                         "Llajsne: €${item.priceLlajsne.toStringAsFixed(2)}/m")
-                    : widget.type == CatalogType.glass || widget.type == CatalogType.blind
+                    : widget.type == CatalogType.glass
                     ? Text("€${item.pricePerM2.toStringAsFixed(2)}/m²")
+                    : widget.type == CatalogType.blind
+                    ? Text("€${item.pricePerM2.toStringAsFixed(2)}/m², Kuti: ${item.boxHeight}mm")
                     : widget.type == CatalogType.mechanism || widget.type == CatalogType.accessory
                     ? Text("€${item.price.toStringAsFixed(2)}")
                     : null,

@@ -195,8 +195,12 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
             final mechanism = (item.mechanismIndex != null) ? mechanismBox.getAt(item.mechanismIndex!) : null;
             final accessory = (item.accessoryIndex != null) ? accessoryBox.getAt(item.accessoryIndex!) : null;
 
-            double profileCost = item.calculateProfileCost(profileSet) * item.quantity;
-            double glassCost = item.calculateGlassCost(glass) * item.quantity;
+            double profileCost =
+                item.calculateProfileCost(profileSet, boxHeight: blind?.boxHeight ?? 0) *
+                    item.quantity;
+            double glassCost =
+                item.calculateGlassCost(glass, boxHeight: blind?.boxHeight ?? 0) *
+                    item.quantity;
             double blindCost = (blind != null)
                 ? ((item.width / 1000.0) * (item.height / 1000.0) * blind.pricePerM2 * item.quantity)
                 : 0;
@@ -306,8 +310,12 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 final blind = (item.blindIndex != null) ? blindBox.getAt(item.blindIndex!) : null;
                 final mechanism = (item.mechanismIndex != null) ? mechanismBox.getAt(item.mechanismIndex!) : null;
                 final accessory = (item.accessoryIndex != null) ? accessoryBox.getAt(item.accessoryIndex!) : null;
-                double profileCost = item.calculateProfileCost(profileSet) * item.quantity;
-                double glassCost = item.calculateGlassCost(glass) * item.quantity;
+                double profileCost =
+                    item.calculateProfileCost(profileSet, boxHeight: blind?.boxHeight ?? 0) *
+                        item.quantity;
+                double glassCost =
+                    item.calculateGlassCost(glass, boxHeight: blind?.boxHeight ?? 0) *
+                        item.quantity;
                 double blindCost = (blind != null)
                     ? ((item.width / 1000.0) * (item.height / 1000.0) * blind.pricePerM2 * item.quantity)
                     : 0;
