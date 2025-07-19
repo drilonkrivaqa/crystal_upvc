@@ -26,19 +26,19 @@ class _CustomersPageState extends State<CustomersPage> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Add Customer'),
+        title: const Text('Shto konsumatorin'),
         content: SingleChildScrollView(
           child: Column(
             children: [
-              TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Name')),
-              TextField(controller: addressController, decoration: const InputDecoration(labelText: 'Address')),
-              TextField(controller: phoneController, decoration: const InputDecoration(labelText: 'Phone')),
+              TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Emri & Mbiemri')),
+              TextField(controller: addressController, decoration: const InputDecoration(labelText: 'Adresa')),
+              TextField(controller: phoneController, decoration: const InputDecoration(labelText: 'Nr. Tel.')),
               TextField(controller: emailController, decoration: const InputDecoration(labelText: 'Email')),
             ],
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Anulo')),
           ElevatedButton(
             onPressed: () {
               if (nameController.text.isEmpty) return;
@@ -51,7 +51,7 @@ class _CustomersPageState extends State<CustomersPage> {
               Navigator.pop(context);
               setState(() {});
             },
-            child: const Text('Add'),
+            child: const Text('Shto'),
           ),
         ],
       ),
@@ -68,13 +68,13 @@ class _CustomersPageState extends State<CustomersPage> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Edit Customer'),
+        title: const Text('Ndrysho Konsumatorin'),
         content: SingleChildScrollView(
           child: Column(
             children: [
-              TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Name')),
-              TextField(controller: addressController, decoration: const InputDecoration(labelText: 'Address')),
-              TextField(controller: phoneController, decoration: const InputDecoration(labelText: 'Phone')),
+              TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Emri & Mbiemri')),
+              TextField(controller: addressController, decoration: const InputDecoration(labelText: 'Adresa')),
+              TextField(controller: phoneController, decoration: const InputDecoration(labelText: 'Nr. Tel.')),
               TextField(controller: emailController, decoration: const InputDecoration(labelText: 'Email')),
             ],
           ),
@@ -86,9 +86,9 @@ class _CustomersPageState extends State<CustomersPage> {
               Navigator.pop(context);
               setState(() {});
             },
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+            child: const Text('Fshij', style: TextStyle(color: Colors.red)),
           ),
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Anulo')),
           ElevatedButton(
             onPressed: () {
               if (nameController.text.isEmpty) return;
@@ -101,7 +101,7 @@ class _CustomersPageState extends State<CustomersPage> {
               Navigator.pop(context);
               setState(() {});
             },
-            child: const Text('Save'),
+            child: const Text('Ruaj'),
           ),
         ],
       ),
@@ -111,7 +111,7 @@ class _CustomersPageState extends State<CustomersPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Customers')),
+      appBar: AppBar(title: const Text('Konsumatorët')),
       body: ValueListenableBuilder(
         valueListenable: customerBox.listenable(),
         builder: (context, Box<Customer> box, _) {
@@ -123,8 +123,8 @@ class _CustomersPageState extends State<CustomersPage> {
               return ListTile(
                 title: Text(customer?.name ?? ""),
                 subtitle: Text(
-                  'Address: ${customer?.address ?? ""}\n'
-                      'Phone: ${customer?.phone ?? ""}\n'
+                  'Adresa: ${customer?.address ?? ""}\n'
+                      'Nr. Tel.: ${customer?.phone ?? ""}\n'
                       'Email: ${customer?.email ?? ""}',
                 ),
                 onTap: () => _editCustomer(index),

@@ -18,20 +18,20 @@ class WelcomePage extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Image.asset('assets/logo.png', width: 200),
-                      const SizedBox(height: 24),
-                      const Text(
-                        'Toni Al-Pvc',
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.teal,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
+                      Image.asset('assets/logo.png', width: 400),
+                      const SizedBox(height: 0),
+                      // const Text(
+                      //   'Toni Al-Pvc',
+                      //   style: TextStyle(
+                      //     fontSize: 28,
+                      //     fontWeight: FontWeight.bold,
+                      //     color: Colors.teal,
+                      //   ),
+                      //   textAlign: TextAlign.center,
+                      // ),
                       const SizedBox(height: 12),
                       const Text(
-                        'Rr. Ilir Konushevci, Kamenice, Kosove, 62000',
+                        'Rr. Ilir Konushevci, Nr. 80, Kamenicë, Kosovë, 62000',
                         textAlign: TextAlign.center,
                       ),
                       const Text(

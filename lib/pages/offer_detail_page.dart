@@ -101,7 +101,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                       builder: (_) => StatefulBuilder(
                         builder: (context, setStateDialog) {
                           return AlertDialog(
-                            title: const Text('Select Customer'),
+                            title: const Text('Zgjedh Konsumatorin'),
                             content: DropdownButton<int>(
                               value: selected,
                               items: List.generate(
@@ -116,7 +116,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.pop(context),
-                                child: const Text('Cancel'),
+                                child: const Text('Anulo'),
                               ),
                               ElevatedButton(
                                 onPressed: () {
@@ -125,7 +125,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                                   setState(() {});
                                   Navigator.pop(context);
                                 },
-                                child: const Text('Save'),
+                                child: const Text('Ruaj'),
                               ),
                             ],
                           );
@@ -144,7 +144,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
               children: [
                 Expanded(
                   child: Text(
-                    'Profit: ${offer.profitPercent.toStringAsFixed(2)}%',
+                    'Fitimi: ${offer.profitPercent.toStringAsFixed(2)}%',
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -155,16 +155,16 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                     await showDialog(
                       context: context,
                       builder: (_) => AlertDialog(
-                        title: const Text('Set Profit Percentage'),
+                        title: const Text('Vendos Përqindjen e Fitimit'),
                         content: TextField(
                           controller: controller,
                           keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(labelText: 'Profit %'),
+                          decoration: const InputDecoration(labelText: 'Fitimi %'),
                         ),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(context),
-                            child: const Text('Cancel'),
+                            child: const Text('Anulo'),
                           ),
                           ElevatedButton(
                             onPressed: () {
@@ -174,7 +174,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                               setState(() {});
                               Navigator.pop(context);
                             },
-                            child: const Text('Save'),
+                            child: const Text('Ruaj'),
                           ),
                         ],
                       ),
@@ -224,33 +224,33 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                     : null,
                 title: Text(item.name),
                 subtitle: Text(
-                  'Size: ${item.width} x ${item.height} mm\n'
-                      'Qty: ${item.quantity}\n'
-                      'Profile: ${profileSet.name}\n'
-                      'Glass: ${glass.name}\n'
-                      'Sectors: ${item.horizontalSections}x${item.verticalSections}\n'
-                      'Sashes: ${item.openings}\n'
-                      'Widths: ${item.sectionWidths.join(', ')}\n'
-                      'Heights: ${item.sectionHeights.join(', ')}\n'
+                  'Madhësia: ${item.width} x ${item.height} mm\n'
+                      'Pcs: ${item.quantity}\n'
+                      'Profili: ${profileSet.name}\n'
+                      'Xhami: ${glass.name}\n'
+                      'Sektorët: ${item.horizontalSections}x${item.verticalSections}\n'
+                      'Krahët: ${item.openings}\n'
+                      'Gjerësitë: ${item.sectionWidths.join(', ')}\n'
+                      'Lartësitë: ${item.sectionHeights.join(', ')}\n'
                       'V div: ${item.verticalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ')}\n'
                       'H div: ${item.horizontalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ')}\n'
-                      'Profile cost: €${profileCost.toStringAsFixed(2)}\n'
-                      'Glass cost: €${glassCost.toStringAsFixed(2)}\n'
-                      '${blind != null ? "Blind: ${blind.name}, €${blindCost.toStringAsFixed(2)}\n" : ""}'
-                      '${mechanism != null ? "Mechanism: ${mechanism.name}, €${mechanismCost.toStringAsFixed(2)}\n" : ""}'
-                      '${accessory != null ? "Accessory: ${accessory.name}, €${accessoryCost.toStringAsFixed(2)}\n" : ""}'
-                      '${item.extra1Price != null ? "${item.extra1Desc ?? 'Additional 1'}: €${item.extra1Price!.toStringAsFixed(2)}\n" : ""}'
-                      '${item.extra2Price != null ? "${item.extra2Desc ?? 'Additional 2'}: €${item.extra2Price!.toStringAsFixed(2)}\n" : ""}'
-                      'Cost (0%): €${total.toStringAsFixed(2)}\n'
-                      'With profit: €${finalPrice.toStringAsFixed(2)}\n'
-                      'Profit: €${profitAmount.toStringAsFixed(2)}',
+                      'Kostoja e Profilit: €${profileCost.toStringAsFixed(2)}\n'
+                      'Kostoja e Xhamit: €${glassCost.toStringAsFixed(2)}\n'
+                      '${blind != null ? "Roleta: ${blind.name}, €${blindCost.toStringAsFixed(2)}\n" : ""}'
+                      '${mechanism != null ? "Mekanizmi: ${mechanism.name}, €${mechanismCost.toStringAsFixed(2)}\n" : ""}'
+                      '${accessory != null ? "Aksesori: ${accessory.name}, €${accessoryCost.toStringAsFixed(2)}\n" : ""}'
+                      '${item.extra1Price != null ? "${item.extra1Desc ?? 'Shtesa 1'}: €${item.extra1Price!.toStringAsFixed(2)}\n" : ""}'
+                      '${item.extra2Price != null ? "${item.extra2Desc ?? 'Shtesa 2'}: €${item.extra2Price!.toStringAsFixed(2)}\n" : ""}'
+                      'Kostoja (0%): €${total.toStringAsFixed(2)}\n'
+                      'Kostoja me Fitim: €${finalPrice.toStringAsFixed(2)}\n'
+                      'Fitimi: €${profitAmount.toStringAsFixed(2)}',
                 ),
                 onTap: () async {
                   await showDialog(
                     context: context,
                     builder: (_) => AlertDialog(
-                      title: const Text("Edit/Delete Window/Door"),
-                      content: const Text("Do you want to edit or delete this item?"),
+                      title: const Text("Ndrysho/Fshij Dritaren/Derën"),
+                      content: const Text("A dëshironi ta fshini këtë?"),
                       actions: [
                         TextButton(
                           onPressed: () {
@@ -259,7 +259,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                             setState(() {});
                             Navigator.pop(context);
                           },
-                          child: const Text("Delete", style: TextStyle(color: Colors.red)),
+                          child: const Text("Fshij", style: TextStyle(color: Colors.red)),
                         ),
                         TextButton(
                           onPressed: () async {
@@ -278,11 +278,11 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                               ),
                             );
                           },
-                          child: const Text("Edit"),
+                          child: const Text("Ndrysho"),
                         ),
                         TextButton(
                           onPressed: () => Navigator.pop(context),
-                          child: const Text("Cancel"),
+                          child: const Text("Anulo"),
                         ),
                       ],
                     ),
@@ -330,17 +330,17 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
               double percentAmount = subtotal * (offer.discountPercent / 100);
               double finalTotal = subtotal - percentAmount;
               double profitTotal = finalTotal - baseTotal;
-              String summary = 'Grand Total (0%): €${baseTotal.toStringAsFixed(2)}\n';
+              String summary = 'Totali pa Fitim (0%): €${baseTotal.toStringAsFixed(2)}\n';
               for (var charge in offer.extraCharges) {
-                summary += '${charge.description.isNotEmpty ? charge.description : 'Extra'}: €${charge.amount.toStringAsFixed(2)}\n';
+                summary += '${charge.description.isNotEmpty ? charge.description : 'Ekstra'}: €${charge.amount.toStringAsFixed(2)}\n';
               }
               if (offer.discountAmount != 0) {
-                summary += 'Discount amount: -€${offer.discountAmount.toStringAsFixed(2)}\n';
+                summary += 'Zbritje: -€${offer.discountAmount.toStringAsFixed(2)}\n';
               }
               if (offer.discountPercent != 0) {
-                summary += 'Discount %: ${offer.discountPercent.toStringAsFixed(2)}% (-€${percentAmount.toStringAsFixed(2)})\n';
+                summary += 'Zbritje me përqindje %: ${offer.discountPercent.toStringAsFixed(2)}% (-€${percentAmount.toStringAsFixed(2)})\n';
               }
-              summary += 'With profit: €${finalTotal.toStringAsFixed(2)}\nTotal profit: €${profitTotal.toStringAsFixed(2)}';
+              summary += 'Me Fitim: €${finalTotal.toStringAsFixed(2)}\nFitimi Total: €${profitTotal.toStringAsFixed(2)}';
               return Text(
                 summary,
                 textAlign: TextAlign.center,
@@ -368,7 +368,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                         child: TextField(
                           controller: descCtl,
                           decoration:
-                          const InputDecoration(labelText: 'Description'),
+                          const InputDecoration(labelText: 'Përshkrimi'),
                           onChanged: (v) {
                             charge.description = v;
                             offer.save();
@@ -382,7 +382,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                           controller: amtCtl,
                           keyboardType: TextInputType.number,
                           decoration:
-                          const InputDecoration(labelText: 'Amount'),
+                          const InputDecoration(labelText: 'Sasia'),
                           onChanged: (v) {
                             charge.amount = double.tryParse(v) ?? 0;
                             offer.save();
@@ -418,13 +418,13 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                       setState(() {});
                     },
                     icon: const Icon(Icons.add),
-                    label: const Text('Add extra'),
+                    label: const Text('Shto ekstra'),
                   ),
                 ),
                 TextField(
                   controller: discountPercentController,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: 'Discount %'),
+                  decoration: const InputDecoration(labelText: 'Zbritja %'),
                   onChanged: (val) {
                     offer.discountPercent = double.tryParse(val) ?? 0;
                     offer.save();
@@ -434,7 +434,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 TextField(
                   controller: discountAmountController,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: 'Discount amount'),
+                  decoration: const InputDecoration(labelText: 'Zbritja'),
                   onChanged: (val) {
                     offer.discountAmount = double.tryParse(val) ?? 0;
                     offer.save();
@@ -443,7 +443,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 ),
                 TextField(
                   controller: notesController,
-                  decoration: const InputDecoration(labelText: 'Notes'),
+                  decoration: const InputDecoration(labelText: 'Vërejtje/Notes'),
                   minLines: 1,
                   maxLines: 3,
                   onChanged: (val) {

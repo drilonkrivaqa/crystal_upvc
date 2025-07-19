@@ -56,7 +56,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('UPVC Helper'),
+        title: const Text('TONI AL-PVC'),
         centerTitle: true,
         backgroundColor: Colors.teal,
       ),
@@ -67,7 +67,7 @@ class HomePage extends StatelessWidget {
           children: [
             _MenuButton(
               icon: Icons.layers,
-              label: 'Katalogu',
+              label: 'Çmimoret',
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const CatalogsPage()),
