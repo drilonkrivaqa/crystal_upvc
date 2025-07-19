@@ -71,8 +71,12 @@ Future<void> printOfferPdf({
         ? accessoryBox.getAt(item.accessoryIndex!)
         : null;
 
-    final profileCost = item.calculateProfileCost(profile) * item.quantity;
-    final glassCost = item.calculateGlassCost(glass) * item.quantity;
+    final profileCost =
+        item.calculateProfileCost(profile, boxHeight: blind?.boxHeight ?? 0) *
+            item.quantity;
+    final glassCost =
+        item.calculateGlassCost(glass, boxHeight: blind?.boxHeight ?? 0) *
+            item.quantity;
     final blindCost = blind != null
         ? ((item.width / 1000.0) * (item.height / 1000.0) * blind.pricePerM2 * item.quantity)
         : 0;
@@ -211,8 +215,12 @@ Future<void> printOfferPdf({
           final blind = item.blindIndex != null ? blindBox.getAt(item.blindIndex!) : null;
           final accessory = item.accessoryIndex != null ? accessoryBox.getAt(item.accessoryIndex!) : null;
 
-          final profileCost = item.calculateProfileCost(profile) * item.quantity;
-          final glassCost = item.calculateGlassCost(glass) * item.quantity;
+          final profileCost =
+              item.calculateProfileCost(profile, boxHeight: blind?.boxHeight ?? 0) *
+                  item.quantity;
+          final glassCost =
+              item.calculateGlassCost(glass, boxHeight: blind?.boxHeight ?? 0) *
+                  item.quantity;
           final blindCost = blind != null
               ? ((item.width / 1000.0) * (item.height / 1000.0) * blind.pricePerM2 * item.quantity)
               : 0;

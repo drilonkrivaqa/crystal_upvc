@@ -44,9 +44,9 @@ class CustomerAdapter extends TypeAdapter<Customer> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-          other is CustomerAdapter &&
-              runtimeType == other.runtimeType &&
-              typeId == other.typeId;
+      other is CustomerAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
 }
 
 class ProfileSetAdapter extends TypeAdapter<ProfileSet> {
@@ -93,9 +93,9 @@ class ProfileSetAdapter extends TypeAdapter<ProfileSet> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-          other is ProfileSetAdapter &&
-              runtimeType == other.runtimeType &&
-              typeId == other.typeId;
+      other is ProfileSetAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
 }
 
 class GlassAdapter extends TypeAdapter<Glass> {
@@ -130,9 +130,9 @@ class GlassAdapter extends TypeAdapter<Glass> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-          other is GlassAdapter &&
-              runtimeType == other.runtimeType &&
-              typeId == other.typeId;
+      other is GlassAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
 }
 
 class BlindAdapter extends TypeAdapter<Blind> {
@@ -148,17 +148,20 @@ class BlindAdapter extends TypeAdapter<Blind> {
     return Blind(
       name: fields[0] as String,
       pricePerM2: fields[1] as double,
+      boxHeight: fields[2] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, Blind obj) {
     writer
-      ..writeByte(2)
+      ..writeByte(3)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
-      ..write(obj.pricePerM2);
+      ..write(obj.pricePerM2)
+      ..writeByte(2)
+      ..write(obj.boxHeight);
   }
 
   @override
@@ -167,9 +170,9 @@ class BlindAdapter extends TypeAdapter<Blind> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-          other is BlindAdapter &&
-              runtimeType == other.runtimeType &&
-              typeId == other.typeId;
+      other is BlindAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
 }
 
 class MechanismAdapter extends TypeAdapter<Mechanism> {
@@ -204,9 +207,9 @@ class MechanismAdapter extends TypeAdapter<Mechanism> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-          other is MechanismAdapter &&
-              runtimeType == other.runtimeType &&
-              typeId == other.typeId;
+      other is MechanismAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
 }
 
 class AccessoryAdapter extends TypeAdapter<Accessory> {
@@ -241,9 +244,9 @@ class AccessoryAdapter extends TypeAdapter<Accessory> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-          other is AccessoryAdapter &&
-              runtimeType == other.runtimeType &&
-              typeId == other.typeId;
+      other is AccessoryAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
 }
 
 class ExtraChargeAdapter extends TypeAdapter<ExtraCharge> {
@@ -278,9 +281,9 @@ class ExtraChargeAdapter extends TypeAdapter<ExtraCharge> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-          other is ExtraChargeAdapter &&
-              runtimeType == other.runtimeType &&
-              typeId == other.typeId;
+      other is ExtraChargeAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
 }
 
 class WindowDoorItemAdapter extends TypeAdapter<WindowDoorItem> {
@@ -381,9 +384,9 @@ class WindowDoorItemAdapter extends TypeAdapter<WindowDoorItem> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-          other is WindowDoorItemAdapter &&
-              runtimeType == other.runtimeType &&
-              typeId == other.typeId;
+      other is WindowDoorItemAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
 }
 
 class OfferAdapter extends TypeAdapter<Offer> {
@@ -406,7 +409,7 @@ class OfferAdapter extends TypeAdapter<Offer> {
       discountPercent: fields[6] as double,
       discountAmount: fields[7] as double,
       notes: fields[8] as String,
-      lastEdited: fields[9] as DateTime? ?? fields[2] as DateTime,
+      lastEdited: fields[9] as DateTime?,
     );
   }
 
@@ -442,7 +445,7 @@ class OfferAdapter extends TypeAdapter<Offer> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-          other is OfferAdapter &&
-              runtimeType == other.runtimeType &&
-              typeId == other.typeId;
+      other is OfferAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
 }
