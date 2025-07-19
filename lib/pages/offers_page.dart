@@ -71,6 +71,7 @@ class _OffersPageState extends State<OffersPage> {
                     id: DateTime.now().millisecondsSinceEpoch.toString(),
                     customerIndex: selectedCustomer,
                     date: DateTime.now(),
+                    lastEdited: DateTime.now(),
                     items: [],
                     profitPercent: double.tryParse(profitController.text) ?? 0,
                   ),
