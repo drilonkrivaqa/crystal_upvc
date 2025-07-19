@@ -261,7 +261,7 @@ Future<void> printOfferPdf({
             pw.TableRow(
               children: [
                 pw.Padding(
-                  padding: pw.EdgeInsets.all(4),
+                  padding: pw.EdgeInsets.all(1.0),
                   child: pw.Container(
                     height: containerHeight + 35,
                     alignment: pw.Alignment.center,
@@ -311,8 +311,8 @@ Future<void> printOfferPdf({
                           ),
                         ),
                         pw.Positioned(
-                          left: containerWidth + 4,
-                          top: 10 + (containerHeight / 2) - 18,
+                          left: containerWidth,
+                          top: 10 + (containerHeight / 2) - 10,
                           child: pw.Transform.rotate(
                             angle: -math.pi / 2,
                             child: pw.Text(
@@ -375,11 +375,11 @@ Future<void> printOfferPdf({
           pw.TableRow(children: [
             pw.Padding(
                 padding: pw.EdgeInsets.all(4),
-                child: pw.Text('Totali i artikujve (€)')),
+                child: pw.Text('Çmimi i artikujve (€)')),
             pw.Padding(
                 padding: pw.EdgeInsets.all(4),
-                child: pw.Text(currency.format(itemsFinal))),
-          ]),
+                child: pw.Text(currency.format(itemsFinal),
+                    textAlign: pw.TextAlign.right)),          ]),
         );
         if (offer.extraCharges.isNotEmpty) {
           for (final c in offer.extraCharges) {
@@ -423,7 +423,7 @@ Future<void> printOfferPdf({
           pw.TableRow(children: [
             pw.Padding(
                 padding: pw.EdgeInsets.all(4),
-                child: pw.Text('Totali', style: headerStyle)),
+                child: pw.Text('Çmimi total (€)', style: headerStyle)),
             pw.Padding(
                 padding: pw.EdgeInsets.all(4),
                 child: pw.Text(formattedFinalTotal, style: headerStyle,
