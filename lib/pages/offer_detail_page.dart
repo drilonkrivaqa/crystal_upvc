@@ -435,6 +435,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                   decoration: const InputDecoration(labelText: 'Zbritja %'),
                   onChanged: (val) {
                     offer.discountPercent = double.tryParse(val) ?? 0;
+                    offer.lastEdited = DateTime.now();
                     offer.save();
                     offer.lastEdited = DateTime.now();
                     setState(() {});
