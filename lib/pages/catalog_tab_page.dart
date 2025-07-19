@@ -56,18 +56,18 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
         content: SingleChildScrollView(
           child: Column(
             children: [
-              TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Name')),
+              TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Emri')),
               if (widget.type == CatalogType.profileSet) ...[
-                TextField(controller: priceLController, decoration: const InputDecoration(labelText: 'Frame (L) €/m')),
-                TextField(controller: priceZController, decoration: const InputDecoration(labelText: 'Sash (Z) €/m')),
-                TextField(controller: priceTController, decoration: const InputDecoration(labelText: 'T Profile €/m')),
-                TextField(controller: priceAdapterController, decoration: const InputDecoration(labelText: 'Adapter €/m')),
+                TextField(controller: priceLController, decoration: const InputDecoration(labelText: 'Rami (L) €/m')),
+                TextField(controller: priceZController, decoration: const InputDecoration(labelText: 'Krahu (Z) €/m')),
+                TextField(controller: priceTController, decoration: const InputDecoration(labelText: 'T Profili €/m')),
+                TextField(controller: priceAdapterController, decoration: const InputDecoration(labelText: 'Adapteri €/m')),
                 TextField(controller: priceLlajsneController, decoration: const InputDecoration(labelText: 'Llajsne €/m')),
               ],
               if (widget.type == CatalogType.glass || widget.type == CatalogType.blind)
-                TextField(controller: pricePerM2Controller, decoration: const InputDecoration(labelText: 'Price €/m²')),
+                TextField(controller: pricePerM2Controller, decoration: const InputDecoration(labelText: 'Çmimi €/m²')),
               if (widget.type == CatalogType.mechanism || widget.type == CatalogType.accessory)
-                TextField(controller: priceController, decoration: const InputDecoration(labelText: 'Price (€)')),
+                TextField(controller: priceController, decoration: const InputDecoration(labelText: 'Çmimi (€)')),
             ],
           ),
         ),
@@ -80,7 +80,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
             },
             child: const Text('Delete', style: TextStyle(color: Colors.red)),
           ),
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Anulo')),
           ElevatedButton(
             onPressed: () {
               if (nameController.text.isEmpty) return;
@@ -133,7 +133,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
               Navigator.pop(context);
               setState(() {});
             },
-            child: const Text('Save'),
+            child: const Text('Ruaj'),
           ),
         ],
       ),
@@ -153,27 +153,27 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text("Add ${_typeLabel()}"),
+        title: Text("Regjistro ${_typeLabel()}"),
         content: SingleChildScrollView(
           child: Column(
             children: [
-              TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Name')),
+              TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Emri')),
               if (widget.type == CatalogType.profileSet) ...[
-                TextField(controller: priceLController, decoration: const InputDecoration(labelText: 'Frame (L) €/m')),
-                TextField(controller: priceZController, decoration: const InputDecoration(labelText: 'Sash (Z) €/m')),
-                TextField(controller: priceTController, decoration: const InputDecoration(labelText: 'T Profile €/m')),
-                TextField(controller: priceAdapterController, decoration: const InputDecoration(labelText: 'Adapter €/m')),
+                TextField(controller: priceLController, decoration: const InputDecoration(labelText: 'Rami (L) €/m')),
+                TextField(controller: priceZController, decoration: const InputDecoration(labelText: 'Krahu (Z) €/m')),
+                TextField(controller: priceTController, decoration: const InputDecoration(labelText: 'T Profili €/m')),
+                TextField(controller: priceAdapterController, decoration: const InputDecoration(labelText: 'Adapteri €/m')),
                 TextField(controller: priceLlajsneController, decoration: const InputDecoration(labelText: 'Llajsne €/m')),
               ],
               if (widget.type == CatalogType.glass || widget.type == CatalogType.blind)
-                TextField(controller: pricePerM2Controller, decoration: const InputDecoration(labelText: 'Price €/m²')),
+                TextField(controller: pricePerM2Controller, decoration: const InputDecoration(labelText: 'Çmimi €/m²')),
               if (widget.type == CatalogType.mechanism || widget.type == CatalogType.accessory)
-                TextField(controller: priceController, decoration: const InputDecoration(labelText: 'Price (€)')),
+                TextField(controller: priceController, decoration: const InputDecoration(labelText: 'Çmimi (€)')),
             ],
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Anulo')),
           ElevatedButton(
             onPressed: () {
               if (nameController.text.isEmpty) return;
@@ -216,7 +216,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
               Navigator.pop(context);
               setState(() {});
             },
-            child: const Text('Add'),
+            child: const Text('Regjistro'),
           ),
         ],
       ),
@@ -226,15 +226,15 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
   String _typeLabel() {
     switch (widget.type) {
       case CatalogType.profileSet:
-        return "Profile Set";
+        return "Profili";
       case CatalogType.glass:
-        return "Glass";
+        return "Xhami";
       case CatalogType.blind:
-        return "Blind";
+        return "Roleta";
       case CatalogType.mechanism:
-        return "Mechanism";
+        return "Mekanizma";
       case CatalogType.accessory:
-        return "Accessory";
+        return "Aksesorë";
     }
   }
 
@@ -253,8 +253,8 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                 title: Text(item.name),
                 subtitle: widget.type == CatalogType.profileSet
                     ? Text(
-                    "Frame (L): €${item.priceL.toStringAsFixed(2)}/m\n"
-                        "Sash (Z): €${item.priceZ.toStringAsFixed(2)}/m\n"
+                    "Rami (L): €${item.priceL.toStringAsFixed(2)}/m\n"
+                        "Krahu (Z): €${item.priceZ.toStringAsFixed(2)}/m\n"
                         "T: €${item.priceT.toStringAsFixed(2)}/m\n"
                         "Adapter: €${item.priceAdapter.toStringAsFixed(2)}/m\n"
                         "Llajsne: €${item.priceLlajsne.toStringAsFixed(2)}/m")
