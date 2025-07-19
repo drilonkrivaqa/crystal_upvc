@@ -136,7 +136,7 @@ Future<void> printOfferPdf({
                             fontSize: 16,
                             fontWeight: pw.FontWeight.bold,
                             color: PdfColors.blue800)),
-                    pw.Text('Rr. Ilir Konushevci, Kamenice, Kosove, 62000'),
+                    pw.Text('Rr. Ilir Konushevci, Nr. 80, Kamenicë, Kosovë, 62000'),
                     pw.Text('+38344357639 | +38344268300'),
                     pw.Text('www.tonialpvc.com | tonialpvc@gmail.com'),
                   ],
@@ -147,7 +147,7 @@ Future<void> printOfferPdf({
               pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
-                  pw.Text('Customer',
+                  pw.Text('Konsumatori',
                       style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
                   pw.Text(customer.name),
                   pw.Text(customer.address),
@@ -170,7 +170,7 @@ Future<void> printOfferPdf({
         final headerStyle = pw.TextStyle(fontWeight: pw.FontWeight.bold);
 
         final widgets = <pw.Widget>[];
-        widgets.add(pw.Header(level: 0, child: pw.Text('Offer $offerNumber', style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold))));
+        widgets.add(pw.Header(level: 0, child: pw.Text('Oferta $offerNumber', style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold))));
         widgets.add(pw.SizedBox(height: 12));
 
         final rows = <pw.TableRow>[];
@@ -180,15 +180,15 @@ Future<void> printOfferPdf({
             children: [
               pw.Padding(
                 padding: pw.EdgeInsets.all(4),
-                child: pw.Text('Photo', style: headerStyle),
+                child: pw.Text('Foto', style: headerStyle),
               ),
               pw.Padding(
                 padding: pw.EdgeInsets.all(4),
-                child: pw.Text('Details', style: headerStyle),
+                child: pw.Text('Detajet', style: headerStyle),
               ),
               pw.Padding(
                 padding: pw.EdgeInsets.all(4),
-                child: pw.Text('Price', style: headerStyle),
+                child: pw.Text('Çmimi', style: headerStyle),
               ),
             ],
           ),
@@ -227,19 +227,25 @@ Future<void> printOfferPdf({
           final details = <pw.Widget>[
             pw.Text(item.name, style: headerStyle),
             pw.SizedBox(height: 2),
-            pw.Text('Size: ${item.width} x ${item.height} mm'),
-            pw.Text('Qty: ${item.quantity}'),
-            pw.Text('Profile: ${profile.name}'),
-            pw.Text('Glass: ${glass.name}'),
-            if (blind != null) pw.Text('Blind: ${blind.name}'),
-            if (mechanism != null) pw.Text('Mechanism: ${mechanism.name}'),
-            if (accessory != null) pw.Text('Accessory: ${accessory.name} = €${accessory.price}'),
-            pw.Text('Sectors: ${item.horizontalSections}x${item.verticalSections}'),
-            pw.Text('Sashes: ${item.openings}'),
-            pw.Text('Widths: ${item.sectionWidths.join(', ')}'),
-            pw.Text('Heights: ${item.sectionHeights.join(', ')}'),
-            pw.Text('V div: $vAdapters'),
-            pw.Text('H div: $hAdapters'),
+            pw.Text('Dimenzionet: ${item.width} x ${item.height} mm'),
+            pw.Text('Pcs: ${item.quantity}'),
+            pw.Text('Profili (Lloji): ${profile.name}'),
+            pw.Text('Xhami: ${glass.name}'),
+            if (blind != null) pw.Text('Roleta: ${blind.name}'),
+            if (mechanism != null) pw.Text('Mekanizmi: ${mechanism.name}'),
+            if (accessory != null) pw.Text('Aksesori: ${accessory.name} = €${accessory.price}'),
+            if (item.extra1Price != null)
+              pw.Text(
+                  '${item.extra1Desc ?? 'Ekstra 1'}: €${item.extra1Price!.toStringAsFixed(2)}'),
+            if (item.extra2Price != null)
+              pw.Text(
+                  '${item.extra2Desc ?? 'Ekstra 2'}: €${item.extra2Price!.toStringAsFixed(2)}'),
+            pw.Text('Sektorët: ${item.horizontalSections}x${item.verticalSections}'),
+            pw.Text('Hapje: ${item.openings}'),
+            pw.Text('Gjerësitë: ${item.sectionWidths.join(', ')}'),
+            pw.Text('Lartësitë: ${item.sectionHeights.join(', ')}'),
+            if(item.verticalSections!=1)pw.Text('V div: $vAdapters'),
+            if(item.horizontalSections!=1)pw.Text('H div: $hAdapters'),
           ];
 
           rows.add(
@@ -360,7 +366,7 @@ Future<void> printOfferPdf({
           pw.TableRow(children: [
             pw.Padding(
                 padding: pw.EdgeInsets.all(4),
-                child: pw.Text('Items total')),
+                child: pw.Text('Totali i artikujve (€)')),
             pw.Padding(
                 padding: pw.EdgeInsets.all(4),
                 child: pw.Text(currency.format(itemsFinal))),
@@ -372,7 +378,7 @@ Future<void> printOfferPdf({
               pw.TableRow(children: [
                 pw.Padding(
                     padding: pw.EdgeInsets.all(4),
-                    child: pw.Text(c.description.isNotEmpty ? c.description : 'Extra')),
+                    child: pw.Text(c.description.isNotEmpty ? c.description : 'Ekstra')),
                 pw.Padding(
                     padding: pw.EdgeInsets.all(4),
                     child: pw.Text(currency.format(c.amount))),
@@ -385,7 +391,7 @@ Future<void> printOfferPdf({
             pw.TableRow(children: [
               pw.Padding(
                   padding: pw.EdgeInsets.all(4),
-                  child: pw.Text('Discount amount')),
+                  child: pw.Text('Shuma e zbritjes')),
               pw.Padding(
                   padding: pw.EdgeInsets.all(4),
                   child: pw.Text('-' + currency.format(offer.discountAmount))),
@@ -397,7 +403,7 @@ Future<void> printOfferPdf({
             pw.TableRow(children: [
               pw.Padding(
                   padding: pw.EdgeInsets.all(4),
-                  child: pw.Text('Discount %')),
+                  child: pw.Text('Zbritje %')),
               pw.Padding(
                   padding: pw.EdgeInsets.all(4),
                   child: pw.Text('${offer.discountPercent.toStringAsFixed(2)}% (-' + currency.format(percentAmount) + ')')),
@@ -408,7 +414,7 @@ Future<void> printOfferPdf({
           pw.TableRow(children: [
             pw.Padding(
                 padding: pw.EdgeInsets.all(4),
-                child: pw.Text('Total', style: headerStyle)),
+                child: pw.Text('Totali', style: headerStyle)),
             pw.Padding(
                 padding: pw.EdgeInsets.all(4),
                 child: pw.Text(currency.format(finalTotal), style: headerStyle)),
@@ -428,7 +434,7 @@ Future<void> printOfferPdf({
         );
         if (offer.notes.isNotEmpty) {
           widgets.add(pw.SizedBox(height: 8));
-          widgets.add(pw.Text('Notes: ${offer.notes}'));
+          widgets.add(pw.Text('Vërejtje/Notes: ${offer.notes}'));
         }
 
         widgets.add(pw.SizedBox(height: 8));

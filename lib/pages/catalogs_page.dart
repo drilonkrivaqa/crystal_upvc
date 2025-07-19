@@ -7,12 +7,12 @@ class CatalogsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Katalogu")),
+      appBar: AppBar(title: const Text("Çmimorja")),
       body: ListView(
         children: [
           const SizedBox(height: 20),
           _CatalogButton(
-            label: "Profili (Profile Set)",
+            label: "Profili",
             onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -20,7 +20,7 @@ class CatalogsPage extends StatelessWidget {
                         CatalogTabPage(type: CatalogType.profileSet))),
           ),
           _CatalogButton(
-            label: "Xhami (Glass)",
+            label: "Xhami",
             onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -28,7 +28,7 @@ class CatalogsPage extends StatelessWidget {
                         CatalogTabPage(type: CatalogType.glass))),
           ),
           _CatalogButton(
-            label: "Rrjeta (Blinds)",
+            label: "Roleta",
             onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -36,7 +36,7 @@ class CatalogsPage extends StatelessWidget {
                         CatalogTabPage(type: CatalogType.blind))),
           ),
           _CatalogButton(
-            label: "Mekanizma (Mechanisms)",
+            label: "Mekanizma",
             onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -44,7 +44,7 @@ class CatalogsPage extends StatelessWidget {
                         CatalogTabPage(type: CatalogType.mechanism))),
           ),
           _CatalogButton(
-            label: "Aksesorë (Accessories)",
+            label: "Aksesorë",
             onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(

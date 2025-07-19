@@ -24,7 +24,7 @@ class _OffersPageState extends State<OffersPage> {
   void _addOffer() {
     if (customerBox.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please add at least one customer first!')),
+        const SnackBar(content: Text('Së pari shtoni një konsumator të ri!')),
       );
       return;
     }
@@ -36,7 +36,7 @@ class _OffersPageState extends State<OffersPage> {
       context: context,
       builder: (_) => StatefulBuilder(
         builder: (context, setStateDialog) => AlertDialog(
-          title: const Text('Add Offer'),
+          title: const Text('Krijo Ofertë'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -58,12 +58,12 @@ class _OffersPageState extends State<OffersPage> {
               TextField(
                 controller: profitController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Profit %'),
+                decoration: const InputDecoration(labelText: 'Fitimi %'),
               ),
             ],
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Anulo')),
             ElevatedButton(
               onPressed: () {
                 offerBox.add(
@@ -78,7 +78,7 @@ class _OffersPageState extends State<OffersPage> {
                 Navigator.pop(context);
                 setState(() {});
               },
-              child: const Text('Add'),
+              child: const Text('Shto'),
             ),
           ],
         ),
@@ -89,14 +89,14 @@ class _OffersPageState extends State<OffersPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Offers')),
+      appBar: AppBar(title: const Text('Ofertat')),
       body: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
               decoration: const InputDecoration(
-                labelText: 'Search by client or offer number',
+                labelText: 'Kërko me emër të klientit ose me numër oferte',
                 prefixIcon: Icon(Icons.search),
               ),
               onChanged: (val) => setState(() => _searchQuery = val.trim()),
@@ -135,8 +135,8 @@ class _OffersPageState extends State<OffersPage> {
                         ? customerBox.getAt(offer.customerIndex)
                         : null;
                     return ListTile(
-                      title: Text('Offer ${i + 1}'),
-                      subtitle: Text('Customer: ${customer?.name ?? "-"}\nDate: ${offer?.date.toString().split(' ').first ?? "-"}'),
+                      title: Text('Oferta ${i + 1}'),
+                      subtitle: Text('Konsumatori: ${customer?.name ?? "-"}\Data: ${offer?.date.toString().split(' ').first ?? "-"}'),
                       onTap: () {
                         Navigator.push(
                           context,
@@ -147,16 +147,16 @@ class _OffersPageState extends State<OffersPage> {
                         final confirm = await showDialog<bool>(
                           context: context,
                           builder: (_) => AlertDialog(
-                            title: const Text('Delete Offer'),
-                            content: const Text('Are you sure you want to delete this offer?'),
+                            title: const Text('Fshij Ofertën'),
+                            content: const Text('A jeni të sigurtë se dëshironi ta fshini këtë ofertë?'),
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.pop(context, false),
-                                child: const Text('Cancel'),
+                                child: const Text('Anulo'),
                               ),
                               TextButton(
                                 onPressed: () => Navigator.pop(context, true),
-                                child: const Text('Delete', style: TextStyle(color: Colors.red)),
+                                child: const Text('Fshij', style: TextStyle(color: Colors.red)),
                               ),
                             ],
                           ),

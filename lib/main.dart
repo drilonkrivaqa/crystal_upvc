@@ -4,6 +4,8 @@ import 'models.dart';
 import 'pages/catalogs_page.dart';
 import 'pages/customers_page.dart';
 import 'pages/offers_page.dart';
+import 'pages/welcome_page.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,8 +43,10 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
         useMaterial3: true,
       ),
-      home: const HomePage(),
-    );
+      home: const WelcomePage(),
+      routes: {
+        '/home': (_) => const HomePage(),
+      },    );
   }
 }
 
@@ -52,7 +56,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('UPVC Helper'),
+        title: const Text('TONI AL-PVC'),
         centerTitle: true,
         backgroundColor: Colors.teal,
       ),
@@ -63,7 +67,7 @@ class HomePage extends StatelessWidget {
           children: [
             _MenuButton(
               icon: Icons.layers,
-              label: 'Katalogu',
+              label: 'Çmimoret',
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const CatalogsPage()),
