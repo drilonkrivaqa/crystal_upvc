@@ -178,7 +178,7 @@ Future<void> printOfferPdf({
 
         final widgets = <pw.Widget>[];
         widgets.add(pw.Header(level: 0, child: pw.Text('Oferta $offerNumber', style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold))));
-        widgets.add(pw.Text('Last edited: '
+        widgets.add(pw.Text('Data: '
             '${DateFormat('yyyy-MM-dd').format(offer.lastEdited)}'));
         widgets.add(pw.SizedBox(height: 12));
 
