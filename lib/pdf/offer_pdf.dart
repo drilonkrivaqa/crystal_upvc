@@ -100,6 +100,13 @@ Future<void> printOfferPdf({
   subtotal -= offer.discountAmount;
   final percentAmount = subtotal * (offer.discountPercent / 100);
   final finalTotal = subtotal - percentAmount;
+  String formattedFinalTotal = currency.format(finalTotal);
+  if (finalTotal >= 10000000) {
+    final parts = formattedFinalTotal.split('.');
+    if (parts.length == 2) {
+      formattedFinalTotal = '${parts[0]}.' '\n' '${parts[1]}';
+    }
+  }
 
   // ---- PHOTO CONTAINER SETTINGS ----
   final containerWidth = 150.0;
@@ -171,6 +178,8 @@ Future<void> printOfferPdf({
 
         final widgets = <pw.Widget>[];
         widgets.add(pw.Header(level: 0, child: pw.Text('Oferta $offerNumber', style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold))));
+        widgets.add(pw.Text('Last edited: '
+            '${DateFormat('yyyy-MM-dd').format(offer.lastEdited)}'));
         widgets.add(pw.SizedBox(height: 12));
 
         final rows = <pw.TableRow>[];
@@ -354,7 +363,7 @@ Future<void> printOfferPdf({
             columnWidths: {
               0: pw.FixedColumnWidth(containerWidth + 40),
               1: pw.FixedColumnWidth(detailsWidth), // <--- set fixed width!
-              2: pw.FixedColumnWidth(70),
+              2: pw.FixedColumnWidth(100),
             },
             children: rows,
           ),
@@ -417,7 +426,8 @@ Future<void> printOfferPdf({
                 child: pw.Text('Totali', style: headerStyle)),
             pw.Padding(
                 padding: pw.EdgeInsets.all(4),
-                child: pw.Text(currency.format(finalTotal), style: headerStyle)),
+                child: pw.Text(formattedFinalTotal, style: headerStyle,
+                    textAlign: pw.TextAlign.right)),
           ]),
         );
 
@@ -427,7 +437,7 @@ Future<void> printOfferPdf({
             defaultVerticalAlignment: pw.TableCellVerticalAlignment.middle,
             columnWidths: {
               0: pw.FlexColumnWidth(),
-              1: pw.FixedColumnWidth(70),
+              1: pw.FixedColumnWidth(100),
             },
             children: summaryRows,
           ),

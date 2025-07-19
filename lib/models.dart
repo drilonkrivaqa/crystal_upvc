@@ -256,6 +256,8 @@ class Offer extends HiveObject {
   double discountAmount;
   @HiveField(8)
   String notes;
+  @HiveField(9)
+  DateTime lastEdited;
   Offer({
     required this.id,
     required this.customerIndex,
@@ -266,5 +268,7 @@ class Offer extends HiveObject {
     this.discountPercent = 0,
     this.discountAmount = 0,
     this.notes = '',
-  }) : extraCharges = extraCharges ?? [];
+    DateTime? lastEdited,
+  })  : lastEdited = lastEdited ?? DateTime.now(),
+        extraCharges = extraCharges ?? [];
 }
