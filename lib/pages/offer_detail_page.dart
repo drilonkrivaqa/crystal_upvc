@@ -121,6 +121,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                               ElevatedButton(
                                 onPressed: () {
                                   offer.customerIndex = selected;
+                                  offer.lastEdited = DateTime.now();
                                   offer.save();
                                   setState(() {});
                                   Navigator.pop(context);
@@ -170,6 +171,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                             onPressed: () {
                               final val = double.tryParse(controller.text) ?? offer.profitPercent;
                               offer.profitPercent = val;
+                              offer.lastEdited = DateTime.now();
                               offer.save();
                               setState(() {});
                               Navigator.pop(context);
@@ -255,6 +257,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                         TextButton(
                           onPressed: () {
                             offer.items.removeAt(i);
+                            offer.lastEdited = DateTime.now();
                             offer.save();
                             setState(() {});
                             Navigator.pop(context);
@@ -271,6 +274,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                                   existingItem: item,
                                   onSave: (editedItem) {
                                     offer.items[i] = editedItem;
+                                    offer.lastEdited = DateTime.now();
                                     offer.save();
                                     setState(() {});
                                   },
@@ -371,6 +375,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                           const InputDecoration(labelText: 'Përshkrimi'),
                           onChanged: (v) {
                             charge.description = v;
+                            offer.lastEdited = DateTime.now();
                             offer.save();
                           },
                         ),
@@ -385,6 +390,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                           const InputDecoration(labelText: 'Sasia'),
                           onChanged: (v) {
                             charge.amount = double.tryParse(v) ?? 0;
+                            offer.lastEdited = DateTime.now();
                             offer.save();
                             setState(() {});
                           },
@@ -400,6 +406,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                           if (i < extraAmountControllers.length) {
                             extraAmountControllers.removeAt(i);
                           }
+                          offer.lastEdited = DateTime.now();
                           offer.save();
                           setState(() {});
                         },
@@ -414,6 +421,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                       offer.extraCharges.add(ExtraCharge());
                       extraDescControllers.add(TextEditingController());
                       extraAmountControllers.add(TextEditingController());
+                      offer.lastEdited = DateTime.now();
                       offer.save();
                       setState(() {});
                     },
@@ -428,6 +436,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                   onChanged: (val) {
                     offer.discountPercent = double.tryParse(val) ?? 0;
                     offer.save();
+                    offer.lastEdited = DateTime.now();
                     setState(() {});
                   },
                 ),
@@ -437,6 +446,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                   decoration: const InputDecoration(labelText: 'Zbritja'),
                   onChanged: (val) {
                     offer.discountAmount = double.tryParse(val) ?? 0;
+                    offer.lastEdited = DateTime.now();
                     offer.save();
                     setState(() {});
                   },
@@ -448,6 +458,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                   maxLines: 3,
                   onChanged: (val) {
                     offer.notes = val;
+                    offer.lastEdited = DateTime.now();
                     offer.save();
                   },
                 ),
@@ -465,6 +476,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
               builder: (_) => WindowDoorItemPage(
                 onSave: (item) {
                   offer.items.add(item);
+                  offer.lastEdited = DateTime.now();
                   offer.save();
                   setState(() {});
                 },
