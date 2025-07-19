@@ -20,15 +20,6 @@ class WelcomePage extends StatelessWidget {
                     children: [
                       Image.asset('assets/logo.png', width: 400),
                       const SizedBox(height: 0),
-                      // const Text(
-                      //   'Toni Al-Pvc',
-                      //   style: TextStyle(
-                      //     fontSize: 28,
-                      //     fontWeight: FontWeight.bold,
-                      //     color: Colors.teal,
-                      //   ),
-                      //   textAlign: TextAlign.center,
-                      // ),
                       const SizedBox(height: 12),
                       const Text(
                         'Rr. Ilir Konushevci, Nr. 80, Kamenicë, Kosovë, 62000',
@@ -47,7 +38,7 @@ class WelcomePage extends StatelessWidget {
                 ),
                 ElevatedButton(
                   onPressed: () => Navigator.pushReplacementNamed(context, '/home'),
-                  child: const Text('Enter'),
+                  child: const Text('Hyr'),
                 ),
               ],
             ),
