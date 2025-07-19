@@ -106,7 +106,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                               value: selected,
                               items: List.generate(
                                 customerBox.length,
-                                (i) => DropdownMenuItem(
+                                    (i) => DropdownMenuItem(
                                   value: i,
                                   child: Text(customerBox.getAt(i)?.name ?? ''),
                                 ),
@@ -437,7 +437,6 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                     offer.discountPercent = double.tryParse(val) ?? 0;
                     offer.lastEdited = DateTime.now();
                     offer.save();
-                    offer.lastEdited = DateTime.now();
                     setState(() {});
                   },
                 ),
