@@ -102,12 +102,14 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(widget.existingItem == null ? 'Shto Dritare/Derë' : 'Ndrysho Dritaren/Derën')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
+    return WillPopScope(
+        onWillPop: _onWillPop,
+        child: Scaffold(
+        appBar: AppBar(title: Text(widget.existingItem == null ? 'Shto Dritare/Derë' : 'Ndrysho Dritaren/Derën')),
+    body: SingleChildScrollView(
+    padding: const EdgeInsets.all(16),
+    child: Column(
+    children: [
             GestureDetector(
               onTap: () async {
                 final picker = ImagePicker();
@@ -230,51 +232,88 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
-                final name = nameController.text.trim();
-                final width = int.tryParse(widthController.text) ?? 0;
-                final height = int.tryParse(heightController.text) ?? 0;
-                final quantity = int.tryParse(quantityController.text) ?? 1;
-                final openings = fixedSectors.where((f) => !f).length;
-                final mPrice = double.tryParse(priceController.text);
-
-                if (name.isEmpty || width <= 0 || height <= 0) {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Ju lutem plotësoni të gjitha të dhënat e kërkuara!")));
-                  return;
+                if (_saveItem()) {
+                  Navigator.pop(context);
                 }
-                widget.onSave(WindowDoorItem(
-                  name: name,
-                  width: width,
-                  height: height,
-                  quantity: quantity,
-                  profileSetIndex: profileSetIndex,
-                  glassIndex: glassIndex,
-                  blindIndex: blindIndex,
-                  mechanismIndex: mechanismIndex,
-                  accessoryIndex: accessoryIndex,
-                  openings: openings,
-                  verticalSections: verticalSections,
-                  horizontalSections: horizontalSections,
-                  fixedSectors: fixedSectors,
-                  sectionWidths: sectionWidths,
-                  sectionHeights: sectionHeights,
-                  verticalAdapters: verticalAdapters,
-                  horizontalAdapters: horizontalAdapters,
-                  photoPath: photoPath,
-                  photoBytes: photoBytes,
-                  manualPrice: mPrice,
-                  extra1Price: double.tryParse(extra1Controller.text),
-                  extra2Price: double.tryParse(extra2Controller.text),
-                  extra1Desc: extra1DescController.text,
-                  extra2Desc: extra2DescController.text,
-                ));
-                Navigator.pop(context);
               },
               child: Text(widget.existingItem == null ? 'Shto' : 'Ruaj'),
             ),
           ],
         ),
       ),
+    )
     );
+  }
+
+  bool _saveItem() {
+    final name = nameController.text.trim();
+    final width = int.tryParse(widthController.text) ?? 0;
+    final height = int.tryParse(heightController.text) ?? 0;
+    final quantity = int.tryParse(quantityController.text) ?? 1;
+    final openings = fixedSectors.where((f) => !f).length;
+    final mPrice = double.tryParse(priceController.text);
+
+    if (name.isEmpty || width <= 0 || height <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Ju lutem plotësoni të gjitha të dhënat e kërkuara!')),
+      );
+      return false;
+    }
+
+    widget.onSave(
+      WindowDoorItem(
+        name: name,
+        width: width,
+        height: height,
+        quantity: quantity,
+        profileSetIndex: profileSetIndex,
+        glassIndex: glassIndex,
+        blindIndex: blindIndex,
+        mechanismIndex: mechanismIndex,
+        accessoryIndex: accessoryIndex,
+        openings: openings,
+        verticalSections: verticalSections,
+        horizontalSections: horizontalSections,
+        fixedSectors: fixedSectors,
+        sectionWidths: sectionWidths,
+        sectionHeights: sectionHeights,
+        verticalAdapters: verticalAdapters,
+        horizontalAdapters: horizontalAdapters,
+        photoPath: photoPath,
+        photoBytes: photoBytes,
+        manualPrice: mPrice,
+        extra1Price: double.tryParse(extra1Controller.text),
+        extra2Price: double.tryParse(extra2Controller.text),
+        extra1Desc: extra1DescController.text,
+        extra2Desc: extra2DescController.text,
+      ),
+    );
+    return true;
+  }
+
+  Future<bool> _onWillPop() async {
+    final shouldSave = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Ruaj ndryshimet?'),
+        content: const Text('Dëshironi t\'i ruani ndryshimet para se të dilni?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Jo'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Po'),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldSave == true) {
+      return _saveItem();
+    }
+    return true;
   }
 
   void _updateGrid() {
