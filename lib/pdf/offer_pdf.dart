@@ -80,7 +80,7 @@ Future<void> printOfferPdf({
         ? mechanism.price * item.quantity * item.openings
         : 0;
     final accessoryCost =
-        accessory != null ? accessory.price * item.quantity : 0;
+    accessory != null ? accessory.price * item.quantity : 0;
     final extras = (item.extra1Price ?? 0) + (item.extra2Price ?? 0);
 
     final base =
@@ -234,6 +234,12 @@ Future<void> printOfferPdf({
             if (blind != null) pw.Text('Blind: ${blind.name}'),
             if (mechanism != null) pw.Text('Mechanism: ${mechanism.name}'),
             if (accessory != null) pw.Text('Accessory: ${accessory.name} = €${accessory.price}'),
+            if (item.extra1Price != null)
+              pw.Text(
+                  '${item.extra1Desc ?? 'Additional 1'}: €${item.extra1Price!.toStringAsFixed(2)}'),
+            if (item.extra2Price != null)
+              pw.Text(
+                  '${item.extra2Desc ?? 'Additional 2'}: €${item.extra2Price!.toStringAsFixed(2)}'),
             pw.Text('Sectors: ${item.horizontalSections}x${item.verticalSections}'),
             pw.Text('Sashes: ${item.openings}'),
             pw.Text('Widths: ${item.sectionWidths.join(', ')}'),
