@@ -226,15 +226,15 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
   String _typeLabel() {
     switch (widget.type) {
       case CatalogType.profileSet:
-        return "Profili (Lloji)";
+        return "Profile Set";
       case CatalogType.glass:
-        return "Xhami";
+        return "Glass";
       case CatalogType.blind:
-        return "Roleta";
+        return "Blind";
       case CatalogType.mechanism:
-        return "Mekanizmi";
+        return "Mechanism";
       case CatalogType.accessory:
-        return "Aksesori";
+        return "Accessory";
     }
   }
 
