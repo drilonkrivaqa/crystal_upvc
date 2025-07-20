@@ -24,7 +24,7 @@ class _OffersPageState extends State<OffersPage> {
   void _addOffer() {
     if (customerBox.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Së pari shtoni një konsumator të ri!')),
+        const SnackBar(content: Text('Së pari shtoni një klient të ri!')),
       );
       return;
     }
@@ -137,7 +137,7 @@ class _OffersPageState extends State<OffersPage> {
                         : null;
                     return ListTile(
                       title: Text('Oferta ${i + 1}'),
-                      subtitle: Text('Konsumatori: ${customer?.name ?? "-"}\Data: ${offer?.date.toString().split(' ').first ?? "-"}'),
+                      subtitle: Text('Klienti: ${customer?.name ?? "-"}\Data: ${offer?.date.toString().split(' ').first ?? "-"}'),
                       onTap: () {
                         Navigator.push(
                           context,

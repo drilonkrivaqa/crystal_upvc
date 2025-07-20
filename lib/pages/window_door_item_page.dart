@@ -589,7 +589,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                 : null,
           ),
         if (verticalSections > 1) const SizedBox(height: 8),
-        if (verticalSections > 1) const Text('Ndarjet Vertikale'),
+        if (verticalSections > 1) const Text('Ndarja Vertikale'),
         for (int i = 0; i < verticalSections - 1; i++)
           DropdownButton<bool>(
             value: verticalAdapters[i],
@@ -600,7 +600,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
             onChanged: (val) => setState(() => verticalAdapters[i] = val ?? false),
           ),
         if (horizontalSections > 1) const SizedBox(height: 8),
-        if (horizontalSections > 1) const Text('Ndarjet Horizontale'),
+        if (horizontalSections > 1) const Text('Ndarja Horizontale'),
         for (int i = 0; i < horizontalSections - 1; i++)
           DropdownButton<bool>(
             value: horizontalAdapters[i],

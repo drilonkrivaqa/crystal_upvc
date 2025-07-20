@@ -26,7 +26,7 @@ class _CustomersPageState extends State<CustomersPage> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Shto konsumatorin'),
+        title: const Text('Shto Klientin'),
         content: SingleChildScrollView(
           child: Column(
             children: [
@@ -68,7 +68,7 @@ class _CustomersPageState extends State<CustomersPage> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Ndrysho Konsumatorin'),
+        title: const Text('Ndrysho Klientin'),
         content: SingleChildScrollView(
           child: Column(
             children: [
@@ -111,7 +111,7 @@ class _CustomersPageState extends State<CustomersPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Konsumatorët')),
+      appBar: AppBar(title: const Text('Klientët')),
       body: ValueListenableBuilder(
         valueListenable: customerBox.listenable(),
         builder: (context, Box<Customer> box, _) {

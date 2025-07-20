@@ -101,7 +101,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                       builder: (_) => StatefulBuilder(
                         builder: (context, setStateDialog) {
                           return AlertDialog(
-                            title: const Text('Zgjedh Konsumatorin'),
+                            title: const Text('Zgjedh Klientin'),
                             content: DropdownButton<int>(
                               value: selected,
                               items: List.generate(

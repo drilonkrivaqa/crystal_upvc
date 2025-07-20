@@ -158,7 +158,7 @@ Future<void> printOfferPdf({
               pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
-                  pw.Text('Konsumatori',
+                  pw.Text('Klienti',
                       style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
                   pw.Text(customer.name),
                   pw.Text(customer.address),
