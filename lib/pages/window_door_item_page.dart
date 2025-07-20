@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'dart:io' show File;
 import 'dart:typed_data';
 import '../models.dart';
+import '../theme/app_colors.dart';
 
 
 class WindowDoorItemPage extends StatefulWidget {
@@ -131,7 +132,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                   : Container(
                 width: 120,
                 height: 120,
-                color: Colors.grey[300],
+                color: AppColors.grey300,
                 alignment: Alignment.center,
                 child: const Text('Kliko për të vendosë foton'),
               ),
@@ -534,8 +535,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                       child: Container(
                         margin: const EdgeInsets.all(4),
                         color: fixedSectors[r * verticalSections + c]
-                            ? Colors.grey[400]
-                            : Colors.lightGreen[300],
+                            ? AppColors.grey400
+                            : AppColors.lightGreen300,
                         child: Center(
                           child: Text(
                             fixedSectors[r * verticalSections + c]

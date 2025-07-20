@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models.dart';
 import 'offer_detail_page.dart';
+import '../theme/app_colors.dart';
 
 class OffersPage extends StatefulWidget {
   const OffersPage({super.key});
@@ -157,8 +158,7 @@ class _OffersPageState extends State<OffersPage> {
                               ),
                               TextButton(
                                 onPressed: () => Navigator.pop(context, true),
-                                child: const Text('Fshij', style: TextStyle(color: Colors.red)),
-                              ),
+                                child: const Text('Fshij', style: TextStyle(color: AppColors.delete)),                              ),
                             ],
                           ),
                         );
