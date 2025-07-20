@@ -3,7 +3,6 @@ import 'package:hive_flutter/hive_flutter.dart';
 import '../models.dart';
 import '../theme/app_colors.dart';
 
-
 class CustomersPage extends StatefulWidget {
   const CustomersPage({super.key});
   @override

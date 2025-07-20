@@ -124,7 +124,8 @@ class _MenuButton extends StatelessWidget {
             children: [
               Icon(icon, color: AppColors.primaryDark, size: 36),
               const SizedBox(width: 18),
-              Text(label, style: const TextStyle(fontSize: 20, color: AppColors.primary, fontWeight: FontWeight.bold)),            ],
+              Text(label, style: const TextStyle(fontSize: 20, color: AppColors.primary, fontWeight: FontWeight.bold)),
+            ],
           ),
         ),
       ),

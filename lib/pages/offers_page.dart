@@ -158,7 +158,8 @@ class _OffersPageState extends State<OffersPage> {
                               ),
                               TextButton(
                                 onPressed: () => Navigator.pop(context, true),
-                                child: const Text('Fshij', style: TextStyle(color: AppColors.delete)),                              ),
+                                child: const Text('Fshij', style: TextStyle(color: AppColors.delete)),
+                              ),
                             ],
                           ),
                         );

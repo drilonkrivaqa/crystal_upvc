@@ -267,7 +267,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                             setState(() {});
                             Navigator.pop(context);
                           },
-                          child: const Text("Fshij", style: TextStyle(color: AppColors.delete)),                        ),
+                          child: const Text("Fshij", style: TextStyle(color: AppColors.delete)),
+                        ),
                         TextButton(
                           onPressed: () async {
                             Navigator.pop(context);
