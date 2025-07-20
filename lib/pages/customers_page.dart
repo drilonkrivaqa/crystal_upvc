@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../models.dart';
 import '../theme/app_colors.dart';
 
@@ -121,15 +122,17 @@ class _CustomersPageState extends State<CustomersPage> {
             itemBuilder: (context, i) {
               final index = box.length - 1 - i;
               final customer = box.getAt(index);
-              return ListTile(
-                title: Text(customer?.name ?? ""),
-                subtitle: Text(
-                  'Adresa: ${customer?.address ?? ""}\n'
-                      'Nr. Tel.: ${customer?.phone ?? ""}\n'
-                      'Email: ${customer?.email ?? ""}',
+              return Card(
+                child: ListTile(
+                  title: Text(customer?.name ?? ""),
+                  subtitle: Text(
+                    'Adresa: ${customer?.address ?? ""}\n'
+                        'Nr. Tel.: ${customer?.phone ?? ""}\n'
+                        'Email: ${customer?.email ?? ""}',
+                  ),
+                  onTap: () => _editCustomer(index),
                 ),
-                onTap: () => _editCustomer(index),
-              );
+              ).animate().fadeIn(duration: 200.ms).slideY(begin: 0.3);
             },
           );
         },

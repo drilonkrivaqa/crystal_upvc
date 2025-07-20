@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'models.dart';
 import 'pages/catalogs_page.dart';
 import 'pages/customers_page.dart';
@@ -110,25 +111,28 @@ class _MenuButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: AppColors.primaryLight,
-      borderRadius: BorderRadius.circular(16),
-      elevation: 4,
+    return Card(
       child: InkWell(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppTheme.radius,
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 8),
+          padding: const EdgeInsets.all(24),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(icon, color: AppColors.primaryDark, size: 36),
               const SizedBox(width: 18),
-              Text(label, style: const TextStyle(fontSize: 20, color: AppColors.primary, fontWeight: FontWeight.bold)),
+              Text(
+                label,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ],
           ),
         ),
       ),
-    );
+    ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.1);
   }
 }

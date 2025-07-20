@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../models.dart';
 import 'window_door_item_page.dart';
 import '../theme/app_colors.dart';
@@ -298,7 +299,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                   );
                 },
               ),
-            );
+            ).animate().fadeIn(duration: 200.ms).slideY(begin: 0.3);
           }),
           const SizedBox(height: 16),
           Center(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'catalog_tab_page.dart';
 
 class CatalogsPage extends StatelessWidget {
@@ -69,13 +70,12 @@ class _CatalogButton extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       child: Card(
-        elevation: 2,
         child: ListTile(
           title: Text(label, style: const TextStyle(fontSize: 20)),
           trailing: const Icon(Icons.chevron_right),
           onTap: onTap,
         ),
-      ),
+      ).animate().fadeIn(duration: 200.ms).slideY(begin: 0.3),
     );
   }
 }

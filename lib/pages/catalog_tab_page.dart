@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../models.dart';
 import 'catalogs_page.dart';
 import '../theme/app_colors.dart';
@@ -259,24 +260,26 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
             itemCount: box.length,
             itemBuilder: (context, i) {
               final item = box.getAt(i);
-              return ListTile(
-                title: Text(item.name),
-                subtitle: widget.type == CatalogType.profileSet
-                    ? Text(
-                    "Rami (L): €${item.priceL.toStringAsFixed(2)}/m\n"
-                        "Krahu (Z): €${item.priceZ.toStringAsFixed(2)}/m\n"
-                        "T: €${item.priceT.toStringAsFixed(2)}/m\n"
-                        "Adapter: €${item.priceAdapter.toStringAsFixed(2)}/m\n"
-                        "Llajsne: €${item.priceLlajsne.toStringAsFixed(2)}/m")
-                    : widget.type == CatalogType.glass
-                    ? Text("€${item.pricePerM2.toStringAsFixed(2)}/m²")
-                    : widget.type == CatalogType.blind
-                    ? Text("€${item.pricePerM2.toStringAsFixed(2)}/m², Kuti: ${item.boxHeight}mm")
-                    : widget.type == CatalogType.mechanism || widget.type == CatalogType.accessory
-                    ? Text("€${item.price.toStringAsFixed(2)}")
-                    : null,
-                onTap: () => _editItem(i),
-              );
+              return Card(
+                child: ListTile(
+                  title: Text(item.name),
+                  subtitle: widget.type == CatalogType.profileSet
+                      ? Text(
+                      "Rami (L): €${item.priceL.toStringAsFixed(2)}/m\n"
+                          "Krahu (Z): €${item.priceZ.toStringAsFixed(2)}/m\n"
+                          "T: €${item.priceT.toStringAsFixed(2)}/m\n"
+                          "Adapter: €${item.priceAdapter.toStringAsFixed(2)}/m\n"
+                          "Llajsne: €${item.priceLlajsne.toStringAsFixed(2)}/m")
+                      : widget.type == CatalogType.glass
+                      ? Text("€${item.pricePerM2.toStringAsFixed(2)}/m²")
+                      : widget.type == CatalogType.blind
+                      ? Text("€${item.pricePerM2.toStringAsFixed(2)}/m², Kuti: ${item.boxHeight}mm")
+                      : widget.type == CatalogType.mechanism || widget.type == CatalogType.accessory
+                      ? Text("€${item.price.toStringAsFixed(2)}")
+                      : null,
+                  onTap: () => _editItem(i),
+                ),
+              ).animate().fadeIn(duration: 200.ms).slideY(begin: 0.3);
             },
           );
         },

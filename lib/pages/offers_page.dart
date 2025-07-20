@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../models.dart';
 import 'offer_detail_page.dart';
 import '../theme/app_colors.dart';
@@ -136,21 +137,22 @@ class _OffersPageState extends State<OffersPage> {
                     final customer = offer != null && offer.customerIndex < customerBox.length
                         ? customerBox.getAt(offer.customerIndex)
                         : null;
-                    return ListTile(
-                      title: Text('Oferta ${i + 1}'),
-                      subtitle: Text('Klienti: ${customer?.name ?? "-"}\Data: ${offer?.date.toString().split(' ').first ?? "-"}'),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => OfferDetailPage(offerIndex: i)),
-                        );
-                      },
-                      onLongPress: () async {
-                        final confirm = await showDialog<bool>(
-                          context: context,
-                          builder: (_) => AlertDialog(
-                            title: const Text('Fshij Ofertën'),
-                            content: const Text('A jeni të sigurtë se dëshironi ta fshini këtë ofertë?'),
+                    return Card(
+                        child: ListTile(
+                        title: Text('Oferta ${i + 1}'),
+                    subtitle: Text('Klienti: ${customer?.name ?? "-"}\Data: ${offer?.date.toString().split(' ').first ?? "-"}'),
+                    onTap: () {
+                    Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => OfferDetailPage(offerIndex: i)),
+                    );
+                    },
+                    onLongPress: () async {
+                    final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (_) => AlertDialog(
+                    title: const Text('Fshij Ofertën'),
+                    content: const Text('A jeni të sigurtë se dëshironi ta fshini këtë ofertë?'),
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.pop(context, false),
@@ -167,8 +169,9 @@ class _OffersPageState extends State<OffersPage> {
                           offerBox.deleteAt(i);
                           setState(() {});
                         }
-                      },
-                    );
+                        },
+                      ),
+                    ).animate().fadeIn(duration: 200.ms).slideY(begin: 0.3);
                   },
                 );
               },
