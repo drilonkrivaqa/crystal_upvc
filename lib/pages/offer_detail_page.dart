@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models.dart';
 import 'window_door_item_page.dart';
+import '../theme/app_colors.dart';
 import 'dart:io' show File;
 import 'package:flutter/foundation.dart';
 import '../pdf/offer_pdf.dart';
@@ -266,7 +267,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                             setState(() {});
                             Navigator.pop(context);
                           },
-                          child: const Text("Fshij", style: TextStyle(color: Colors.red)),
+                          child: const Text("Fshij", style: TextStyle(color: AppColors.delete)),
                         ),
                         TextButton(
                           onPressed: () async {

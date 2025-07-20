@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
@@ -9,7 +10,7 @@ class WelcomePage extends StatelessWidget {
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.white, Colors.tealAccent],
+            colors: [Colors.white, AppColors.accent],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
