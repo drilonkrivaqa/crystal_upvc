@@ -5,6 +5,8 @@ import 'pages/catalogs_page.dart';
 import 'pages/customers_page.dart';
 import 'pages/offers_page.dart';
 import 'pages/welcome_page.dart';
+import 'theme/app_colors.dart';
+import 'theme/app_theme.dart';
 
 
 void main() async {
@@ -39,10 +41,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'UPVC Helper',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
-        useMaterial3: true,
-      ),
+      theme: AppTheme.light,
       home: const WelcomePage(),
       routes: {
         '/home': (_) => const HomePage(),
@@ -55,11 +54,11 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.teal,
+      backgroundColor: AppColors.primary,
       appBar: AppBar(
         title: const Text('TONI AL-PVC',style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
         centerTitle: true,
-        backgroundColor: Colors.teal[800],
+        backgroundColor: AppColors.primaryDark,
       ),
       body: Padding(
         padding: const EdgeInsets.all(32),
@@ -112,7 +111,7 @@ class _MenuButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.teal[100],
+      color: AppColors.primaryLight,
       borderRadius: BorderRadius.circular(16),
       elevation: 4,
       child: InkWell(
@@ -123,9 +122,9 @@ class _MenuButton extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, color: Colors.teal[800], size: 36),
+              Icon(icon, color: AppColors.primaryDark, size: 36),
               const SizedBox(width: 18),
-              Text(label, style: const TextStyle(fontSize: 20, color: Colors.teal, fontWeight: FontWeight.bold)),
+              Text(label, style: const TextStyle(fontSize: 20, color: AppColors.primary, fontWeight: FontWeight.bold)),
             ],
           ),
         ),

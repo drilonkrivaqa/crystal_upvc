@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models.dart';
 import 'catalogs_page.dart';
+import '../theme/app_colors.dart';
 
 class CatalogTabPage extends StatefulWidget {
   final CatalogType type;
@@ -82,7 +83,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
               Navigator.pop(context);
               setState(() {});
             },
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+            child: const Text('Delete', style: TextStyle(color: AppColors.delete)),
           ),
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('Anulo')),
           ElevatedButton(
