@@ -63,7 +63,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
     Offer offer = offerBox.getAt(widget.offerIndex)!;
     return Scaffold(
       appBar: AppBar(
-        title: Text('Offer ${widget.offerIndex + 1}'),
+        title: Text('Oferta ${widget.offerIndex + 1}'),
         actions: [
           IconButton(
             icon: const Icon(Icons.picture_as_pdf),
