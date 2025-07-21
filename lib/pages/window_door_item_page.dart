@@ -6,12 +6,13 @@ import 'dart:io' show File;
 import 'dart:typed_data';
 import '../models.dart';
 import '../theme/app_colors.dart';
-
+import '../theme/app_background.dart';
 
 class WindowDoorItemPage extends StatefulWidget {
   final void Function(WindowDoorItem) onSave;
   final WindowDoorItem? existingItem;
-  const WindowDoorItemPage({super.key, required this.onSave, this.existingItem});
+  const WindowDoorItemPage(
+      {super.key, required this.onSave, this.existingItem});
 
   @override
   State<WindowDoorItemPage> createState() => _WindowDoorItemPageState();
@@ -67,17 +68,28 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     mechanismBox = Hive.box<Mechanism>('mechanisms');
     accessoryBox = Hive.box<Accessory>('accessories');
 
-    nameController = TextEditingController(text: widget.existingItem?.name ?? '');
-    widthController = TextEditingController(text: widget.existingItem?.width.toString() ?? '');
-    heightController = TextEditingController(text: widget.existingItem?.height.toString() ?? '');
-    quantityController = TextEditingController(text: widget.existingItem?.quantity.toString() ?? '1');
-    verticalController = TextEditingController(text: widget.existingItem?.verticalSections.toString() ?? '1');
-    horizontalController = TextEditingController(text: widget.existingItem?.horizontalSections.toString() ?? '1');
-    priceController = TextEditingController(text: widget.existingItem?.manualPrice?.toString() ?? '');
-    extra1Controller = TextEditingController(text: widget.existingItem?.extra1Price?.toString() ?? '');
-    extra2Controller = TextEditingController(text: widget.existingItem?.extra2Price?.toString() ?? '');
-    extra1DescController = TextEditingController(text: widget.existingItem?.extra1Desc ?? '');
-    extra2DescController = TextEditingController(text: widget.existingItem?.extra2Desc ?? '');
+    nameController =
+        TextEditingController(text: widget.existingItem?.name ?? '');
+    widthController = TextEditingController(
+        text: widget.existingItem?.width.toString() ?? '');
+    heightController = TextEditingController(
+        text: widget.existingItem?.height.toString() ?? '');
+    quantityController = TextEditingController(
+        text: widget.existingItem?.quantity.toString() ?? '1');
+    verticalController = TextEditingController(
+        text: widget.existingItem?.verticalSections.toString() ?? '1');
+    horizontalController = TextEditingController(
+        text: widget.existingItem?.horizontalSections.toString() ?? '1');
+    priceController = TextEditingController(
+        text: widget.existingItem?.manualPrice?.toString() ?? '');
+    extra1Controller = TextEditingController(
+        text: widget.existingItem?.extra1Price?.toString() ?? '');
+    extra2Controller = TextEditingController(
+        text: widget.existingItem?.extra2Price?.toString() ?? '');
+    extra1DescController =
+        TextEditingController(text: widget.existingItem?.extra1Desc ?? '');
+    extra2DescController =
+        TextEditingController(text: widget.existingItem?.extra2Desc ?? '');
 
     profileSetIndex = widget.existingItem?.profileSetIndex ?? 0;
     glassIndex = widget.existingItem?.glassIndex ?? 0;
@@ -93,11 +105,14 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     extra2Desc = widget.existingItem?.extra2Desc;
     verticalSections = widget.existingItem?.verticalSections ?? 1;
     horizontalSections = widget.existingItem?.horizontalSections ?? 1;
-    fixedSectors = List<bool>.from(widget.existingItem?.fixedSectors ?? [false]);
+    fixedSectors =
+        List<bool>.from(widget.existingItem?.fixedSectors ?? [false]);
     sectionWidths = List<int>.from(widget.existingItem?.sectionWidths ?? []);
     sectionHeights = List<int>.from(widget.existingItem?.sectionHeights ?? []);
-    verticalAdapters = List<bool>.from(widget.existingItem?.verticalAdapters ?? []);
-    horizontalAdapters = List<bool>.from(widget.existingItem?.horizontalAdapters ?? []);
+    verticalAdapters =
+        List<bool>.from(widget.existingItem?.verticalAdapters ?? []);
+    horizontalAdapters =
+        List<bool>.from(widget.existingItem?.horizontalAdapters ?? []);
     _ensureGridSize();
   }
 
@@ -106,144 +121,200 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     return WillPopScope(
         onWillPop: _onWillPop,
         child: Scaffold(
-        appBar: AppBar(title: Text(widget.existingItem == null ? 'Shto Dritare/Derë' : 'Ndrysho Dritaren/Derën')),
-    body: SingleChildScrollView(
-    padding: const EdgeInsets.all(16),
-    child: Column(
-    children: [
-            GestureDetector(
-              onTap: () async {
-                final picker = ImagePicker();
-                final picked = await picker.pickImage(source: ImageSource.gallery);
-                if (picked != null) {
-                  final bytes = await picked.readAsBytes();
-                  setState(() {
-                    photoPath = picked.path;
-                    photoBytes = bytes;
-                  });
-                }
-              },
-              child: photoBytes != null
-                  ? Image.memory(photoBytes!, width: 120, height: 120, fit: BoxFit.contain)
-                  : photoPath != null
-                  ? (kIsWeb
-                  ? Image.network(photoPath!, width: 120, height: 120, fit: BoxFit.contain)
-                  : Image.file(File(photoPath!), width: 120, height: 120, fit: BoxFit.contain))
-                  : Container(
-                width: 120,
-                height: 120,
-                color: AppColors.grey300,
-                alignment: Alignment.center,
-                child: const Text('Kliko për të vendosë foton'),
+            appBar: AppBar(
+                title: Text(widget.existingItem == null
+                    ? 'Shto Dritare/Derë'
+                    : 'Ndrysho Dritaren/Derën')),
+            body: AppBackground(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    GestureDetector(
+                      onTap: () async {
+                        final picker = ImagePicker();
+                        final picked =
+                            await picker.pickImage(source: ImageSource.gallery);
+                        if (picked != null) {
+                          final bytes = await picked.readAsBytes();
+                          setState(() {
+                            photoPath = picked.path;
+                            photoBytes = bytes;
+                          });
+                        }
+                      },
+                      child: photoBytes != null
+                          ? Image.memory(photoBytes!,
+                              width: 120, height: 120, fit: BoxFit.contain)
+                          : photoPath != null
+                              ? (kIsWeb
+                                  ? Image.network(photoPath!,
+                                      width: 120,
+                                      height: 120,
+                                      fit: BoxFit.contain)
+                                  : Image.file(File(photoPath!),
+                                      width: 120,
+                                      height: 120,
+                                      fit: BoxFit.contain))
+                              : Container(
+                                  width: 120,
+                                  height: 120,
+                                  color: AppColors.grey300,
+                                  alignment: Alignment.center,
+                                  child:
+                                      const Text('Kliko për të vendosë foton'),
+                                ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                        controller: nameController,
+                        decoration: const InputDecoration(labelText: 'Emri')),
+                    TextField(
+                      controller: widthController,
+                      decoration:
+                          const InputDecoration(labelText: 'Gjerësia (mm)'),
+                      keyboardType: TextInputType.number,
+                      onChanged: (_) => _recalculateWidths(),
+                    ),
+                    TextField(
+                      controller: heightController,
+                      decoration:
+                          const InputDecoration(labelText: 'Lartësia (mm)'),
+                      keyboardType: TextInputType.number,
+                      onChanged: (_) => _recalculateHeights(),
+                    ),
+                    TextField(
+                        controller: quantityController,
+                        decoration: const InputDecoration(labelText: 'Sasia'),
+                        keyboardType: TextInputType.number),
+                    TextField(
+                        controller: verticalController,
+                        decoration: const InputDecoration(
+                            labelText: 'Sektorë Vertikal'),
+                        keyboardType: TextInputType.number,
+                        onChanged: (_) => _updateGrid()),
+                    TextField(
+                        controller: horizontalController,
+                        decoration: const InputDecoration(
+                            labelText: 'Sektorë Horizontal'),
+                        keyboardType: TextInputType.number,
+                        onChanged: (_) => _updateGrid()),
+                    DropdownButtonFormField<int>(
+                      value: profileSetIndex,
+                      decoration:
+                          const InputDecoration(labelText: 'Profili (Lloji)'),
+                      items: [
+                        for (int i = 0; i < profileSetBox.length; i++)
+                          DropdownMenuItem<int>(
+                            value: i,
+                            child: Text(profileSetBox.getAt(i)?.name ?? ''),
+                          ),
+                      ],
+                      onChanged: (val) =>
+                          setState(() => profileSetIndex = val ?? 0),
+                    ),
+                    DropdownButtonFormField<int>(
+                      value: glassIndex,
+                      decoration: const InputDecoration(labelText: 'Xhami'),
+                      items: [
+                        for (int i = 0; i < glassBox.length; i++)
+                          DropdownMenuItem<int>(
+                            value: i,
+                            child: Text(glassBox.getAt(i)?.name ?? ''),
+                          ),
+                      ],
+                      onChanged: (val) => setState(() => glassIndex = val ?? 0),
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      height: 200,
+                      child: _buildGrid(),
+                    ),
+                    const SizedBox(height: 12),
+                    _buildDimensionInputs(),
+                    TextField(
+                        controller: priceController,
+                        decoration: const InputDecoration(
+                            labelText: 'Çmimi manual (Opsional)'),
+                        keyboardType: TextInputType.number),
+                    TextField(
+                        controller: extra1DescController,
+                        decoration: const InputDecoration(
+                            labelText: 'Emri i shtesës 1')),
+                    TextField(
+                        controller: extra1Controller,
+                        decoration: const InputDecoration(
+                            labelText: 'Çmimi i shtesës 1'),
+                        keyboardType: TextInputType.number),
+                    TextField(
+                        controller: extra2DescController,
+                        decoration: const InputDecoration(
+                            labelText: 'Emri i shtesës 2')),
+                    TextField(
+                        controller: extra2Controller,
+                        decoration: const InputDecoration(
+                            labelText: 'Çmimi i shtesës 2'),
+                        keyboardType: TextInputType.number),
+                    const SizedBox(height: 12),
+                    DropdownButtonFormField<int?>(
+                      value: mechanismIndex,
+                      decoration: const InputDecoration(
+                          labelText: "Mekanizmi (Opsional)"),
+                      items: [
+                        const DropdownMenuItem<int?>(
+                            value: null, child: Text('Asnjë')),
+                        for (int i = 0; i < mechanismBox.length; i++)
+                          DropdownMenuItem<int>(
+                            value: i,
+                            child: Text(mechanismBox.getAt(i)?.name ?? ""),
+                          ),
+                      ],
+                      onChanged: (val) => setState(() => mechanismIndex = val),
+                    ),
+                    DropdownButtonFormField<int?>(
+                      value: blindIndex,
+                      decoration: const InputDecoration(
+                          labelText: "Roleta (Opsionale)"),
+                      items: [
+                        const DropdownMenuItem<int?>(
+                            value: null, child: Text('Asnjë')),
+                        for (int i = 0; i < blindBox.length; i++)
+                          DropdownMenuItem<int>(
+                            value: i,
+                            child: Text(blindBox.getAt(i)?.name ?? ""),
+                          ),
+                      ],
+                      onChanged: (val) => setState(() => blindIndex = val),
+                    ),
+                    DropdownButtonFormField<int?>(
+                      value: accessoryIndex,
+                      decoration: const InputDecoration(
+                          labelText: "Aksesor (Opsional)"),
+                      items: [
+                        const DropdownMenuItem<int?>(
+                            value: null, child: Text('Asnjë')),
+                        for (int i = 0; i < accessoryBox.length; i++)
+                          DropdownMenuItem<int>(
+                            value: i,
+                            child: Text(accessoryBox.getAt(i)?.name ?? ""),
+                          ),
+                      ],
+                      onChanged: (val) => setState(() => accessoryIndex = val),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        if (_saveItem()) {
+                          Navigator.pop(context);
+                        }
+                      },
+                      child:
+                          Text(widget.existingItem == null ? 'Shto' : 'Ruaj'),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 12),
-            TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Emri')),
-            TextField(
-              controller: widthController,
-              decoration: const InputDecoration(labelText: 'Gjerësia (mm)'),
-              keyboardType: TextInputType.number,
-              onChanged: (_) => _recalculateWidths(),
-            ),
-            TextField(
-              controller: heightController,
-              decoration: const InputDecoration(labelText: 'Lartësia (mm)'),
-              keyboardType: TextInputType.number,
-              onChanged: (_) => _recalculateHeights(),
-            ),
-            TextField(controller: quantityController, decoration: const InputDecoration(labelText: 'Sasia'), keyboardType: TextInputType.number),
-            TextField(controller: verticalController, decoration: const InputDecoration(labelText: 'Sektorë Vertikal'), keyboardType: TextInputType.number, onChanged: (_) => _updateGrid()),
-            TextField(controller: horizontalController, decoration: const InputDecoration(labelText: 'Sektorë Horizontal'), keyboardType: TextInputType.number, onChanged: (_) => _updateGrid()),
-            DropdownButtonFormField<int>(
-              value: profileSetIndex,
-              decoration: const InputDecoration(labelText: 'Profili (Lloji)'),
-              items: [
-                for (int i = 0; i < profileSetBox.length; i++)
-                  DropdownMenuItem<int>(
-                    value: i,
-                    child: Text(profileSetBox.getAt(i)?.name ?? ''),
-                  ),
-              ],
-              onChanged: (val) => setState(() => profileSetIndex = val ?? 0),
-            ),
-            DropdownButtonFormField<int>(
-              value: glassIndex,
-              decoration: const InputDecoration(labelText: 'Xhami'),
-              items: [
-                for (int i = 0; i < glassBox.length; i++)
-                  DropdownMenuItem<int>(
-                    value: i,
-                    child: Text(glassBox.getAt(i)?.name ?? ''),
-                  ),
-              ],
-              onChanged: (val) => setState(() => glassIndex = val ?? 0),
-            ),
-            const SizedBox(height: 12),
-            SizedBox(
-              height: 200,
-              child: _buildGrid(),
-            ),
-            const SizedBox(height: 12),
-            _buildDimensionInputs(),
-            TextField(controller: priceController, decoration: const InputDecoration(labelText: 'Çmimi manual (Opsional)'), keyboardType: TextInputType.number),
-            TextField(controller: extra1DescController, decoration: const InputDecoration(labelText: 'Emri i shtesës 1')),
-            TextField(controller: extra1Controller, decoration: const InputDecoration(labelText: 'Çmimi i shtesës 1'), keyboardType: TextInputType.number),
-            TextField(controller: extra2DescController, decoration: const InputDecoration(labelText: 'Emri i shtesës 2')),
-            TextField(controller: extra2Controller, decoration: const InputDecoration(labelText: 'Çmimi i shtesës 2'), keyboardType: TextInputType.number),
-            const SizedBox(height: 12),
-            DropdownButtonFormField<int?>(
-              value: mechanismIndex,
-              decoration: const InputDecoration(labelText: "Mekanizmi (Opsional)"),
-              items: [
-                const DropdownMenuItem<int?>(value: null, child: Text('Asnjë')),
-                for (int i = 0; i < mechanismBox.length; i++)
-                  DropdownMenuItem<int>(
-                    value: i,
-                    child: Text(mechanismBox.getAt(i)?.name ?? ""),
-                  ),
-              ],
-              onChanged: (val) => setState(() => mechanismIndex = val),
-            ),
-            DropdownButtonFormField<int?>(
-              value: blindIndex,
-              decoration: const InputDecoration(labelText: "Roleta (Opsionale)"),
-              items: [
-                const DropdownMenuItem<int?>(value: null, child: Text('Asnjë')),
-                for (int i = 0; i < blindBox.length; i++)
-                  DropdownMenuItem<int>(
-                    value: i,
-                    child: Text(blindBox.getAt(i)?.name ?? ""),
-                  ),
-              ],
-              onChanged: (val) => setState(() => blindIndex = val),
-            ),
-            DropdownButtonFormField<int?>(
-              value: accessoryIndex,
-              decoration: const InputDecoration(labelText: "Aksesor (Opsional)"),
-              items: [
-                const DropdownMenuItem<int?>(value: null, child: Text('Asnjë')),
-                for (int i = 0; i < accessoryBox.length; i++)
-                  DropdownMenuItem<int>(
-                    value: i,
-                    child: Text(accessoryBox.getAt(i)?.name ?? ""),
-                  ),
-              ],
-              onChanged: (val) => setState(() => accessoryIndex = val),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                if (_saveItem()) {
-                  Navigator.pop(context);
-                }
-              },
-              child: Text(widget.existingItem == null ? 'Shto' : 'Ruaj'),
-            ),
-          ],
-        ),
-      ),
-    )
-    );
+            )));
   }
 
   bool _saveItem() {
@@ -256,7 +327,9 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
 
     if (name.isEmpty || width <= 0 || height <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Ju lutem plotësoni të gjitha të dhënat e kërkuara!')),
+        const SnackBar(
+            content:
+                Text('Ju lutem plotësoni të gjitha të dhënat e kërkuara!')),
       );
       return false;
     }
@@ -297,7 +370,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Ruaj ndryshimet?'),
-        content: const Text('Dëshironi t\'i ruani ndryshimet para se të dilni?'),
+        content:
+            const Text('Dëshironi t\'i ruani ndryshimet para se të dilni?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
@@ -355,7 +429,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
 
     if (vChanged || hChanged) {
       fixedSectors =
-      List<bool>.filled(verticalSections * horizontalSections, false);
+          List<bool>.filled(verticalSections * horizontalSections, false);
     }
 
     _ensureGridSize();
@@ -379,34 +453,39 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     if (sectionWidthCtrls.length < verticalSections) {
       for (int i = sectionWidthCtrls.length; i < verticalSections; i++) {
         sectionWidthCtrls.add(TextEditingController(
-            text: (i < sectionWidths.length ? sectionWidths[i] : 0).toString()));
+            text:
+                (i < sectionWidths.length ? sectionWidths[i] : 0).toString()));
       }
     } else if (sectionWidthCtrls.length > verticalSections) {
       sectionWidthCtrls = sectionWidthCtrls.sublist(0, verticalSections);
     }
     if (sectionHeights.length < horizontalSections) {
-      sectionHeights
-          .addAll(List<int>.filled(horizontalSections - sectionHeights.length, 0));
+      sectionHeights.addAll(
+          List<int>.filled(horizontalSections - sectionHeights.length, 0));
     } else if (sectionHeights.length > horizontalSections) {
       sectionHeights = sectionHeights.sublist(0, horizontalSections);
     }
     if (sectionHeightCtrls.length < horizontalSections) {
       for (int i = sectionHeightCtrls.length; i < horizontalSections; i++) {
         sectionHeightCtrls.add(TextEditingController(
-            text: (i < sectionHeights.length ? sectionHeights[i] : 0).toString()));
+            text: (i < sectionHeights.length ? sectionHeights[i] : 0)
+                .toString()));
       }
     } else if (sectionHeightCtrls.length > horizontalSections) {
       sectionHeightCtrls = sectionHeightCtrls.sublist(0, horizontalSections);
     }
     if (verticalAdapters.length < verticalSections - 1) {
-      verticalAdapters.addAll(List<bool>.filled((verticalSections - 1) - verticalAdapters.length, false));
+      verticalAdapters.addAll(List<bool>.filled(
+          (verticalSections - 1) - verticalAdapters.length, false));
     } else if (verticalAdapters.length > verticalSections - 1) {
       verticalAdapters = verticalAdapters.sublist(0, verticalSections - 1);
     }
     if (horizontalAdapters.length < horizontalSections - 1) {
-      horizontalAdapters.addAll(List<bool>.filled((horizontalSections - 1) - horizontalAdapters.length, false));
+      horizontalAdapters.addAll(List<bool>.filled(
+          (horizontalSections - 1) - horizontalAdapters.length, false));
     } else if (horizontalAdapters.length > horizontalSections - 1) {
-      horizontalAdapters = horizontalAdapters.sublist(0, horizontalSections - 1);
+      horizontalAdapters =
+          horizontalAdapters.sublist(0, horizontalSections - 1);
     }
 
     _recalculateWidths();
@@ -429,7 +508,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     int remaining = totalWidth - specifiedSum;
     if (remaining < 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Gjerësia e sektorit e kalon gjerësinë totale!')),
+        const SnackBar(
+            content: Text('Gjerësia e sektorit e kalon gjerësinë totale!')),
       );
       remaining = 0;
     }
@@ -467,7 +547,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     int remaining = totalHeight - specifiedSum;
     if (remaining < 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lartësia e sektorit e kalon lartësinë totale!')),
+        const SnackBar(
+            content: Text('Lartësia e sektorit e kalon lartësinë totale!')),
       );
       remaining = 0;
     }
@@ -529,8 +610,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                     child: GestureDetector(
                       onTap: () {
                         int index = r * verticalSections + c;
-                        setState(() =>
-                        fixedSectors[index] = !fixedSectors[index]);
+                        setState(
+                            () => fixedSectors[index] = !fixedSectors[index]);
                       },
                       child: Container(
                         margin: const EdgeInsets.all(4),
@@ -569,9 +650,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
             ),
             keyboardType: TextInputType.number,
             enabled: i < verticalSections - 1,
-            onChanged: i < verticalSections - 1
-                ? (_) => _recalculateWidths()
-                : null,
+            onChanged:
+                i < verticalSections - 1 ? (_) => _recalculateWidths() : null,
           ),
         if (horizontalSections > 0) const SizedBox(height: 8),
         if (horizontalSections > 0) const Text('Lartësitë e sektorëve (mm)'),
@@ -598,7 +678,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
               DropdownMenuItem(value: false, child: Text('T')),
               DropdownMenuItem(value: true, child: Text('Adapter')),
             ],
-            onChanged: (val) => setState(() => verticalAdapters[i] = val ?? false),
+            onChanged: (val) =>
+                setState(() => verticalAdapters[i] = val ?? false),
           ),
         if (horizontalSections > 1) const SizedBox(height: 8),
         if (horizontalSections > 1) const Text('Ndarja Horizontale'),
@@ -609,7 +690,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
               DropdownMenuItem(value: false, child: Text('T')),
               DropdownMenuItem(value: true, child: Text('Adapter')),
             ],
-            onChanged: (val) => setState(() => horizontalAdapters[i] = val ?? false),
+            onChanged: (val) =>
+                setState(() => horizontalAdapters[i] = val ?? false),
           ),
       ],
     );

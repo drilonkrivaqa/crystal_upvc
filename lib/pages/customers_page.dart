@@ -3,6 +3,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../models.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_background.dart';
 
 class CustomersPage extends StatefulWidget {
   const CustomersPage({super.key});
@@ -32,15 +33,26 @@ class _CustomersPageState extends State<CustomersPage> {
         content: SingleChildScrollView(
           child: Column(
             children: [
-              TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Emri & Mbiemri')),
-              TextField(controller: addressController, decoration: const InputDecoration(labelText: 'Adresa')),
-              TextField(controller: phoneController, decoration: const InputDecoration(labelText: 'Nr. Tel.')),
-              TextField(controller: emailController, decoration: const InputDecoration(labelText: 'Email')),
+              TextField(
+                  controller: nameController,
+                  decoration:
+                      const InputDecoration(labelText: 'Emri & Mbiemri')),
+              TextField(
+                  controller: addressController,
+                  decoration: const InputDecoration(labelText: 'Adresa')),
+              TextField(
+                  controller: phoneController,
+                  decoration: const InputDecoration(labelText: 'Nr. Tel.')),
+              TextField(
+                  controller: emailController,
+                  decoration: const InputDecoration(labelText: 'Email')),
             ],
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Anulo')),
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Anulo')),
           ElevatedButton(
             onPressed: () {
               if (nameController.text.isEmpty) return;
@@ -63,7 +75,8 @@ class _CustomersPageState extends State<CustomersPage> {
   void _editCustomer(int index) {
     final customer = customerBox.getAt(index);
     final nameController = TextEditingController(text: customer?.name ?? "");
-    final addressController = TextEditingController(text: customer?.address ?? "");
+    final addressController =
+        TextEditingController(text: customer?.address ?? "");
     final phoneController = TextEditingController(text: customer?.phone ?? "");
     final emailController = TextEditingController(text: customer?.email ?? "");
 
@@ -74,10 +87,19 @@ class _CustomersPageState extends State<CustomersPage> {
         content: SingleChildScrollView(
           child: Column(
             children: [
-              TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Emri & Mbiemri')),
-              TextField(controller: addressController, decoration: const InputDecoration(labelText: 'Adresa')),
-              TextField(controller: phoneController, decoration: const InputDecoration(labelText: 'Nr. Tel.')),
-              TextField(controller: emailController, decoration: const InputDecoration(labelText: 'Email')),
+              TextField(
+                  controller: nameController,
+                  decoration:
+                      const InputDecoration(labelText: 'Emri & Mbiemri')),
+              TextField(
+                  controller: addressController,
+                  decoration: const InputDecoration(labelText: 'Adresa')),
+              TextField(
+                  controller: phoneController,
+                  decoration: const InputDecoration(labelText: 'Nr. Tel.')),
+              TextField(
+                  controller: emailController,
+                  decoration: const InputDecoration(labelText: 'Email')),
             ],
           ),
         ),
@@ -88,18 +110,23 @@ class _CustomersPageState extends State<CustomersPage> {
               Navigator.pop(context);
               setState(() {});
             },
-            child: const Text('Fshij', style: TextStyle(color: AppColors.delete)),
+            child:
+                const Text('Fshij', style: TextStyle(color: AppColors.delete)),
           ),
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Anulo')),
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Anulo')),
           ElevatedButton(
             onPressed: () {
               if (nameController.text.isEmpty) return;
-              customerBox.putAt(index, Customer(
-                name: nameController.text,
-                address: addressController.text,
-                phone: phoneController.text,
-                email: emailController.text,
-              ));
+              customerBox.putAt(
+                  index,
+                  Customer(
+                    name: nameController.text,
+                    address: addressController.text,
+                    phone: phoneController.text,
+                    email: emailController.text,
+                  ));
               Navigator.pop(context);
               setState(() {});
             },
@@ -114,28 +141,30 @@ class _CustomersPageState extends State<CustomersPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Klientët')),
-      body: ValueListenableBuilder(
-        valueListenable: customerBox.listenable(),
-        builder: (context, Box<Customer> box, _) {
-          return ListView.builder(
-            itemCount: box.length,
-            itemBuilder: (context, i) {
-              final index = box.length - 1 - i;
-              final customer = box.getAt(index);
-              return Card(
-                child: ListTile(
-                  title: Text(customer?.name ?? ""),
-                  subtitle: Text(
-                    'Adresa: ${customer?.address ?? ""}\n'
-                        'Nr. Tel.: ${customer?.phone ?? ""}\n'
-                        'Email: ${customer?.email ?? ""}',
+      body: AppBackground(
+        child: ValueListenableBuilder(
+          valueListenable: customerBox.listenable(),
+          builder: (context, Box<Customer> box, _) {
+            return ListView.builder(
+              itemCount: box.length,
+              itemBuilder: (context, i) {
+                final index = box.length - 1 - i;
+                final customer = box.getAt(index);
+                return Card(
+                  child: ListTile(
+                    title: Text(customer?.name ?? ""),
+                    subtitle: Text(
+                      'Adresa: ${customer?.address ?? ""}\n'
+                      'Nr. Tel.: ${customer?.phone ?? ""}\n'
+                      'Email: ${customer?.email ?? ""}',
+                    ),
+                    onTap: () => _editCustomer(index),
                   ),
-                  onTap: () => _editCustomer(index),
-                ),
-              ).animate().fadeIn(duration: 200.ms).slideY(begin: 0.3);
-            },
-          );
-        },
+                ).animate().fadeIn(duration: 200.ms).slideY(begin: 0.3);
+              },
+            );
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _addCustomer,

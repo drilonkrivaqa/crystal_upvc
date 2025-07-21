@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../models.dart';
 import 'offer_detail_page.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_background.dart';
 
 class OffersPage extends StatefulWidget {
   const OffersPage({super.key});
@@ -33,7 +34,8 @@ class _OffersPageState extends State<OffersPage> {
 
     // Default to the most recently added customer
     int selectedCustomer = customerBox.length - 1;
-    final TextEditingController profitController = TextEditingController(text: '0');
+    final TextEditingController profitController =
+        TextEditingController(text: '0');
     showDialog(
       context: context,
       builder: (_) => StatefulBuilder(
@@ -46,7 +48,7 @@ class _OffersPageState extends State<OffersPage> {
                 value: selectedCustomer,
                 items: List.generate(
                   customerBox.length,
-                      (index) => DropdownMenuItem(
+                  (index) => DropdownMenuItem(
                     value: index,
                     child: Text(customerBox.getAt(index)?.name ?? ''),
                   ),
@@ -65,7 +67,9 @@ class _OffersPageState extends State<OffersPage> {
             ],
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Anulo')),
+            TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Anulo')),
             ElevatedButton(
               onPressed: () {
                 offerBox.add(
@@ -93,91 +97,106 @@ class _OffersPageState extends State<OffersPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Ofertat')),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              decoration: const InputDecoration(
-                labelText: 'Kërko me emër të klientit ose me numër oferte',
-                prefixIcon: Icon(Icons.search),
+      body: AppBackground(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextField(
+                decoration: const InputDecoration(
+                  labelText: 'Kërko me emër të klientit ose me numër oferte',
+                  prefixIcon: Icon(Icons.search),
+                ),
+                onChanged: (val) => setState(() => _searchQuery = val.trim()),
               ),
-              onChanged: (val) => setState(() => _searchQuery = val.trim()),
             ),
-          ),
-          Expanded(
-            child: ValueListenableBuilder(
-              valueListenable: offerBox.listenable(),
-              builder: (context, Box<Offer> box, _) {
-                final results = <int>[];
-                final query = _searchQuery.toLowerCase();
-                for (int i = 0; i < box.length; i++) {
-                  final offer = box.getAt(i);
-                  final customer = offer != null && offer.customerIndex < customerBox.length
-                      ? customerBox.getAt(offer.customerIndex)
-                      : null;
-                  final numStr = (i + 1).toString();
-                  if (query.isEmpty ||
-                      numStr.contains(query) ||
-                      (customer != null && customer.name.toLowerCase().contains(query))) {
-                    results.add(i);
-                  }
-                }
-                // Order results so the most recent offers appear first
-                results.sort((a, b) {
-                  final dateA = box.getAt(a)?.date ?? DateTime.fromMillisecondsSinceEpoch(0);
-                  final dateB = box.getAt(b)?.date ?? DateTime.fromMillisecondsSinceEpoch(0);
-                  return dateB.compareTo(dateA);
-                });
-                return ListView.builder(
-                  itemCount: results.length,
-                  itemBuilder: (context, idx) {
-                    final i = results[idx];
+            Expanded(
+              child: ValueListenableBuilder(
+                valueListenable: offerBox.listenable(),
+                builder: (context, Box<Offer> box, _) {
+                  final results = <int>[];
+                  final query = _searchQuery.toLowerCase();
+                  for (int i = 0; i < box.length; i++) {
                     final offer = box.getAt(i);
-                    final customer = offer != null && offer.customerIndex < customerBox.length
+                    final customer = offer != null &&
+                            offer.customerIndex < customerBox.length
                         ? customerBox.getAt(offer.customerIndex)
                         : null;
-                    return Card(
+                    final numStr = (i + 1).toString();
+                    if (query.isEmpty ||
+                        numStr.contains(query) ||
+                        (customer != null &&
+                            customer.name.toLowerCase().contains(query))) {
+                      results.add(i);
+                    }
+                  }
+                  // Order results so the most recent offers appear first
+                  results.sort((a, b) {
+                    final dateA = box.getAt(a)?.date ??
+                        DateTime.fromMillisecondsSinceEpoch(0);
+                    final dateB = box.getAt(b)?.date ??
+                        DateTime.fromMillisecondsSinceEpoch(0);
+                    return dateB.compareTo(dateA);
+                  });
+                  return ListView.builder(
+                    itemCount: results.length,
+                    itemBuilder: (context, idx) {
+                      final i = results[idx];
+                      final offer = box.getAt(i);
+                      final customer = offer != null &&
+                              offer.customerIndex < customerBox.length
+                          ? customerBox.getAt(offer.customerIndex)
+                          : null;
+                      return Card(
                         child: ListTile(
-                        title: Text('Oferta ${i + 1}'),
-                    subtitle: Text('Klienti: ${customer?.name ?? "-"}\Data: ${offer?.date.toString().split(' ').first ?? "-"}'),
-                    onTap: () {
-                    Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => OfferDetailPage(offerIndex: i)),
-                    );
+                          title: Text('Oferta ${i + 1}'),
+                          subtitle: Text(
+                              'Klienti: ${customer?.name ?? "-"}\Data: ${offer?.date.toString().split(' ').first ?? "-"}'),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) =>
+                                      OfferDetailPage(offerIndex: i)),
+                            );
+                          },
+                          onLongPress: () async {
+                            final confirm = await showDialog<bool>(
+                              context: context,
+                              builder: (_) => AlertDialog(
+                                title: const Text('Fshij Ofertën'),
+                                content: const Text(
+                                    'A jeni të sigurtë se dëshironi ta fshini këtë ofertë?'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.pop(context, false),
+                                    child: const Text('Anulo'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.pop(context, true),
+                                    child: const Text('Fshij',
+                                        style:
+                                            TextStyle(color: AppColors.delete)),
+                                  ),
+                                ],
+                              ),
+                            );
+                            if (confirm == true) {
+                              offerBox.deleteAt(i);
+                              setState(() {});
+                            }
+                          },
+                        ),
+                      ).animate().fadeIn(duration: 200.ms).slideY(begin: 0.3);
                     },
-                    onLongPress: () async {
-                    final confirm = await showDialog<bool>(
-                    context: context,
-                    builder: (_) => AlertDialog(
-                    title: const Text('Fshij Ofertën'),
-                    content: const Text('A jeni të sigurtë se dëshironi ta fshini këtë ofertë?'),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context, false),
-                                child: const Text('Anulo'),
-                              ),
-                              TextButton(
-                                onPressed: () => Navigator.pop(context, true),
-                                child: const Text('Fshij', style: TextStyle(color: AppColors.delete)),
-                              ),
-                            ],
-                          ),
-                        );
-                        if (confirm == true) {
-                          offerBox.deleteAt(i);
-                          setState(() {});
-                        }
-                        },
-                      ),
-                    ).animate().fadeIn(duration: 200.ms).slideY(begin: 0.3);
-                  },
-                );
-              },
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _addOffer,

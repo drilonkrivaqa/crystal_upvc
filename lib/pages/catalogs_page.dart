@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'catalog_tab_page.dart';
+import '../theme/app_background.dart';
 
 class CatalogsPage extends StatelessWidget {
   const CatalogsPage({super.key});
@@ -9,50 +10,50 @@ class CatalogsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Çmimorja")),
-      body: ListView(
-        children: [
-          const SizedBox(height: 20),
-          _CatalogButton(
-            label: "Profili",
-            onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (_) =>
-                        CatalogTabPage(type: CatalogType.profileSet))),
-          ),
-          _CatalogButton(
-            label: "Xhami",
-            onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (_) =>
-                        CatalogTabPage(type: CatalogType.glass))),
-          ),
-          _CatalogButton(
-            label: "Roleta",
-            onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (_) =>
-                        CatalogTabPage(type: CatalogType.blind))),
-          ),
-          _CatalogButton(
-            label: "Mekanizma",
-            onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (_) =>
-                        CatalogTabPage(type: CatalogType.mechanism))),
-          ),
-          _CatalogButton(
-            label: "Aksesorë",
-            onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (_) =>
-                        CatalogTabPage(type: CatalogType.accessory))),
-          ),
-        ],
+      body: AppBackground(
+        child: ListView(
+          children: [
+            const SizedBox(height: 20),
+            _CatalogButton(
+              label: "Profili",
+              onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) =>
+                          CatalogTabPage(type: CatalogType.profileSet))),
+            ),
+            _CatalogButton(
+              label: "Xhami",
+              onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => CatalogTabPage(type: CatalogType.glass))),
+            ),
+            _CatalogButton(
+              label: "Roleta",
+              onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => CatalogTabPage(type: CatalogType.blind))),
+            ),
+            _CatalogButton(
+              label: "Mekanizma",
+              onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) =>
+                          CatalogTabPage(type: CatalogType.mechanism))),
+            ),
+            _CatalogButton(
+              label: "Aksesorë",
+              onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) =>
+                          CatalogTabPage(type: CatalogType.accessory))),
+            ),
+          ],
+        ),
       ),
     );
   }
