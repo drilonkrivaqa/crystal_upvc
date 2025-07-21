@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../models.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_background.dart';
+import '../widgets/glass_card.dart';
 
 class CustomersPage extends StatefulWidget {
   const CustomersPage({super.key});
@@ -150,15 +151,14 @@ class _CustomersPageState extends State<CustomersPage> {
               itemBuilder: (context, i) {
                 final index = box.length - 1 - i;
                 final customer = box.getAt(index);
-                return Card(
-                  child: ListTile(
+                return GlassCard(
+                  onTap: () => _editCustomer(index),                  child: ListTile(
                     title: Text(customer?.name ?? ""),
                     subtitle: Text(
                       'Adresa: ${customer?.address ?? ""}\n'
                       'Nr. Tel.: ${customer?.phone ?? ""}\n'
                       'Email: ${customer?.email ?? ""}',
                     ),
-                    onTap: () => _editCustomer(index),
                   ),
                 ).animate().fadeIn(duration: 200.ms).slideY(begin: 0.3);
               },

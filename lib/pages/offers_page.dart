@@ -5,6 +5,7 @@ import '../models.dart';
 import 'offer_detail_page.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_background.dart';
+import '../widgets/glass_card.dart';
 
 class OffersPage extends StatefulWidget {
   const OffersPage({super.key});
@@ -147,47 +148,45 @@ class _OffersPageState extends State<OffersPage> {
                               offer.customerIndex < customerBox.length
                           ? customerBox.getAt(offer.customerIndex)
                           : null;
-                      return Card(
+                      return GlassCard(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => OfferDetailPage(offerIndex: i)),
+                          );
+                        },
+                        onLongPress: () async {
+                          final confirm = await showDialog<bool>(
+                            context: context,
+                            builder: (_) => AlertDialog(
+                              title: const Text('Fshij Ofertën'),
+                              content: const Text(
+                                  'A jeni të sigurtë se dëshironi ta fshini këtë ofertë?'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.pop(context, false),
+                                  child: const Text('Anulo'),
+                                ),
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context, true),
+                                  child: const Text('Fshij',
+                                      style:
+                                          TextStyle(color: AppColors.delete)),
+                                ),
+                              ],
+                            ),
+                          );
+                          if (confirm == true) {
+                            offerBox.deleteAt(i);
+                            setState(() {});
+                          }
+                        },
                         child: ListTile(
                           title: Text('Oferta ${i + 1}'),
                           subtitle: Text(
                               'Klienti: ${customer?.name ?? "-"}\Data: ${offer?.date.toString().split(' ').first ?? "-"}'),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (_) =>
-                                      OfferDetailPage(offerIndex: i)),
-                            );
-                          },
-                          onLongPress: () async {
-                            final confirm = await showDialog<bool>(
-                              context: context,
-                              builder: (_) => AlertDialog(
-                                title: const Text('Fshij Ofertën'),
-                                content: const Text(
-                                    'A jeni të sigurtë se dëshironi ta fshini këtë ofertë?'),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () =>
-                                        Navigator.pop(context, false),
-                                    child: const Text('Anulo'),
-                                  ),
-                                  TextButton(
-                                    onPressed: () =>
-                                        Navigator.pop(context, true),
-                                    child: const Text('Fshij',
-                                        style:
-                                            TextStyle(color: AppColors.delete)),
-                                  ),
-                                ],
-                              ),
-                            );
-                            if (confirm == true) {
-                              offerBox.deleteAt(i);
-                              setState(() {});
-                            }
-                          },
                         ),
                       ).animate().fadeIn(duration: 200.ms).slideY(begin: 0.3);
                     },

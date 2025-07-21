@@ -5,6 +5,7 @@ import '../models.dart';
 import 'catalogs_page.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_background.dart';
+import '../widgets/glass_card.dart';
 
 class CatalogTabPage extends StatefulWidget {
   final CatalogType type;
@@ -333,8 +334,8 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
               itemCount: box.length,
               itemBuilder: (context, i) {
                 final item = box.getAt(i);
-                return Card(
-                  child: ListTile(
+                return GlassCard(
+                  onTap: () => _editItem(i),                  child: ListTile(
                     title: Text(item.name),
                     subtitle: widget.type == CatalogType.profileSet
                         ? Text(
@@ -352,7 +353,6 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                                         widget.type == CatalogType.accessory
                                     ? Text("€${item.price.toStringAsFixed(2)}")
                                     : null,
-                    onTap: () => _editItem(i),
                   ),
                 ).animate().fadeIn(duration: 200.ms).slideY(begin: 0.3);
               },

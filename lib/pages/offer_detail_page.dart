@@ -8,6 +8,7 @@ import 'dart:io' show File;
 import 'package:flutter/foundation.dart';
 import '../pdf/offer_pdf.dart';
 import '../theme/app_background.dart';
+import '../widgets/glass_card.dart';
 
 class OfferDetailPage extends StatefulWidget {
   final int offerIndex;
@@ -244,85 +245,85 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
               }
               double profitAmount = finalPrice - total;
 
-              return Card(
+              return GlassCard(
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                onTap: () async {
+                  await showDialog(
+                    context: context,
+                    builder: (_) => AlertDialog(
+                      title: const Text("Ndrysho/Fshij Dritaren/Derën"),
+                      content: const Text("A dëshironi ta fshini këtë?"),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            offer.items.removeAt(i);
+                            offer.lastEdited = DateTime.now();
+                            offer.save();
+                            setState(() {});
+                            Navigator.pop(context);
+                          },
+                          child: const Text("Fshij",
+                              style: TextStyle(color: AppColors.delete)),
+                        ),
+                        TextButton(
+                          onPressed: () async {
+                            Navigator.pop(context);
+                            await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => WindowDoorItemPage(
+                                  existingItem: item,
+                                  onSave: (editedItem) {
+                                    offer.items[i] = editedItem;
+                                    offer.lastEdited = DateTime.now();
+                                    offer.save();
+                                    setState(() {});
+                                  },
+                                ),
+                              ),
+                            );
+                          },
+                          child: const Text("Ndrysho"),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text("Anulo"),
+                        ),
+                      ],
+                    ),
+                  );
+                },
                 child: ListTile(
                   leading: item.photoPath != null
                       ? (kIsWeb
-                          ? Image.network(item.photoPath!,
-                              width: 60, height: 60, fit: BoxFit.contain)
-                          : Image.file(File(item.photoPath!),
-                              width: 60, height: 60, fit: BoxFit.contain))
+                      ? Image.network(item.photoPath!,
+                      width: 60, height: 60, fit: BoxFit.contain)
+                      : Image.file(File(item.photoPath!),
+                      width: 60, height: 60, fit: BoxFit.contain))
                       : null,
                   title: Text(item.name),
                   subtitle: Text(
                     'Madhësia: ${item.width} x ${item.height} mm\n'
-                    'Pcs: ${item.quantity}\n'
-                    'Profili: ${profileSet.name}\n'
-                    'Xhami: ${glass.name}\n'
-                    'Sektorët: ${item.horizontalSections}x${item.verticalSections}\n'
-                    'Krahët: ${item.openings}\n'
-                    'Gjerësitë: ${item.sectionWidths.join(', ')}\n'
-                    'Lartësitë: ${item.sectionHeights.join(', ')}\n'
-                    'V div: ${item.verticalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ')}\n'
-                    'H div: ${item.horizontalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ')}\n'
-                    'Kostoja e Profilit: €${profileCost.toStringAsFixed(2)}\n'
-                    'Kostoja e Xhamit: €${glassCost.toStringAsFixed(2)}\n'
-                    '${blind != null ? "Roleta: ${blind.name}, €${blindCost.toStringAsFixed(2)}\n" : ""}'
-                    '${mechanism != null ? "Mekanizmi: ${mechanism.name}, €${mechanismCost.toStringAsFixed(2)}\n" : ""}'
-                    '${accessory != null ? "Aksesori: ${accessory.name}, €${accessoryCost.toStringAsFixed(2)}\n" : ""}'
-                    '${item.extra1Price != null ? "${item.extra1Desc ?? 'Shtesa 1'}: €${item.extra1Price!.toStringAsFixed(2)}\n" : ""}'
-                    '${item.extra2Price != null ? "${item.extra2Desc ?? 'Shtesa 2'}: €${item.extra2Price!.toStringAsFixed(2)}\n" : ""}'
-                    'Kostoja (0%): €${total.toStringAsFixed(2)}\n'
-                    'Kostoja me Fitim: €${finalPrice.toStringAsFixed(2)}\n'
-                    'Fitimi: €${profitAmount.toStringAsFixed(2)}',
+                        'Pcs: ${item.quantity}\n'
+                        'Profili: ${profileSet.name}\n'
+                        'Xhami: ${glass.name}\n'
+                        'Sektorët: ${item.horizontalSections}x${item.verticalSections}\n'
+                        'Krahët: ${item.openings}\n'
+                        'Gjerësitë: ${item.sectionWidths.join(', ')}\n'
+                        'Lartësitë: ${item.sectionHeights.join(', ')}\n'
+                        'V div: ${item.verticalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ')}\n'
+                        'H div: ${item.horizontalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ')}\n'
+                        'Kostoja e Profilit: €${profileCost.toStringAsFixed(2)}\n'
+                        'Kostoja e Xhamit: €${glassCost.toStringAsFixed(2)}\n'
+                        '${blind != null ? "Roleta: ${blind.name}, €${blindCost.toStringAsFixed(2)}\n" : ""}'
+                        '${mechanism != null ? "Mekanizmi: ${mechanism.name}, €${mechanismCost.toStringAsFixed(2)}\n" : ""}'
+                        '${accessory != null ? "Aksesori: ${accessory.name}, €${accessoryCost.toStringAsFixed(2)}\n" : ""}'
+                        '${item.extra1Price != null ? "${item.extra1Desc ?? 'Shtesa 1'}: €${item.extra1Price!.toStringAsFixed(2)}\n" : ""}'
+                        '${item.extra2Price != null ? "${item.extra2Desc ?? 'Shtesa 2'}: €${item.extra2Price!.toStringAsFixed(2)}\n" : ""}'
+                        'Kostoja (0%): €${total.toStringAsFixed(2)}\n'
+                        'Kostoja me Fitim: €${finalPrice.toStringAsFixed(2)}\n'
+                        'Fitimi: €${profitAmount.toStringAsFixed(2)}',
                   ),
-                  onTap: () async {
-                    await showDialog(
-                      context: context,
-                      builder: (_) => AlertDialog(
-                        title: const Text("Ndrysho/Fshij Dritaren/Derën"),
-                        content: const Text("A dëshironi ta fshini këtë?"),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              offer.items.removeAt(i);
-                              offer.lastEdited = DateTime.now();
-                              offer.save();
-                              setState(() {});
-                              Navigator.pop(context);
-                            },
-                            child: const Text("Fshij",
-                                style: TextStyle(color: AppColors.delete)),
-                          ),
-                          TextButton(
-                            onPressed: () async {
-                              Navigator.pop(context);
-                              await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => WindowDoorItemPage(
-                                    existingItem: item,
-                                    onSave: (editedItem) {
-                                      offer.items[i] = editedItem;
-                                      offer.lastEdited = DateTime.now();
-                                      offer.save();
-                                      setState(() {});
-                                    },
-                                  ),
-                                ),
-                              );
-                            },
-                            child: const Text("Ndrysho"),
-                          ),
-                          TextButton(
-                            onPressed: () => Navigator.pop(context),
-                            child: const Text("Anulo"),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
                 ),
               ).animate().fadeIn(duration: 200.ms).slideY(begin: 0.3);
             }),
@@ -344,10 +345,10 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                       ? accessoryBox.getAt(item.accessoryIndex!)
                       : null;
                   double profileCost = item.calculateProfileCost(profileSet,
-                          boxHeight: blind?.boxHeight ?? 0) *
+                      boxHeight: blind?.boxHeight ?? 0) *
                       item.quantity;
                   double glassCost = item.calculateGlassCost(glass,
-                          boxHeight: blind?.boxHeight ?? 0) *
+                      boxHeight: blind?.boxHeight ?? 0) *
                       item.quantity;
                   double blindCost = (blind != null)
                       ? ((item.width / 1000.0) *

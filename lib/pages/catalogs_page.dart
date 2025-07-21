@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'catalog_tab_page.dart';
 import '../theme/app_background.dart';
+import '../widgets/glass_card.dart';
 
 class CatalogsPage extends StatelessWidget {
   const CatalogsPage({super.key});
@@ -68,15 +69,21 @@ class _CatalogButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-      child: Card(
-        child: ListTile(
-          title: Text(label, style: const TextStyle(fontSize: 20)),
-          trailing: const Icon(Icons.chevron_right),
-          onTap: onTap,
-        ),
-      ).animate().fadeIn(duration: 200.ms).slideY(begin: 0.3),
-    );
+    return GlassCard(
+      margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+      padding: const EdgeInsets.all(20),
+      onTap: onTap,
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              label,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+            ),
+          ),
+          const Icon(Icons.chevron_right),
+        ],
+      ),
+    ).animate().fadeIn(duration: 200.ms).slideY(begin: 0.3);
   }
 }

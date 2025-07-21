@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'app_colors.dart';
 
 class AppBackground extends StatelessWidget {
   final Widget child;
@@ -7,9 +8,9 @@ class AppBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color(0xFFdbeafe), Color(0xFFa5b4fc)],
+          colors: [AppColors.primaryLight, AppColors.accent],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),

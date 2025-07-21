@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'dart:ui';
-
+import 'theme/app_background.dart';
+import 'widgets/glass_card.dart';
+import 'theme/app_colors.dart';
 import 'models.dart';
 import 'pages/catalogs_page.dart';
 import 'pages/customers_page.dart';
@@ -54,20 +55,14 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final items = [
-      _NavItem(Icons.auto_awesome_motion_outlined, 'Çmimore', const CatalogsPage()),
+      _NavItem(
+          Icons.auto_awesome_motion_outlined, 'Çmimore', const CatalogsPage()),
       _NavItem(Icons.people_outline, 'Klientët', const CustomersPage()),
       _NavItem(Icons.description_outlined, 'Ofertat', const OffersPage()),
     ];
 
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF141E30), Color(0xFF243B55)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
+      body: AppBackground(
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
@@ -90,15 +85,15 @@ class HomePage extends StatelessWidget {
                     alignment: WrapAlignment.center,
                     children: items
                         .map((item) => _FrostedMenuCard(
-                      icon: item.icon,
-                      label: item.label,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => item.page),
-                        );
-                      },
-                    ))
+                              icon: item.icon,
+                              label: item.label,
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => item.page),
+                                );
+                              },
+                            ))
                         .toList(),
                   ),
                 ],
@@ -124,48 +119,26 @@ class _FrostedMenuCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return GlassCard(
+      width: 140,
+      height: 160,
+      padding: const EdgeInsets.all(16),
       onTap: onTap,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(28),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Container(
-            width: 140,
-            height: 160,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.06),
-              borderRadius: BorderRadius.circular(28),
-              border: Border.all(color: Colors.white.withOpacity(0.15)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.3),
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(icon, size: 40, color: Colors.white),
-                const SizedBox(height: 16),
-                Text(
-                  label,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 1.0,
-                  ),
-                ),
-              ],
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, size: 40, color: AppColors.primaryDark),
+          const SizedBox(height: 16),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
             ),
           ),
-        ),
-      ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.2),
-    );
+        ],
+      ),
+    ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.2);
   }
 }
 
