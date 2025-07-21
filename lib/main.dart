@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'dart:ui';
+
 import 'models.dart';
 import 'pages/catalogs_page.dart';
 import 'pages/customers_page.dart';
 import 'pages/offers_page.dart';
-import 'pages/welcome_page.dart';
-import 'theme/app_colors.dart';
 import 'theme/app_theme.dart';
-
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -42,68 +41,82 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'UPVC Helper',
+      debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
-      home: const WelcomePage(),
-      routes: {
-        '/home': (_) => const HomePage(),
-      },    );
+      home: const HomePage(),
+    );
   }
 }
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
+
   @override
   Widget build(BuildContext context) {
+    final items = [
+      _NavItem(Icons.auto_awesome_motion_outlined, 'Çmimore', const CatalogsPage()),
+      _NavItem(Icons.people_outline, 'Klientët', const CustomersPage()),
+      _NavItem(Icons.description_outlined, 'Ofertat', const OffersPage()),
+    ];
+
     return Scaffold(
-      backgroundColor: AppColors.primary,
-      appBar: AppBar(
-        title: const Text('TONI AL-PVC',style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
-        centerTitle: true,
-        backgroundColor: AppColors.primaryDark,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _MenuButton(
-              icon: Icons.layers,
-              label: 'Çmimoret',
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const CatalogsPage()),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF141E30), Color(0xFF243B55)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
+              child: Column(
+                children: [
+                  const Text(
+                    'TONI AL-PVC',
+                    style: TextStyle(
+                      fontSize: 60,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: 1.2,
+                    ),
+                  ).animate().fadeIn(duration: 500.ms).slideY(begin: 0.3),
+                  const SizedBox(height: 48),
+                  Wrap(
+                    spacing: 24,
+                    runSpacing: 24,
+                    alignment: WrapAlignment.center,
+                    children: items
+                        .map((item) => _FrostedMenuCard(
+                      icon: item.icon,
+                      label: item.label,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => item.page),
+                        );
+                      },
+                    ))
+                        .toList(),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 28),
-            _MenuButton(
-              icon: Icons.people,
-              label: 'Klientët',
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const CustomersPage()),
-              ),
-            ),
-            const SizedBox(height: 28),
-            _MenuButton(
-              icon: Icons.assignment,
-              label: 'Ofertat',
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const OffersPage()),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
 }
 
-class _MenuButton extends StatelessWidget {
+class _FrostedMenuCard extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback onTap;
-  const _MenuButton({
+
+  const _FrostedMenuCard({
     required this.icon,
     required this.label,
     required this.onTap,
@@ -111,28 +124,55 @@ class _MenuButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: InkWell(
-        borderRadius: AppTheme.radius,
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, color: AppColors.primaryDark, size: 36),
-              const SizedBox(width: 18),
-              Text(
-                label,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.bold,
+    return GestureDetector(
+      onTap: onTap,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(28),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Container(
+            width: 140,
+            height: 160,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.06),
+              borderRadius: BorderRadius.circular(28),
+              border: Border.all(color: Colors.white.withOpacity(0.15)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.3),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
                 ),
-              ),
-            ],
+              ],
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, size: 40, color: Colors.white),
+                const SizedBox(height: 16),
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 1.0,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-      ),
-    ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.1);
+      ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.2),
+    );
   }
+}
+
+class _NavItem {
+  final IconData icon;
+  final String label;
+  final Widget page;
+
+  const _NavItem(this.icon, this.label, this.page);
 }
