@@ -66,7 +66,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text("Edit ${_typeLabel()}"),
+        title: Text("Ndrysho ${_typeLabel()}"),
         content: SingleChildScrollView(
           child: Column(
             children: [
@@ -204,7 +204,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text("Regjistro ${_typeLabel()}"),
+        title: Text("Regjistro ${_typeLabel()}n"),
         content: SingleChildScrollView(
           child: Column(
             children: [

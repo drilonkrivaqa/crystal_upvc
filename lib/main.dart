@@ -74,7 +74,7 @@ class HomePage extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 80,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.primary[400],
+                      color: AppColors.primary[500],
                       letterSpacing: 1.2,
                     ),
                   ).animate().fadeIn(duration: 500.ms).slideY(begin: 0.3),
