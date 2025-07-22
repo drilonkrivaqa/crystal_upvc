@@ -7,7 +7,6 @@ import '../theme/app_colors.dart';
 import 'dart:io' show File;
 import 'package:flutter/foundation.dart';
 import '../pdf/offer_pdf.dart';
-import '../theme/app_background.dart';
 import '../widgets/glass_card.dart';
 
 class OfferDetailPage extends StatefulWidget {
@@ -83,8 +82,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
           ),
         ],
       ),
-      body: AppBackground(
-        child: ListView(
+      backgroundColor: Colors.grey[300],
+      body: ListView(
           children: [
             const SizedBox(height: 16),
             Padding(
@@ -530,7 +529,6 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
             const SizedBox(height: 24),
           ],
         ),
-      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           await Navigator.push(

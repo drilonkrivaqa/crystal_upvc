@@ -6,7 +6,6 @@ import 'dart:io' show File;
 import 'dart:typed_data';
 import '../models.dart';
 import '../theme/app_colors.dart';
-import '../theme/app_background.dart';
 
 class WindowDoorItemPage extends StatefulWidget {
   final void Function(WindowDoorItem) onSave;
@@ -121,15 +120,15 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     return WillPopScope(
         onWillPop: _onWillPop,
         child: Scaffold(
+            backgroundColor: Colors.white,
             appBar: AppBar(
                 title: Text(widget.existingItem == null
                     ? 'Shto Dritare/Derë'
                     : 'Ndrysho Dritaren/Derën')),
-            body: AppBackground(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
                     GestureDetector(
                       onTap: () async {
                         final picker = ImagePicker();
@@ -157,13 +156,13 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                                       height: 120,
                                       fit: BoxFit.contain))
                               : Container(
-                                  width: 120,
-                                  height: 120,
-                                  color: AppColors.grey300,
-                                  alignment: Alignment.center,
-                                  child:
-                                      const Text('Kliko për të vendosë foton'),
-                                ),
+                        width: 120,
+                        height: 120,
+                        color: AppColors.grey300,
+                        child: const Center(
+                          child: Text('Kliko për të \nvendosë foton'),
+                        ),
+                      )
                     ),
                     const SizedBox(height: 12),
                     TextField(
@@ -314,7 +313,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                   ],
                 ),
               ),
-            )));
+            ));
   }
 
   bool _saveItem() {
@@ -617,7 +616,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                         margin: const EdgeInsets.all(4),
                         color: fixedSectors[r * verticalSections + c]
                             ? AppColors.grey400
-                            : AppColors.lightGreen300,
+                            : Colors.blue[200],
                         child: Center(
                           child: Text(
                             fixedSectors[r * verticalSections + c]

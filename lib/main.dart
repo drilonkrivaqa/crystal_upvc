@@ -9,6 +9,7 @@ import 'pages/catalogs_page.dart';
 import 'pages/customers_page.dart';
 import 'pages/offers_page.dart';
 import 'theme/app_theme.dart';
+import 'pages/welcome_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -44,8 +45,10 @@ class MyApp extends StatelessWidget {
       title: 'UPVC Helper',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
-      home: const HomePage(),
-    );
+      home: const WelcomePage(),
+      routes: {
+        '/home': (_) => const HomePage(),
+      },    );
   }
 }
 
