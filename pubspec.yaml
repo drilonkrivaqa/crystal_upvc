@@ -72,15 +72,16 @@ flutter:
 
   # Assets used by the application.
   assets:
-    - assets/fonts/DejaVuSans.ttf
-    - assets/fonts/DejaVuSans-Bold.ttf
+    - assets/fonts/
     - assets/logo.png
 
   fonts:
-    - family: DejaVuSans
+    - family: Montserrat
       fonts:
-        - asset: assets/fonts/DejaVuSans.ttf
-        - asset: assets/fonts/DejaVuSans-Bold.ttf
+        - asset: assets/fonts/Montserrat-Regular.ttf
+        - asset: assets/fonts/Montserrat-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Montserrat-Bold.ttf
           weight: 700
   # No bundled fonts required; fonts for the PDF are loaded
   # dynamically using PdfGoogleFonts.
