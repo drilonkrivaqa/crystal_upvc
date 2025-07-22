@@ -76,7 +76,7 @@ class HomePage extends StatelessWidget {
                     'TONI AL-PVC',
                     style: TextStyle(
                       fontSize: 60,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.bold,
                       color: AppColors.primary[500],
                       letterSpacing: 1.2,
                     ),

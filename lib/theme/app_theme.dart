@@ -16,6 +16,11 @@ class AppTheme {
       centerTitle: true,
       backgroundColor: AppColors.primary,
       foregroundColor: Colors.white,
+      titleTextStyle: TextStyle(
+        fontSize: 20,
+        fontWeight: FontWeight.bold,
+        color: Colors.white,
+      ),
     ),
     cardTheme: CardThemeData(
       elevation: 3,

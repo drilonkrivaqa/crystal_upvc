@@ -184,7 +184,10 @@ class _OffersPageState extends State<OffersPage> {
                           }
                         },
                         child: ListTile(
-                          title: Text('Oferta ${i + 1}'),
+                          title: Text(
+                            'Oferta ${i + 1}',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
                           subtitle: Text(
                               'Klienti: ${customer?.name ?? "-"}\Data: ${offer?.date.toString().split(' ').first ?? "-"}'),
                         ),
