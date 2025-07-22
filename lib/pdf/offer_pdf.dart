@@ -20,8 +20,8 @@ Future<void> printOfferPdf({
   required Box<Mechanism> mechanismBox,
   required Box<Accessory> accessoryBox,
 }) async {
-  final fontData = await rootBundle.load('assets/fonts/DejaVuSans.ttf');
-  final boldFontData = await rootBundle.load('assets/fonts/DejaVuSans-Bold.ttf');
+  final fontData = await rootBundle.load('assets/fonts/Montserrat-Regular.ttf');
+  final boldFontData = await rootBundle.load('assets/fonts/Montserrat-Bold.ttf');
   final baseFont = pw.Font.ttf(fontData);
   final boldFont = pw.Font.ttf(boldFontData);
 
