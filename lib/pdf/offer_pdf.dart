@@ -398,8 +398,7 @@ Future<void> printOfferPdf({
                     child: pw.Text(c.description.isNotEmpty ? c.description : 'Ekstra')),
                 pw.Padding(
                     padding: pw.EdgeInsets.all(4),
-                    child: pw.Text(currency.format(c.amount))),
-              ]),
+                    child: pw.Text(currency.format(c.amount), textAlign: pw.TextAlign.right)),              ]),
             );
           }
         }
@@ -411,7 +410,7 @@ Future<void> printOfferPdf({
                   child: pw.Text('Shuma e zbritjes')),
               pw.Padding(
                   padding: pw.EdgeInsets.all(4),
-                  child: pw.Text('-' + currency.format(offer.discountAmount))),
+                  child: pw.Text('-' + currency.format(offer.discountAmount), textAlign: pw.TextAlign.right)),
             ]),
           );
         }
@@ -423,7 +422,7 @@ Future<void> printOfferPdf({
                   child: pw.Text('Zbritje %')),
               pw.Padding(
                   padding: pw.EdgeInsets.all(4),
-                  child: pw.Text('${offer.discountPercent.toStringAsFixed(2)}% (-' + currency.format(percentAmount) + ')')),
+                  child: pw.Text('${offer.discountPercent.toStringAsFixed(2)}% (-' + currency.format(percentAmount) + ')', textAlign: pw.TextAlign.right)),
             ]),
           );
         }
