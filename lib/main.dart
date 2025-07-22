@@ -42,7 +42,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'UPVC Helper',
+      title: 'TONI AL-PVC',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       home: const WelcomePage(),

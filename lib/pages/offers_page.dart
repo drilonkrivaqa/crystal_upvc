@@ -189,7 +189,7 @@ class _OffersPageState extends State<OffersPage> {
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                           subtitle: Text(
-                              'Klienti: ${customer?.name ?? "-"}\Data: ${offer?.date.toString().split(' ').first ?? "-"}'),
+                              'Klienti: ${customer?.name ?? "-"}\ Data: ${offer?.date.toString().split(' ').first ?? "-"}'),
                         ),
                       ).animate().fadeIn(duration: 200.ms).slideY(begin: 0.3);
                     },
