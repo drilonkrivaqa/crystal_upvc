@@ -75,7 +75,7 @@ class HomePage extends StatelessWidget {
                   Text(
                     'TONI AL-PVC',
                     style: TextStyle(
-                      fontSize: 60,
+                      fontSize: 45,
                       fontWeight: FontWeight.bold,
                       color: AppColors.primary[500],
                       letterSpacing: 1.2,
@@ -83,8 +83,8 @@ class HomePage extends StatelessWidget {
                   ).animate().fadeIn(duration: 500.ms).slideY(begin: 0.3),
                   const SizedBox(height: 48),
                   Wrap(
-                    spacing: 24,
-                    runSpacing: 24,
+                    spacing: 0,
+                    runSpacing: 0,
                     alignment: WrapAlignment.center,
                     children: items
                         .map((item) => _FrostedMenuCard(
@@ -123,8 +123,8 @@ class _FrostedMenuCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GlassCard(
-      width: 140,
-      height: 160,
+      width: 110,
+      height: 140,
       padding: const EdgeInsets.all(16),
       onTap: onTap,
       child: Column(
@@ -135,7 +135,7 @@ class _FrostedMenuCard extends StatelessWidget {
           Text(
             label,
             style: const TextStyle(
-              fontSize: 16,
+              fontSize: 14,
               fontWeight: FontWeight.w600,
             ),
           ),
