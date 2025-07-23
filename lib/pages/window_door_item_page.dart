@@ -216,26 +216,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                         Row(
                           children: [
                             Expanded(
-                              child: TextField(
-                                  controller: verticalController,
-                                  decoration: const InputDecoration(labelText: 'Sektorë Vertikal'),
-                                  keyboardType: TextInputType.number,
-                                  onChanged: (_) => _updateGrid()),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: TextField(
-                                  controller: horizontalController,
-                                  decoration: const InputDecoration(labelText: 'Sektorë Horizontal'),
-                                  keyboardType: TextInputType.number,
-                                  onChanged: (_) => _updateGrid()),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            Expanded(
                               child: DropdownButtonFormField<int>(
                                 value: profileSetIndex,
                                 decoration: const InputDecoration(labelText: 'Profili (Lloji)'),
@@ -276,7 +256,27 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                     padding: const EdgeInsets.all(12),
                     child: Column(
                       children: [
-                        SizedBox(height: 200, child: _buildGrid()),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                  controller: verticalController,
+                                  decoration: const InputDecoration(labelText: 'Sektorë Vertikal'),
+                                  keyboardType: TextInputType.number,
+                                  onChanged: (_) => _updateGrid()),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: TextField(
+                                  controller: horizontalController,
+                                  decoration: const InputDecoration(labelText: 'Sektorë Horizontal'),
+                                  keyboardType: TextInputType.number,
+                                  onChanged: (_) => _updateGrid()),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        SizedBox(height: 300, child: _buildGrid()),
                         const SizedBox(height: 12),
                         _buildDimensionInputs(),
                       ],
