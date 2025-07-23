@@ -21,7 +21,8 @@ Future<void> printOfferPdf({
   required Box<Accessory> accessoryBox,
 }) async {
   final fontData = await rootBundle.load('assets/fonts/Montserrat-Regular.ttf');
-  final boldFontData = await rootBundle.load('assets/fonts/Montserrat-Bold.ttf');
+  final boldFontData =
+      await rootBundle.load('assets/fonts/Montserrat-Bold.ttf');
   final baseFont = pw.Font.ttf(fontData);
   final boldFont = pw.Font.ttf(boldFontData);
 
@@ -63,7 +64,8 @@ Future<void> printOfferPdf({
   for (final item in offer.items) {
     final profile = profileSetBox.getAt(item.profileSetIndex)!;
     final glass = glassBox.getAt(item.glassIndex)!;
-    final blind = item.blindIndex != null ? blindBox.getAt(item.blindIndex!) : null;
+    final blind =
+        item.blindIndex != null ? blindBox.getAt(item.blindIndex!) : null;
     final mechanism = item.mechanismIndex != null
         ? mechanismBox.getAt(item.mechanismIndex!)
         : null;
@@ -78,13 +80,15 @@ Future<void> printOfferPdf({
         item.calculateGlassCost(glass, boxHeight: blind?.boxHeight ?? 0) *
             item.quantity;
     final blindCost = blind != null
-        ? ((item.width / 1000.0) * (item.height / 1000.0) * blind.pricePerM2 * item.quantity)
+        ? ((item.width / 1000.0) *
+            (item.height / 1000.0) *
+            blind.pricePerM2 *
+            item.quantity)
         : 0;
-    final mechanismCost = mechanism != null
-        ? mechanism.price * item.quantity * item.openings
-        : 0;
+    final mechanismCost =
+        mechanism != null ? mechanism.price * item.quantity * item.openings : 0;
     final accessoryCost =
-    accessory != null ? accessory.price * item.quantity : 0;
+        accessory != null ? accessory.price * item.quantity : 0;
     final extras = (item.extra1Price ?? 0) + (item.extra2Price ?? 0);
 
     final base =
@@ -99,7 +103,8 @@ Future<void> printOfferPdf({
 
     itemsFinal += price;
   }
-  final extrasTotal = offer.extraCharges.fold<double>(0.0, (p, e) => p + e.amount);
+  final extrasTotal =
+      offer.extraCharges.fold<double>(0.0, (p, e) => p + e.amount);
   double subtotal = itemsFinal + extrasTotal;
   subtotal -= offer.discountAmount;
   final percentAmount = subtotal * (offer.discountPercent / 100);
@@ -125,50 +130,52 @@ Future<void> printOfferPdf({
       margin: pw.EdgeInsets.all(24),
       header: (context) => context.pageNumber == 1
           ? pw.Container(
-        padding: pw.EdgeInsets.all(8),
-        decoration: pw.BoxDecoration(color: PdfColors.blue100),
-        child: pw.Row(
-          crossAxisAlignment: pw.CrossAxisAlignment.start,
-          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-          children: [
-            pw.Row(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                if (logoImage != null)
-                  pw.Padding(
-                    padding: pw.EdgeInsets.only(right: 8),
-                    child: pw.Image(logoImage!, width: 48, height: 48),
-                  ),
-                pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.start,
-                  children: [
-                    pw.Text('Toni Al-Pvc',
-                        style: pw.TextStyle(
-                            fontSize: 16,
-                            fontWeight: pw.FontWeight.bold,
-                            color: PdfColors.blue800)),
-                    pw.Text('Rr. Ilir Konushevci, Nr. 80, Kamenicë, Kosovë, 62000'),
-                    pw.Text('+38344357639 | +38344268300'),
-                    pw.Text('www.tonialpvc.com | tonialpvc@gmail.com'),
-                  ],
-                ),
-              ],
-            ),
-            if (customer != null)
-              pw.Column(
+              padding: pw.EdgeInsets.all(8),
+              decoration: pw.BoxDecoration(color: PdfColors.blue100),
+              child: pw.Row(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                 children: [
-                  pw.Text('Klienti',
-                      style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                  pw.Text(customer.name),
-                  pw.Text(customer.address),
-                  pw.Text(customer.phone),
-                  pw.Text(customer.email),
+                  pw.Row(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      if (logoImage != null)
+                        pw.Padding(
+                          padding: pw.EdgeInsets.only(right: 8),
+                          child: pw.Image(logoImage!, width: 48, height: 48),
+                        ),
+                      pw.Column(
+                        crossAxisAlignment: pw.CrossAxisAlignment.start,
+                        children: [
+                          pw.Text('Toni Al-Pvc',
+                              style: pw.TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: pw.FontWeight.bold,
+                                  color: PdfColors.blue800)),
+                          pw.Text(
+                              'Rr. Ilir Konushevci, Nr. 80, Kamenicë, Kosovë, 62000'),
+                          pw.Text('+38344357639 | +38344268300'),
+                          pw.Text('www.tonialpvc.com | tonialpvc@gmail.com'),
+                        ],
+                      ),
+                    ],
+                  ),
+                  if (customer != null)
+                    pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                      children: [
+                        pw.Text('Klienti',
+                            style:
+                                pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                        pw.Text(customer.name),
+                        pw.Text(customer.address),
+                        pw.Text(customer.phone),
+                        pw.Text(customer.email),
+                      ],
+                    ),
                 ],
               ),
-          ],
-        ),
-      )
+            )
           : pw.SizedBox(),
       footer: (context) => pw.Align(
         alignment: pw.Alignment.centerRight,
@@ -181,7 +188,11 @@ Future<void> printOfferPdf({
         final headerStyle = pw.TextStyle(fontWeight: pw.FontWeight.bold);
 
         final widgets = <pw.Widget>[];
-        widgets.add(pw.Header(level: 0, child: pw.Text('Oferta $offerNumber', style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold))));
+        widgets.add(pw.Header(
+            level: 0,
+            child: pw.Text('Oferta $offerNumber',
+                style: pw.TextStyle(
+                    fontSize: 18, fontWeight: pw.FontWeight.bold))));
         widgets.add(pw.Text('Data: '
             '${DateFormat('yyyy-MM-dd').format(offer.lastEdited)}'));
         widgets.add(pw.SizedBox(height: 12));
@@ -211,24 +222,39 @@ Future<void> printOfferPdf({
           final item = offer.items[i];
           final profile = profileSetBox.getAt(item.profileSetIndex)!;
           final glass = glassBox.getAt(item.glassIndex)!;
-          final mechanism = item.mechanismIndex != null ? mechanismBox.getAt(item.mechanismIndex!) : null;
-          final blind = item.blindIndex != null ? blindBox.getAt(item.blindIndex!) : null;
-          final accessory = item.accessoryIndex != null ? accessoryBox.getAt(item.accessoryIndex!) : null;
+          final mechanism = item.mechanismIndex != null
+              ? mechanismBox.getAt(item.mechanismIndex!)
+              : null;
+          final blind =
+              item.blindIndex != null ? blindBox.getAt(item.blindIndex!) : null;
+          final accessory = item.accessoryIndex != null
+              ? accessoryBox.getAt(item.accessoryIndex!)
+              : null;
 
-          final profileCost =
-              item.calculateProfileCost(profile, boxHeight: blind?.boxHeight ?? 0) *
-                  item.quantity;
+          final profileCost = item.calculateProfileCost(profile,
+                  boxHeight: blind?.boxHeight ?? 0) *
+              item.quantity;
           final glassCost =
               item.calculateGlassCost(glass, boxHeight: blind?.boxHeight ?? 0) *
                   item.quantity;
           final blindCost = blind != null
-              ? ((item.width / 1000.0) * (item.height / 1000.0) * blind.pricePerM2 * item.quantity)
+              ? ((item.width / 1000.0) *
+                  (item.height / 1000.0) *
+                  blind.pricePerM2 *
+                  item.quantity)
               : 0;
-          final mechanismCost = mechanism != null ? mechanism.price * item.quantity * item.openings : 0;
-          final accessoryCost = accessory != null ? accessory.price * item.quantity : 0;
+          final mechanismCost = mechanism != null
+              ? mechanism.price * item.quantity * item.openings
+              : 0;
+          final accessoryCost =
+              accessory != null ? accessory.price * item.quantity : 0;
           final extras = (item.extra1Price ?? 0) + (item.extra2Price ?? 0);
 
-          final base = profileCost + glassCost + blindCost + mechanismCost + accessoryCost;
+          final base = profileCost +
+              glassCost +
+              blindCost +
+              mechanismCost +
+              accessoryCost;
           final total = base + extras;
           double finalPrice;
           if (item.manualPrice != null) {
@@ -238,8 +264,11 @@ Future<void> printOfferPdf({
           }
           final pricePerPiece = finalPrice / item.quantity;
 
-          final vAdapters = item.verticalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ');
-          final hAdapters = item.horizontalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ');
+          final vAdapters =
+              item.verticalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ');
+          final hAdapters = item.horizontalAdapters
+              .map((a) => a ? 'Adapter' : 'T')
+              .join(', ');
 
           final details = <pw.Widget>[
             pw.Text(item.name, style: headerStyle),
@@ -250,19 +279,21 @@ Future<void> printOfferPdf({
             pw.Text('Xhami: ${glass.name}'),
             if (blind != null) pw.Text('Roleta: ${blind.name}'),
             if (mechanism != null) pw.Text('Mekanizmi: ${mechanism.name}'),
-            if (accessory != null) pw.Text('Aksesori: ${accessory.name} = €${accessory.price}'),
+            if (accessory != null)
+              pw.Text('Aksesori: ${accessory.name} = €${accessory.price}'),
             if (item.extra1Price != null)
               pw.Text(
                   '${item.extra1Desc ?? 'Ekstra 1'}: €${item.extra1Price!.toStringAsFixed(2)}'),
             if (item.extra2Price != null)
               pw.Text(
                   '${item.extra2Desc ?? 'Ekstra 2'}: €${item.extra2Price!.toStringAsFixed(2)}'),
-            pw.Text('Sektorët: ${item.horizontalSections}x${item.verticalSections}'),
+            pw.Text(
+                'Sektorët: ${item.horizontalSections}x${item.verticalSections}'),
             pw.Text('Hapje: ${item.openings}'),
             pw.Text('Gjerësitë: ${item.sectionWidths.join(', ')}'),
             pw.Text('Lartësitë: ${item.sectionHeights.join(', ')}'),
-            if(item.verticalSections!=1)pw.Text('V div: $vAdapters'),
-            if(item.horizontalSections!=1)pw.Text('H div: $hAdapters'),
+            if (item.verticalSections != 1) pw.Text('V div: $vAdapters'),
+            if (item.horizontalSections != 1) pw.Text('H div: $hAdapters'),
           ];
 
           rows.add(
@@ -282,25 +313,27 @@ Future<void> printOfferPdf({
                             width: containerWidth,
                             height: containerHeight,
                             decoration: pw.BoxDecoration(
-                              border: pw.Border.all(color: PdfColors.black, width: 1.5),
+                              border: pw.Border.all(
+                                  color: PdfColors.black, width: 1.5),
                               color: PdfColors.grey200,
                               borderRadius: pw.BorderRadius.circular(5),
                             ),
                             alignment: pw.Alignment.center,
                             child: itemImages[i] != null
                                 ? pw.Padding(
-                              padding: pw.EdgeInsets.all(imagePadding),
-                              child: pw.Image(
-                                itemImages[i]!,
-                                width: containerWidth - 2 * imagePadding,
-                                height: containerHeight - 2 * imagePadding,
-                                fit: pw.BoxFit.contain,
-                              ),
-                            )
+                                    padding: pw.EdgeInsets.all(imagePadding),
+                                    child: pw.Image(
+                                      itemImages[i]!,
+                                      width: containerWidth - 2 * imagePadding,
+                                      height:
+                                          containerHeight - 2 * imagePadding,
+                                      fit: pw.BoxFit.contain,
+                                    ),
+                                  )
                                 : pw.SizedBox(
-                              width: containerWidth - 2 * imagePadding,
-                              height: containerHeight - 2 * imagePadding,
-                            ),
+                                    width: containerWidth - 2 * imagePadding,
+                                    height: containerHeight - 2 * imagePadding,
+                                  ),
                           ),
                         ),
                         pw.Positioned(
@@ -339,8 +372,10 @@ Future<void> printOfferPdf({
                 pw.Padding(
                   padding: pw.EdgeInsets.all(4),
                   child: pw.Container(
-                    width: detailsWidth, // <--- force wrapping in details column
-                    constraints: pw.BoxConstraints(minHeight: containerHeight + 35),
+                    width:
+                        detailsWidth, // <--- force wrapping in details column
+                    constraints:
+                        pw.BoxConstraints(minHeight: containerHeight + 35),
                     child: pw.Column(
                       crossAxisAlignment: pw.CrossAxisAlignment.start,
                       children: details,
@@ -352,7 +387,8 @@ Future<void> printOfferPdf({
                   child: pw.Column(
                     crossAxisAlignment: pw.CrossAxisAlignment.end,
                     children: [
-                      pw.Text(currency.format(pricePerPiece), style: headerStyle),
+                      pw.Text(currency.format(pricePerPiece),
+                          style: headerStyle),
                       pw.Text('x${item.quantity}'),
                       pw.SizedBox(height: 4),
                       pw.Text(currency.format(finalPrice), style: headerStyle),
@@ -387,7 +423,8 @@ Future<void> printOfferPdf({
             pw.Padding(
                 padding: pw.EdgeInsets.all(4),
                 child: pw.Text(currency.format(itemsFinal),
-                    textAlign: pw.TextAlign.right)),          ]),
+                    textAlign: pw.TextAlign.right)),
+          ]),
         );
         if (offer.extraCharges.isNotEmpty) {
           for (final c in offer.extraCharges) {
@@ -395,10 +432,13 @@ Future<void> printOfferPdf({
               pw.TableRow(children: [
                 pw.Padding(
                     padding: pw.EdgeInsets.all(4),
-                    child: pw.Text(c.description.isNotEmpty ? c.description : 'Ekstra')),
+                    child: pw.Text(
+                        c.description.isNotEmpty ? c.description : 'Ekstra')),
                 pw.Padding(
                     padding: pw.EdgeInsets.all(4),
-                    child: pw.Text(currency.format(c.amount), textAlign: pw.TextAlign.right)),              ]),
+                    child: pw.Text(currency.format(c.amount),
+                        textAlign: pw.TextAlign.right)),
+              ]),
             );
           }
         }
@@ -410,7 +450,8 @@ Future<void> printOfferPdf({
                   child: pw.Text('Shuma e zbritjes')),
               pw.Padding(
                   padding: pw.EdgeInsets.all(4),
-                  child: pw.Text('-' + currency.format(offer.discountAmount), textAlign: pw.TextAlign.right)),
+                  child: pw.Text('-' + currency.format(offer.discountAmount),
+                      textAlign: pw.TextAlign.right)),
             ]),
           );
         }
@@ -418,11 +459,14 @@ Future<void> printOfferPdf({
           summaryRows.add(
             pw.TableRow(children: [
               pw.Padding(
-                  padding: pw.EdgeInsets.all(4),
-                  child: pw.Text('Zbritje %')),
+                  padding: pw.EdgeInsets.all(4), child: pw.Text('Zbritje %')),
               pw.Padding(
                   padding: pw.EdgeInsets.all(4),
-                  child: pw.Text('${offer.discountPercent.toStringAsFixed(2)}% (-' + currency.format(percentAmount) + ')', textAlign: pw.TextAlign.right)),
+                  child: pw.Text(
+                      '${offer.discountPercent.toStringAsFixed(2)}% (-' +
+                          currency.format(percentAmount) +
+                          ')',
+                      textAlign: pw.TextAlign.right)),
             ]),
           );
         }
@@ -433,8 +477,8 @@ Future<void> printOfferPdf({
                 child: pw.Text('Çmimi total (€)', style: headerStyle)),
             pw.Padding(
                 padding: pw.EdgeInsets.all(4),
-                child: pw.Text(formattedFinalTotal, style: headerStyle,
-                    textAlign: pw.TextAlign.right)),
+                child: pw.Text(formattedFinalTotal,
+                    style: headerStyle, textAlign: pw.TextAlign.right)),
           ]),
         );
 

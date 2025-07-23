@@ -152,7 +152,8 @@ class _CustomersPageState extends State<CustomersPage> {
                 final index = box.length - 1 - i;
                 final customer = box.getAt(index);
                 return GlassCard(
-                  onTap: () => _editCustomer(index),                  child: ListTile(
+                  onTap: () => _editCustomer(index),
+                  child: ListTile(
                     title: Text(customer?.name ?? ""),
                     subtitle: Text(
                       'Adresa: ${customer?.address ?? ""}\n'

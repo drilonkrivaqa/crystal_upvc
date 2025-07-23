@@ -47,7 +47,8 @@ class _OffersPageState extends State<OffersPage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
-                decoration: const InputDecoration(labelText: 'Kërko klientin'),
+                decoration: const InputDecoration(
+                    icon: Icon(Icons.search), labelText: 'Kërko klientin'),
                 onChanged: (val) =>
                     setStateDialog(() => customerSearch = val.toLowerCase()),
               ),
@@ -56,7 +57,8 @@ class _OffersPageState extends State<OffersPage> {
                   final filtered = <int>[];
                   for (int i = 0; i < customerBox.length; i++) {
                     final name = customerBox.getAt(i)?.name.toLowerCase() ?? '';
-                    if (customerSearch.isEmpty || name.contains(customerSearch)) {
+                    if (customerSearch.isEmpty ||
+                        name.contains(customerSearch)) {
                       filtered.add(i);
                     }
                   }
@@ -68,26 +70,26 @@ class _OffersPageState extends State<OffersPage> {
                     value: value,
                     items: filtered.isNotEmpty
                         ? [
-                      for (final i in filtered)
-                        DropdownMenuItem(
-                          value: i,
-                          child: Text(customerBox.getAt(i)?.name ?? ''),
-                        ),
-                    ]
+                            for (final i in filtered)
+                              DropdownMenuItem(
+                                value: i,
+                                child: Text(customerBox.getAt(i)?.name ?? ''),
+                              ),
+                          ]
                         : const [
-                      DropdownMenuItem(
-                        value: null,
-                        enabled: false,
-                        child: Text('Pa rezultate'),
-                      ),
-                    ],
+                            DropdownMenuItem(
+                              value: null,
+                              enabled: false,
+                              child: Text('Pa rezultate'),
+                            ),
+                          ],
                     onChanged: filtered.isEmpty
                         ? null
                         : (val) {
-                      setStateDialog(() {
-                        selectedCustomer = val;
-                      });
-                    },
+                            setStateDialog(() {
+                              selectedCustomer = val;
+                            });
+                          },
                   );
                 },
               ),

@@ -23,6 +23,7 @@ class AppColors {
   static const Color accent = Color(0xFF85A8A6);
   static Color get grey300 => Colors.grey.shade300;
   static Color get grey400 => Colors.grey.shade400;
-  static Color get lightGreen300 => const Color(0xFFA8D5BB); // soft complementary
+  static Color get lightGreen300 =>
+      const Color(0xFFA8D5BB); // soft complementary
   static const Color delete = Colors.redAccent;
 }

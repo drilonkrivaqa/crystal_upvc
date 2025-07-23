@@ -335,7 +335,8 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
               itemBuilder: (context, i) {
                 final item = box.getAt(i);
                 return GlassCard(
-                  onTap: () => _editItem(i),                  child: ListTile(
+                  onTap: () => _editItem(i),
+                  child: ListTile(
                     title: Text(item.name),
                     subtitle: widget.type == CatalogType.profileSet
                         ? Text(

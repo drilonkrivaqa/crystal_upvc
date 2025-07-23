@@ -48,7 +48,8 @@ class MyApp extends StatelessWidget {
       home: const WelcomePage(),
       routes: {
         '/home': (_) => const HomePage(),
-      },    );
+      },
+    );
   }
 }
 

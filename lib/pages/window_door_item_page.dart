@@ -120,200 +120,196 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     return WillPopScope(
         onWillPop: _onWillPop,
         child: Scaffold(
-            backgroundColor: Colors.white,
-            appBar: AppBar(
-                title: Text(widget.existingItem == null
-                    ? 'Shto Dritare/Derë'
-                    : 'Ndrysho Dritaren/Derën')),
+          backgroundColor: Colors.white,
+          appBar: AppBar(
+              title: Text(widget.existingItem == null
+                  ? 'Shto Dritare/Derë'
+                  : 'Ndrysho Dritaren/Derën')),
           body: SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                    GestureDetector(
-                      onTap: () async {
-                        final picker = ImagePicker();
-                        final picked =
-                            await picker.pickImage(source: ImageSource.gallery);
-                        if (picked != null) {
-                          final bytes = await picked.readAsBytes();
-                          setState(() {
-                            photoPath = picked.path;
-                            photoBytes = bytes;
-                          });
-                        }
-                      },
-                      child: photoBytes != null
-                          ? Image.memory(photoBytes!,
-                              width: 120, height: 120, fit: BoxFit.contain)
-                          : photoPath != null
-                              ? (kIsWeb
-                                  ? Image.network(photoPath!,
-                                      width: 120,
-                                      height: 120,
-                                      fit: BoxFit.contain)
-                                  : Image.file(File(photoPath!),
-                                      width: 120,
-                                      height: 120,
-                                      fit: BoxFit.contain))
-                              : Container(
-                        width: 120,
-                        height: 120,
-                        color: AppColors.grey300,
-                        child: const Center(
-                          child: Text('Kliko për të \nvendosë foton'),
-                        ),
-                      )
-                    ),
-                    const SizedBox(height: 12),
-                    TextField(
-                        controller: nameController,
-                        decoration: const InputDecoration(labelText: 'Emri')),
-                    TextField(
-                      controller: widthController,
-                      decoration:
-                          const InputDecoration(labelText: 'Gjerësia (mm)'),
-                      keyboardType: TextInputType.number,
-                      onChanged: (_) => _recalculateWidths(),
-                    ),
-                    TextField(
-                      controller: heightController,
-                      decoration:
-                          const InputDecoration(labelText: 'Lartësia (mm)'),
-                      keyboardType: TextInputType.number,
-                      onChanged: (_) => _recalculateHeights(),
-                    ),
-                    TextField(
-                        controller: quantityController,
-                        decoration: const InputDecoration(labelText: 'Sasia'),
-                        keyboardType: TextInputType.number),
-                    TextField(
-                        controller: verticalController,
-                        decoration: const InputDecoration(
-                            labelText: 'Sektorë Vertikal'),
-                        keyboardType: TextInputType.number,
-                        onChanged: (_) => _updateGrid()),
-                    TextField(
-                        controller: horizontalController,
-                        decoration: const InputDecoration(
-                            labelText: 'Sektorë Horizontal'),
-                        keyboardType: TextInputType.number,
-                        onChanged: (_) => _updateGrid()),
-                    DropdownButtonFormField<int>(
-                      value: profileSetIndex,
-                      decoration:
-                          const InputDecoration(labelText: 'Profili (Lloji)'),
-                      items: [
-                        for (int i = 0; i < profileSetBox.length; i++)
-                          DropdownMenuItem<int>(
-                            value: i,
-                            child: Text(profileSetBox.getAt(i)?.name ?? ''),
-                          ),
-                      ],
-                      onChanged: (val) =>
-                          setState(() => profileSetIndex = val ?? 0),
-                    ),
-                    DropdownButtonFormField<int>(
-                      value: glassIndex,
-                      decoration: const InputDecoration(labelText: 'Xhami'),
-                      items: [
-                        for (int i = 0; i < glassBox.length; i++)
-                          DropdownMenuItem<int>(
-                            value: i,
-                            child: Text(glassBox.getAt(i)?.name ?? ''),
-                          ),
-                      ],
-                      onChanged: (val) => setState(() => glassIndex = val ?? 0),
-                    ),
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      height: 200,
-                      child: _buildGrid(),
-                    ),
-                    const SizedBox(height: 12),
-                    _buildDimensionInputs(),
-                    TextField(
-                        controller: priceController,
-                        decoration: const InputDecoration(
-                            labelText: 'Çmimi manual (Opsional)'),
-                        keyboardType: TextInputType.number),
-                    TextField(
-                        controller: extra1DescController,
-                        decoration: const InputDecoration(
-                            labelText: 'Emri i shtesës 1')),
-                    TextField(
-                        controller: extra1Controller,
-                        decoration: const InputDecoration(
-                            labelText: 'Çmimi i shtesës 1'),
-                        keyboardType: TextInputType.number),
-                    TextField(
-                        controller: extra2DescController,
-                        decoration: const InputDecoration(
-                            labelText: 'Emri i shtesës 2')),
-                    TextField(
-                        controller: extra2Controller,
-                        decoration: const InputDecoration(
-                            labelText: 'Çmimi i shtesës 2'),
-                        keyboardType: TextInputType.number),
-                    const SizedBox(height: 12),
-                    DropdownButtonFormField<int?>(
-                      value: mechanismIndex,
-                      decoration: const InputDecoration(
-                          labelText: "Mekanizmi (Opsional)"),
-                      items: [
-                        const DropdownMenuItem<int?>(
-                            value: null, child: Text('Asnjë')),
-                        for (int i = 0; i < mechanismBox.length; i++)
-                          DropdownMenuItem<int>(
-                            value: i,
-                            child: Text(mechanismBox.getAt(i)?.name ?? ""),
-                          ),
-                      ],
-                      onChanged: (val) => setState(() => mechanismIndex = val),
-                    ),
-                    DropdownButtonFormField<int?>(
-                      value: blindIndex,
-                      decoration: const InputDecoration(
-                          labelText: "Roleta (Opsionale)"),
-                      items: [
-                        const DropdownMenuItem<int?>(
-                            value: null, child: Text('Asnjë')),
-                        for (int i = 0; i < blindBox.length; i++)
-                          DropdownMenuItem<int>(
-                            value: i,
-                            child: Text(blindBox.getAt(i)?.name ?? ""),
-                          ),
-                      ],
-                      onChanged: (val) => setState(() => blindIndex = val),
-                    ),
-                    DropdownButtonFormField<int?>(
-                      value: accessoryIndex,
-                      decoration: const InputDecoration(
-                          labelText: "Aksesor (Opsional)"),
-                      items: [
-                        const DropdownMenuItem<int?>(
-                            value: null, child: Text('Asnjë')),
-                        for (int i = 0; i < accessoryBox.length; i++)
-                          DropdownMenuItem<int>(
-                            value: i,
-                            child: Text(accessoryBox.getAt(i)?.name ?? ""),
-                          ),
-                      ],
-                      onChanged: (val) => setState(() => accessoryIndex = val),
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () {
-                        if (_saveItem()) {
-                          Navigator.pop(context);
-                        }
-                      },
-                      child:
-                          Text(widget.existingItem == null ? 'Shto' : 'Ruaj'),
-                    ),
-                  ],
+                GestureDetector(
+                    onTap: () async {
+                      final picker = ImagePicker();
+                      final picked =
+                          await picker.pickImage(source: ImageSource.gallery);
+                      if (picked != null) {
+                        final bytes = await picked.readAsBytes();
+                        setState(() {
+                          photoPath = picked.path;
+                          photoBytes = bytes;
+                        });
+                      }
+                    },
+                    child: photoBytes != null
+                        ? Image.memory(photoBytes!,
+                            width: 120, height: 120, fit: BoxFit.contain)
+                        : photoPath != null
+                            ? (kIsWeb
+                                ? Image.network(photoPath!,
+                                    width: 120,
+                                    height: 120,
+                                    fit: BoxFit.contain)
+                                : Image.file(File(photoPath!),
+                                    width: 120,
+                                    height: 120,
+                                    fit: BoxFit.contain))
+                            : Container(
+                                width: 120,
+                                height: 120,
+                                color: AppColors.grey300,
+                                child: const Center(
+                                  child: Text('Kliko për të \nvendosë foton'),
+                                ),
+                              )),
+                const SizedBox(height: 12),
+                TextField(
+                    controller: nameController,
+                    decoration: const InputDecoration(labelText: 'Emri')),
+                TextField(
+                  controller: widthController,
+                  decoration: const InputDecoration(labelText: 'Gjerësia (mm)'),
+                  keyboardType: TextInputType.number,
+                  onChanged: (_) => _recalculateWidths(),
                 ),
-              ),
-            ));
+                TextField(
+                  controller: heightController,
+                  decoration: const InputDecoration(labelText: 'Lartësia (mm)'),
+                  keyboardType: TextInputType.number,
+                  onChanged: (_) => _recalculateHeights(),
+                ),
+                TextField(
+                    controller: quantityController,
+                    decoration: const InputDecoration(labelText: 'Sasia'),
+                    keyboardType: TextInputType.number),
+                TextField(
+                    controller: verticalController,
+                    decoration:
+                        const InputDecoration(labelText: 'Sektorë Vertikal'),
+                    keyboardType: TextInputType.number,
+                    onChanged: (_) => _updateGrid()),
+                TextField(
+                    controller: horizontalController,
+                    decoration:
+                        const InputDecoration(labelText: 'Sektorë Horizontal'),
+                    keyboardType: TextInputType.number,
+                    onChanged: (_) => _updateGrid()),
+                DropdownButtonFormField<int>(
+                  value: profileSetIndex,
+                  decoration:
+                      const InputDecoration(labelText: 'Profili (Lloji)'),
+                  items: [
+                    for (int i = 0; i < profileSetBox.length; i++)
+                      DropdownMenuItem<int>(
+                        value: i,
+                        child: Text(profileSetBox.getAt(i)?.name ?? ''),
+                      ),
+                  ],
+                  onChanged: (val) =>
+                      setState(() => profileSetIndex = val ?? 0),
+                ),
+                DropdownButtonFormField<int>(
+                  value: glassIndex,
+                  decoration: const InputDecoration(labelText: 'Xhami'),
+                  items: [
+                    for (int i = 0; i < glassBox.length; i++)
+                      DropdownMenuItem<int>(
+                        value: i,
+                        child: Text(glassBox.getAt(i)?.name ?? ''),
+                      ),
+                  ],
+                  onChanged: (val) => setState(() => glassIndex = val ?? 0),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  height: 200,
+                  child: _buildGrid(),
+                ),
+                const SizedBox(height: 12),
+                _buildDimensionInputs(),
+                TextField(
+                    controller: priceController,
+                    decoration: const InputDecoration(
+                        labelText: 'Çmimi manual (Opsional)'),
+                    keyboardType: TextInputType.number),
+                TextField(
+                    controller: extra1DescController,
+                    decoration:
+                        const InputDecoration(labelText: 'Emri i shtesës 1')),
+                TextField(
+                    controller: extra1Controller,
+                    decoration:
+                        const InputDecoration(labelText: 'Çmimi i shtesës 1'),
+                    keyboardType: TextInputType.number),
+                TextField(
+                    controller: extra2DescController,
+                    decoration:
+                        const InputDecoration(labelText: 'Emri i shtesës 2')),
+                TextField(
+                    controller: extra2Controller,
+                    decoration:
+                        const InputDecoration(labelText: 'Çmimi i shtesës 2'),
+                    keyboardType: TextInputType.number),
+                const SizedBox(height: 12),
+                DropdownButtonFormField<int?>(
+                  value: mechanismIndex,
+                  decoration:
+                      const InputDecoration(labelText: "Mekanizmi (Opsional)"),
+                  items: [
+                    const DropdownMenuItem<int?>(
+                        value: null, child: Text('Asnjë')),
+                    for (int i = 0; i < mechanismBox.length; i++)
+                      DropdownMenuItem<int>(
+                        value: i,
+                        child: Text(mechanismBox.getAt(i)?.name ?? ""),
+                      ),
+                  ],
+                  onChanged: (val) => setState(() => mechanismIndex = val),
+                ),
+                DropdownButtonFormField<int?>(
+                  value: blindIndex,
+                  decoration:
+                      const InputDecoration(labelText: "Roleta (Opsionale)"),
+                  items: [
+                    const DropdownMenuItem<int?>(
+                        value: null, child: Text('Asnjë')),
+                    for (int i = 0; i < blindBox.length; i++)
+                      DropdownMenuItem<int>(
+                        value: i,
+                        child: Text(blindBox.getAt(i)?.name ?? ""),
+                      ),
+                  ],
+                  onChanged: (val) => setState(() => blindIndex = val),
+                ),
+                DropdownButtonFormField<int?>(
+                  value: accessoryIndex,
+                  decoration:
+                      const InputDecoration(labelText: "Aksesor (Opsional)"),
+                  items: [
+                    const DropdownMenuItem<int?>(
+                        value: null, child: Text('Asnjë')),
+                    for (int i = 0; i < accessoryBox.length; i++)
+                      DropdownMenuItem<int>(
+                        value: i,
+                        child: Text(accessoryBox.getAt(i)?.name ?? ""),
+                      ),
+                  ],
+                  onChanged: (val) => setState(() => accessoryIndex = val),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    if (_saveItem()) {
+                      Navigator.pop(context);
+                    }
+                  },
+                  child: Text(widget.existingItem == null ? 'Shto' : 'Ruaj'),
+                ),
+              ],
+            ),
+          ),
+        ));
   }
 
   bool _saveItem() {
