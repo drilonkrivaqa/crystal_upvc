@@ -20,7 +20,7 @@ class AppColors {
   static const Color background = Color(0xFFF1F7F6);
   static Color get primaryDark => const Color(0xFF1E4241);
   static Color get primaryLight => const Color(0xFFB9D3D1);
-  static const Color accent = Color(0xFF85A8A6);
+  static const Color accent = Color(0xFF7FCDC9);
   static Color get grey300 => Colors.grey.shade300;
   static Color get grey400 => Colors.grey.shade400;
   static Color get lightGreen300 =>
