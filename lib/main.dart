@@ -73,15 +73,13 @@ class HomePage extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
               child: Column(
                 children: [
-                  Text(
-                    'TONI AL-PVC',
-                    style: TextStyle(
-                      fontSize: 45,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primary[500],
-                      letterSpacing: 1.2,
-                    ),
-                  ).animate().fadeIn(duration: 500.ms).slideY(begin: 0.3),
+                  Image.asset(
+                    'assets/logo.png',
+                    width: 200,
+                  )
+                      .animate()
+                      .fadeIn(duration: 500.ms)
+                      .slideY(begin: 0.3),
                   const SizedBox(height: 48),
                   Wrap(
                     spacing: 0,
