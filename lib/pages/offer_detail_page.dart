@@ -82,7 +82,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
           ),
         ],
       ),
-      backgroundColor: Colors.grey[300],
+      backgroundColor: Colors.white,
       body: ListView(
         children: [
           const SizedBox(height: 16),
