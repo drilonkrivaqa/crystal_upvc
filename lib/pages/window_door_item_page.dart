@@ -227,7 +227,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                               child: DropdownButtonFormField<int>(
                                 value: profileSetIndex,
                                 decoration: const InputDecoration(
-                                    labelText: 'Profili (Lloji)'),
+                                    labelText: 'Profili'),
                                 items: [
                                   for (int i = 0; i < profileSetBox.length; i++)
                                     DropdownMenuItem<int>(
