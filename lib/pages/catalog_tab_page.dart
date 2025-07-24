@@ -66,7 +66,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text("Ndrysho ${_typeLabel()}"),
+        title: Text("Ndrysho ${item.name}"),
         content: SingleChildScrollView(
           child: Column(
             children: [
