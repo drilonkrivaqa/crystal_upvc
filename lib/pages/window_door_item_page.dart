@@ -125,10 +125,17 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
               title: Text(widget.existingItem == null
                   ? 'Shto Dritare/Derë'
                   : 'Ndrysho Dritaren/Derën')),
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
+    body: SafeArea(
+    top: false,
+    child: SingleChildScrollView(
+    padding: EdgeInsets.fromLTRB(
+    16,
+    16,
+    16,
+    16 + MediaQuery.of(context).padding.bottom,
+    ),
+    child: Column(
+    children: [
                 Card(
                   child: Padding(
                     padding: const EdgeInsets.all(12),
@@ -397,7 +404,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
               ],
             ),
           ),
-        ));
+        )));
   }
 
   bool _saveItem() {
