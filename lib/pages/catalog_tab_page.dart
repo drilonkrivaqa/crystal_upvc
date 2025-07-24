@@ -53,6 +53,8 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
         text: item is ProfileSet ? item.priceAdapter.toString() : "");
     final priceLlajsneController = TextEditingController(
         text: item is ProfileSet ? item.priceLlajsne.toString() : "");
+    final pipeLengthController = TextEditingController(
+        text: item is ProfileSet ? item.pipeLength.toString() : "");
     final pricePerM2Controller = TextEditingController(
         text:
             (item is Glass || item is Blind) ? item.pricePerM2.toString() : "");
@@ -94,6 +96,10 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                     controller: priceLlajsneController,
                     decoration:
                         const InputDecoration(labelText: 'Llajsne €/m')),
+                TextField(
+                    controller: pipeLengthController,
+                    decoration: const InputDecoration(
+                        labelText: 'Gjatësia e profilit (mm)')),
               ],
               if (widget.type == CatalogType.glass ||
                   widget.type == CatalogType.blind)
@@ -142,6 +148,8 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                             double.tryParse(priceAdapterController.text) ?? 0,
                         priceLlajsne:
                             double.tryParse(priceLlajsneController.text) ?? 0,
+                        pipeLength:
+                        int.tryParse(pipeLengthController.text) ?? 6500,
                       ));
                   break;
                 case CatalogType.glass:
@@ -197,6 +205,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
     final priceTController = TextEditingController();
     final priceAdapterController = TextEditingController();
     final priceLlajsneController = TextEditingController();
+    final pipeLengthController = TextEditingController(text: '6500');
     final pricePerM2Controller = TextEditingController();
     final boxHeightController = TextEditingController();
     final priceController = TextEditingController();
@@ -232,6 +241,10 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                     controller: priceLlajsneController,
                     decoration:
                         const InputDecoration(labelText: 'Llajsne €/m')),
+                TextField(
+                    controller: pipeLengthController,
+                    decoration: const InputDecoration(
+                        labelText: 'Gjatësia e profilit (mm)')),
               ],
               if (widget.type == CatalogType.glass ||
                   widget.type == CatalogType.blind)
@@ -269,6 +282,8 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                         double.tryParse(priceAdapterController.text) ?? 0,
                     priceLlajsne:
                         double.tryParse(priceLlajsneController.text) ?? 0,
+                    pipeLength:
+                    int.tryParse(pipeLengthController.text) ?? 6500,
                   ));
                   break;
                 case CatalogType.glass:
@@ -344,8 +359,8 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                             "Krahu (Z): €${item.priceZ.toStringAsFixed(2)}/m\n"
                             "T: €${item.priceT.toStringAsFixed(2)}/m\n"
                             "Adapter: €${item.priceAdapter.toStringAsFixed(2)}/m\n"
-                            "Llajsne: €${item.priceLlajsne.toStringAsFixed(2)}/m")
-                        : widget.type == CatalogType.glass
+                            "Llajsne: €${item.priceLlajsne.toStringAsFixed(2)}/m\n"
+                            "Gjatësia: ${item.pipeLength}mm")                        : widget.type == CatalogType.glass
                             ? Text("€${item.pricePerM2.toStringAsFixed(2)}/m²")
                             : widget.type == CatalogType.blind
                                 ? Text(
