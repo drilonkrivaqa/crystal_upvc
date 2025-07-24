@@ -42,6 +42,21 @@ Future<void> printOfferPdf({
       ? customerBox.getAt(offer.customerIndex)
       : null;
 
+  // Determine PDF file name based on client and first item's profile
+  String pdfName = 'Document';
+  if (customer != null) {
+    pdfName = customer.name;
+  }
+  if (offer.items.isNotEmpty) {
+    final firstItem = offer.items.first;
+    if (firstItem.profileSetIndex < profileSetBox.length) {
+      final profileName = profileSetBox.getAt(firstItem.profileSetIndex)?.name;
+      if (profileName != null && profileName.isNotEmpty) {
+        pdfName = '$pdfName $profileName';
+      }
+    }
+  }
+
   final itemImages = <pw.MemoryImage?>[];
   for (final item in offer.items) {
     pw.MemoryImage? img;
@@ -508,6 +523,7 @@ Future<void> printOfferPdf({
   try {
     await Printing.layoutPdf(
       onLayout: (PdfPageFormat format) async => doc.save(),
+      name: '$pdfName.pdf',
     );
   } catch (e) {
     debugPrint('Error printing PDF: $e');
