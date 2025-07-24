@@ -31,6 +31,8 @@ class ProfileSet extends HiveObject {
   double priceAdapter;   // Adapter (for double sash)
   @HiveField(5)
   double priceLlajsne;   // Glazing bead
+  @HiveField(6)
+  int pipeLength;        // Standard pipe length in mm
 
   ProfileSet({
     required this.name,
@@ -39,6 +41,7 @@ class ProfileSet extends HiveObject {
     required this.priceT,
     required this.priceAdapter,
     required this.priceLlajsne,
+    this.pipeLength = 6500,
   });
 }
 

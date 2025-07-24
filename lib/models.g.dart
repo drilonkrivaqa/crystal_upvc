@@ -66,13 +66,14 @@ class ProfileSetAdapter extends TypeAdapter<ProfileSet> {
       priceT: fields[3] as double,
       priceAdapter: fields[4] as double,
       priceLlajsne: fields[5] as double,
+      pipeLength: fields[6] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, ProfileSet obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -84,7 +85,9 @@ class ProfileSetAdapter extends TypeAdapter<ProfileSet> {
       ..writeByte(4)
       ..write(obj.priceAdapter)
       ..writeByte(5)
-      ..write(obj.priceLlajsne);
+      ..write(obj.priceLlajsne)
+      ..writeByte(6)
+      ..write(obj.pipeLength);
   }
 
   @override
