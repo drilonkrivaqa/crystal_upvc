@@ -76,11 +76,8 @@ class HomePage extends StatelessWidget {
                   Image.asset(
                     'assets/logo.png',
                     width: 200,
-                  )
-                      .animate()
-                      .fadeIn(duration: 500.ms)
-                      .slideY(begin: 0.3),
-                  const SizedBox(height: 48),
+                  ).animate().fadeIn(duration: 500.ms).slideY(begin: 0.3),
+                  const SizedBox(height: 24),
                   Wrap(
                     spacing: 0,
                     runSpacing: 0,
