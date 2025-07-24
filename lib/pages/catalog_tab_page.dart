@@ -282,8 +282,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                         double.tryParse(priceAdapterController.text) ?? 0,
                     priceLlajsne:
                         double.tryParse(priceLlajsneController.text) ?? 0,
-                    pipeLength:
-                        int.tryParse(pipeLengthController.text) ?? 6500,
+                    pipeLength: int.tryParse(pipeLengthController.text) ?? 6500,
                   ));
                   break;
                 case CatalogType.glass:

@@ -334,8 +334,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                         const SizedBox(height: 12),
                         DropdownButtonFormField<int?>(
                           value: mechanismIndex,
-                          decoration:
-                          const InputDecoration(labelText: 'Mekanizmi (Opsional)'),
+                          decoration: const InputDecoration(
+                              labelText: 'Mekanizmi (Opsional)'),
                           items: [
                             const DropdownMenuItem<int?>(
                                 value: null, child: Text('Asnjë')),
@@ -345,13 +345,14 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                                 child: Text(mechanismBox.getAt(i)?.name ?? ''),
                               ),
                           ],
-                          onChanged: (val) => setState(() => mechanismIndex = val),
+                          onChanged: (val) =>
+                              setState(() => mechanismIndex = val),
                         ),
                         const SizedBox(height: 12),
                         DropdownButtonFormField<int?>(
                           value: blindIndex,
-                          decoration:
-                          const InputDecoration(labelText: 'Roleta (Opsional)'),
+                          decoration: const InputDecoration(
+                              labelText: 'Roleta (Opsional)'),
                           items: [
                             const DropdownMenuItem<int?>(
                                 value: null, child: Text('Asnjë')),

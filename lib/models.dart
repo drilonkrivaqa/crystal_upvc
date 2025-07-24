@@ -13,7 +13,11 @@ class Customer extends HiveObject {
   String phone;
   @HiveField(3)
   String email;
-  Customer({required this.name, required this.address, required this.phone, required this.email});
+  Customer(
+      {required this.name,
+      required this.address,
+      required this.phone,
+      required this.email});
 }
 
 // ProfileSet: full profile system (Trocal 88, Salamander, etc)
@@ -22,17 +26,17 @@ class ProfileSet extends HiveObject {
   @HiveField(0)
   String name;
   @HiveField(1)
-  double priceL;         // Frame
+  double priceL; // Frame
   @HiveField(2)
-  double priceZ;         // Sash
+  double priceZ; // Sash
   @HiveField(3)
-  double priceT;         // Mullion
+  double priceT; // Mullion
   @HiveField(4)
-  double priceAdapter;   // Adapter (for double sash)
+  double priceAdapter; // Adapter (for double sash)
   @HiveField(5)
-  double priceLlajsne;   // Glazing bead
+  double priceLlajsne; // Glazing bead
   @HiveField(6)
-  int pipeLength;        // Standard pipe length in mm
+  int pipeLength; // Standard pipe length in mm
 
   ProfileSet({
     required this.name,
@@ -82,6 +86,7 @@ class Accessory extends HiveObject {
   double price;
   Accessory({required this.name, required this.price});
 }
+
 @HiveType(typeId: 8)
 class ExtraCharge extends HiveObject {
   @HiveField(0)
@@ -97,7 +102,7 @@ class WindowDoorItem extends HiveObject {
   @HiveField(0)
   String name;
   @HiveField(1)
-  int width;  // in mm
+  int width; // in mm
   @HiveField(2)
   int height; // in mm
   @HiveField(3)
@@ -168,14 +173,17 @@ class WindowDoorItem extends HiveObject {
     List<int>? sectionHeights,
     List<bool>? verticalAdapters,
     List<bool>? horizontalAdapters,
-  }) : fixedSectors =
-      fixedSectors ?? List<bool>.filled(verticalSections * horizontalSections, false),
+  })  : fixedSectors = fixedSectors ??
+            List<bool>.filled(verticalSections * horizontalSections, false),
         sectionWidths = sectionWidths ?? List<int>.filled(verticalSections, 0),
-        sectionHeights = sectionHeights ?? List<int>.filled(horizontalSections, 0),
-        verticalAdapters =
-            verticalAdapters ?? List<bool>.filled(verticalSections > 0 ? verticalSections - 1 : 0, false),
-        horizontalAdapters =
-            horizontalAdapters ?? List<bool>.filled(horizontalSections > 0 ? horizontalSections - 1 : 0, false);
+        sectionHeights =
+            sectionHeights ?? List<int>.filled(horizontalSections, 0),
+        verticalAdapters = verticalAdapters ??
+            List<bool>.filled(
+                verticalSections > 0 ? verticalSections - 1 : 0, false),
+        horizontalAdapters = horizontalAdapters ??
+            List<bool>.filled(
+                horizontalSections > 0 ? horizontalSections - 1 : 0, false);
 
   /// Returns the cost for profiles using the exact section sizes.
   /// If [boxHeight] is provided, it will be subtracted from the total height
@@ -225,7 +233,11 @@ class WindowDoorItem extends HiveObject {
       }
     }
 
-    return frameLength + sashLength + adapterLength + tLength + glazingBeadLength;
+    return frameLength +
+        sashLength +
+        adapterLength +
+        tLength +
+        glazingBeadLength;
   }
 
   /// Returns cost for glass, given selected [Glass] and section sizes.
@@ -265,7 +277,8 @@ class Offer extends HiveObject {
   @HiveField(2)
   DateTime date;
   @HiveField(3)
-  List<WindowDoorItem> items;  @HiveField(4)
+  List<WindowDoorItem> items;
+  @HiveField(4)
   double profitPercent;
   @HiveField(5)
   List<ExtraCharge> extraCharges;
