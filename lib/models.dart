@@ -32,7 +32,7 @@ class ProfileSet extends HiveObject {
   @HiveField(5)
   double priceLlajsne;   // Glazing bead
   @HiveField(6)
-  int pipeLength;
+  int pipeLength;        // Standard pipe length in mm
 
   ProfileSet({
     required this.name,

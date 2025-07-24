@@ -47,14 +47,14 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
           ? Hive.box<Blind>('blinds').getAt(item.blindIndex!)
           : null;
       final itemPieces =
-      _pieceLengths(item, boxHeight: blind?.boxHeight ?? 0);
+          _pieceLengths(item, boxHeight: blind?.boxHeight ?? 0);
 
       for (int i = 0; i < item.quantity; i++) {
         final target = piecesMap.putIfAbsent(
             item.profileSetIndex,
-                () => {
-              for (var t in PieceType.values) t: <int>[],
-            });
+            () => {
+                  for (var t in PieceType.values) t: <int>[],
+                });
         itemPieces.forEach((type, list) {
           target[type]!.addAll(list);
         });
@@ -186,9 +186,9 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
                     value: selectedOffer,
                     items: [for (int i = 0; i < offerBox.length; i++) i]
                         .map((i) => DropdownMenuItem(
-                      value: i,
-                      child: Text('Oferta ${i + 1}'),
-                    ))
+                              value: i,
+                              child: Text('Oferta ${i + 1}'),
+                            ))
                         .toList(),
                     onChanged: (val) => setState(() => selectedOffer = val),
                   ),
@@ -214,7 +214,7 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
                       ...e.value.entries.map((typeEntry) {
                         final bars = typeEntry.value;
                         final needed =
-                        bars.expand((b) => b).fold<int>(0, (a, b) => a + b);
+                            bars.expand((b) => b).fold<int>(0, (a, b) => a + b);
                         final totalLen = bars.length * pipeLen;
                         final loss = totalLen - needed;
                         return Column(
@@ -224,16 +224,16 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
                                 style: const TextStyle(fontWeight: FontWeight.bold)),
                             Text(
                                 'Nevojiten ${(needed / 1000).toStringAsFixed(2)} m, '
-                                    'Pipa: ${bars.length}, '
-                                    'Humbje ${(loss / 1000).toStringAsFixed(2)} m'),
+                                'Pipa: ${bars.length}, '
+                                'Humbje ${(loss / 1000).toStringAsFixed(2)} m'),
                             for (int i = 0; i < bars.length; i++)
                               Padding(
                                 padding:
-                                const EdgeInsets.symmetric(vertical: 2),
+                                    const EdgeInsets.symmetric(vertical: 2),
                                 child: Text(
                                     'Lenda ${i + 1}: '
-                                        '${bars[i].join(' + ')} = '
-                                        '${bars[i].fold<int>(0, (a, b) => a + b)}/$pipeLen'),
+                                    '${bars[i].join(' + ')} = '
+                                    '${bars[i].fold<int>(0, (a, b) => a + b)}/$pipeLen'),
                               ),
                             const SizedBox(height: 8),
                           ],

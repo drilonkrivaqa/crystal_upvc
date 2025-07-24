@@ -149,7 +149,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                         priceLlajsne:
                             double.tryParse(priceLlajsneController.text) ?? 0,
                         pipeLength:
-                        int.tryParse(pipeLengthController.text) ?? 6500,
+                            int.tryParse(pipeLengthController.text) ?? 6500,
                       ));
                   break;
                 case CatalogType.glass:
@@ -283,7 +283,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                     priceLlajsne:
                         double.tryParse(priceLlajsneController.text) ?? 0,
                     pipeLength:
-                    int.tryParse(pipeLengthController.text) ?? 6500,
+                        int.tryParse(pipeLengthController.text) ?? 6500,
                   ));
                   break;
                 case CatalogType.glass:
@@ -360,7 +360,8 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                             "T: €${item.priceT.toStringAsFixed(2)}/m\n"
                             "Adapter: €${item.priceAdapter.toStringAsFixed(2)}/m\n"
                             "Llajsne: €${item.priceLlajsne.toStringAsFixed(2)}/m\n"
-                            "Gjatësia: ${item.pipeLength}mm")                        : widget.type == CatalogType.glass
+                            "Gjatësia: ${item.pipeLength}mm")
+                        : widget.type == CatalogType.glass
                             ? Text("€${item.pricePerM2.toStringAsFixed(2)}/m²")
                             : widget.type == CatalogType.blind
                                 ? Text(
