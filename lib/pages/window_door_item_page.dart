@@ -332,48 +332,36 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                           ],
                         ),
                         const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: DropdownButtonFormField<int?>(
-                                value: mechanismIndex,
-                                decoration: const InputDecoration(
-                                    labelText: 'Mekanizmi (Opsional)'),
-                                items: [
-                                  const DropdownMenuItem<int?>(
-                                      value: null, child: Text('Asnjë')),
-                                  for (int i = 0; i < mechanismBox.length; i++)
-                                    DropdownMenuItem<int>(
-                                      value: i,
-                                      child: Text(
-                                          mechanismBox.getAt(i)?.name ?? ''),
-                                    ),
-                                ],
-                                onChanged: (val) =>
-                                    setState(() => mechanismIndex = val),
+                        DropdownButtonFormField<int?>(
+                          value: mechanismIndex,
+                          decoration:
+                          const InputDecoration(labelText: 'Mekanizmi (Opsional)'),
+                          items: [
+                            const DropdownMenuItem<int?>(
+                                value: null, child: Text('Asnjë')),
+                            for (int i = 0; i < mechanismBox.length; i++)
+                              DropdownMenuItem<int>(
+                                value: i,
+                                child: Text(mechanismBox.getAt(i)?.name ?? ''),
                               ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: DropdownButtonFormField<int?>(
-                                value: blindIndex,
-                                decoration: const InputDecoration(
-                                    labelText: 'Roleta (Opsional)'),
-                                items: [
-                                  const DropdownMenuItem<int?>(
-                                      value: null, child: Text('Asnjë')),
-                                  for (int i = 0; i < blindBox.length; i++)
-                                    DropdownMenuItem<int>(
-                                      value: i,
-                                      child:
-                                          Text(blindBox.getAt(i)?.name ?? ''),
-                                    ),
-                                ],
-                                onChanged: (val) =>
-                                    setState(() => blindIndex = val),
-                              ),
-                            ),
                           ],
+                          onChanged: (val) => setState(() => mechanismIndex = val),
+                        ),
+                        const SizedBox(height: 12),
+                        DropdownButtonFormField<int?>(
+                          value: blindIndex,
+                          decoration:
+                          const InputDecoration(labelText: 'Roleta (Opsional)'),
+                          items: [
+                            const DropdownMenuItem<int?>(
+                                value: null, child: Text('Asnjë')),
+                            for (int i = 0; i < blindBox.length; i++)
+                              DropdownMenuItem<int>(
+                                value: i,
+                                child: Text(blindBox.getAt(i)?.name ?? ''),
+                              ),
+                          ],
+                          onChanged: (val) => setState(() => blindIndex = val),
                         ),
                         const SizedBox(height: 12),
                         DropdownButtonFormField<int?>(
