@@ -267,7 +267,9 @@ class WindowDoorItem extends HiveObject {
           final area = ((sashW - 10) / 1000.0) * ((sashH - 10) / 1000.0);
           total += area * glass.pricePerM2;
         } else {
-          final area = ((w - 20) / 1000.0) * ((h - 20) / 1000.0);
+          final effectiveW = (w - 100).clamp(0, w);
+          final effectiveH = (h - 100).clamp(0, h);
+          final area = (effectiveW / 1000.0) * (effectiveH / 1000.0);
           total += area * glass.pricePerM2;
         }
       }
