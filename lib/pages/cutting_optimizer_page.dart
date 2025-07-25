@@ -99,10 +99,12 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
           final sashW = (w - 90).clamp(0, w);
           final sashH = (h - 90).clamp(0, h);
           map[PieceType.z]!.addAll([sashH, sashH, sashW, sashW]);
-          map[PieceType.llajsne]!.addAll([sashH, sashH, sashW, sashW]);
+          final beadW = (sashW - 90).clamp(0, sashW);
+          final beadH = (sashH - 90).clamp(0, sashH);
+          map[PieceType.llajsne]!.addAll([beadH, beadH, beadW, beadW]);
         } else {
-          final beadW = (w - 20).clamp(0, w);
-          final beadH = (h - 20).clamp(0, h);
+          final beadW = (w - 90).clamp(0, w);
+          final beadH = (h - 90).clamp(0, h);
           map[PieceType.llajsne]!.addAll([beadH, beadH, beadW, beadW]);
         }
       }
@@ -110,11 +112,11 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
 
     for (int i = 0; i < item.verticalSections - 1; i++) {
       final type = item.verticalAdapters[i] ? PieceType.adapter : PieceType.t;
-      map[type]!.add(effectiveHeight);
+      map[type]!.add((effectiveHeight - 80).clamp(0, effectiveHeight));
     }
     for (int i = 0; i < item.horizontalSections - 1; i++) {
       final type = item.horizontalAdapters[i] ? PieceType.adapter : PieceType.t;
-      map[type]!.add(item.width);
+      map[type]!.add((item.width - 80).clamp(0, item.width));
     }
 
     return map;

@@ -211,25 +211,33 @@ class WindowDoorItem extends HiveObject {
           final sashW = (w - 90).clamp(0, w);
           final sashH = (h - 90).clamp(0, h);
           sashLength += 2 * (sashW + sashH) / 1000.0 * set.priceZ;
-          glazingBeadLength += 2 * (sashW + sashH) / 1000.0 * set.priceLlajsne;
+          final beadW = (sashW - 90).clamp(0, sashW);
+          final beadH = (sashH - 90).clamp(0, sashH);
+          glazingBeadLength +=
+              2 * (beadW + beadH) / 1000.0 * set.priceLlajsne;
         } else {
-          glazingBeadLength += 2 * (w + h - 40) / 1000.0 * set.priceLlajsne;
+          final beadW = (w - 90).clamp(0, w);
+          final beadH = (h - 90).clamp(0, h);
+          glazingBeadLength +=
+              2 * (beadW + beadH) / 1000.0 * set.priceLlajsne;
         }
       }
     }
 
     for (int i = 0; i < verticalSections - 1; i++) {
+      final len = (effectiveHeight - 80).clamp(0, effectiveHeight);
       if (verticalAdapters[i]) {
-        adapterLength += (effectiveHeight / 1000.0) * set.priceAdapter;
+        adapterLength += (len / 1000.0) * set.priceAdapter;
       } else {
-        tLength += (effectiveHeight / 1000.0) * set.priceT;
+        tLength += (len / 1000.0) * set.priceT;
       }
     }
     for (int i = 0; i < horizontalSections - 1; i++) {
+      final len = (width - 80).clamp(0, width);
       if (horizontalAdapters[i]) {
-        adapterLength += (width / 1000.0) * set.priceAdapter;
+        adapterLength += (len / 1000.0) * set.priceAdapter;
       } else {
-        tLength += (width / 1000.0) * set.priceT;
+        tLength += (len / 1000.0) * set.priceT;
       }
     }
 
