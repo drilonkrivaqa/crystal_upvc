@@ -61,7 +61,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final items = [
       _NavItem(
-          Icons.inventory_sharp, 'Çmimore', const CatalogsPage()),
+          Icons.auto_awesome_motion_outlined, 'Çmimore', const CatalogsPage()),
       _NavItem(Icons.people_outline, 'Klientët', const CustomersPage()),
       _NavItem(Icons.description_outlined, 'Ofertat', const OffersPage()),
       _NavItem(Icons.cut, 'Prerjet', const CuttingOptimizerPage()),
