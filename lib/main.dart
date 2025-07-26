@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'theme/app_background.dart';
@@ -14,6 +15,7 @@ import 'pages/welcome_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await EasyLocalization.ensureInitialized();
   await Hive.initFlutter();
 
   Hive.registerAdapter(CustomerAdapter());
@@ -34,7 +36,21 @@ void main() async {
   await Hive.openBox<Accessory>('accessories');
   await Hive.openBox<Offer>('offers');
 
-  runApp(const MyApp());
+  runApp(
+    EasyLocalization(
+      supportedLocales: const [
+        Locale('sq'),
+        Locale('en'),
+        Locale('de'),
+        Locale('fr'),
+        Locale('it'),
+      ],
+      path: 'assets/translations',
+      fallbackLocale: const Locale('sq'),
+      startLocale: const Locale('sq'),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -46,6 +62,9 @@ class MyApp extends StatelessWidget {
       title: 'TONI AL-PVC',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
+      localizationsDelegates: context.localizationDelegates,
+      supportedLocales: context.supportedLocales,
+      locale: context.locale,
       home: const WelcomePage(),
       routes: {
         '/home': (_) => const HomePage(),
@@ -60,25 +79,32 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final items = [
-      _NavItem(
-          Icons.auto_awesome_motion_outlined, 'Çmimore', const CatalogsPage()),
-      _NavItem(Icons.people_outline, 'Klientët', const CustomersPage()),
-      _NavItem(Icons.description_outlined, 'Ofertat', const OffersPage()),
-      _NavItem(Icons.cut, 'Prerjet', const CuttingOptimizerPage()),
+      _NavItem(Icons.auto_awesome_motion_outlined, 'price_list'.tr(),
+          const CatalogsPage()),
+      _NavItem(Icons.people_outline, 'customers'.tr(), const CustomersPage()),
+      _NavItem(Icons.description_outlined, 'offers'.tr(), const OffersPage()),
+      _NavItem(Icons.cut, 'cutting'.tr(), const CuttingOptimizerPage()),
     ];
 
     return Scaffold(
       body: AppBackground(
         child: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
-              child: Column(
-                children: [
-                  Image.asset(
-                    'assets/logo.png',
-                    width: 200,
-                  ).animate().fadeIn(duration: 500.ms).slideY(begin: 0.3),
+          child: Stack(
+            children: [
+              Positioned(
+                top: 0,
+                right: 0,
+                child: _LanguageButton(),
+              ),
+              Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
+                  child: Column(
+                    children: [
+                      Image.asset(
+                        'assets/logo.png',
+                        width: 200,
+                      ).animate().fadeIn(duration: 500.ms).slideY(begin: 0.3),
                   const SizedBox(height: 24),
                   Wrap(
                     spacing: 0,
@@ -97,9 +123,11 @@ class HomePage extends StatelessWidget {
                             ))
                         .toList(),
                   ),
-                ],
+                    ],
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
         ),
       ),
@@ -149,4 +177,21 @@ class _NavItem {
   final Widget page;
 
   const _NavItem(this.icon, this.label, this.page);
+}
+
+class _LanguageButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return PopupMenuButton<Locale>(
+      icon: const Icon(Icons.language),
+      onSelected: (locale) => context.setLocale(locale),
+      itemBuilder: (context) => const [
+        PopupMenuItem(value: Locale('sq'), child: Text('Shqip')),
+        PopupMenuItem(value: Locale('en'), child: Text('English')),
+        PopupMenuItem(value: Locale('de'), child: Text('Deutsch')),
+        PopupMenuItem(value: Locale('fr'), child: Text('Français')),
+        PopupMenuItem(value: Locale('it'), child: Text('Italiano')),
+      ],
+    );
+  }
 }

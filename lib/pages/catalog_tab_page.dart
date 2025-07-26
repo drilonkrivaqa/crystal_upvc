@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../models.dart';
 import 'catalogs_page.dart';
 import '../theme/app_colors.dart';
@@ -127,11 +128,11 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
               setState(() {});
             },
             child:
-                const Text('Delete', style: TextStyle(color: AppColors.delete)),
+                Text('delete'.tr(), style: const TextStyle(color: AppColors.delete)),
           ),
           TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Anulo')),
+              child: Text('cancel'.tr())),
           ElevatedButton(
             onPressed: () {
               if (nameController.text.isEmpty) return;
@@ -213,7 +214,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text("Regjistro ${_typeLabel()}n"),
+        title: Text('add'.tr() + ' ' + _typeLabel(context)),
         content: SingleChildScrollView(
           child: Column(
             children: [
@@ -267,7 +268,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Anulo')),
+              child: Text('cancel'.tr())),
           ElevatedButton(
             onPressed: () {
               if (nameController.text.isEmpty) return;
@@ -314,32 +315,32 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
               Navigator.pop(context);
               setState(() {});
             },
-            child: const Text('Regjistro'),
+            child: Text('add'.tr()),
           ),
         ],
       ),
     );
   }
 
-  String _typeLabel() {
+  String _typeLabel(BuildContext context) {
     switch (widget.type) {
       case CatalogType.profileSet:
-        return "Profili";
+        return 'profile'.tr();
       case CatalogType.glass:
-        return "Xhami";
+        return 'glass'.tr();
       case CatalogType.blind:
-        return "Roleta";
+        return 'blind'.tr();
       case CatalogType.mechanism:
-        return "Mekanizma";
+        return 'mechanism'.tr();
       case CatalogType.accessory:
-        return "Aksesorë";
+        return 'accessory'.tr();
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(_typeLabel())),
+      appBar: AppBar(title: Text(_typeLabel(context))),
       body: AppBackground(
         child: ValueListenableBuilder(
           valueListenable: box.listenable(),

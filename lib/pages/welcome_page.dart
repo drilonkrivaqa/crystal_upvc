@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../theme/app_background.dart';
 
 class WelcomePage extends StatelessWidget {
@@ -21,23 +22,23 @@ class WelcomePage extends StatelessWidget {
                       .fadeIn(duration: 600.ms)
                       .slideY(begin: 0.2),
                   const SizedBox(height: 24),
-                  const Text(
-                    'Rr. Ilir Konushevci, Nr. 80, Kamenicë, Kosovë, 62000',
+                  Text(
+                    'address'.tr(),
                     textAlign: TextAlign.center,
                   ),
-                  const Text(
-                    '+38344357639 | +38344268300',
+                  Text(
+                    'phones'.tr(),
                     textAlign: TextAlign.center,
                   ),
-                  const Text(
-                    'www.tonialpvc.com | tonialpvc@gmail.com',
+                  Text(
+                    'website_email'.tr(),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 32),
                   ElevatedButton(
                     onPressed: () =>
                         Navigator.pushReplacementNamed(context, '/home'),
-                    child: const Text('Hyr'),
+                    child: Text('enter'.tr()),
                   ).animate().fadeIn(duration: 220.ms, delay: 100.ms),
                 ],
               ),
