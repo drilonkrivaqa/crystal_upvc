@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:easy_localization/easy_localization.dart';
 import '../models.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_background.dart';
@@ -31,29 +30,30 @@ class _CustomersPageState extends State<CustomersPage> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text('add_customer'.tr()),
+        title: const Text('Shto Klientin'),
         content: SingleChildScrollView(
           child: Column(
             children: [
               TextField(
                   controller: nameController,
-                  decoration: InputDecoration(labelText: 'name'.tr())),
+                  decoration:
+                      const InputDecoration(labelText: 'Emri & Mbiemri')),
               TextField(
                   controller: addressController,
-                  decoration: InputDecoration(labelText: 'address_label'.tr())),
+                  decoration: const InputDecoration(labelText: 'Adresa')),
               TextField(
                   controller: phoneController,
-                  decoration: InputDecoration(labelText: 'phone'.tr())),
+                  decoration: const InputDecoration(labelText: 'Nr. Tel.')),
               TextField(
                   controller: emailController,
-                  decoration: InputDecoration(labelText: 'email'.tr())),
+                  decoration: const InputDecoration(labelText: 'Email')),
             ],
           ),
         ),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('cancel'.tr())),
+              child: const Text('Anulo')),
           ElevatedButton(
             onPressed: () {
               if (nameController.text.isEmpty) return;
@@ -66,7 +66,7 @@ class _CustomersPageState extends State<CustomersPage> {
               Navigator.pop(context);
               setState(() {});
             },
-            child: Text('add'.tr()),
+            child: const Text('Shto'),
           ),
         ],
       ),
@@ -84,22 +84,23 @@ class _CustomersPageState extends State<CustomersPage> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text('edit_customer'.tr()),
+        title: const Text('Ndrysho Klientin'),
         content: SingleChildScrollView(
           child: Column(
             children: [
               TextField(
                   controller: nameController,
-                  decoration: InputDecoration(labelText: 'name'.tr())),
+                  decoration:
+                      const InputDecoration(labelText: 'Emri & Mbiemri')),
               TextField(
                   controller: addressController,
-                  decoration: InputDecoration(labelText: 'address_label'.tr())),
+                  decoration: const InputDecoration(labelText: 'Adresa')),
               TextField(
                   controller: phoneController,
-                  decoration: InputDecoration(labelText: 'phone'.tr())),
+                  decoration: const InputDecoration(labelText: 'Nr. Tel.')),
               TextField(
                   controller: emailController,
-                  decoration: InputDecoration(labelText: 'email'.tr())),
+                  decoration: const InputDecoration(labelText: 'Email')),
             ],
           ),
         ),
@@ -111,11 +112,11 @@ class _CustomersPageState extends State<CustomersPage> {
               setState(() {});
             },
             child:
-                Text('delete'.tr(), style: const TextStyle(color: AppColors.delete)),
+                const Text('Fshij', style: TextStyle(color: AppColors.delete)),
           ),
           TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('cancel'.tr())),
+              child: const Text('Anulo')),
           ElevatedButton(
             onPressed: () {
               if (nameController.text.isEmpty) return;
@@ -130,7 +131,7 @@ class _CustomersPageState extends State<CustomersPage> {
               Navigator.pop(context);
               setState(() {});
             },
-            child: Text('save'.tr()),
+            child: const Text('Ruaj'),
           ),
         ],
       ),
@@ -140,7 +141,7 @@ class _CustomersPageState extends State<CustomersPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('customers'.tr())),
+      appBar: AppBar(title: const Text('Klientët')),
       body: AppBackground(
         child: ValueListenableBuilder(
           valueListenable: customerBox.listenable(),
@@ -155,9 +156,9 @@ class _CustomersPageState extends State<CustomersPage> {
                   child: ListTile(
                     title: Text(customer?.name ?? ""),
                     subtitle: Text(
-                      "${'address_label'.tr()}: ${customer?.address ?? ''}\n"
-                      "${'phone'.tr()}: ${customer?.phone ?? ''}\n"
-                      "${'email'.tr()}: ${customer?.email ?? ''}",
+                      'Adresa: ${customer?.address ?? ""}\n'
+                      'Nr. Tel.: ${customer?.phone ?? ""}\n'
+                      'Email: ${customer?.email ?? ""}',
                     ),
                   ),
                 ).animate().fadeIn(duration: 200.ms).slideY(begin: 0.3);
