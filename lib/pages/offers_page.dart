@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:easy_localization/easy_localization.dart';
 import '../models.dart';
 import 'offer_detail_page.dart';
 import '../theme/app_colors.dart';
@@ -29,7 +28,7 @@ class _OffersPageState extends State<OffersPage> {
   void _addOffer() {
     if (customerBox.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('add_customer_first'.tr())),
+        const SnackBar(content: Text('Së pari shtoni një klient të ri!')),
       );
       return;
     }
@@ -43,14 +42,13 @@ class _OffersPageState extends State<OffersPage> {
       context: context,
       builder: (_) => StatefulBuilder(
         builder: (context, setStateDialog) => AlertDialog(
-          title: Text('create_offer'.tr()),
+          title: const Text('Krijo Ofertë'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
-                decoration: InputDecoration(
-                    icon: const Icon(Icons.search),
-                    labelText: 'search_customer'.tr()),
+                decoration: const InputDecoration(
+                    icon: Icon(Icons.search), labelText: 'Kërko klientin'),
                 onChanged: (val) =>
                     setStateDialog(() => customerSearch = val.toLowerCase()),
               ),
@@ -78,11 +76,11 @@ class _OffersPageState extends State<OffersPage> {
                                 child: Text(customerBox.getAt(i)?.name ?? ''),
                               ),
                           ]
-                        : [
+                        : const [
                             DropdownMenuItem(
                               value: null,
                               enabled: false,
-                              child: Text('no_results'.tr()),
+                              child: Text('Pa rezultate'),
                             ),
                           ],
                     onChanged: filtered.isEmpty
@@ -98,14 +96,14 @@ class _OffersPageState extends State<OffersPage> {
               TextField(
                 controller: profitController,
                 keyboardType: TextInputType.number,
-                decoration: InputDecoration(labelText: 'profit_percent'.tr()),
+                decoration: const InputDecoration(labelText: 'Fitimi %'),
               ),
             ],
           ),
           actions: [
             TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: Text('cancel'.tr())),
+                child: const Text('Anulo')),
             ElevatedButton(
               onPressed: () {
                 offerBox.add(
@@ -121,7 +119,7 @@ class _OffersPageState extends State<OffersPage> {
                 Navigator.pop(context);
                 setState(() {});
               },
-            child: Text('add'.tr()),
+              child: const Text('Shto'),
             ),
           ],
         ),
@@ -132,16 +130,16 @@ class _OffersPageState extends State<OffersPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('offers'.tr())),
+      appBar: AppBar(title: const Text('Ofertat')),
       body: AppBackground(
         child: Column(
           children: [
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextField(
-                decoration: InputDecoration(
-                  labelText: 'search_offer'.tr(),
-                  prefixIcon: const Icon(Icons.search),
+                decoration: const InputDecoration(
+                  labelText: 'Kërko me emër të klientit ose me numër oferte',
+                  prefixIcon: Icon(Icons.search),
                 ),
                 onChanged: (val) => setState(() => _searchQuery = val.trim()),
               ),
@@ -195,18 +193,20 @@ class _OffersPageState extends State<OffersPage> {
                           final confirm = await showDialog<bool>(
                             context: context,
                             builder: (_) => AlertDialog(
-                              title: Text('delete_offer'.tr()),
-                              content: Text('delete_offer_confirm'.tr()),
+                              title: const Text('Fshij Ofertën'),
+                              content: const Text(
+                                  'A jeni të sigurtë se dëshironi ta fshini këtë ofertë?'),
                               actions: [
                                 TextButton(
-                                  onPressed: () => Navigator.pop(context, false),
-                                  child: Text('cancel'.tr()),
+                                  onPressed: () =>
+                                      Navigator.pop(context, false),
+                                  child: const Text('Anulo'),
                                 ),
                                 TextButton(
                                   onPressed: () => Navigator.pop(context, true),
-                                  child: Text('delete'.tr(),
+                                  child: const Text('Fshij',
                                       style:
-                                          const TextStyle(color: AppColors.delete)),
+                                          TextStyle(color: AppColors.delete)),
                                 ),
                               ],
                             ),
