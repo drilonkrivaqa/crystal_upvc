@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'catalog_tab_page.dart';
 import '../theme/app_background.dart';
 import '../widgets/glass_card.dart';
@@ -10,13 +11,13 @@ class CatalogsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Çmimorja")),
+      appBar: AppBar(title: Text('price_list'.tr())),
       body: AppBackground(
         child: ListView(
           children: [
             const SizedBox(height: 20),
             _CatalogButton(
-              label: "Profili",
+              label: 'profile'.tr(),
               onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -24,21 +25,21 @@ class CatalogsPage extends StatelessWidget {
                           CatalogTabPage(type: CatalogType.profileSet))),
             ),
             _CatalogButton(
-              label: "Xhami",
+              label: 'glass'.tr(),
               onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(
                       builder: (_) => CatalogTabPage(type: CatalogType.glass))),
             ),
             _CatalogButton(
-              label: "Roleta",
+              label: 'blind'.tr(),
               onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(
                       builder: (_) => CatalogTabPage(type: CatalogType.blind))),
             ),
             _CatalogButton(
-              label: "Mekanizma",
+              label: 'mechanism'.tr(),
               onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -46,7 +47,7 @@ class CatalogsPage extends StatelessWidget {
                           CatalogTabPage(type: CatalogType.mechanism))),
             ),
             _CatalogButton(
-              label: "Aksesorë",
+              label: 'accessory'.tr(),
               onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(
