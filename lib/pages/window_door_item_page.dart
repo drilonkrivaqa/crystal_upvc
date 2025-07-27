@@ -6,6 +6,7 @@ import 'dart:io' show File;
 import 'dart:typed_data';
 import '../models.dart';
 import '../theme/app_colors.dart';
+import '../utils/image_utils.dart';
 
 class WindowDoorItemPage extends StatefulWidget {
   final void Function(WindowDoorItem) onSave;
@@ -148,8 +149,16 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                                   source: ImageSource.gallery);
                               if (picked != null) {
                                 final bytes = await picked.readAsBytes();
+                                String? newPath;
+                                if (!kIsWeb) {
+                                  final ext = picked.path.split('.').last;
+                                  newPath = await saveImageToHiddenDir(
+                                      bytes,
+                                      fileName:
+                                          '${DateTime.now().millisecondsSinceEpoch}.$ext');
+                                }
                                 setState(() {
-                                  photoPath = picked.path;
+                                  photoPath = newPath;
                                   photoBytes = bytes;
                                 });
                               }
