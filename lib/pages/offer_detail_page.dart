@@ -8,6 +8,7 @@ import 'dart:io' show File;
 import 'package:flutter/foundation.dart';
 import '../pdf/offer_pdf.dart';
 import '../widgets/glass_card.dart';
+import 'export_pdf_page.dart';
 
 class OfferDetailPage extends StatefulWidget {
   final int offerIndex;
@@ -68,15 +69,20 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
             icon: const Icon(Icons.picture_as_pdf),
             onPressed: () async {
               final offer = offerBox.getAt(widget.offerIndex)!;
-              await printOfferPdf(
-                offer: offer,
-                offerNumber: widget.offerIndex + 1,
-                customerBox: customerBox,
-                profileSetBox: profileSetBox,
-                glassBox: glassBox,
-                blindBox: blindBox,
-                mechanismBox: mechanismBox,
-                accessoryBox: accessoryBox,
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ExportPdfPage(
+                    offer: offer,
+                    offerNumber: widget.offerIndex + 1,
+                    customerBox: customerBox,
+                    profileSetBox: profileSetBox,
+                    glassBox: glassBox,
+                    blindBox: blindBox,
+                    mechanismBox: mechanismBox,
+                    accessoryBox: accessoryBox,
+                  ),
+                ),
               );
             },
           ),

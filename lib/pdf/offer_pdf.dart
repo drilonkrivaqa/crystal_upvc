@@ -10,6 +10,8 @@ import 'package:printing/printing.dart';
 import '../models.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
+enum PdfTemplate { modern, classic }
+
 Future<void> printOfferPdf({
   required Offer offer,
   required int offerNumber,
@@ -19,6 +21,7 @@ Future<void> printOfferPdf({
   required Box<Blind> blindBox,
   required Box<Mechanism> mechanismBox,
   required Box<Accessory> accessoryBox,
+  PdfTemplate template = PdfTemplate.modern,
 }) async {
   final fontData = await rootBundle.load('assets/fonts/Montserrat-Regular.ttf');
   final boldFontData =
@@ -75,6 +78,12 @@ Future<void> printOfferPdf({
   }
 
   final currency = NumberFormat.currency(locale: 'en_US', symbol: '€');
+  final headerColor =
+      template == PdfTemplate.modern ? PdfColors.blue100 : PdfColors.grey300;
+  final headerTextColor =
+      template == PdfTemplate.modern ? PdfColors.blue800 : PdfColors.black;
+  final tableHeaderColor =
+      template == PdfTemplate.modern ? PdfColors.blueGrey200 : PdfColors.grey300;
   double itemsFinal = 0;
   for (final item in offer.items) {
     final profile = profileSetBox.getAt(item.profileSetIndex)!;
@@ -146,7 +155,7 @@ Future<void> printOfferPdf({
       header: (context) => context.pageNumber == 1
           ? pw.Container(
               padding: pw.EdgeInsets.all(8),
-              decoration: pw.BoxDecoration(color: PdfColors.blue100),
+              decoration: pw.BoxDecoration(color: headerColor),
               child: pw.Row(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
@@ -166,7 +175,7 @@ Future<void> printOfferPdf({
                               style: pw.TextStyle(
                                   fontSize: 16,
                                   fontWeight: pw.FontWeight.bold,
-                                  color: PdfColors.blue800)),
+                                  color: headerTextColor)),
                           pw.Text(
                               'Rr. Ilir Konushevci, Nr. 80, Kamenicë, Kosovë, 62000'),
                           pw.Text('+38344357639 | +38344268300'),
@@ -200,7 +209,8 @@ Future<void> printOfferPdf({
         ),
       ),
       build: (context) {
-        final headerStyle = pw.TextStyle(fontWeight: pw.FontWeight.bold);
+        final headerStyle =
+            pw.TextStyle(fontWeight: pw.FontWeight.bold, color: headerTextColor);
 
         final widgets = <pw.Widget>[];
         widgets.add(pw.Header(
@@ -215,7 +225,7 @@ Future<void> printOfferPdf({
         final rows = <pw.TableRow>[];
         rows.add(
           pw.TableRow(
-            decoration: pw.BoxDecoration(color: PdfColors.blueGrey200),
+            decoration: pw.BoxDecoration(color: tableHeaderColor),
             children: [
               pw.Padding(
                 padding: pw.EdgeInsets.all(4),
@@ -429,6 +439,29 @@ Future<void> printOfferPdf({
         );
         widgets.add(pw.SizedBox(height: 12));
 
+        return widgets;
+      },
+    ),
+  );
+
+  doc.addPage(
+    pw.MultiPage(
+      pageFormat: PdfPageFormat.a4,
+      margin: pw.EdgeInsets.all(24),
+      header: (context) => context.pageNumber == 1
+          ? pw.Container(
+              padding: pw.EdgeInsets.all(8),
+              decoration: pw.BoxDecoration(color: headerColor),
+              child: pw.Text('Përmbledhje',
+                  style: pw.TextStyle(
+                      fontSize: 16,
+                      fontWeight: pw.FontWeight.bold,
+                      color: headerTextColor)),
+            )
+          : pw.SizedBox(),
+      build: (context) {
+        final headerStyle =
+            pw.TextStyle(fontWeight: pw.FontWeight.bold, color: headerTextColor);
         final summaryRows = <pw.TableRow>[];
         summaryRows.add(
           pw.TableRow(children: [
@@ -437,8 +470,8 @@ Future<void> printOfferPdf({
                 child: pw.Text('Çmimi i artikujve (€)')),
             pw.Padding(
                 padding: pw.EdgeInsets.all(4),
-                child: pw.Text(currency.format(itemsFinal),
-                    textAlign: pw.TextAlign.right)),
+                child:
+                    pw.Text(currency.format(itemsFinal), textAlign: pw.TextAlign.right)),
           ]),
         );
         if (offer.extraCharges.isNotEmpty) {
@@ -447,12 +480,11 @@ Future<void> printOfferPdf({
               pw.TableRow(children: [
                 pw.Padding(
                     padding: pw.EdgeInsets.all(4),
-                    child: pw.Text(
-                        c.description.isNotEmpty ? c.description : 'Ekstra')),
+                    child: pw.Text(c.description.isNotEmpty ? c.description : 'Ekstra')),
                 pw.Padding(
                     padding: pw.EdgeInsets.all(4),
-                    child: pw.Text(currency.format(c.amount),
-                        textAlign: pw.TextAlign.right)),
+                    child:
+                        pw.Text(currency.format(c.amount), textAlign: pw.TextAlign.right)),
               ]),
             );
           }
@@ -473,8 +505,7 @@ Future<void> printOfferPdf({
         if (offer.discountPercent != 0) {
           summaryRows.add(
             pw.TableRow(children: [
-              pw.Padding(
-                  padding: pw.EdgeInsets.all(4), child: pw.Text('Zbritje %')),
+              pw.Padding(padding: pw.EdgeInsets.all(4), child: pw.Text('Zbritje %')),
               pw.Padding(
                   padding: pw.EdgeInsets.all(4),
                   child: pw.Text(
@@ -497,6 +528,7 @@ Future<void> printOfferPdf({
           ]),
         );
 
+        final widgets = <pw.Widget>[];
         widgets.add(
           pw.Table(
             border: pw.TableBorder.all(width: 0.5),
@@ -512,9 +544,6 @@ Future<void> printOfferPdf({
           widgets.add(pw.SizedBox(height: 8));
           widgets.add(pw.Text('Vërejtje/Notes: ${offer.notes}'));
         }
-
-        widgets.add(pw.SizedBox(height: 8));
-
         return widgets;
       },
     ),
