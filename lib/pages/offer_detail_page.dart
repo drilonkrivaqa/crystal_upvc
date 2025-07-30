@@ -7,7 +7,6 @@ import '../theme/app_colors.dart';
 import 'dart:io' show File;
 import 'package:flutter/foundation.dart';
 import '../pdf/offer_pdf.dart';
-import '../pdf/pdf_template.dart';
 import '../widgets/glass_card.dart';
 
 class OfferDetailPage extends StatefulWidget {
@@ -69,67 +68,15 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
             icon: const Icon(Icons.picture_as_pdf),
             onPressed: () async {
               final offer = offerBox.getAt(widget.offerIndex)!;
-              PdfTemplate selected = PdfTemplate.modern;
-              bool separateSummary = true;
-              await showDialog(
-                context: context,
-                builder: (_) => StatefulBuilder(
-                  builder: (context, setStateDlg) {
-                    return AlertDialog(
-                      title: const Text('Eksporto PDF'),
-                      content: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          DropdownButton<PdfTemplate>(
-                            value: selected,
-                            items: const [
-                              DropdownMenuItem(
-                                value: PdfTemplate.modern,
-                                child: Text('Modern'),
-                              ),
-                              DropdownMenuItem(
-                                value: PdfTemplate.classic,
-                                child: Text('Classic'),
-                              ),
-                            ],
-                            onChanged: (v) => setStateDlg(() => selected = v!),
-                          ),
-                          CheckboxListTile(
-                            value: separateSummary,
-                            onChanged: (v) =>
-                                setStateDlg(() => separateSummary = v ?? false),
-                            title:
-                                const Text('Faqe më vete për përmbledhjen'),
-                          )
-                        ],
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text('Anulo'),
-                        ),
-                        ElevatedButton(
-                          onPressed: () async {
-                            Navigator.pop(context);
-                            await printOfferPdf(
-                              offer: offer,
-                              offerNumber: widget.offerIndex + 1,
-                              customerBox: customerBox,
-                              profileSetBox: profileSetBox,
-                              glassBox: glassBox,
-                              blindBox: blindBox,
-                              mechanismBox: mechanismBox,
-                              accessoryBox: accessoryBox,
-                              template: selected,
-                              separateSummaryPage: separateSummary,
-                            );
-                          },
-                          child: const Text('Eksporto'),
-                        ),
-                      ],
-                    );
-                  },
-                ),
+              await printOfferPdf(
+                offer: offer,
+                offerNumber: widget.offerIndex + 1,
+                customerBox: customerBox,
+                profileSetBox: profileSetBox,
+                glassBox: glassBox,
+                blindBox: blindBox,
+                mechanismBox: mechanismBox,
+                accessoryBox: accessoryBox,
               );
             },
           ),
@@ -249,25 +196,13 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
             ),
           ),
           const SizedBox(height: 8),
-          ReorderableListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            onReorder: (oldIndex, newIndex) {
-              if (newIndex > oldIndex) newIndex -= 1;
-              final moved = offer.items.removeAt(oldIndex);
-              offer.items.insert(newIndex, moved);
-              offer.lastEdited = DateTime.now();
-              offer.save();
-              setState(() {});
-            },
-            itemCount: offer.items.length,
-            itemBuilder: (context, i) {
-              final item = offer.items[i];
-              final profileSet = profileSetBox.getAt(item.profileSetIndex)!;
-              final glass = glassBox.getAt(item.glassIndex)!;
-              final blind = (item.blindIndex != null)
-                  ? blindBox.getAt(item.blindIndex!)
-                  : null;
+          ...List.generate(offer.items.length, (i) {
+            final item = offer.items[i];
+            final profileSet = profileSetBox.getAt(item.profileSetIndex)!;
+            final glass = glassBox.getAt(item.glassIndex)!;
+            final blind = (item.blindIndex != null)
+                ? blindBox.getAt(item.blindIndex!)
+                : null;
             final mechanism = (item.mechanismIndex != null)
                 ? mechanismBox.getAt(item.mechanismIndex!)
                 : null;
@@ -308,10 +243,9 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
             }
             double profitAmount = finalPrice - total;
 
-              return GlassCard(
-                key: ValueKey('item_$i'),
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                onTap: () async {
+            return GlassCard(
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              onTap: () async {
                 await showDialog(
                   context: context,
                   builder: (_) => AlertDialog(
@@ -389,9 +323,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                   'Fitimi: €${profitAmount.toStringAsFixed(2)}',
                 ),
               ),
-              ).animate().fadeIn(duration: 200.ms).slideY(begin: 0.3);
-            },
-          ),
+            ).animate().fadeIn(duration: 200.ms).slideY(begin: 0.3);
+          }),
           const SizedBox(height: 16),
           Center(
             child: Builder(builder: (_) {
