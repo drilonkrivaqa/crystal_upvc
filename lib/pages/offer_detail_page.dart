@@ -67,23 +67,6 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
           IconButton(
             icon: const Icon(Icons.picture_as_pdf),
             onPressed: () async {
-              final template = await showDialog<PdfTemplate>(
-                context: context,
-                builder: (context) => SimpleDialog(
-                  title: const Text('Zgjidh Template'),
-                  children: [
-                    SimpleDialogOption(
-                      onPressed: () => Navigator.pop(context, PdfTemplate.modern),
-                      child: const Text('Modern'),
-                    ),
-                    SimpleDialogOption(
-                      onPressed: () => Navigator.pop(context, PdfTemplate.classic),
-                      child: const Text('Classic'),
-                    ),
-                  ],
-                ),
-              );
-              if (template == null) return;
               final offer = offerBox.getAt(widget.offerIndex)!;
               await printOfferPdf(
                 offer: offer,
@@ -94,7 +77,6 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 blindBox: blindBox,
                 mechanismBox: mechanismBox,
                 accessoryBox: accessoryBox,
-                template: template,
               );
             },
           ),
@@ -214,151 +196,135 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
             ),
           ),
           const SizedBox(height: 8),
-          ReorderableListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: offer.items.length,
-            onReorder: (oldIndex, newIndex) {
-              setState(() {
-                if (newIndex > oldIndex) newIndex -= 1;
-                final item = offer.items.removeAt(oldIndex);
-                offer.items.insert(newIndex, item);
-                offer.lastEdited = DateTime.now();
-                offer.save();
-              });
-            },
-            itemBuilder: (context, i) {
-              final item = offer.items[i];
-              final profileSet = profileSetBox.getAt(item.profileSetIndex)!;
-              final glass = glassBox.getAt(item.glassIndex)!;
-              final blind = (item.blindIndex != null)
-                  ? blindBox.getAt(item.blindIndex!)
-                  : null;
-              final mechanism = (item.mechanismIndex != null)
-                  ? mechanismBox.getAt(item.mechanismIndex!)
-                  : null;
-              final accessory = (item.accessoryIndex != null)
-                  ? accessoryBox.getAt(item.accessoryIndex!)
-                  : null;
+          ...List.generate(offer.items.length, (i) {
+            final item = offer.items[i];
+            final profileSet = profileSetBox.getAt(item.profileSetIndex)!;
+            final glass = glassBox.getAt(item.glassIndex)!;
+            final blind = (item.blindIndex != null)
+                ? blindBox.getAt(item.blindIndex!)
+                : null;
+            final mechanism = (item.mechanismIndex != null)
+                ? mechanismBox.getAt(item.mechanismIndex!)
+                : null;
+            final accessory = (item.accessoryIndex != null)
+                ? accessoryBox.getAt(item.accessoryIndex!)
+                : null;
 
-              double profileCost = item.calculateProfileCost(profileSet,
-                      boxHeight: blind?.boxHeight ?? 0) *
-                  item.quantity;
-              double glassCost = item.calculateGlassCost(glass,
-                      boxHeight: blind?.boxHeight ?? 0) *
-                  item.quantity;
-              double blindCost = (blind != null)
-                  ? ((item.width / 1000.0) *
-                      (item.height / 1000.0) *
-                      blind.pricePerM2 *
-                      item.quantity)
-                  : 0;
-              double mechanismCost = (mechanism != null)
-                  ? mechanism.price * item.quantity * item.openings
-                  : 0;
-              double accessoryCost =
-                  (accessory != null) ? accessory.price * item.quantity : 0;
-              double extras = (item.extra1Price ?? 0) + (item.extra2Price ?? 0);
+            double profileCost = item.calculateProfileCost(profileSet,
+                    boxHeight: blind?.boxHeight ?? 0) *
+                item.quantity;
+            double glassCost = item.calculateGlassCost(glass,
+                    boxHeight: blind?.boxHeight ?? 0) *
+                item.quantity;
+            double blindCost = (blind != null)
+                ? ((item.width / 1000.0) *
+                    (item.height / 1000.0) *
+                    blind.pricePerM2 *
+                    item.quantity)
+                : 0;
+            double mechanismCost = (mechanism != null)
+                ? mechanism.price * item.quantity * item.openings
+                : 0;
+            double accessoryCost =
+                (accessory != null) ? accessory.price * item.quantity : 0;
+            double extras = (item.extra1Price ?? 0) + (item.extra2Price ?? 0);
 
-              double base = profileCost +
-                  glassCost +
-                  blindCost +
-                  mechanismCost +
-                  accessoryCost;
-              double total = base + extras;
-              double finalPrice;
-              if (item.manualPrice != null) {
-                finalPrice = item.manualPrice!;
-              } else {
-                finalPrice = base * (1 + offer.profitPercent / 100) + extras;
-              }
-              double profitAmount = finalPrice - total;
+            double base = profileCost +
+                glassCost +
+                blindCost +
+                mechanismCost +
+                accessoryCost;
+            double total = base + extras;
+            double finalPrice;
+            if (item.manualPrice != null) {
+              finalPrice = item.manualPrice!;
+            } else {
+              finalPrice = base * (1 + offer.profitPercent / 100) + extras;
+            }
+            double profitAmount = finalPrice - total;
 
-              return GlassCard(
-                key: ValueKey(i),
-                margin:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                onTap: () async {
-                  await showDialog(
-                    context: context,
-                    builder: (_) => AlertDialog(
-                      title: const Text('Ndrysho/Fshij Dritaren/Derën'),
-                      content: const Text('A dëshironi ta fshini këtë?'),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            offer.items.removeAt(i);
-                            offer.lastEdited = DateTime.now();
-                            offer.save();
-                            setState(() {});
-                            Navigator.pop(context);
-                          },
-                          child: const Text('Fshij',
-                              style: TextStyle(color: AppColors.delete)),
-                        ),
-                        TextButton(
-                          onPressed: () async {
-                            Navigator.pop(context);
-                            await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => WindowDoorItemPage(
-                                  existingItem: item,
-                                  onSave: (editedItem) {
-                                    offer.items[i] = editedItem;
-                                    offer.lastEdited = DateTime.now();
-                                    offer.save();
-                                    setState(() {});
-                                  },
-                                ),
+            return GlassCard(
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              onTap: () async {
+                await showDialog(
+                  context: context,
+                  builder: (_) => AlertDialog(
+                    title: const Text("Ndrysho/Fshij Dritaren/Derën"),
+                    content: const Text("A dëshironi ta fshini këtë?"),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          offer.items.removeAt(i);
+                          offer.lastEdited = DateTime.now();
+                          offer.save();
+                          setState(() {});
+                          Navigator.pop(context);
+                        },
+                        child: const Text("Fshij",
+                            style: TextStyle(color: AppColors.delete)),
+                      ),
+                      TextButton(
+                        onPressed: () async {
+                          Navigator.pop(context);
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => WindowDoorItemPage(
+                                existingItem: item,
+                                onSave: (editedItem) {
+                                  offer.items[i] = editedItem;
+                                  offer.lastEdited = DateTime.now();
+                                  offer.save();
+                                  setState(() {});
+                                },
                               ),
-                            );
-                          },
-                          child: const Text('Ndrysho'),
-                        ),
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text('Anulo'),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-                child: ListTile(
-                  leading: item.photoPath != null
-                      ? (kIsWeb
-                          ? Image.network(item.photoPath!,
-                              width: 60, height: 60, fit: BoxFit.contain)
-                          : Image.file(File(item.photoPath!),
-                              width: 60, height: 60, fit: BoxFit.contain))
-                      : null,
-                  title: Text(item.name),
-                  subtitle: Text(
-                    'Madhësia: ${item.width} x ${item.height} mm\n'
-                    'Pcs: ${item.quantity}\n'
-                    'Profili: ${profileSet.name}\n'
-                    'Xhami: ${glass.name}\n'
-                    'Sektorët: ${item.horizontalSections}x${item.verticalSections}\n'
-                    'Krahët: ${item.openings}\n'
-                    'Gjerësitë: ${item.sectionWidths.join(', ')}\n'
-                    'Lartësitë: ${item.sectionHeights.join(', ')}\n'
-                    'V div: ${item.verticalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ')}\n'
-                    'H div: ${item.horizontalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ')}\n'
-                    'Kostoja e Profilit: €${profileCost.toStringAsFixed(2)}\n'
-                    'Kostoja e Xhamit: €${glassCost.toStringAsFixed(2)}\n'
-                    '${blind != null ? "Roleta: ${blind.name}, €${blindCost.toStringAsFixed(2)}\n" : ""}'
-                    '${mechanism != null ? "Mekanizmi: ${mechanism.name}, €${mechanismCost.toStringAsFixed(2)}\n" : ""}'
-                    '${accessory != null ? "Aksesori: ${accessory.name}, €${accessoryCost.toStringAsFixed(2)}\n" : ""}'
-                    '${item.extra1Price != null ? "${item.extra1Desc ?? 'Shtesa 1'}: €${item.extra1Price!.toStringAsFixed(2)}\n" : ""}'
-                    '${item.extra2Price != null ? "${item.extra2Desc ?? 'Shtesa 2'}: €${item.extra2Price!.toStringAsFixed(2)}\n" : ""}'
-                    'Kostoja (0%): €${total.toStringAsFixed(2)}\n'
-                    'Kostoja me Fitim: €${finalPrice.toStringAsFixed(2)}\n'
-                    'Fitimi: €${profitAmount.toStringAsFixed(2)}',
+                            ),
+                          );
+                        },
+                        child: const Text("Ndrysho"),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text("Anulo"),
+                      ),
+                    ],
                   ),
+                );
+              },
+              child: ListTile(
+                leading: item.photoPath != null
+                    ? (kIsWeb
+                        ? Image.network(item.photoPath!,
+                            width: 60, height: 60, fit: BoxFit.contain)
+                        : Image.file(File(item.photoPath!),
+                            width: 60, height: 60, fit: BoxFit.contain))
+                    : null,
+                title: Text(item.name),
+                subtitle: Text(
+                  'Madhësia: ${item.width} x ${item.height} mm\n'
+                  'Pcs: ${item.quantity}\n'
+                  'Profili: ${profileSet.name}\n'
+                  'Xhami: ${glass.name}\n'
+                  'Sektorët: ${item.horizontalSections}x${item.verticalSections}\n'
+                  'Krahët: ${item.openings}\n'
+                  'Gjerësitë: ${item.sectionWidths.join(', ')}\n'
+                  'Lartësitë: ${item.sectionHeights.join(', ')}\n'
+                  'V div: ${item.verticalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ')}\n'
+                  'H div: ${item.horizontalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ')}\n'
+                  'Kostoja e Profilit: €${profileCost.toStringAsFixed(2)}\n'
+                  'Kostoja e Xhamit: €${glassCost.toStringAsFixed(2)}\n'
+                  '${blind != null ? "Roleta: ${blind.name}, €${blindCost.toStringAsFixed(2)}\n" : ""}'
+                  '${mechanism != null ? "Mekanizmi: ${mechanism.name}, €${mechanismCost.toStringAsFixed(2)}\n" : ""}'
+                  '${accessory != null ? "Aksesori: ${accessory.name}, €${accessoryCost.toStringAsFixed(2)}\n" : ""}'
+                  '${item.extra1Price != null ? "${item.extra1Desc ?? 'Shtesa 1'}: €${item.extra1Price!.toStringAsFixed(2)}\n" : ""}'
+                  '${item.extra2Price != null ? "${item.extra2Desc ?? 'Shtesa 2'}: €${item.extra2Price!.toStringAsFixed(2)}\n" : ""}'
+                  'Kostoja (0%): €${total.toStringAsFixed(2)}\n'
+                  'Kostoja me Fitim: €${finalPrice.toStringAsFixed(2)}\n'
+                  'Fitimi: €${profitAmount.toStringAsFixed(2)}',
                 ),
-              ).animate().fadeIn(duration: 200.ms).slideY(begin: 0.3);
-            },
-          ),
+              ),
+            ).animate().fadeIn(duration: 200.ms).slideY(begin: 0.3);
+          }),
           const SizedBox(height: 16),
           Center(
             child: Builder(builder: (_) {
