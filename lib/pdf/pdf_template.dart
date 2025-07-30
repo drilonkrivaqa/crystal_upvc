@@ -1,0 +1,1 @@
+enum PdfTemplate { modern, classic }

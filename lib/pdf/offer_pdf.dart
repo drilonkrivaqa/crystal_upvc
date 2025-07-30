@@ -9,6 +9,7 @@ import 'dart:math' as math;
 import 'package:printing/printing.dart';
 import '../models.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'pdf_template.dart';
 
 Future<void> printOfferPdf({
   required Offer offer,
@@ -19,6 +20,8 @@ Future<void> printOfferPdf({
   required Box<Blind> blindBox,
   required Box<Mechanism> mechanismBox,
   required Box<Accessory> accessoryBox,
+  PdfTemplate template = PdfTemplate.modern,
+  bool separateSummaryPage = false,
 }) async {
   final fontData = await rootBundle.load('assets/fonts/Montserrat-Regular.ttf');
   final boldFontData =
@@ -38,6 +41,13 @@ Future<void> printOfferPdf({
   final doc = pw.Document(
     theme: pw.ThemeData.withFont(base: baseFont, bold: boldFont),
   );
+
+  final baseColor =
+      template == PdfTemplate.modern ? PdfColors.blue100 : PdfColors.grey300;
+  final headerColor =
+      template == PdfTemplate.modern ? PdfColors.blue800 : PdfColors.black;
+  final headerStyle =
+      pw.TextStyle(fontWeight: pw.FontWeight.bold, color: headerColor);
   final customer = offer.customerIndex < customerBox.length
       ? customerBox.getAt(offer.customerIndex)
       : null;
@@ -132,6 +142,98 @@ Future<void> printOfferPdf({
     }
   }
 
+  // This will hold the summary widgets so they can optionally be reused on
+  // a separate summary page.
+  late List<pw.Widget> summaryWidgets;
+
+  // Build the summary rows and widgets ahead of time so they can be reused
+  // in the optional summary page as well as appended to the main page.
+  final summaryRows = <pw.TableRow>[];
+  summaryRows.add(
+    pw.TableRow(children: [
+      pw.Padding(
+          padding: pw.EdgeInsets.all(4),
+          child: pw.Text('Çmimi i artikujve (€)')),
+      pw.Padding(
+          padding: pw.EdgeInsets.all(4),
+          child: pw.Text(currency.format(itemsFinal),
+              textAlign: pw.TextAlign.right)),
+    ]),
+  );
+  if (offer.extraCharges.isNotEmpty) {
+    for (final c in offer.extraCharges) {
+      summaryRows.add(
+        pw.TableRow(children: [
+          pw.Padding(
+              padding: pw.EdgeInsets.all(4),
+              child:
+                  pw.Text(c.description.isNotEmpty ? c.description : 'Ekstra')),
+          pw.Padding(
+              padding: pw.EdgeInsets.all(4),
+              child: pw.Text(currency.format(c.amount),
+                  textAlign: pw.TextAlign.right)),
+        ]),
+      );
+    }
+  }
+  if (offer.discountAmount != 0) {
+    summaryRows.add(
+      pw.TableRow(children: [
+        pw.Padding(
+            padding: pw.EdgeInsets.all(4), child: pw.Text('Shuma e zbritjes')),
+        pw.Padding(
+            padding: pw.EdgeInsets.all(4),
+            child: pw.Text('-' + currency.format(offer.discountAmount),
+                textAlign: pw.TextAlign.right)),
+      ]),
+    );
+  }
+  if (offer.discountPercent != 0) {
+    summaryRows.add(
+      pw.TableRow(children: [
+        pw.Padding(
+            padding: pw.EdgeInsets.all(4), child: pw.Text('Zbritje %')),
+        pw.Padding(
+            padding: pw.EdgeInsets.all(4),
+            child: pw.Text(
+                '${offer.discountPercent.toStringAsFixed(2)}% (-' +
+                    currency.format(percentAmount) +
+                    ')',
+                textAlign: pw.TextAlign.right)),
+      ]),
+    );
+  }
+  summaryRows.add(
+    pw.TableRow(children: [
+      pw.Padding(
+          padding: pw.EdgeInsets.all(4),
+          child: pw.Text('Çmimi total (€)', style: headerStyle)),
+      pw.Padding(
+          padding: pw.EdgeInsets.all(4),
+          child:
+              pw.Text(formattedFinalTotal, style: headerStyle, textAlign: pw.TextAlign.right)),
+    ]),
+  );
+
+  summaryWidgets = <pw.Widget>[];
+  summaryWidgets.add(
+    pw.Table(
+      border: pw.TableBorder.all(width: 0.5),
+      defaultVerticalAlignment: pw.TableCellVerticalAlignment.middle,
+      columnWidths: {
+        0: pw.FlexColumnWidth(),
+        1: pw.FixedColumnWidth(100),
+      },
+      children: summaryRows,
+    ),
+  );
+  if (offer.notes.isNotEmpty) {
+    summaryWidgets.add(pw.SizedBox(height: 8));
+    summaryWidgets.add(pw.Text('Vërejtje/Notes: ${offer.notes}'));
+  }
+
+  summaryWidgets.add(pw.SizedBox(height: 8));
+
   // ---- PHOTO CONTAINER SETTINGS ----
   final containerWidth = 150.0;
   final containerHeight = 110.0;
@@ -146,7 +248,7 @@ Future<void> printOfferPdf({
       header: (context) => context.pageNumber == 1
           ? pw.Container(
               padding: pw.EdgeInsets.all(8),
-              decoration: pw.BoxDecoration(color: PdfColors.blue100),
+              decoration: pw.BoxDecoration(color: baseColor),
               child: pw.Row(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
@@ -166,7 +268,7 @@ Future<void> printOfferPdf({
                               style: pw.TextStyle(
                                   fontSize: 16,
                                   fontWeight: pw.FontWeight.bold,
-                                  color: PdfColors.blue800)),
+                                  color: headerColor)),
                           pw.Text(
                               'Rr. Ilir Konushevci, Nr. 80, Kamenicë, Kosovë, 62000'),
                           pw.Text('+38344357639 | +38344268300'),
@@ -200,17 +302,16 @@ Future<void> printOfferPdf({
         ),
       ),
       build: (context) {
-        final headerStyle = pw.TextStyle(fontWeight: pw.FontWeight.bold);
 
-        final widgets = <pw.Widget>[];
-        widgets.add(pw.Header(
+        final itemWidgets = <pw.Widget>[];
+        itemWidgets.add(pw.Header(
             level: 0,
             child: pw.Text('Oferta $offerNumber',
                 style: pw.TextStyle(
                     fontSize: 18, fontWeight: pw.FontWeight.bold))));
-        widgets.add(pw.Text('Data: '
+        itemWidgets.add(pw.Text('Data: '
             '${DateFormat('yyyy-MM-dd').format(offer.lastEdited)}'));
-        widgets.add(pw.SizedBox(height: 12));
+        itemWidgets.add(pw.SizedBox(height: 12));
 
         final rows = <pw.TableRow>[];
         rows.add(
@@ -415,7 +516,7 @@ Future<void> printOfferPdf({
           );
         }
 
-        widgets.add(
+        itemWidgets.add(
           pw.Table(
             border: pw.TableBorder.all(width: 0.5),
             defaultVerticalAlignment: pw.TableCellVerticalAlignment.middle,
@@ -427,98 +528,37 @@ Future<void> printOfferPdf({
             children: rows,
           ),
         );
-        widgets.add(pw.SizedBox(height: 12));
+        itemWidgets.add(pw.SizedBox(height: 12));
 
-        final summaryRows = <pw.TableRow>[];
-        summaryRows.add(
-          pw.TableRow(children: [
-            pw.Padding(
-                padding: pw.EdgeInsets.all(4),
-                child: pw.Text('Çmimi i artikujve (€)')),
-            pw.Padding(
-                padding: pw.EdgeInsets.all(4),
-                child: pw.Text(currency.format(itemsFinal),
-                    textAlign: pw.TextAlign.right)),
-          ]),
-        );
-        if (offer.extraCharges.isNotEmpty) {
-          for (final c in offer.extraCharges) {
-            summaryRows.add(
-              pw.TableRow(children: [
-                pw.Padding(
-                    padding: pw.EdgeInsets.all(4),
-                    child: pw.Text(
-                        c.description.isNotEmpty ? c.description : 'Ekstra')),
-                pw.Padding(
-                    padding: pw.EdgeInsets.all(4),
-                    child: pw.Text(currency.format(c.amount),
-                        textAlign: pw.TextAlign.right)),
-              ]),
-            );
-          }
-        }
-        if (offer.discountAmount != 0) {
-          summaryRows.add(
-            pw.TableRow(children: [
-              pw.Padding(
-                  padding: pw.EdgeInsets.all(4),
-                  child: pw.Text('Shuma e zbritjes')),
-              pw.Padding(
-                  padding: pw.EdgeInsets.all(4),
-                  child: pw.Text('-' + currency.format(offer.discountAmount),
-                      textAlign: pw.TextAlign.right)),
-            ]),
-          );
-        }
-        if (offer.discountPercent != 0) {
-          summaryRows.add(
-            pw.TableRow(children: [
-              pw.Padding(
-                  padding: pw.EdgeInsets.all(4), child: pw.Text('Zbritje %')),
-              pw.Padding(
-                  padding: pw.EdgeInsets.all(4),
-                  child: pw.Text(
-                      '${offer.discountPercent.toStringAsFixed(2)}% (-' +
-                          currency.format(percentAmount) +
-                          ')',
-                      textAlign: pw.TextAlign.right)),
-            ]),
-          );
-        }
-        summaryRows.add(
-          pw.TableRow(children: [
-            pw.Padding(
-                padding: pw.EdgeInsets.all(4),
-                child: pw.Text('Çmimi total (€)', style: headerStyle)),
-            pw.Padding(
-                padding: pw.EdgeInsets.all(4),
-                child: pw.Text(formattedFinalTotal,
-                    style: headerStyle, textAlign: pw.TextAlign.right)),
-          ]),
-        );
-
-        widgets.add(
-          pw.Table(
-            border: pw.TableBorder.all(width: 0.5),
-            defaultVerticalAlignment: pw.TableCellVerticalAlignment.middle,
-            columnWidths: {
-              0: pw.FlexColumnWidth(),
-              1: pw.FixedColumnWidth(100),
-            },
-            children: summaryRows,
-          ),
-        );
-        if (offer.notes.isNotEmpty) {
-          widgets.add(pw.SizedBox(height: 8));
-          widgets.add(pw.Text('Vërejtje/Notes: ${offer.notes}'));
-        }
-
-        widgets.add(pw.SizedBox(height: 8));
-
-        return widgets;
+        return [
+          ...itemWidgets,
+          if (!separateSummaryPage) ...summaryWidgets
+        ];
       },
     ),
   );
+
+  if (separateSummaryPage) {
+    doc.addPage(
+      pw.MultiPage(
+        pageFormat: PdfPageFormat.a4,
+        margin: pw.EdgeInsets.all(24),
+        header: (context) => pw.Container(
+          padding: pw.EdgeInsets.all(8),
+          decoration: pw.BoxDecoration(color: baseColor),
+          child: pw.Text('Përmbledhje', style: pw.TextStyle(color: headerColor)),
+        ),
+        footer: (context) => pw.Align(
+          alignment: pw.Alignment.centerRight,
+          child: pw.Text(
+            'Page ${context.pageNumber} / ${context.pagesCount}',
+            style: pw.TextStyle(fontSize: 12),
+          ),
+        ),
+        build: (context) => summaryWidgets,
+      ),
+    );
+  }
 
   try {
     await Printing.layoutPdf(
