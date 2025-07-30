@@ -10,6 +10,8 @@ import 'package:printing/printing.dart';
 import '../models.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
+enum PdfTemplate { classic, modern }
+
 Future<void> printOfferPdf({
   required Offer offer,
   required int offerNumber,
@@ -19,6 +21,7 @@ Future<void> printOfferPdf({
   required Box<Blind> blindBox,
   required Box<Mechanism> mechanismBox,
   required Box<Accessory> accessoryBox,
+  PdfTemplate template = PdfTemplate.classic,
 }) async {
   final fontData = await rootBundle.load('assets/fonts/Montserrat-Regular.ttf');
   final boldFontData =
@@ -143,62 +146,88 @@ Future<void> printOfferPdf({
     pw.MultiPage(
       pageFormat: PdfPageFormat.a4,
       margin: pw.EdgeInsets.all(24),
-      header: (context) => context.pageNumber == 1
-          ? pw.Container(
-              padding: pw.EdgeInsets.all(8),
-              decoration: pw.BoxDecoration(color: PdfColors.blue100),
-              child: pw.Row(
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                children: [
-                  pw.Row(
+      header: (context) {
+        if (template == PdfTemplate.classic) {
+          return context.pageNumber == 1
+              ? pw.Container(
+                  padding: pw.EdgeInsets.all(8),
+                  decoration: pw.BoxDecoration(color: PdfColors.blue100),
+                  child: pw.Row(
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                     children: [
-                      if (logoImage != null)
-                        pw.Padding(
-                          padding: pw.EdgeInsets.only(right: 8),
-                          child: pw.Image(logoImage!, width: 48, height: 48),
-                        ),
-                      pw.Column(
+                      pw.Row(
                         crossAxisAlignment: pw.CrossAxisAlignment.start,
                         children: [
-                          pw.Text('Toni Al-Pvc',
-                              style: pw.TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: pw.FontWeight.bold,
-                                  color: PdfColors.blue800)),
-                          pw.Text(
-                              'Rr. Ilir Konushevci, Nr. 80, Kamenicë, Kosovë, 62000'),
-                          pw.Text('+38344357639 | +38344268300'),
-                          pw.Text('www.tonialpvc.com | tonialpvc@gmail.com'),
+                          if (logoImage != null)
+                            pw.Padding(
+                              padding: pw.EdgeInsets.only(right: 8),
+                              child:
+                                  pw.Image(logoImage!, width: 48, height: 48),
+                            ),
+                          pw.Column(
+                            crossAxisAlignment: pw.CrossAxisAlignment.start,
+                            children: [
+                              pw.Text('Toni Al-Pvc',
+                                  style: pw.TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: pw.FontWeight.bold,
+                                      color: PdfColors.blue800)),
+                              pw.Text(
+                                  'Rr. Ilir Konushevci, Nr. 80, Kamenicë, Kosovë, 62000'),
+                              pw.Text('+38344357639 | +38344268300'),
+                              pw.Text('www.tonialpvc.com | tonialpvc@gmail.com'),
+                            ],
+                          ),
                         ],
                       ),
+                      if (customer != null)
+                        pw.Column(
+                          crossAxisAlignment: pw.CrossAxisAlignment.start,
+                          children: [
+                            pw.Text('Klienti',
+                                style: pw.TextStyle(
+                                    fontWeight: pw.FontWeight.bold)),
+                            pw.Text(customer.name),
+                            pw.Text(customer.address),
+                            pw.Text(customer.phone),
+                            pw.Text(customer.email),
+                          ],
+                        ),
                     ],
                   ),
-                  if (customer != null)
-                    pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.start,
-                      children: [
-                        pw.Text('Klienti',
-                            style:
-                                pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                        pw.Text(customer.name),
-                        pw.Text(customer.address),
-                        pw.Text(customer.phone),
-                        pw.Text(customer.email),
-                      ],
-                    ),
-                ],
+                )
+              : pw.SizedBox();
+        } else {
+          return pw.Container(
+            padding: pw.EdgeInsets.symmetric(vertical: 8),
+            child: pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: pw.CrossAxisAlignment.center,
+              children: [
+                if (logoImage != null)
+                  pw.Image(logoImage!, width: 40, height: 40),
+                pw.Text('Oferta $offerNumber',
+                    style: pw.TextStyle(
+                        fontSize: 20,
+                        fontWeight: pw.FontWeight.bold,
+                        color: PdfColors.blue)),
+                pw.Text('Page ${context.pageNumber} / ${context.pagesCount}',
+                    style: pw.TextStyle(fontSize: 12))
+              ],
+            ),
+          );
+        }
+      },
+      footer: (context) => template == PdfTemplate.classic
+          ? pw.Align(
+              alignment: pw.Alignment.centerRight,
+              child: pw.Text(
+                'Page ${context.pageNumber} / ${context.pagesCount}',
+                style: pw.TextStyle(fontSize: 12),
               ),
             )
           : pw.SizedBox(),
-      footer: (context) => pw.Align(
-        alignment: pw.Alignment.centerRight,
-        child: pw.Text(
-          'Page ${context.pageNumber} / ${context.pagesCount}',
-          style: pw.TextStyle(fontSize: 12),
-        ),
-      ),
       build: (context) {
         final headerStyle = pw.TextStyle(fontWeight: pw.FontWeight.bold);
 
