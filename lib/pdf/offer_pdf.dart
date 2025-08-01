@@ -436,7 +436,7 @@ Future<void> printOfferPdf({
           pw.TableRow(children: [
             pw.Padding(
                 padding: pw.EdgeInsets.all(4),
-                child: pw.Text('Totali i artikujve (pcs)')),
+                child: pw.Text('Numri total i artikujve (pcs)')),
             pw.Padding(
                 padding: pw.EdgeInsets.all(4),
                 child: pw.Text('$totalPcs', textAlign: pw.TextAlign.right)),
