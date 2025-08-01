@@ -76,6 +76,7 @@ Future<void> printOfferPdf({
 
   final currency = NumberFormat.currency(locale: 'en_US', symbol: '€');
   double itemsFinal = 0;
+  int totalPcs = 0;
   for (final item in offer.items) {
     final profile = profileSetBox.getAt(item.profileSetIndex)!;
     final glass = glassBox.getAt(item.glassIndex)!;
@@ -117,6 +118,7 @@ Future<void> printOfferPdf({
     }
 
     itemsFinal += price;
+    totalPcs += item.quantity;
   }
   final extrasTotal =
       offer.extraCharges.fold<double>(0.0, (p, e) => p + e.amount);
@@ -430,6 +432,16 @@ Future<void> printOfferPdf({
         widgets.add(pw.SizedBox(height: 12));
 
         final summaryRows = <pw.TableRow>[];
+        summaryRows.add(
+          pw.TableRow(children: [
+            pw.Padding(
+                padding: pw.EdgeInsets.all(4),
+                child: pw.Text('Totali i artikujve (pcs)')),
+            pw.Padding(
+                padding: pw.EdgeInsets.all(4),
+                child: pw.Text('$totalPcs', textAlign: pw.TextAlign.right)),
+          ]),
+        );
         summaryRows.add(
           pw.TableRow(children: [
             pw.Padding(
