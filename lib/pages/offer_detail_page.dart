@@ -330,6 +330,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
             child: Builder(builder: (_) {
               double itemsBase = 0;
               double itemsFinal = 0;
+              int totalPcs = 0;
               for (var item in offer.items) {
                 final profileSet = profileSetBox.getAt(item.profileSetIndex)!;
                 final glass = glassBox.getAt(item.glassIndex)!;
@@ -375,6 +376,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 }
                 itemsBase += total;
                 itemsFinal += finalPrice;
+                totalPcs += item.quantity;
               }
               double extrasTotal =
                   offer.extraCharges.fold(0, (p, e) => p + e.amount);
@@ -385,6 +387,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
               double finalTotal = subtotal - percentAmount;
               double profitTotal = finalTotal - baseTotal;
               String summary =
+                  'Totali i artikujve: $totalPcs pcs\n';
+              summary +=
                   'Totali pa Fitim (0%): €${baseTotal.toStringAsFixed(2)}\n';
               for (var charge in offer.extraCharges) {
                 summary +=
