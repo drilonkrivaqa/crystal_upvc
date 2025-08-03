@@ -67,9 +67,9 @@ class ProfileSetAdapter extends TypeAdapter<ProfileSet> {
       priceAdapter: fields[4] as double,
       priceLlajsne: fields[5] as double,
       pipeLength: fields[6] as int,
-      hekriOffsetL: fields[7] as int? ?? 0,
-      hekriOffsetZ: fields[8] as int? ?? 0,
-      hekriOffsetT: fields[9] as int? ?? 0,
+      hekriOffsetL: fields[7] as int,
+      hekriOffsetZ: fields[8] as int,
+      hekriOffsetT: fields[9] as int,
     );
   }
 
