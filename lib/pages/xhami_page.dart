@@ -92,14 +92,11 @@ class _XhamiPageState extends State<XhamiPage> {
                   child: DropdownButton<int?>(
                     value: selectedOffer,
                     items: [for (int i = 0; i < offerBox.length; i++) i]
-                        .map((i) {
-                          final offer = offerBox.getAt(i);
-                          final num = offer?.offerNumber ?? i + 1;
-                          return DropdownMenuItem(
-                            value: i,
-                            child: Text('Oferta $num'),
-                          );
-                        }).toList(),
+                        .map((i) => DropdownMenuItem(
+                              value: i,
+                              child: Text('Oferta ${i + 1}'),
+                            ))
+                        .toList(),
                     onChanged: (val) => setState(() => selectedOffer = val),
                   ),
                 ),

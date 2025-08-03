@@ -425,14 +425,13 @@ class OfferAdapter extends TypeAdapter<Offer> {
       discountAmount: fields[7] as double,
       notes: fields[8] as String,
       lastEdited: fields[9] as DateTime?,
-      offerNumber: fields[10] as int?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Offer obj) {
     writer
-      ..writeByte(11)
+      ..writeByte(10)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -452,9 +451,7 @@ class OfferAdapter extends TypeAdapter<Offer> {
       ..writeByte(8)
       ..write(obj.notes)
       ..writeByte(9)
-      ..write(obj.lastEdited)
-      ..writeByte(10)
-      ..write(obj.offerNumber);
+      ..write(obj.lastEdited);
   }
 
   @override
