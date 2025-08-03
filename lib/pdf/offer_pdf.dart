@@ -149,8 +149,11 @@ Future<void> printOfferPdf({
       margin: pw.EdgeInsets.all(24),
       header: (context) => context.pageNumber == 1
           ? pw.Container(
-              padding: pw.EdgeInsets.all(8),
-              decoration: pw.BoxDecoration(color: PdfColors.blue100),
+              padding: pw.EdgeInsets.all(16),
+              decoration: pw.BoxDecoration(
+                color: PdfColors.blueGrey900,
+                borderRadius: pw.BorderRadius.circular(4),
+              ),
               child: pw.Row(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
@@ -170,11 +173,14 @@ Future<void> printOfferPdf({
                               style: pw.TextStyle(
                                   fontSize: 16,
                                   fontWeight: pw.FontWeight.bold,
-                                  color: PdfColors.blue800)),
+                                  color: PdfColors.white)),
                           pw.Text(
-                              'Rr. Ilir Konushevci, Nr. 80, Kamenicë, Kosovë, 62000'),
-                          pw.Text('+38344357639 | +38344268300'),
-                          pw.Text('www.tonialpvc.com | tonialpvc@gmail.com'),
+                              'Rr. Ilir Konushevci, Nr. 80, Kamenicë, Kosovë, 62000',
+                              style: pw.TextStyle(color: PdfColors.white)),
+                          pw.Text('+38344357639 | +38344268300',
+                              style: pw.TextStyle(color: PdfColors.white)),
+                          pw.Text('www.tonialpvc.com | tonialpvc@gmail.com',
+                              style: pw.TextStyle(color: PdfColors.white)),
                         ],
                       ),
                     ],
@@ -184,27 +190,35 @@ Future<void> printOfferPdf({
                       crossAxisAlignment: pw.CrossAxisAlignment.start,
                       children: [
                         pw.Text('Klienti',
-                            style:
-                                pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                        pw.Text(customer.name),
-                        pw.Text(customer.address),
-                        pw.Text(customer.phone),
-                        pw.Text(customer.email),
+                            style: pw.TextStyle(
+                                fontWeight: pw.FontWeight.bold,
+                                color: PdfColors.white)),
+                        pw.Text(customer.name,
+                            style: pw.TextStyle(color: PdfColors.white)),
+                        pw.Text(customer.address,
+                            style: pw.TextStyle(color: PdfColors.white)),
+                        pw.Text(customer.phone,
+                            style: pw.TextStyle(color: PdfColors.white)),
+                        pw.Text(customer.email,
+                            style: pw.TextStyle(color: PdfColors.white)),
                       ],
                     ),
                 ],
               ),
             )
           : pw.SizedBox(),
-      footer: (context) => pw.Align(
+      footer: (context) => pw.Container(
         alignment: pw.Alignment.centerRight,
+        margin: pw.EdgeInsets.only(top: 8),
         child: pw.Text(
           'Page ${context.pageNumber} / ${context.pagesCount}',
-          style: pw.TextStyle(fontSize: 12),
+          style: pw.TextStyle(fontSize: 12, color: PdfColors.grey600),
         ),
       ),
       build: (context) {
         final headerStyle = pw.TextStyle(fontWeight: pw.FontWeight.bold);
+        final tableHeaderStyle =
+            pw.TextStyle(fontWeight: pw.FontWeight.bold, color: PdfColors.white);
 
         final widgets = <pw.Widget>[];
         widgets.add(pw.Header(
@@ -219,19 +233,20 @@ Future<void> printOfferPdf({
         final rows = <pw.TableRow>[];
         rows.add(
           pw.TableRow(
-            decoration: pw.BoxDecoration(color: PdfColors.blueGrey200),
+            decoration: pw.BoxDecoration(color: PdfColors.blueGrey700),
             children: [
               pw.Padding(
                 padding: pw.EdgeInsets.all(4),
-                child: pw.Text('Foto', style: headerStyle),
+                child: pw.Text('Foto', style: tableHeaderStyle),
               ),
               pw.Padding(
                 padding: pw.EdgeInsets.all(4),
-                child: pw.Text('Detajet', style: headerStyle),
+                child: pw.Text('Detajet', style: tableHeaderStyle),
               ),
               pw.Padding(
                 padding: pw.EdgeInsets.all(4),
-                child: pw.Text('Çmimi', style: headerStyle),
+                child: pw.Text('Çmimi',
+                    style: tableHeaderStyle, textAlign: pw.TextAlign.right),
               ),
             ],
           ),
@@ -321,6 +336,8 @@ Future<void> printOfferPdf({
 
           rows.add(
             pw.TableRow(
+              decoration: pw.BoxDecoration(
+                  color: i.isEven ? PdfColors.white : PdfColors.grey100),
               children: [
                 pw.Padding(
                   padding: pw.EdgeInsets.all(1.0),
@@ -436,6 +453,8 @@ Future<void> printOfferPdf({
           ),
         );
         widgets.add(pw.SizedBox(height: 12));
+        widgets.add(pw.Divider());
+        widgets.add(pw.SizedBox(height: 8));
 
         final summaryRows = <pw.TableRow>[];
         summaryRows.add(
@@ -504,15 +523,18 @@ Future<void> printOfferPdf({
           );
         }
         summaryRows.add(
-          pw.TableRow(children: [
-            pw.Padding(
-                padding: pw.EdgeInsets.all(4),
-                child: pw.Text('Çmimi total (€)', style: headerStyle)),
-            pw.Padding(
-                padding: pw.EdgeInsets.all(4),
-                child: pw.Text(formattedFinalTotal,
-                    style: headerStyle, textAlign: pw.TextAlign.right)),
-          ]),
+          pw.TableRow(
+            decoration: pw.BoxDecoration(color: PdfColors.blueGrey700),
+            children: [
+              pw.Padding(
+                  padding: pw.EdgeInsets.all(4),
+                  child: pw.Text('Çmimi total (€)', style: tableHeaderStyle)),
+              pw.Padding(
+                  padding: pw.EdgeInsets.all(4),
+                  child: pw.Text(formattedFinalTotal,
+                      style: tableHeaderStyle, textAlign: pw.TextAlign.right)),
+            ],
+          ),
         );
 
         widgets.add(
