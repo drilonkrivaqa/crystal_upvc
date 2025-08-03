@@ -200,7 +200,8 @@ class _HekriPageState extends State<HekriPage> {
                       for (int i = 0; i < offerBox.length; i++)
                         DropdownMenuItem(
                           value: i,
-                          child: Text('Oferta ${i + 1}'),
+                          child: Text(
+                              'Oferta ${offerBox.getAt(i)?.offerNumber ?? i + 1}'),
                         )
                     ],
                     onChanged: (val) => setState(() => selectedOffer = val),
