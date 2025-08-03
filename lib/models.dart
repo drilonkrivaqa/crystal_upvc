@@ -12,12 +12,13 @@ class Customer extends HiveObject {
   @HiveField(2)
   String phone;
   @HiveField(3)
-  String email;
-  Customer(
-      {required this.name,
-      required this.address,
-      required this.phone,
-      required this.email});
+  String? email;
+  Customer({
+    required this.name,
+    required this.address,
+    required this.phone,
+    this.email = '',
+  });
 }
 
 // ProfileSet: full profile system (Trocal 88, Salamander, etc)

@@ -11,6 +11,7 @@ import 'pages/offers_page.dart';
 import 'pages/production_page.dart';
 import 'theme/app_theme.dart';
 import 'pages/welcome_page.dart';
+import 'data_migrations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,19 +27,35 @@ void main() async {
   Hive.registerAdapter(OfferAdapter());
   Hive.registerAdapter(ExtraChargeAdapter());
 
-  await Hive.openBox<Customer>('customers');
-  await Hive.openBox<ProfileSet>('profileSets');
-  await Hive.openBox<Glass>('glasses');
-  await Hive.openBox<Blind>('blinds');
-  await Hive.openBox<Mechanism>('mechanisms');
-  await Hive.openBox<Accessory>('accessories');
-  await Hive.openBox<Offer>('offers');
+  await runMigrations();
 
-  runApp(const MyApp());
+  final failedBoxes = <String>[];
+
+  Future<void> openBoxSafe<T>(String name) async {
+    try {
+      await Hive.openBox<T>(name);
+    } catch (e) {
+      failedBoxes.add(name);
+      debugPrint('Error opening box $name: $e');
+    }
+  }
+
+  await openBoxSafe<Customer>('customers');
+  await openBoxSafe<ProfileSet>('profileSets');
+  await openBoxSafe<Glass>('glasses');
+  await openBoxSafe<Blind>('blinds');
+  await openBoxSafe<Mechanism>('mechanisms');
+  await openBoxSafe<Accessory>('accessories');
+  await openBoxSafe<Offer>('offers');
+
+  final hasBoxErrors = failedBoxes.isNotEmpty;
+
+  runApp(MyApp(hasBoxErrors: hasBoxErrors));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool hasBoxErrors;
+  const MyApp({super.key, required this.hasBoxErrors});
 
   @override
   Widget build(BuildContext context) {
@@ -46,10 +63,23 @@ class MyApp extends StatelessWidget {
       title: 'TONI AL-PVC',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
-      home: const WelcomePage(),
+      home: hasBoxErrors ? const _BoxErrorPage() : const WelcomePage(),
       routes: {
         '/home': (_) => const HomePage(),
       },
+    );
+  }
+}
+
+class _BoxErrorPage extends StatelessWidget {
+  const _BoxErrorPage();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(
+        child: Text('Failed to load local data. Please contact support.'),
+      ),
     );
   }
 }
