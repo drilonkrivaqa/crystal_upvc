@@ -35,6 +35,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   late TextEditingController extra2Controller;
   late TextEditingController extra1DescController;
   late TextEditingController extra2DescController;
+  late TextEditingController notesController;
 
   int profileSetIndex = 0;
   int glassIndex = 0;
@@ -48,6 +49,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   double? extra2Price;
   String? extra1Desc;
   String? extra2Desc;
+  String? notes;
   int verticalSections = 1;
   int horizontalSections = 1;
   List<bool> fixedSectors = [false];
@@ -89,6 +91,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
         TextEditingController(text: widget.existingItem?.extra1Desc ?? '');
     extra2DescController =
         TextEditingController(text: widget.existingItem?.extra2Desc ?? '');
+    notesController =
+        TextEditingController(text: widget.existingItem?.notes ?? '');
 
     profileSetIndex = widget.existingItem?.profileSetIndex ?? 0;
     glassIndex = widget.existingItem?.glassIndex ?? 0;
@@ -102,6 +106,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     extra2Price = widget.existingItem?.extra2Price;
     extra1Desc = widget.existingItem?.extra1Desc;
     extra2Desc = widget.existingItem?.extra2Desc;
+    notes = widget.existingItem?.notes;
     verticalSections = widget.existingItem?.verticalSections ?? 1;
     horizontalSections = widget.existingItem?.horizontalSections ?? 1;
     fixedSectors =
@@ -339,6 +344,13 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                           ],
                         ),
                         const SizedBox(height: 12),
+                        TextField(
+                          controller: notesController,
+                          decoration:
+                              const InputDecoration(labelText: 'Shënime'),
+                          maxLines: 2,
+                        ),
+                        const SizedBox(height: 12),
                         DropdownButtonFormField<int?>(
                           value: mechanismIndex,
                           decoration: const InputDecoration(
@@ -450,6 +462,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
         extra2Price: double.tryParse(extra2Controller.text),
         extra1Desc: extra1DescController.text,
         extra2Desc: extra2DescController.text,
+        notes: notesController.text,
       ),
     );
     return true;

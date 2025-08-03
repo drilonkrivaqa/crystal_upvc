@@ -227,7 +227,9 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 : 0;
             double accessoryCost =
                 (accessory != null) ? accessory.price * item.quantity : 0;
-            double extras = (item.extra1Price ?? 0) + (item.extra2Price ?? 0);
+            double extras =
+                ((item.extra1Price ?? 0) + (item.extra2Price ?? 0)) *
+                    item.quantity;
 
             double base = profileCost +
                 glassCost +
@@ -316,8 +318,9 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                   '${blind != null ? "Roleta: ${blind.name}, €${blindCost.toStringAsFixed(2)}\n" : ""}'
                   '${mechanism != null ? "Mekanizmi: ${mechanism.name}, €${mechanismCost.toStringAsFixed(2)}\n" : ""}'
                   '${accessory != null ? "Aksesori: ${accessory.name}, €${accessoryCost.toStringAsFixed(2)}\n" : ""}'
-                  '${item.extra1Price != null ? "${item.extra1Desc ?? 'Shtesa 1'}: €${item.extra1Price!.toStringAsFixed(2)}\n" : ""}'
-                  '${item.extra2Price != null ? "${item.extra2Desc ?? 'Shtesa 2'}: €${item.extra2Price!.toStringAsFixed(2)}\n" : ""}'
+                  '${item.extra1Price != null ? "${item.extra1Desc ?? 'Shtesa 1'}: €${(item.extra1Price! * item.quantity).toStringAsFixed(2)}\n" : ""}'
+                  '${item.extra2Price != null ? "${item.extra2Desc ?? 'Shtesa 2'}: €${(item.extra2Price! * item.quantity).toStringAsFixed(2)}\n" : ""}'
+                  '${item.notes != null && item.notes!.isNotEmpty ? "Shënime: ${item.notes!}\n" : ""}'
                   'Kostoja (0%): €${total.toStringAsFixed(2)}\n'
                   'Kostoja me Fitim: €${finalPrice.toStringAsFixed(2)}\n'
                   'Fitimi: €${profitAmount.toStringAsFixed(2)}',
@@ -361,7 +364,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 double accessoryCost =
                     (accessory != null) ? accessory.price * item.quantity : 0;
                 double extras =
-                    (item.extra1Price ?? 0) + (item.extra2Price ?? 0);
+                    ((item.extra1Price ?? 0) + (item.extra2Price ?? 0)) *
+                        item.quantity;
                 double base = profileCost +
                     glassCost +
                     blindCost +
