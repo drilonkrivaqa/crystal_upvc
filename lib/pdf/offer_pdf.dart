@@ -188,7 +188,7 @@ Future<void> printOfferPdf({
                         pw.Text(customer.name),
                         pw.Text(customer.address),
                         pw.Text(customer.phone),
-                        pw.Text(customer.email),
+                        pw.Text(customer.email ?? ''),
                       ],
                     ),
                 ],
