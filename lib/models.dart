@@ -147,6 +147,8 @@ class WindowDoorItem extends HiveObject {
   List<bool> horizontalAdapters; // true = adapter, false = T profile
   @HiveField(23)
   Uint8List? photoBytes; // raw image bytes
+  @HiveField(24)
+  String? notes; // optional notes for this item
 
   WindowDoorItem({
     required this.name,
@@ -166,6 +168,7 @@ class WindowDoorItem extends HiveObject {
     this.extra2Price,
     this.extra1Desc,
     this.extra2Desc,
+    this.notes,
     this.verticalSections = 1,
     this.horizontalSections = 1,
     List<bool>? fixedSectors,

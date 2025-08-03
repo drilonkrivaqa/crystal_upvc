@@ -105,7 +105,9 @@ Future<void> printOfferPdf({
         mechanism != null ? mechanism.price * item.quantity * item.openings : 0;
     final accessoryCost =
         accessory != null ? accessory.price * item.quantity : 0;
-    final extras = (item.extra1Price ?? 0) + (item.extra2Price ?? 0);
+          final extras =
+              ((item.extra1Price ?? 0) + (item.extra2Price ?? 0)) *
+                  item.quantity;
 
     final base =
         profileCost + glassCost + blindCost + mechanismCost + accessoryCost;
@@ -265,7 +267,9 @@ Future<void> printOfferPdf({
               : 0;
           final accessoryCost =
               accessory != null ? accessory.price * item.quantity : 0;
-          final extras = (item.extra1Price ?? 0) + (item.extra2Price ?? 0);
+          final extras =
+              ((item.extra1Price ?? 0) + (item.extra2Price ?? 0)) *
+                  item.quantity;
 
           final base = profileCost +
               glassCost +
@@ -300,10 +304,12 @@ Future<void> printOfferPdf({
               pw.Text('Aksesori: ${accessory.name} = €${accessory.price}'),
             if (item.extra1Price != null)
               pw.Text(
-                  '${item.extra1Desc ?? 'Ekstra 1'}: €${item.extra1Price!.toStringAsFixed(2)}'),
+                  '${item.extra1Desc ?? 'Ekstra 1'}: €${(item.extra1Price! * item.quantity).toStringAsFixed(2)}'),
             if (item.extra2Price != null)
               pw.Text(
-                  '${item.extra2Desc ?? 'Ekstra 2'}: €${item.extra2Price!.toStringAsFixed(2)}'),
+                  '${item.extra2Desc ?? 'Ekstra 2'}: €${(item.extra2Price! * item.quantity).toStringAsFixed(2)}'),
+            if (item.notes != null && item.notes!.isNotEmpty)
+              pw.Text('Shënime: ${item.notes}'),
             pw.Text(
                 'Sektorët: ${item.horizontalSections}x${item.verticalSections}'),
             pw.Text('Hapje: ${item.openings}'),
