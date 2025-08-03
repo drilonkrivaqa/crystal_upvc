@@ -310,17 +310,21 @@ class Offer extends HiveObject {
   String notes;
   @HiveField(9)
   DateTime lastEdited;
+  @HiveField(10)
+  int offerNumber;
   Offer({
     required this.id,
     required this.customerIndex,
     required this.date,
     required this.items,
+    int? offerNumber,
     this.profitPercent = 0,
     List<ExtraCharge>? extraCharges,
     this.discountPercent = 0,
     this.discountAmount = 0,
     this.notes = '',
     DateTime? lastEdited,
-  })  : lastEdited = lastEdited ?? DateTime.now(),
+  })  : offerNumber = offerNumber ?? 0,
+        lastEdited = lastEdited ?? DateTime.now(),
         extraCharges = extraCharges ?? [];
 }
