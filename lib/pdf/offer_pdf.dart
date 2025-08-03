@@ -301,7 +301,7 @@ Future<void> printOfferPdf({
             if (blind != null) pw.Text('Roleta: ${blind.name}'),
             if (mechanism != null) pw.Text('Mekanizmi: ${mechanism.name}'),
             if (accessory != null)
-              pw.Text('Aksesori: ${accessory.name} = €${accessory.price}'),
+              pw.Text('Aksesori: ${accessory.name}'),
             if (item.extra1Price != null)
               pw.Text(
                   '${item.extra1Desc ?? 'Ekstra 1'}: €${(item.extra1Price! * item.quantity).toStringAsFixed(2)}'),
