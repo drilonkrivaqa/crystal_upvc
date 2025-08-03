@@ -8,7 +8,7 @@ import 'models.dart';
 import 'pages/catalogs_page.dart';
 import 'pages/customers_page.dart';
 import 'pages/offers_page.dart';
-import 'pages/cutting_optimizer_page.dart';
+import 'pages/production_page.dart';
 import 'theme/app_theme.dart';
 import 'pages/welcome_page.dart';
 
@@ -64,7 +64,7 @@ class HomePage extends StatelessWidget {
           Icons.auto_awesome_motion_outlined, 'Çmimore', const CatalogsPage()),
       _NavItem(Icons.people_outline, 'Klientët', const CustomersPage()),
       _NavItem(Icons.description_outlined, 'Ofertat', const OffersPage()),
-      _NavItem(Icons.cut, 'Prerjet', const CuttingOptimizerPage()),
+      _NavItem(Icons.build, 'Prodhimi', const ProductionPage()),
     ];
 
     return Scaffold(
