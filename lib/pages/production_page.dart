@@ -22,8 +22,7 @@ class ProductionPage extends StatelessWidget {
               label: 'Prerjet',
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(
-                    builder: (_) => const CuttingOptimizerPage()),
+                MaterialPageRoute(builder: (_) => const CuttingOptimizerPage()),
               ),
             ),
             _ProductionButton(

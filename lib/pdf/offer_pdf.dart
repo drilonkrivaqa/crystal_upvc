@@ -105,9 +105,8 @@ Future<void> printOfferPdf({
         mechanism != null ? mechanism.price * item.quantity * item.openings : 0;
     final accessoryCost =
         accessory != null ? accessory.price * item.quantity : 0;
-          final extras =
-              ((item.extra1Price ?? 0) + (item.extra2Price ?? 0)) *
-                  item.quantity;
+    final extras =
+        ((item.extra1Price ?? 0) + (item.extra2Price ?? 0)) * item.quantity;
 
     final base =
         profileCost + glassCost + blindCost + mechanismCost + accessoryCost;
@@ -267,9 +266,8 @@ Future<void> printOfferPdf({
               : 0;
           final accessoryCost =
               accessory != null ? accessory.price * item.quantity : 0;
-          final extras =
-              ((item.extra1Price ?? 0) + (item.extra2Price ?? 0)) *
-                  item.quantity;
+          final extras = ((item.extra1Price ?? 0) + (item.extra2Price ?? 0)) *
+              item.quantity;
 
           final base = profileCost +
               glassCost +
@@ -300,8 +298,7 @@ Future<void> printOfferPdf({
             pw.Text('Xhami: ${glass.name}'),
             if (blind != null) pw.Text('Roleta: ${blind.name}'),
             if (mechanism != null) pw.Text('Mekanizmi: ${mechanism.name}'),
-            if (accessory != null)
-              pw.Text('Aksesori: ${accessory.name}'),
+            if (accessory != null) pw.Text('Aksesori: ${accessory.name}'),
             if (item.extra1Price != null)
               pw.Text(
                   '${item.extra1Desc ?? 'Ekstra 1'}: €${(item.extra1Price! * item.quantity).toStringAsFixed(2)}'),

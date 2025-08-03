@@ -49,12 +49,10 @@ class _HekriPageState extends State<HekriPage> {
       final blind = item.blindIndex != null
           ? Hive.box<Blind>('blinds').getAt(item.blindIndex!)
           : null;
-      final itemPieces =
-          _pieceLengths(item, boxHeight: blind?.boxHeight ?? 0);
+      final itemPieces = _pieceLengths(item, boxHeight: blind?.boxHeight ?? 0);
 
       for (int q = 0; q < item.quantity; q++) {
-        final list =
-            piecesMap.putIfAbsent(item.profileSetIndex, () => <int>[]);
+        final list = piecesMap.putIfAbsent(item.profileSetIndex, () => <int>[]);
         for (final len in itemPieces[PieceType.l]!) {
           final hLen = max(0, len - profile.hekriOffsetL);
           if (hLen > 0) list.add(hLen);
@@ -189,7 +187,7 @@ class _HekriPageState extends State<HekriPage> {
               child: ElevatedButton.icon(
                 onPressed: _openProfiles,
                 icon: const Icon(Icons.settings),
-                label: const Text('Profili të Regjistruar'),
+                label: const Text('Profilat e Regjistruar'),
               ),
             ),
             const SizedBox(height: 16),
@@ -231,8 +229,7 @@ class _HekriPageState extends State<HekriPage> {
                     children: [
                       Text(profile?.name ?? 'Profili'),
                       const SizedBox(height: 8),
-                      Text(
-                          'Nevojiten ${(needed / 1000).toStringAsFixed(2)} m, '
+                      Text('Nevojiten ${(needed / 1000).toStringAsFixed(2)} m, '
                           'Pipa: ${bars.length}, '
                           'Humbje ${(loss / 1000).toStringAsFixed(2)} m'),
                       for (int i = 0; i < bars.length; i++)

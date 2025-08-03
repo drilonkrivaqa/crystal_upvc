@@ -117,8 +117,8 @@ class _XhamiPageState extends State<XhamiPage> {
                     children: [
                       Text(glass?.name ?? 'Xhami'),
                       const SizedBox(height: 8),
-                      ...e.value.entries.map((entry) => Text(
-                          '${entry.key} mm - ${entry.value} copë')),
+                      ...e.value.entries.map((entry) =>
+                          Text('${entry.key} mm - ${entry.value} copë')),
                     ],
                   ),
                 );
@@ -129,4 +129,3 @@ class _XhamiPageState extends State<XhamiPage> {
     );
   }
 }
-

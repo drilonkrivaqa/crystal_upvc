@@ -225,13 +225,11 @@ class WindowDoorItem extends HiveObject {
           sashLength += 2 * (sashW + sashH) / 1000.0 * set.priceZ;
           final beadW = (sashW - 90).clamp(0, sashW);
           final beadH = (sashH - 90).clamp(0, sashH);
-          glazingBeadLength +=
-              2 * (beadW + beadH) / 1000.0 * set.priceLlajsne;
+          glazingBeadLength += 2 * (beadW + beadH) / 1000.0 * set.priceLlajsne;
         } else {
           final beadW = (w - 90).clamp(0, w);
           final beadH = (h - 90).clamp(0, h);
-          glazingBeadLength +=
-              2 * (beadW + beadH) / 1000.0 * set.priceLlajsne;
+          glazingBeadLength += 2 * (beadW + beadH) / 1000.0 * set.priceLlajsne;
         }
       }
     }

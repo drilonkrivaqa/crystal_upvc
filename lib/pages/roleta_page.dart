@@ -82,8 +82,8 @@ class _RoletaPageState extends State<RoletaPage> {
                     children: [
                       Text(blind?.name ?? 'Roleta'),
                       const SizedBox(height: 8),
-                      ...e.value.entries.map((entry) => Text(
-                          '${entry.key} mm - ${entry.value} copë')),
+                      ...e.value.entries.map((entry) =>
+                          Text('${entry.key} mm - ${entry.value} copë')),
                     ],
                   ),
                 );
@@ -94,4 +94,3 @@ class _RoletaPageState extends State<RoletaPage> {
     );
   }
 }
-

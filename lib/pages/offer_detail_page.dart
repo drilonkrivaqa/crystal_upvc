@@ -390,8 +390,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
               double percentAmount = subtotal * (offer.discountPercent / 100);
               double finalTotal = subtotal - percentAmount;
               double profitTotal = finalTotal - baseTotal;
-              String summary =
-                  'Numri total i artikujve: $totalPcs pcs\n';
+              String summary = 'Numri total i artikujve: $totalPcs pcs\n';
               summary +=
                   'Totali pa Fitim (0%): €${baseTotal.toStringAsFixed(2)}\n';
               for (var charge in offer.extraCharges) {
