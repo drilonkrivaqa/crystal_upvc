@@ -3,6 +3,9 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../theme/app_background.dart';
 import '../widgets/glass_card.dart';
 import 'cutting_optimizer_page.dart';
+import 'xhami_page.dart';
+import 'roleta_page.dart';
+import 'hekri_page.dart';
 
 class ProductionPage extends StatelessWidget {
   const ProductionPage({super.key});
@@ -21,6 +24,27 @@ class ProductionPage extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                     builder: (_) => const CuttingOptimizerPage()),
+              ),
+            ),
+            _ProductionButton(
+              label: 'Xhami',
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const XhamiPage()),
+              ),
+            ),
+            _ProductionButton(
+              label: 'Roleta',
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const RoletaPage()),
+              ),
+            ),
+            _ProductionButton(
+              label: 'Hekri',
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const HekriPage()),
               ),
             ),
           ],
