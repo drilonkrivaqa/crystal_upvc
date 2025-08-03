@@ -235,13 +235,17 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                         const SizedBox(height: 12),
                         DropdownButtonFormField<int>(
                           value: profileSetIndex,
+                          isExpanded: true,
                           decoration:
                               const InputDecoration(labelText: 'Profili'),
                           items: [
                             for (int i = 0; i < profileSetBox.length; i++)
                               DropdownMenuItem<int>(
                                 value: i,
-                                child: Text(profileSetBox.getAt(i)?.name ?? ''),
+                                child: Text(
+                                  profileSetBox.getAt(i)?.name ?? '',
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
                           ],
                           onChanged: (val) =>
@@ -250,12 +254,16 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                         const SizedBox(height: 12),
                         DropdownButtonFormField<int>(
                           value: glassIndex,
+                          isExpanded: true,
                           decoration: const InputDecoration(labelText: 'Xhami'),
                           items: [
                             for (int i = 0; i < glassBox.length; i++)
                               DropdownMenuItem<int>(
                                 value: i,
-                                child: Text(glassBox.getAt(i)?.name ?? ''),
+                                child: Text(
+                                  glassBox.getAt(i)?.name ?? '',
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
                           ],
                           onChanged: (val) =>
@@ -353,15 +361,23 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                         const SizedBox(height: 12),
                         DropdownButtonFormField<int?>(
                           value: mechanismIndex,
+                          isExpanded: true,
                           decoration: const InputDecoration(
                               labelText: 'Mekanizmi (Opsional)'),
                           items: [
                             const DropdownMenuItem<int?>(
-                                value: null, child: Text('Asnjë')),
+                                value: null,
+                                child: Text(
+                                  'Asnjë',
+                                  overflow: TextOverflow.ellipsis,
+                                )),
                             for (int i = 0; i < mechanismBox.length; i++)
                               DropdownMenuItem<int>(
                                 value: i,
-                                child: Text(mechanismBox.getAt(i)?.name ?? ''),
+                                child: Text(
+                                  mechanismBox.getAt(i)?.name ?? '',
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
                           ],
                           onChanged: (val) =>
@@ -370,15 +386,23 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                         const SizedBox(height: 12),
                         DropdownButtonFormField<int?>(
                           value: blindIndex,
+                          isExpanded: true,
                           decoration: const InputDecoration(
                               labelText: 'Roleta (Opsional)'),
                           items: [
                             const DropdownMenuItem<int?>(
-                                value: null, child: Text('Asnjë')),
+                                value: null,
+                                child: Text(
+                                  'Asnjë',
+                                  overflow: TextOverflow.ellipsis,
+                                )),
                             for (int i = 0; i < blindBox.length; i++)
                               DropdownMenuItem<int>(
                                 value: i,
-                                child: Text(blindBox.getAt(i)?.name ?? ''),
+                                child: Text(
+                                  blindBox.getAt(i)?.name ?? '',
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
                           ],
                           onChanged: (val) => setState(() => blindIndex = val),
@@ -386,15 +410,23 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                         const SizedBox(height: 12),
                         DropdownButtonFormField<int?>(
                           value: accessoryIndex,
+                          isExpanded: true,
                           decoration: const InputDecoration(
                               labelText: 'Aksesor (Opsional)'),
                           items: [
                             const DropdownMenuItem<int?>(
-                                value: null, child: Text('Asnjë')),
+                                value: null,
+                                child: Text(
+                                  'Asnjë',
+                                  overflow: TextOverflow.ellipsis,
+                                )),
                             for (int i = 0; i < accessoryBox.length; i++)
                               DropdownMenuItem<int>(
                                 value: i,
-                                child: Text(accessoryBox.getAt(i)?.name ?? ''),
+                                child: Text(
+                                  accessoryBox.getAt(i)?.name ?? '',
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
                           ],
                           onChanged: (val) =>
