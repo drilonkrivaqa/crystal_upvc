@@ -179,17 +179,20 @@ class _HekriPageState extends State<HekriPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Hekri'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: _openProfiles,
-          ),
-        ],
       ),
       body: AppBackground(
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: ElevatedButton.icon(
+                onPressed: _openProfiles,
+                icon: const Icon(Icons.settings),
+                label: const Text('Profili të Regjistruar'),
+              ),
+            ),
+            const SizedBox(height: 16),
             Row(
               children: [
                 Expanded(
