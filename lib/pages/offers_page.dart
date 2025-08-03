@@ -106,10 +106,6 @@ class _OffersPageState extends State<OffersPage> {
                 child: const Text('Anulo')),
             ElevatedButton(
               onPressed: () {
-                int maxNumber = 0;
-                for (final o in offerBox.values) {
-                  if (o.offerNumber > maxNumber) maxNumber = o.offerNumber;
-                }
                 offerBox.add(
                   Offer(
                     id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -117,7 +113,6 @@ class _OffersPageState extends State<OffersPage> {
                     date: DateTime.now(),
                     lastEdited: DateTime.now(),
                     items: [],
-                    offerNumber: maxNumber + 1,
                     profitPercent: double.tryParse(profitController.text) ?? 0,
                   ),
                 );
@@ -161,8 +156,7 @@ class _OffersPageState extends State<OffersPage> {
                             offer.customerIndex < customerBox.length
                         ? customerBox.getAt(offer.customerIndex)
                         : null;
-                    final numStr =
-                        (offer?.offerNumber ?? (i + 1)).toString();
+                    final numStr = (i + 1).toString();
                     if (query.isEmpty ||
                         numStr.contains(query) ||
                         (customer != null &&
@@ -224,7 +218,7 @@ class _OffersPageState extends State<OffersPage> {
                         },
                         child: ListTile(
                           title: Text(
-                            'Oferta ${offer?.offerNumber ?? i + 1}',
+                            'Oferta ${i + 1}',
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                           subtitle: Text(
