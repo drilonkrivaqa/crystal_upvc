@@ -55,15 +55,30 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
         text: item is ProfileSet ? item.priceLlajsne.toString() : "");
     final pipeLengthController = TextEditingController(
         text: item is ProfileSet ? item.pipeLength.toString() : "");
+    final massLController = TextEditingController(
+        text: item is ProfileSet ? item.massL.toString() : "");
+    final massZController = TextEditingController(
+        text: item is ProfileSet ? item.massZ.toString() : "");
+    final massTController = TextEditingController(
+        text: item is ProfileSet ? item.massT.toString() : "");
+    final massAdapterController = TextEditingController(
+        text: item is ProfileSet ? item.massAdapter.toString() : "");
+    final massLlajsneController = TextEditingController(
+        text: item is ProfileSet ? item.massLlajsne.toString() : "");
     final pricePerM2Controller = TextEditingController(
         text:
             (item is Glass || item is Blind) ? item.pricePerM2.toString() : "");
+    final massPerM2Controller = TextEditingController(
+        text:
+            (item is Glass || item is Blind) ? item.massPerM2.toString() : "");
     final boxHeightController = TextEditingController(
         text: item is Blind ? item.boxHeight.toString() : "");
     final priceController = TextEditingController(
         text: (item is Mechanism || item is Accessory)
             ? item.price.toString()
             : "");
+    final massController = TextEditingController(
+        text: (item is Mechanism || item is Accessory) ? item.mass.toString() : "");
 
     showDialog(
       context: context,
@@ -100,12 +115,37 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                     controller: pipeLengthController,
                     decoration: const InputDecoration(
                         labelText: 'Gjatësia e profilit (mm)')),
+                TextField(
+                    controller: massLController,
+                    decoration:
+                        const InputDecoration(labelText: 'Masa L kg/m')),
+                TextField(
+                    controller: massZController,
+                    decoration:
+                        const InputDecoration(labelText: 'Masa Z kg/m')),
+                TextField(
+                    controller: massTController,
+                    decoration:
+                        const InputDecoration(labelText: 'Masa T kg/m')),
+                TextField(
+                    controller: massAdapterController,
+                    decoration:
+                        const InputDecoration(labelText: 'Masa Adapter kg/m')),
+                TextField(
+                    controller: massLlajsneController,
+                    decoration:
+                        const InputDecoration(labelText: 'Masa Llajsne kg/m')),
               ],
               if (widget.type == CatalogType.glass ||
                   widget.type == CatalogType.blind)
                 TextField(
                     controller: pricePerM2Controller,
                     decoration: const InputDecoration(labelText: 'Çmimi €/m²')),
+              if (widget.type == CatalogType.glass ||
+                  widget.type == CatalogType.blind)
+                TextField(
+                    controller: massPerM2Controller,
+                    decoration: const InputDecoration(labelText: 'Masa kg/m²')),
               if (widget.type == CatalogType.blind)
                 TextField(
                     controller: boxHeightController,
@@ -116,6 +156,11 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                 TextField(
                     controller: priceController,
                     decoration: const InputDecoration(labelText: 'Çmimi (€)')),
+              if (widget.type == CatalogType.mechanism ||
+                  widget.type == CatalogType.accessory)
+                TextField(
+                    controller: massController,
+                    decoration: const InputDecoration(labelText: 'Masa (kg)')),
             ],
           ),
         ),
@@ -150,6 +195,16 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                             double.tryParse(priceLlajsneController.text) ?? 0,
                         pipeLength:
                             int.tryParse(pipeLengthController.text) ?? 6500,
+                        hekriOffsetL: item.hekriOffsetL,
+                        hekriOffsetZ: item.hekriOffsetZ,
+                        hekriOffsetT: item.hekriOffsetT,
+                        massL: double.tryParse(massLController.text) ?? 0,
+                        massZ: double.tryParse(massZController.text) ?? 0,
+                        massT: double.tryParse(massTController.text) ?? 0,
+                        massAdapter:
+                            double.tryParse(massAdapterController.text) ?? 0,
+                        massLlajsne:
+                            double.tryParse(massLlajsneController.text) ?? 0,
                       ));
                   break;
                 case CatalogType.glass:
@@ -159,6 +214,8 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                         name: nameController.text,
                         pricePerM2:
                             double.tryParse(pricePerM2Controller.text) ?? 0,
+                        massPerM2:
+                            double.tryParse(massPerM2Controller.text) ?? 0,
                       ));
                   break;
                 case CatalogType.blind:
@@ -169,6 +226,8 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                         pricePerM2:
                             double.tryParse(pricePerM2Controller.text) ?? 0,
                         boxHeight: int.tryParse(boxHeightController.text) ?? 0,
+                        massPerM2:
+                            double.tryParse(massPerM2Controller.text) ?? 0,
                       ));
                   break;
                 case CatalogType.mechanism:
@@ -177,6 +236,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                       Mechanism(
                         name: nameController.text,
                         price: double.tryParse(priceController.text) ?? 0,
+                        mass: double.tryParse(massController.text) ?? 0,
                       ));
                   break;
                 case CatalogType.accessory:
@@ -185,6 +245,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                       Accessory(
                         name: nameController.text,
                         price: double.tryParse(priceController.text) ?? 0,
+                        mass: double.tryParse(massController.text) ?? 0,
                       ));
                   break;
               }
@@ -206,9 +267,16 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
     final priceAdapterController = TextEditingController();
     final priceLlajsneController = TextEditingController();
     final pipeLengthController = TextEditingController(text: '6500');
+    final massLController = TextEditingController();
+    final massZController = TextEditingController();
+    final massTController = TextEditingController();
+    final massAdapterController = TextEditingController();
+    final massLlajsneController = TextEditingController();
     final pricePerM2Controller = TextEditingController();
+    final massPerM2Controller = TextEditingController();
     final boxHeightController = TextEditingController();
     final priceController = TextEditingController();
+    final massController = TextEditingController();
 
     showDialog(
       context: context,
@@ -245,12 +313,37 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                     controller: pipeLengthController,
                     decoration: const InputDecoration(
                         labelText: 'Gjatësia e profilit (mm)')),
+                TextField(
+                    controller: massLController,
+                    decoration:
+                        const InputDecoration(labelText: 'Masa L kg/m')),
+                TextField(
+                    controller: massZController,
+                    decoration:
+                        const InputDecoration(labelText: 'Masa Z kg/m')),
+                TextField(
+                    controller: massTController,
+                    decoration:
+                        const InputDecoration(labelText: 'Masa T kg/m')),
+                TextField(
+                    controller: massAdapterController,
+                    decoration:
+                        const InputDecoration(labelText: 'Masa Adapter kg/m')),
+                TextField(
+                    controller: massLlajsneController,
+                    decoration:
+                        const InputDecoration(labelText: 'Masa Llajsne kg/m')),
               ],
               if (widget.type == CatalogType.glass ||
                   widget.type == CatalogType.blind)
                 TextField(
                     controller: pricePerM2Controller,
                     decoration: const InputDecoration(labelText: 'Çmimi €/m²')),
+              if (widget.type == CatalogType.glass ||
+                  widget.type == CatalogType.blind)
+                TextField(
+                    controller: massPerM2Controller,
+                    decoration: const InputDecoration(labelText: 'Masa kg/m²')),
               if (widget.type == CatalogType.blind)
                 TextField(
                     controller: boxHeightController,
@@ -261,6 +354,11 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                 TextField(
                     controller: priceController,
                     decoration: const InputDecoration(labelText: 'Çmimi (€)')),
+              if (widget.type == CatalogType.mechanism ||
+                  widget.type == CatalogType.accessory)
+                TextField(
+                    controller: massController,
+                    decoration: const InputDecoration(labelText: 'Masa (kg)')),
             ],
           ),
         ),
@@ -283,12 +381,19 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                     priceLlajsne:
                         double.tryParse(priceLlajsneController.text) ?? 0,
                     pipeLength: int.tryParse(pipeLengthController.text) ?? 6500,
+                    massL: double.tryParse(massLController.text) ?? 0,
+                    massZ: double.tryParse(massZController.text) ?? 0,
+                    massT: double.tryParse(massTController.text) ?? 0,
+                    massAdapter: double.tryParse(massAdapterController.text) ?? 0,
+                    massLlajsne:
+                        double.tryParse(massLlajsneController.text) ?? 0,
                   ));
                   break;
                 case CatalogType.glass:
                   box.add(Glass(
                     name: nameController.text,
                     pricePerM2: double.tryParse(pricePerM2Controller.text) ?? 0,
+                    massPerM2: double.tryParse(massPerM2Controller.text) ?? 0,
                   ));
                   break;
                 case CatalogType.blind:
@@ -296,18 +401,21 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                     name: nameController.text,
                     pricePerM2: double.tryParse(pricePerM2Controller.text) ?? 0,
                     boxHeight: int.tryParse(boxHeightController.text) ?? 0,
+                    massPerM2: double.tryParse(massPerM2Controller.text) ?? 0,
                   ));
                   break;
                 case CatalogType.mechanism:
                   box.add(Mechanism(
                     name: nameController.text,
                     price: double.tryParse(priceController.text) ?? 0,
+                    mass: double.tryParse(massController.text) ?? 0,
                   ));
                   break;
                 case CatalogType.accessory:
                   box.add(Accessory(
                     name: nameController.text,
                     price: double.tryParse(priceController.text) ?? 0,
+                    mass: double.tryParse(massController.text) ?? 0,
                   ));
                   break;
               }
@@ -354,20 +462,22 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                     title: Text(item.name),
                     subtitle: widget.type == CatalogType.profileSet
                         ? Text(
-                            "Rami (L): €${item.priceL.toStringAsFixed(2)}/m\n"
-                            "Krahu (Z): €${item.priceZ.toStringAsFixed(2)}/m\n"
-                            "T: €${item.priceT.toStringAsFixed(2)}/m\n"
-                            "Adapter: €${item.priceAdapter.toStringAsFixed(2)}/m\n"
-                            "Llajsne: €${item.priceLlajsne.toStringAsFixed(2)}/m\n"
+                            "Rami (L): €${item.priceL.toStringAsFixed(2)}/m, ${item.massL.toStringAsFixed(2)}kg/m\n"
+                            "Krahu (Z): €${item.priceZ.toStringAsFixed(2)}/m, ${item.massZ.toStringAsFixed(2)}kg/m\n"
+                            "T: €${item.priceT.toStringAsFixed(2)}/m, ${item.massT.toStringAsFixed(2)}kg/m\n"
+                            "Adapter: €${item.priceAdapter.toStringAsFixed(2)}/m, ${item.massAdapter.toStringAsFixed(2)}kg/m\n"
+                            "Llajsne: €${item.priceLlajsne.toStringAsFixed(2)}/m, ${item.massLlajsne.toStringAsFixed(2)}kg/m\n"
                             "Gjatësia: ${item.pipeLength}mm")
                         : widget.type == CatalogType.glass
-                            ? Text("€${item.pricePerM2.toStringAsFixed(2)}/m²")
+                            ? Text(
+                                "€${item.pricePerM2.toStringAsFixed(2)}/m², ${item.massPerM2.toStringAsFixed(2)}kg/m²")
                             : widget.type == CatalogType.blind
                                 ? Text(
-                                    "€${item.pricePerM2.toStringAsFixed(2)}/m², Kuti: ${item.boxHeight}mm")
+                                    "€${item.pricePerM2.toStringAsFixed(2)}/m², ${item.massPerM2.toStringAsFixed(2)}kg/m², Kuti: ${item.boxHeight}mm")
                                 : widget.type == CatalogType.mechanism ||
                                         widget.type == CatalogType.accessory
-                                    ? Text("€${item.price.toStringAsFixed(2)}")
+                                    ? Text(
+                                        "€${item.price.toStringAsFixed(2)}, ${item.mass.toStringAsFixed(2)}kg")
                                     : null,
                   ),
                 ).animate().fadeIn(duration: 200.ms).slideY(begin: 0.3);
