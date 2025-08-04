@@ -236,6 +236,9 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 blindCost +
                 mechanismCost +
                 accessoryCost;
+            if (item.manualBasePrice != null) {
+              base = item.manualBasePrice!;
+            }
             double total = base + extras;
             double finalPrice;
             if (item.manualPrice != null) {
@@ -371,6 +374,9 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                     blindCost +
                     mechanismCost +
                     accessoryCost;
+                if (item.manualBasePrice != null) {
+                  base = item.manualBasePrice!;
+                }
                 double total = base + extras;
                 double finalPrice;
                 if (item.manualPrice != null) {

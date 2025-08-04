@@ -31,6 +31,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   late TextEditingController verticalController;
   late TextEditingController horizontalController;
   late TextEditingController priceController;
+  late TextEditingController basePriceController;
   late TextEditingController extra1Controller;
   late TextEditingController extra2Controller;
   late TextEditingController extra1DescController;
@@ -45,6 +46,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   String? photoPath;
   Uint8List? photoBytes;
   double? manualPrice;
+  double? manualBasePrice;
   double? extra1Price;
   double? extra2Price;
   String? extra1Desc;
@@ -83,6 +85,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
         text: widget.existingItem?.horizontalSections.toString() ?? '1');
     priceController = TextEditingController(
         text: widget.existingItem?.manualPrice?.toString() ?? '');
+    basePriceController = TextEditingController(
+        text: widget.existingItem?.manualBasePrice?.toString() ?? '');
     extra1Controller = TextEditingController(
         text: widget.existingItem?.extra1Price?.toString() ?? '');
     extra2Controller = TextEditingController(
@@ -102,6 +106,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     photoPath = widget.existingItem?.photoPath;
     photoBytes = widget.existingItem?.photoBytes;
     manualPrice = widget.existingItem?.manualPrice;
+    manualBasePrice = widget.existingItem?.manualBasePrice;
     extra1Price = widget.existingItem?.extra1Price;
     extra2Price = widget.existingItem?.extra2Price;
     extra1Desc = widget.existingItem?.extra1Desc;
@@ -225,13 +230,19 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: TextField(
-                                      controller: priceController,
+                                      controller: basePriceController,
                                       decoration: const InputDecoration(
-                                          labelText: 'Çmimi manual (Opsional)'),
+                                          labelText: 'Çmimi 0% (Opsional)'),
                                       keyboardType: TextInputType.number),
                                 ),
                               ],
                             ),
+                            const SizedBox(height: 12),
+                            TextField(
+                                controller: priceController,
+                                decoration: const InputDecoration(
+                                    labelText: 'Çmimi me fitim (Opsional)'),
+                                keyboardType: TextInputType.number),
                             const SizedBox(height: 12),
                             DropdownButtonFormField<int>(
                               value: profileSetIndex,
@@ -461,6 +472,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     final quantity = int.tryParse(quantityController.text) ?? 1;
     final openings = fixedSectors.where((f) => !f).length;
     final mPrice = double.tryParse(priceController.text);
+    final mBasePrice = double.tryParse(basePriceController.text);
 
     if (name.isEmpty || width <= 0 || height <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -493,6 +505,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
         photoPath: photoPath,
         photoBytes: photoBytes,
         manualPrice: mPrice,
+        manualBasePrice: mBasePrice,
         extra1Price: double.tryParse(extra1Controller.text),
         extra2Price: double.tryParse(extra2Controller.text),
         extra1Desc: extra1DescController.text,

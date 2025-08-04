@@ -133,6 +133,8 @@ class WindowDoorItem extends HiveObject {
   String? photoPath; // path to a photo of this item
   @HiveField(11)
   double? manualPrice; // optional manual override for final price
+  @HiveField(25)
+  double? manualBasePrice; // optional manual override for base price (0% profit)
   @HiveField(12)
   double? extra1Price; // optional extra price 1
   @HiveField(13)
@@ -174,6 +176,7 @@ class WindowDoorItem extends HiveObject {
     this.photoPath,
     this.photoBytes,
     this.manualPrice,
+    this.manualBasePrice,
     this.extra1Price,
     this.extra2Price,
     this.extra1Desc,
