@@ -231,6 +231,29 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 ((item.extra1Price ?? 0) + (item.extra2Price ?? 0)) *
                     item.quantity;
 
+            double profileMass = item.calculateProfileMass(profileSet,
+                    boxHeight: blind?.boxHeight ?? 0) *
+                item.quantity;
+            double glassMass = item.calculateGlassMass(glass,
+                    boxHeight: blind?.boxHeight ?? 0) *
+                item.quantity;
+            double blindMass = (blind != null)
+                ? ((item.width / 1000.0) *
+                    (item.height / 1000.0) *
+                    blind.massPerM2 *
+                    item.quantity)
+                : 0;
+            double mechanismMass = (mechanism != null)
+                ? mechanism.mass * item.quantity * item.openings
+                : 0;
+            double accessoryMass =
+                (accessory != null) ? accessory.mass * item.quantity : 0;
+            double totalMass = profileMass +
+                glassMass +
+                blindMass +
+                mechanismMass +
+                accessoryMass;
+
             double base = profileCost +
                 glassCost +
                 blindCost +
@@ -326,7 +349,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                   '${item.notes != null && item.notes!.isNotEmpty ? "Shënime: ${item.notes!}\n" : ""}'
                   'Kostoja (0%): €${total.toStringAsFixed(2)}\n'
                   'Kostoja me Fitim: €${finalPrice.toStringAsFixed(2)}\n'
-                  'Fitimi: €${profitAmount.toStringAsFixed(2)}',
+                  'Fitimi: €${profitAmount.toStringAsFixed(2)}\n'
+                  'Masa: ${totalMass.toStringAsFixed(2)} kg',
                 ),
               ),
             ).animate().fadeIn(duration: 200.ms).slideY(begin: 0.3);
