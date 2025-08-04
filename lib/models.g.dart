@@ -322,6 +322,7 @@ class WindowDoorItemAdapter extends TypeAdapter<WindowDoorItem> {
       photoPath: fields[10] as String?,
       photoBytes: fields[23] as Uint8List?,
       manualPrice: fields[11] as double?,
+      manualBasePrice: fields[25] as double?,
       extra1Price: fields[12] as double?,
       extra2Price: fields[13] as double?,
       extra1Desc: fields[14] as String?,
@@ -340,7 +341,7 @@ class WindowDoorItemAdapter extends TypeAdapter<WindowDoorItem> {
   @override
   void write(BinaryWriter writer, WindowDoorItem obj) {
     writer
-      ..writeByte(25)
+      ..writeByte(26)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -365,6 +366,8 @@ class WindowDoorItemAdapter extends TypeAdapter<WindowDoorItem> {
       ..write(obj.photoPath)
       ..writeByte(11)
       ..write(obj.manualPrice)
+      ..writeByte(25)
+      ..write(obj.manualBasePrice)
       ..writeByte(12)
       ..write(obj.extra1Price)
       ..writeByte(13)

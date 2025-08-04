@@ -108,8 +108,11 @@ Future<void> printOfferPdf({
     final extras =
         ((item.extra1Price ?? 0) + (item.extra2Price ?? 0)) * item.quantity;
 
-    final base =
+    double base =
         profileCost + glassCost + blindCost + mechanismCost + accessoryCost;
+    if (item.manualBasePrice != null) {
+      base = item.manualBasePrice!;
+    }
     final total = base + extras;
     double price;
     if (item.manualPrice != null) {
@@ -269,11 +272,14 @@ Future<void> printOfferPdf({
           final extras = ((item.extra1Price ?? 0) + (item.extra2Price ?? 0)) *
               item.quantity;
 
-          final base = profileCost +
+          double base = profileCost +
               glassCost +
               blindCost +
               mechanismCost +
               accessoryCost;
+          if (item.manualBasePrice != null) {
+            base = item.manualBasePrice!;
+          }
           final total = base + extras;
           double finalPrice;
           if (item.manualPrice != null) {
