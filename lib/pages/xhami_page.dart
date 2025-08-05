@@ -58,8 +58,10 @@ class _XhamiPageState extends State<XhamiPage> {
     }
 
     for (int r = 0; r < item.horizontalSections; r++) {
-      for (int c = 0; c < item.verticalSections; c++) {
-        final w = item.sectionWidths[c];
+      final cols = item.verticalDividers[r] ? item.verticalSections : 1;
+      for (int c = 0; c < cols; c++) {
+        final w =
+            item.verticalDividers[r] ? item.sectionWidths[c] : item.width;
         final h = effectiveHeights[r];
         final idx = r * item.verticalSections + c;
         if (!item.fixedSectors[idx]) {

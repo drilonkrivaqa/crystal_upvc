@@ -88,8 +88,10 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
         .addAll([effectiveHeight, effectiveHeight, item.width, item.width]);
 
     for (int r = 0; r < item.horizontalSections; r++) {
-      for (int c = 0; c < item.verticalSections; c++) {
-        final w = item.sectionWidths[c];
+      final cols = item.verticalDividers[r] ? item.verticalSections : 1;
+      for (int c = 0; c < cols; c++) {
+        final w =
+            item.verticalDividers[r] ? item.sectionWidths[c] : item.width;
         int h = item.sectionHeights[r];
         if (r == item.horizontalSections - 1) {
           h = (h - boxHeight).clamp(0, h);
@@ -112,7 +114,17 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
 
     for (int i = 0; i < item.verticalSections - 1; i++) {
       final type = item.verticalAdapters[i] ? PieceType.adapter : PieceType.t;
-      map[type]!.add((effectiveHeight - 80).clamp(0, effectiveHeight));
+      int len = 0;
+      for (int r = 0; r < item.horizontalSections; r++) {
+        if (item.verticalDividers[r]) {
+          int h = item.sectionHeights[r];
+          if (r == item.horizontalSections - 1) {
+            h = (h - boxHeight).clamp(0, h);
+          }
+          len += (h - 80).clamp(0, h);
+        }
+      }
+      map[type]!.add(len);
     }
     for (int i = 0; i < item.horizontalSections - 1; i++) {
       final type = item.horizontalAdapters[i] ? PieceType.adapter : PieceType.t;
