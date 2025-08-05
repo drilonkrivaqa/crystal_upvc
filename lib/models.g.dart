@@ -362,14 +362,13 @@ class WindowDoorItemAdapter extends TypeAdapter<WindowDoorItem> {
       sectionHeights: (fields[20] as List?)?.cast<int>(),
       verticalAdapters: (fields[21] as List?)?.cast<bool>(),
       horizontalAdapters: (fields[22] as List?)?.cast<bool>(),
-      verticalDividers: (fields[26] as List?)?.cast<bool>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, WindowDoorItem obj) {
     writer
-      ..writeByte(27)
+      ..writeByte(26)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -421,9 +420,7 @@ class WindowDoorItemAdapter extends TypeAdapter<WindowDoorItem> {
       ..writeByte(23)
       ..write(obj.photoBytes)
       ..writeByte(24)
-      ..write(obj.notes)
-      ..writeByte(26)
-      ..write(obj.verticalDividers);
+      ..write(obj.notes);
   }
 
   @override
