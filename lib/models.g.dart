@@ -70,13 +70,18 @@ class ProfileSetAdapter extends TypeAdapter<ProfileSet> {
       hekriOffsetL: fields[7] as int,
       hekriOffsetZ: fields[8] as int,
       hekriOffsetT: fields[9] as int,
+      massL: fields[10] as double,
+      massZ: fields[11] as double,
+      massT: fields[12] as double,
+      massAdapter: fields[13] as double,
+      massLlajsne: fields[14] as double,
     );
   }
 
   @override
   void write(BinaryWriter writer, ProfileSet obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(15)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -96,7 +101,17 @@ class ProfileSetAdapter extends TypeAdapter<ProfileSet> {
       ..writeByte(8)
       ..write(obj.hekriOffsetZ)
       ..writeByte(9)
-      ..write(obj.hekriOffsetT);
+      ..write(obj.hekriOffsetT)
+      ..writeByte(10)
+      ..write(obj.massL)
+      ..writeByte(11)
+      ..write(obj.massZ)
+      ..writeByte(12)
+      ..write(obj.massT)
+      ..writeByte(13)
+      ..write(obj.massAdapter)
+      ..writeByte(14)
+      ..write(obj.massLlajsne);
   }
 
   @override
@@ -123,17 +138,20 @@ class GlassAdapter extends TypeAdapter<Glass> {
     return Glass(
       name: fields[0] as String,
       pricePerM2: fields[1] as double,
+      massPerM2: fields[2] as double,
     );
   }
 
   @override
   void write(BinaryWriter writer, Glass obj) {
     writer
-      ..writeByte(2)
+      ..writeByte(3)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
-      ..write(obj.pricePerM2);
+      ..write(obj.pricePerM2)
+      ..writeByte(2)
+      ..write(obj.massPerM2);
   }
 
   @override
@@ -161,19 +179,22 @@ class BlindAdapter extends TypeAdapter<Blind> {
       name: fields[0] as String,
       pricePerM2: fields[1] as double,
       boxHeight: fields[2] as int,
+      massPerM2: fields[3] as double,
     );
   }
 
   @override
   void write(BinaryWriter writer, Blind obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(4)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
       ..write(obj.pricePerM2)
       ..writeByte(2)
-      ..write(obj.boxHeight);
+      ..write(obj.boxHeight)
+      ..writeByte(3)
+      ..write(obj.massPerM2);
   }
 
   @override
@@ -200,17 +221,20 @@ class MechanismAdapter extends TypeAdapter<Mechanism> {
     return Mechanism(
       name: fields[0] as String,
       price: fields[1] as double,
+      mass: fields[2] as double,
     );
   }
 
   @override
   void write(BinaryWriter writer, Mechanism obj) {
     writer
-      ..writeByte(2)
+      ..writeByte(3)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
-      ..write(obj.price);
+      ..write(obj.price)
+      ..writeByte(2)
+      ..write(obj.mass);
   }
 
   @override
@@ -237,17 +261,20 @@ class AccessoryAdapter extends TypeAdapter<Accessory> {
     return Accessory(
       name: fields[0] as String,
       price: fields[1] as double,
+      mass: fields[2] as double,
     );
   }
 
   @override
   void write(BinaryWriter writer, Accessory obj) {
     writer
-      ..writeByte(2)
+      ..writeByte(3)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
-      ..write(obj.price);
+      ..write(obj.price)
+      ..writeByte(2)
+      ..write(obj.mass);
   }
 
   @override
@@ -322,6 +349,7 @@ class WindowDoorItemAdapter extends TypeAdapter<WindowDoorItem> {
       photoPath: fields[10] as String?,
       photoBytes: fields[23] as Uint8List?,
       manualPrice: fields[11] as double?,
+      manualBasePrice: fields[25] as double?,
       extra1Price: fields[12] as double?,
       extra2Price: fields[13] as double?,
       extra1Desc: fields[14] as String?,
@@ -340,7 +368,7 @@ class WindowDoorItemAdapter extends TypeAdapter<WindowDoorItem> {
   @override
   void write(BinaryWriter writer, WindowDoorItem obj) {
     writer
-      ..writeByte(25)
+      ..writeByte(26)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -365,6 +393,8 @@ class WindowDoorItemAdapter extends TypeAdapter<WindowDoorItem> {
       ..write(obj.photoPath)
       ..writeByte(11)
       ..write(obj.manualPrice)
+      ..writeByte(25)
+      ..write(obj.manualBasePrice)
       ..writeByte(12)
       ..write(obj.extra1Price)
       ..writeByte(13)

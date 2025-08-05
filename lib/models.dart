@@ -44,6 +44,16 @@ class ProfileSet extends HiveObject {
   int hekriOffsetZ; // Hekri length difference for Z profile
   @HiveField(9)
   int hekriOffsetT; // Hekri length difference for T profile
+  @HiveField(10)
+  double massL; // Mass per meter for L profile
+  @HiveField(11)
+  double massZ; // Mass per meter for Z profile
+  @HiveField(12)
+  double massT; // Mass per meter for T profile
+  @HiveField(13)
+  double massAdapter; // Mass per meter for Adapter
+  @HiveField(14)
+  double massLlajsne; // Mass per meter for Glazing bead
 
   ProfileSet({
     required this.name,
@@ -56,6 +66,11 @@ class ProfileSet extends HiveObject {
     this.hekriOffsetL = 0,
     this.hekriOffsetZ = 0,
     this.hekriOffsetT = 0,
+    this.massL = 0,
+    this.massZ = 0,
+    this.massT = 0,
+    this.massAdapter = 0,
+    this.massLlajsne = 0,
   });
 }
 
@@ -65,7 +80,13 @@ class Glass extends HiveObject {
   String name;
   @HiveField(1)
   double pricePerM2;
-  Glass({required this.name, required this.pricePerM2});
+  @HiveField(2)
+  double massPerM2;
+  Glass({
+    required this.name,
+    required this.pricePerM2,
+    this.massPerM2 = 0,
+  });
 }
 
 @HiveType(typeId: 3)
@@ -76,7 +97,14 @@ class Blind extends HiveObject {
   double pricePerM2;
   @HiveField(2)
   int boxHeight; // height of the box in mm
-  Blind({required this.name, required this.pricePerM2, this.boxHeight = 0});
+  @HiveField(3)
+  double massPerM2;
+  Blind({
+    required this.name,
+    required this.pricePerM2,
+    this.boxHeight = 0,
+    this.massPerM2 = 0,
+  });
 }
 
 @HiveType(typeId: 4)
@@ -85,7 +113,9 @@ class Mechanism extends HiveObject {
   String name;
   @HiveField(1)
   double price;
-  Mechanism({required this.name, required this.price});
+  @HiveField(2)
+  double mass;
+  Mechanism({required this.name, required this.price, this.mass = 0});
 }
 
 @HiveType(typeId: 5)
@@ -94,7 +124,9 @@ class Accessory extends HiveObject {
   String name;
   @HiveField(1)
   double price;
-  Accessory({required this.name, required this.price});
+  @HiveField(2)
+  double mass;
+  Accessory({required this.name, required this.price, this.mass = 0});
 }
 
 @HiveType(typeId: 8)
@@ -133,6 +165,8 @@ class WindowDoorItem extends HiveObject {
   String? photoPath; // path to a photo of this item
   @HiveField(11)
   double? manualPrice; // optional manual override for final price
+  @HiveField(25)
+  double? manualBasePrice; // optional manual override for base price (0% profit)
   @HiveField(12)
   double? extra1Price; // optional extra price 1
   @HiveField(13)
@@ -174,6 +208,7 @@ class WindowDoorItem extends HiveObject {
     this.photoPath,
     this.photoBytes,
     this.manualPrice,
+    this.manualBasePrice,
     this.extra1Price,
     this.extra2Price,
     this.extra1Desc,
@@ -282,6 +317,98 @@ class WindowDoorItem extends HiveObject {
           final effectiveH = (h - 100).clamp(0, h);
           final area = (effectiveW / 1000.0) * (effectiveH / 1000.0);
           total += area * glass.pricePerM2;
+        }
+      }
+    }
+    return total;
+  }
+
+  /// Returns the mass for profiles using the exact section sizes.
+  /// Follows the same logic as [calculateProfileCost] but multiplies lengths
+  /// with the corresponding mass per meter from [ProfileSet].
+  double calculateProfileMass(ProfileSet set, {int boxHeight = 0}) {
+    final effectiveHeight = (height - boxHeight).clamp(0, height);
+    final effectiveHeights = List<int>.from(sectionHeights);
+    if (effectiveHeights.isNotEmpty) {
+      effectiveHeights[effectiveHeights.length - 1] =
+          (effectiveHeights.last - boxHeight).clamp(0, effectiveHeights.last);
+    }
+
+    double frameLength = 2 * (width + effectiveHeight) / 1000.0 * set.massL;
+    double sashLength = 0;
+    double adapterLength = 0;
+    double tLength = 0;
+    double glazingBeadLength = 0;
+
+    for (int r = 0; r < horizontalSections; r++) {
+      for (int c = 0; c < verticalSections; c++) {
+        final w = sectionWidths[c].toDouble();
+        final h = effectiveHeights[r].toDouble();
+        final idx = r * verticalSections + c;
+        if (!fixedSectors[idx]) {
+          final sashW = (w - 90).clamp(0, w);
+          final sashH = (h - 90).clamp(0, h);
+          sashLength += 2 * (sashW + sashH) / 1000.0 * set.massZ;
+          final beadW = (sashW - 90).clamp(0, sashW);
+          final beadH = (sashH - 90).clamp(0, sashH);
+          glazingBeadLength +=
+              2 * (beadW + beadH) / 1000.0 * set.massLlajsne;
+        } else {
+          final beadW = (w - 90).clamp(0, w);
+          final beadH = (h - 90).clamp(0, h);
+          glazingBeadLength +=
+              2 * (beadW + beadH) / 1000.0 * set.massLlajsne;
+        }
+      }
+    }
+
+    for (int i = 0; i < verticalSections - 1; i++) {
+      final len = (effectiveHeight - 80).clamp(0, effectiveHeight);
+      if (verticalAdapters[i]) {
+        adapterLength += (len / 1000.0) * set.massAdapter;
+      } else {
+        tLength += (len / 1000.0) * set.massT;
+      }
+    }
+    for (int i = 0; i < horizontalSections - 1; i++) {
+      final len = (width - 80).clamp(0, width);
+      if (horizontalAdapters[i]) {
+        adapterLength += (len / 1000.0) * set.massAdapter;
+      } else {
+        tLength += (len / 1000.0) * set.massT;
+      }
+    }
+
+    return frameLength +
+        sashLength +
+        adapterLength +
+        tLength +
+        glazingBeadLength;
+  }
+
+  /// Returns mass for glass, given selected [Glass] and section sizes.
+  double calculateGlassMass(Glass glass, {int boxHeight = 0}) {
+    final effectiveHeights = List<int>.from(sectionHeights);
+    if (effectiveHeights.isNotEmpty) {
+      effectiveHeights[effectiveHeights.length - 1] =
+          (effectiveHeights.last - boxHeight).clamp(0, effectiveHeights.last);
+    }
+    double total = 0;
+    for (int r = 0; r < horizontalSections; r++) {
+      for (int c = 0; c < verticalSections; c++) {
+        final w = sectionWidths[c].toDouble();
+        final h = effectiveHeights[r].toDouble();
+        final idx = r * verticalSections + c;
+        if (!fixedSectors[idx]) {
+          final sashW = (w - 90).clamp(0, w);
+          final sashH = (h - 90).clamp(0, h);
+          final area = ((sashW - 10) / 1000.0) * ((sashH - 10) / 1000.0);
+          total += area * glass.massPerM2;
+        } else {
+          final effectiveW = (w - 100).clamp(0, w);
+          final effectiveH = (h - 100).clamp(0, h);
+          final area = (effectiveW / 1000.0) * (effectiveH / 1000.0);
+          total += area * glass.massPerM2;
         }
       }
     }

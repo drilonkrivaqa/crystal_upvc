@@ -108,8 +108,11 @@ Future<void> printOfferPdf({
     final extras =
         ((item.extra1Price ?? 0) + (item.extra2Price ?? 0)) * item.quantity;
 
-    final base =
+    double base =
         profileCost + glassCost + blindCost + mechanismCost + accessoryCost;
+    if (item.manualBasePrice != null) {
+      base = item.manualBasePrice!;
+    }
     final total = base + extras;
     double price;
     if (item.manualPrice != null) {
@@ -269,11 +272,38 @@ Future<void> printOfferPdf({
           final extras = ((item.extra1Price ?? 0) + (item.extra2Price ?? 0)) *
               item.quantity;
 
-          final base = profileCost +
+          final profileMass = item.calculateProfileMass(profile,
+                  boxHeight: blind?.boxHeight ?? 0) *
+              item.quantity;
+          final glassMass = item.calculateGlassMass(glass,
+                  boxHeight: blind?.boxHeight ?? 0) *
+              item.quantity;
+          final blindMass = blind != null
+              ? ((item.width / 1000.0) *
+                  (item.height / 1000.0) *
+                  blind.massPerM2 *
+                  item.quantity)
+              : 0;
+          final mechanismMass = mechanism != null
+              ? mechanism.mass * item.quantity * item.openings
+              : 0;
+          final accessoryMass = accessory != null
+              ? accessory.mass * item.quantity
+              : 0;
+          final totalMass = profileMass +
+              glassMass +
+              blindMass +
+              mechanismMass +
+              accessoryMass;
+
+          double base = profileCost +
               glassCost +
               blindCost +
               mechanismCost +
               accessoryCost;
+          if (item.manualBasePrice != null) {
+            base = item.manualBasePrice!;
+          }
           final total = base + extras;
           double finalPrice;
           if (item.manualPrice != null) {
@@ -314,6 +344,7 @@ Future<void> printOfferPdf({
             pw.Text('Lartësitë: ${item.sectionHeights.join(', ')}'),
             if (item.verticalSections != 1) pw.Text('V div: $vAdapters'),
             if (item.horizontalSections != 1) pw.Text('H div: $hAdapters'),
+            pw.Text('Masa totale: ${totalMass.toStringAsFixed(2)} kg'),
           ];
 
           rows.add(
