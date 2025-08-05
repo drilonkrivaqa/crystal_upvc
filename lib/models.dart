@@ -153,7 +153,20 @@ class ExtraCharge extends HiveObject {
   String description;
   @HiveField(1)
   double amount;
-  ExtraCharge({this.description = '', this.amount = 0});
+ExtraCharge({this.description = '', this.amount = 0});
+}
+
+class SectionInsets {
+  final double left;
+  final double right;
+  final double top;
+  final double bottom;
+  const SectionInsets({
+    required this.left,
+    required this.right,
+    required this.top,
+    required this.bottom,
+  });
 }
 
 // Window/Door Item in Offer
@@ -251,6 +264,17 @@ class WindowDoorItem extends HiveObject {
             List<bool>.filled(
                 horizontalSections > 0 ? horizontalSections - 1 : 0, false);
 
+  SectionInsets sectionInsets(ProfileSet set, int row, int col) {
+    final halfT = set.tInnerThickness.toDouble() / 2;
+    final l = set.lInnerThickness.toDouble();
+    return SectionInsets(
+      left: col == 0 ? l : halfT,
+      right: col == verticalSections - 1 ? l : halfT,
+      top: row == 0 ? l : halfT,
+      bottom: row == horizontalSections - 1 ? l : halfT,
+    );
+  }
+
   /// Returns the cost for profiles using the exact section sizes.
   /// If [boxHeight] is provided, it will be subtracted from the total height
   /// (including the last section height) before calculating the cost.
@@ -277,17 +301,24 @@ class WindowDoorItem extends HiveObject {
         final w = sectionWidths[c].toDouble();
         final h = effectiveHeights[r].toDouble();
         final idx = r * verticalSections + c;
+        final insets = sectionInsets(set, r, c);
         if (!fixedSectors[idx]) {
-          final sashW = (w - 2 * l + sashAdd).clamp(0, w);
-          final sashH = (h - 2 * l + sashAdd).clamp(0, h);
+          final sashW =
+              (w - insets.left - insets.right + sashAdd).clamp(0, w);
+          final sashH =
+              (h - insets.top - insets.bottom + sashAdd).clamp(0, h);
           sashLength += 2 * (sashW + sashH) / 1000.0 * set.priceZ;
           final beadW = (sashW - melt - 2 * z).clamp(0, sashW);
           final beadH = (sashH - melt - 2 * z).clamp(0, sashH);
-          glazingBeadLength += 2 * (beadW + beadH) / 1000.0 * set.priceLlajsne;
+          glazingBeadLength +=
+              2 * (beadW + beadH) / 1000.0 * set.priceLlajsne;
         } else {
-          final beadW = (w - 2 * l).clamp(0, w);
-          final beadH = (h - 2 * l).clamp(0, h);
-          glazingBeadLength += 2 * (beadW + beadH) / 1000.0 * set.priceLlajsne;
+          final beadW =
+              (w - insets.left - insets.right).clamp(0, w);
+          final beadH =
+              (h - insets.top - insets.bottom).clamp(0, h);
+          glazingBeadLength +=
+              2 * (beadW + beadH) / 1000.0 * set.priceLlajsne;
         }
       }
     }
@@ -336,9 +367,12 @@ class WindowDoorItem extends HiveObject {
         final w = sectionWidths[c].toDouble();
         final h = effectiveHeights[r].toDouble();
         final idx = r * verticalSections + c;
+        final insets = sectionInsets(set, r, c);
         if (!fixedSectors[idx]) {
-          final sashW = (w - 2 * l + sashAdd).clamp(0, w);
-          final sashH = (h - 2 * l + sashAdd).clamp(0, h);
+          final sashW =
+              (w - insets.left - insets.right + sashAdd).clamp(0, w);
+          final sashH =
+              (h - insets.top - insets.bottom + sashAdd).clamp(0, h);
           final glassW =
               (sashW - melt - 2 * z - sashTakeoff).clamp(0, sashW);
           final glassH =
@@ -346,8 +380,10 @@ class WindowDoorItem extends HiveObject {
           final area = (glassW / 1000.0) * (glassH / 1000.0);
           total += area * glass.pricePerM2;
         } else {
-          final effectiveW = (w - 2 * l - fixedTakeoff).clamp(0, w);
-          final effectiveH = (h - 2 * l - fixedTakeoff).clamp(0, h);
+          final effectiveW =
+              (w - insets.left - insets.right - fixedTakeoff).clamp(0, w);
+          final effectiveH =
+              (h - insets.top - insets.bottom - fixedTakeoff).clamp(0, h);
           final area = (effectiveW / 1000.0) * (effectiveH / 1000.0);
           total += area * glass.pricePerM2;
         }
@@ -382,17 +418,22 @@ class WindowDoorItem extends HiveObject {
         final w = sectionWidths[c].toDouble();
         final h = effectiveHeights[r].toDouble();
         final idx = r * verticalSections + c;
+        final insets = sectionInsets(set, r, c);
         if (!fixedSectors[idx]) {
-          final sashW = (w - 2 * l + sashAdd).clamp(0, w);
-          final sashH = (h - 2 * l + sashAdd).clamp(0, h);
+          final sashW =
+              (w - insets.left - insets.right + sashAdd).clamp(0, w);
+          final sashH =
+              (h - insets.top - insets.bottom + sashAdd).clamp(0, h);
           sashLength += 2 * (sashW + sashH) / 1000.0 * set.massZ;
           final beadW = (sashW - melt - 2 * z).clamp(0, sashW);
           final beadH = (sashH - melt - 2 * z).clamp(0, sashH);
           glazingBeadLength +=
               2 * (beadW + beadH) / 1000.0 * set.massLlajsne;
         } else {
-          final beadW = (w - 2 * l).clamp(0, w);
-          final beadH = (h - 2 * l).clamp(0, h);
+          final beadW =
+              (w - insets.left - insets.right).clamp(0, w);
+          final beadH =
+              (h - insets.top - insets.bottom).clamp(0, h);
           glazingBeadLength +=
               2 * (beadW + beadH) / 1000.0 * set.massLlajsne;
         }
@@ -443,9 +484,12 @@ class WindowDoorItem extends HiveObject {
         final w = sectionWidths[c].toDouble();
         final h = effectiveHeights[r].toDouble();
         final idx = r * verticalSections + c;
+        final insets = sectionInsets(set, r, c);
         if (!fixedSectors[idx]) {
-          final sashW = (w - 2 * l + sashAdd).clamp(0, w);
-          final sashH = (h - 2 * l + sashAdd).clamp(0, h);
+          final sashW =
+              (w - insets.left - insets.right + sashAdd).clamp(0, w);
+          final sashH =
+              (h - insets.top - insets.bottom + sashAdd).clamp(0, h);
           final glassW =
               (sashW - melt - 2 * z - sashTakeoff).clamp(0, sashW);
           final glassH =
@@ -453,8 +497,10 @@ class WindowDoorItem extends HiveObject {
           final area = (glassW / 1000.0) * (glassH / 1000.0);
           total += area * glass.massPerM2;
         } else {
-          final effectiveW = (w - 2 * l - fixedTakeoff).clamp(0, w);
-          final effectiveH = (h - 2 * l - fixedTakeoff).clamp(0, h);
+          final effectiveW =
+              (w - insets.left - insets.right - fixedTakeoff).clamp(0, w);
+          final effectiveH =
+              (h - insets.top - insets.bottom - fixedTakeoff).clamp(0, h);
           final area = (effectiveW / 1000.0) * (effectiveH / 1000.0);
           total += area * glass.massPerM2;
         }

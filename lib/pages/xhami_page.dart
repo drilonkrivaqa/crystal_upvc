@@ -74,19 +74,22 @@ class _XhamiPageState extends State<XhamiPage> {
         final sashAdd = set.sashValue.toDouble();
         final fixedTakeoff = set.fixedGlassTakeoff.toDouble();
         final sashTakeoff = set.sashGlassTakeoff.toDouble();
+        final insets = item.sectionInsets(set, r, c);
         if (!item.fixedSectors[idx]) {
-          final sashW = (w - 2 * l + sashAdd).clamp(0, w);
-          final sashH = (h - 2 * l + sashAdd).clamp(0, h);
+          final sashW =
+              (w - insets.left - insets.right + sashAdd).clamp(0, w);
+          final sashH =
+              (h - insets.top - insets.bottom + sashAdd).clamp(0, h);
           final glassW =
               (sashW - melt - 2 * z - sashTakeoff).clamp(0, sashW);
           final glassH =
               (sashH - melt - 2 * z - sashTakeoff).clamp(0, sashH);
           sizes.add([glassW.round(), glassH.round()]);
         } else {
-          final glassW =
-              (w - 2 * l - fixedTakeoff).clamp(0, w);
-          final glassH =
-              (h - 2 * l - fixedTakeoff).clamp(0, h);
+          final glassW = (w - insets.left - insets.right - fixedTakeoff)
+              .clamp(0, w);
+          final glassH = (h - insets.top - insets.bottom - fixedTakeoff)
+              .clamp(0, h);
           sizes.add([glassW.round(), glassH.round()]);
         }
       }
