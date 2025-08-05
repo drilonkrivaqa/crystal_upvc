@@ -92,9 +92,9 @@ Future<void> printOfferPdf({
     final profileCost =
         item.calculateProfileCost(profile, boxHeight: blind?.boxHeight ?? 0) *
             item.quantity;
-    final glassCost =
-        item.calculateGlassCost(glass, boxHeight: blind?.boxHeight ?? 0) *
-            item.quantity;
+    final glassCost = item
+            .calculateGlassCost(profile, glass, boxHeight: blind?.boxHeight ?? 0) *
+        item.quantity;
     final blindCost = blind != null
         ? ((item.width / 1000.0) *
             (item.height / 1000.0) *
@@ -256,7 +256,8 @@ Future<void> printOfferPdf({
                   boxHeight: blind?.boxHeight ?? 0) *
               item.quantity;
           final glassCost =
-              item.calculateGlassCost(glass, boxHeight: blind?.boxHeight ?? 0) *
+              item.calculateGlassCost(profile, glass,
+                      boxHeight: blind?.boxHeight ?? 0) *
                   item.quantity;
           final blindCost = blind != null
               ? ((item.width / 1000.0) *
@@ -275,8 +276,9 @@ Future<void> printOfferPdf({
           final profileMass = item.calculateProfileMass(profile,
                   boxHeight: blind?.boxHeight ?? 0) *
               item.quantity;
-          final glassMass = item.calculateGlassMass(glass,
-                  boxHeight: blind?.boxHeight ?? 0) *
+          final glassMass = item
+                  .calculateGlassMass(profile, glass,
+                      boxHeight: blind?.boxHeight ?? 0) *
               item.quantity;
           final blindMass = blind != null
               ? ((item.width / 1000.0) *

@@ -47,7 +47,10 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
       final blind = item.blindIndex != null
           ? Hive.box<Blind>('blinds').getAt(item.blindIndex!)
           : null;
-      final itemPieces = _pieceLengths(item, boxHeight: blind?.boxHeight ?? 0);
+      final profile = profileBox.getAt(item.profileSetIndex);
+      if (profile == null) continue;
+      final itemPieces =
+          _pieceLengths(item, profile, boxHeight: blind?.boxHeight ?? 0);
 
       for (int i = 0; i < item.quantity; i++) {
         final target = piecesMap.putIfAbsent(
@@ -77,7 +80,7 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
     setState(() => results = res);
   }
 
-  Map<PieceType, List<int>> _pieceLengths(WindowDoorItem item,
+  Map<PieceType, List<int>> _pieceLengths(WindowDoorItem item, ProfileSet set,
       {int boxHeight = 0}) {
     final map = {for (var t in PieceType.values) t: <int>[]};
 
@@ -87,36 +90,46 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
     map[PieceType.l]!
         .addAll([effectiveHeight, effectiveHeight, item.width, item.width]);
 
+    final l = set.lInnerThickness.toDouble();
+    final z = set.zInnerThickness.toDouble();
+    const melt = 6.0;
+    final sashAdd = set.sashValue.toDouble();
+
     for (int r = 0; r < item.horizontalSections; r++) {
       for (int c = 0; c < item.verticalSections; c++) {
-        final w = item.sectionWidths[c];
-        int h = item.sectionHeights[r];
+        final w = item.sectionWidths[c].toDouble();
+        double h = item.sectionHeights[r].toDouble();
         if (r == item.horizontalSections - 1) {
           h = (h - boxHeight).clamp(0, h);
         }
         final idx = r * item.verticalSections + c;
         if (!item.fixedSectors[idx]) {
-          final sashW = (w - 90).clamp(0, w);
-          final sashH = (h - 90).clamp(0, h);
-          map[PieceType.z]!.addAll([sashH, sashH, sashW, sashW]);
-          final beadW = (sashW - 90).clamp(0, sashW);
-          final beadH = (sashH - 90).clamp(0, sashH);
-          map[PieceType.llajsne]!.addAll([beadH, beadH, beadW, beadW]);
+          final sashW = (w - 2 * l + sashAdd).clamp(0, w);
+          final sashH = (h - 2 * l + sashAdd).clamp(0, h);
+          map[PieceType.z]!
+              .addAll([sashH.round(), sashH.round(), sashW.round(), sashW.round()]);
+          final beadW = (sashW - melt - 2 * z).clamp(0, sashW);
+          final beadH = (sashH - melt - 2 * z).clamp(0, sashH);
+          map[PieceType.llajsne]!
+              .addAll([beadH.round(), beadH.round(), beadW.round(), beadW.round()]);
         } else {
-          final beadW = (w - 90).clamp(0, w);
-          final beadH = (h - 90).clamp(0, h);
-          map[PieceType.llajsne]!.addAll([beadH, beadH, beadW, beadW]);
+          final beadW = (w - 2 * l).clamp(0, w);
+          final beadH = (h - 2 * l).clamp(0, h);
+          map[PieceType.llajsne]!
+              .addAll([beadH.round(), beadH.round(), beadW.round(), beadW.round()]);
         }
       }
     }
 
     for (int i = 0; i < item.verticalSections - 1; i++) {
       final type = item.verticalAdapters[i] ? PieceType.adapter : PieceType.t;
-      map[type]!.add((effectiveHeight - 80).clamp(0, effectiveHeight));
+      final len = (effectiveHeight - 2 * l).clamp(0, effectiveHeight).round();
+      map[type]!.add(len);
     }
     for (int i = 0; i < item.horizontalSections - 1; i++) {
       final type = item.horizontalAdapters[i] ? PieceType.adapter : PieceType.t;
-      map[type]!.add((item.width - 80).clamp(0, item.width));
+      final len = (item.width - 2 * l).clamp(0, item.width).round();
+      map[type]!.add(len);
     }
 
     return map;
