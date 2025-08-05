@@ -93,10 +93,8 @@ class _HekriPageState extends State<HekriPage> {
         .addAll([effectiveHeight, effectiveHeight, item.width, item.width]);
 
     for (int r = 0; r < item.horizontalSections; r++) {
-      final cols = item.verticalDividers[r] ? item.verticalSections : 1;
-      for (int c = 0; c < cols; c++) {
-        final w =
-            item.verticalDividers[r] ? item.sectionWidths[c] : item.width;
+      for (int c = 0; c < item.verticalSections; c++) {
+        final w = item.sectionWidths[c];
         int h = item.sectionHeights[r];
         if (r == item.horizontalSections - 1) {
           h = (h - boxHeight).clamp(0, h);
@@ -112,17 +110,7 @@ class _HekriPageState extends State<HekriPage> {
 
     for (int i = 0; i < item.verticalSections - 1; i++) {
       if (!item.verticalAdapters[i]) {
-        int len = 0;
-        for (int r = 0; r < item.horizontalSections; r++) {
-          if (item.verticalDividers[r]) {
-            int h = item.sectionHeights[r];
-            if (r == item.horizontalSections - 1) {
-              h = (h - boxHeight).clamp(0, h);
-            }
-            len += (h - 80).clamp(0, h);
-          }
-        }
-        map[PieceType.t]!.add(len);
+        map[PieceType.t]!.add((effectiveHeight - 80).clamp(0, effectiveHeight));
       }
     }
     for (int i = 0; i < item.horizontalSections - 1; i++) {
