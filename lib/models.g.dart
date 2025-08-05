@@ -20,7 +20,7 @@ class CustomerAdapter extends TypeAdapter<Customer> {
       name: fields[0] as String,
       address: fields[1] as String,
       phone: fields[2] as String,
-      email: fields[3] as String? ?? '',
+      email: fields[3] as String?,
     );
   }
 
