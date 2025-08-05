@@ -193,8 +193,6 @@ class WindowDoorItem extends HiveObject {
   Uint8List? photoBytes; // raw image bytes
   @HiveField(24)
   String? notes; // optional notes for this item
-  @HiveField(26)
-  List<bool> verticalDividers; // true if a row uses vertical dividers
 
   WindowDoorItem({
     required this.name,
@@ -223,7 +221,6 @@ class WindowDoorItem extends HiveObject {
     List<int>? sectionHeights,
     List<bool>? verticalAdapters,
     List<bool>? horizontalAdapters,
-    List<bool>? verticalDividers,
   })  : fixedSectors = fixedSectors ??
             List<bool>.filled(verticalSections * horizontalSections, false),
         sectionWidths = sectionWidths ?? List<int>.filled(verticalSections, 0),
@@ -234,10 +231,7 @@ class WindowDoorItem extends HiveObject {
                 verticalSections > 0 ? verticalSections - 1 : 0, false),
         horizontalAdapters = horizontalAdapters ??
             List<bool>.filled(
-                horizontalSections > 0 ? horizontalSections - 1 : 0, false),
-        verticalDividers = verticalDividers ??
-            List<bool>.filled(
-                horizontalSections, verticalSections > 1);
+                horizontalSections > 0 ? horizontalSections - 1 : 0, false);
 
   /// Returns the cost for profiles using the exact section sizes.
   /// If [boxHeight] is provided, it will be subtracted from the total height
@@ -257,10 +251,8 @@ class WindowDoorItem extends HiveObject {
     double glazingBeadLength = 0;
 
     for (int r = 0; r < horizontalSections; r++) {
-      final cols = verticalDividers[r] ? verticalSections : 1;
-      for (int c = 0; c < cols; c++) {
-        final w =
-            verticalDividers[r] ? sectionWidths[c].toDouble() : width.toDouble();
+      for (int c = 0; c < verticalSections; c++) {
+        final w = sectionWidths[c].toDouble();
         final h = effectiveHeights[r].toDouble();
         final idx = r * verticalSections + c;
         if (!fixedSectors[idx]) {
@@ -269,25 +261,17 @@ class WindowDoorItem extends HiveObject {
           sashLength += 2 * (sashW + sashH) / 1000.0 * set.priceZ;
           final beadW = (sashW - 90).clamp(0, sashW);
           final beadH = (sashH - 90).clamp(0, sashH);
-          glazingBeadLength +=
-              2 * (beadW + beadH) / 1000.0 * set.priceLlajsne;
+          glazingBeadLength += 2 * (beadW + beadH) / 1000.0 * set.priceLlajsne;
         } else {
           final beadW = (w - 90).clamp(0, w);
           final beadH = (h - 90).clamp(0, h);
-          glazingBeadLength +=
-              2 * (beadW + beadH) / 1000.0 * set.priceLlajsne;
+          glazingBeadLength += 2 * (beadW + beadH) / 1000.0 * set.priceLlajsne;
         }
       }
     }
 
     for (int i = 0; i < verticalSections - 1; i++) {
-      double len = 0;
-      for (int r = 0; r < horizontalSections; r++) {
-        if (verticalDividers[r]) {
-          final h = effectiveHeights[r].toDouble();
-          len += (h - 80).clamp(0, h);
-        }
-      }
+      final len = (effectiveHeight - 80).clamp(0, effectiveHeight);
       if (verticalAdapters[i]) {
         adapterLength += (len / 1000.0) * set.priceAdapter;
       } else {
@@ -319,10 +303,8 @@ class WindowDoorItem extends HiveObject {
     }
     double total = 0;
     for (int r = 0; r < horizontalSections; r++) {
-      final cols = verticalDividers[r] ? verticalSections : 1;
-      for (int c = 0; c < cols; c++) {
-        final w =
-            verticalDividers[r] ? sectionWidths[c].toDouble() : width.toDouble();
+      for (int c = 0; c < verticalSections; c++) {
+        final w = sectionWidths[c].toDouble();
         final h = effectiveHeights[r].toDouble();
         final idx = r * verticalSections + c;
         if (!fixedSectors[idx]) {
@@ -359,10 +341,8 @@ class WindowDoorItem extends HiveObject {
     double glazingBeadLength = 0;
 
     for (int r = 0; r < horizontalSections; r++) {
-      final cols = verticalDividers[r] ? verticalSections : 1;
-      for (int c = 0; c < cols; c++) {
-        final w =
-            verticalDividers[r] ? sectionWidths[c].toDouble() : width.toDouble();
+      for (int c = 0; c < verticalSections; c++) {
+        final w = sectionWidths[c].toDouble();
         final h = effectiveHeights[r].toDouble();
         final idx = r * verticalSections + c;
         if (!fixedSectors[idx]) {
@@ -383,13 +363,7 @@ class WindowDoorItem extends HiveObject {
     }
 
     for (int i = 0; i < verticalSections - 1; i++) {
-      double len = 0;
-      for (int r = 0; r < horizontalSections; r++) {
-        if (verticalDividers[r]) {
-          final h = effectiveHeights[r].toDouble();
-          len += (h - 80).clamp(0, h);
-        }
-      }
+      final len = (effectiveHeight - 80).clamp(0, effectiveHeight);
       if (verticalAdapters[i]) {
         adapterLength += (len / 1000.0) * set.massAdapter;
       } else {
@@ -421,10 +395,8 @@ class WindowDoorItem extends HiveObject {
     }
     double total = 0;
     for (int r = 0; r < horizontalSections; r++) {
-      final cols = verticalDividers[r] ? verticalSections : 1;
-      for (int c = 0; c < cols; c++) {
-        final w =
-            verticalDividers[r] ? sectionWidths[c].toDouble() : width.toDouble();
+      for (int c = 0; c < verticalSections; c++) {
+        final w = sectionWidths[c].toDouble();
         final h = effectiveHeights[r].toDouble();
         final idx = r * verticalSections + c;
         if (!fixedSectors[idx]) {
