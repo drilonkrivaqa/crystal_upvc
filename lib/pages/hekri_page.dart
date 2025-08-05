@@ -104,9 +104,12 @@ class _HekriPageState extends State<HekriPage> {
           h = (h - boxHeight).clamp(0, h);
         }
         final idx = r * item.verticalSections + c;
+        final insets = item.sectionInsets(set, r, c);
         if (!item.fixedSectors[idx]) {
-          final sashW = (w - 2 * l + sashAdd).clamp(0, w);
-          final sashH = (h - 2 * l + sashAdd).clamp(0, h);
+          final sashW =
+              (w - insets.left - insets.right + sashAdd).clamp(0, w);
+          final sashH =
+              (h - insets.top - insets.bottom + sashAdd).clamp(0, h);
           map[PieceType.z]!
               .addAll([sashH.round(), sashH.round(), sashW.round(), sashW.round()]);
         }

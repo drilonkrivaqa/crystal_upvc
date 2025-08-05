@@ -103,9 +103,12 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
           h = (h - boxHeight).clamp(0, h);
         }
         final idx = r * item.verticalSections + c;
+        final insets = item.sectionInsets(set, r, c);
         if (!item.fixedSectors[idx]) {
-          final sashW = (w - 2 * l + sashAdd).clamp(0, w);
-          final sashH = (h - 2 * l + sashAdd).clamp(0, h);
+          final sashW =
+              (w - insets.left - insets.right + sashAdd).clamp(0, w);
+          final sashH =
+              (h - insets.top - insets.bottom + sashAdd).clamp(0, h);
           map[PieceType.z]!
               .addAll([sashH.round(), sashH.round(), sashW.round(), sashW.round()]);
           final beadW = (sashW - melt - 2 * z).clamp(0, sashW);
@@ -113,8 +116,10 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
           map[PieceType.llajsne]!
               .addAll([beadH.round(), beadH.round(), beadW.round(), beadW.round()]);
         } else {
-          final beadW = (w - 2 * l).clamp(0, w);
-          final beadH = (h - 2 * l).clamp(0, h);
+          final beadW =
+              (w - insets.left - insets.right).clamp(0, w);
+          final beadH =
+              (h - insets.top - insets.bottom).clamp(0, h);
           map[PieceType.llajsne]!
               .addAll([beadH.round(), beadH.round(), beadW.round(), beadW.round()]);
         }
