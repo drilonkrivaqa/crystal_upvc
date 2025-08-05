@@ -75,13 +75,19 @@ class ProfileSetAdapter extends TypeAdapter<ProfileSet> {
       massT: fields[12] as double,
       massAdapter: fields[13] as double,
       massLlajsne: fields[14] as double,
+      lInnerThickness: fields[15] as int? ?? 0,
+      zInnerThickness: fields[16] as int? ?? 0,
+      tInnerThickness: fields[17] as int? ?? 0,
+      fixedGlassTakeoff: fields[18] as int? ?? 0,
+      sashGlassTakeoff: fields[19] as int? ?? 0,
+      sashValue: fields[20] as int? ?? 0,
     );
   }
 
   @override
   void write(BinaryWriter writer, ProfileSet obj) {
     writer
-      ..writeByte(15)
+      ..writeByte(21)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -111,7 +117,19 @@ class ProfileSetAdapter extends TypeAdapter<ProfileSet> {
       ..writeByte(13)
       ..write(obj.massAdapter)
       ..writeByte(14)
-      ..write(obj.massLlajsne);
+      ..write(obj.massLlajsne)
+      ..writeByte(15)
+      ..write(obj.lInnerThickness)
+      ..writeByte(16)
+      ..write(obj.zInnerThickness)
+      ..writeByte(17)
+      ..write(obj.tInnerThickness)
+      ..writeByte(18)
+      ..write(obj.fixedGlassTakeoff)
+      ..writeByte(19)
+      ..write(obj.sashGlassTakeoff)
+      ..writeByte(20)
+      ..write(obj.sashValue);
   }
 
   @override
