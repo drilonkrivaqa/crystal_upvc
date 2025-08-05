@@ -59,6 +59,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   List<int> sectionHeights = [0];
   List<bool> verticalAdapters = [];
   List<bool> horizontalAdapters = [];
+  List<bool> verticalDividers = [];
   List<TextEditingController> sectionWidthCtrls = [];
   List<TextEditingController> sectionHeightCtrls = [];
 
@@ -122,6 +123,9 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
         List<bool>.from(widget.existingItem?.verticalAdapters ?? []);
     horizontalAdapters =
         List<bool>.from(widget.existingItem?.horizontalAdapters ?? []);
+    verticalDividers = List<bool>.from(
+        widget.existingItem?.verticalDividers ??
+            List<bool>.filled(horizontalSections, verticalSections > 1));
     _ensureGridSize();
   }
 
@@ -502,6 +506,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
         sectionHeights: sectionHeights,
         verticalAdapters: verticalAdapters,
         horizontalAdapters: horizontalAdapters,
+        verticalDividers: verticalDividers,
         photoPath: photoPath,
         photoBytes: photoBytes,
         manualPrice: mPrice,
@@ -639,6 +644,17 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
           horizontalAdapters.sublist(0, horizontalSections - 1);
     }
 
+    if (verticalDividers.length < horizontalSections) {
+      verticalDividers.addAll(List<bool>.filled(
+          horizontalSections - verticalDividers.length,
+          verticalSections > 1));
+    } else if (verticalDividers.length > horizontalSections) {
+      verticalDividers = verticalDividers.sublist(0, horizontalSections);
+    }
+    if (verticalSections <= 1) {
+      verticalDividers = List<bool>.filled(horizontalSections, false);
+    }
+
     _recalculateWidths();
     _recalculateHeights();
   }
@@ -755,9 +771,15 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                     ),
                   ),
                 ),
-                for (int c = 0; c < verticalSections; c++)
+                for (int c = 0;
+                    c < (verticalDividers[r] ? verticalSections : 1);
+                    c++)
                   Expanded(
-                    flex: sectionWidths[c] > 0 ? sectionWidths[c] : 1,
+                    flex: verticalDividers[r]
+                        ? (sectionWidths[c] > 0 ? sectionWidths[c] : 1)
+                        : (sectionWidths.fold(0, (a, b) => a + b) > 0
+                            ? sectionWidths.fold(0, (a, b) => a + b)
+                            : 1),
                     child: GestureDetector(
                       onTap: () {
                         int index = r * verticalSections + c;
@@ -832,6 +854,18 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
             onChanged: (val) =>
                 setState(() => verticalAdapters[i] = val ?? false),
           ),
+        if (verticalSections > 1 && horizontalSections > 0)
+          const SizedBox(height: 8),
+        if (verticalSections > 1 && horizontalSections > 0)
+          const Text('Divider për Seksionet Horizontale'),
+        if (verticalSections > 1)
+          for (int i = 0; i < horizontalSections; i++)
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text('H${i + 1}'),
+              value: verticalDividers[i],
+              onChanged: (val) => setState(() => verticalDividers[i] = val),
+            ),
         if (horizontalSections > 1) const SizedBox(height: 8),
         if (horizontalSections > 1) const Text('Ndarja Horizontale'),
         for (int i = 0; i < horizontalSections - 1; i++)
