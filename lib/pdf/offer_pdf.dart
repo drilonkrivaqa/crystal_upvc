@@ -138,89 +138,6 @@ Future<void> printOfferPdf({
     }
   }
 
-  final headerStyle = pw.TextStyle(fontWeight: pw.FontWeight.bold);
-
-  final summaryRows = <pw.TableRow>[
-    pw.TableRow(children: [
-      pw.Padding(
-          padding: pw.EdgeInsets.all(4),
-          child: pw.Text('Numri total i artikujve (pcs)')),
-      pw.Padding(
-          padding: pw.EdgeInsets.all(4),
-          child: pw.Text('$totalPcs', textAlign: pw.TextAlign.right)),
-    ]),
-    pw.TableRow(children: [
-      pw.Padding(
-          padding: pw.EdgeInsets.all(4),
-          child: pw.Text('Çmimi i artikujve (€)')),
-      pw.Padding(
-          padding: pw.EdgeInsets.all(4),
-          child: pw.Text(currency.format(itemsFinal),
-              textAlign: pw.TextAlign.right)),
-    ]),
-    for (final c in offer.extraCharges)
-      pw.TableRow(children: [
-        pw.Padding(
-            padding: pw.EdgeInsets.all(4),
-            child:
-                pw.Text(c.description.isNotEmpty ? c.description : 'Ekstra')),
-        pw.Padding(
-            padding: pw.EdgeInsets.all(4),
-            child:
-                pw.Text(currency.format(c.amount), textAlign: pw.TextAlign.right)),
-      ]),
-    if (offer.discountAmount != 0)
-      pw.TableRow(children: [
-        pw.Padding(
-            padding: pw.EdgeInsets.all(4),
-            child: pw.Text('Shuma e zbritjes')),
-        pw.Padding(
-            padding: pw.EdgeInsets.all(4),
-            child: pw.Text('-' + currency.format(offer.discountAmount),
-                textAlign: pw.TextAlign.right)),
-      ]),
-    if (offer.discountPercent != 0)
-      pw.TableRow(children: [
-        pw.Padding(
-            padding: pw.EdgeInsets.all(4), child: pw.Text('Zbritje %')),
-        pw.Padding(
-            padding: pw.EdgeInsets.all(4),
-            child: pw.Text(
-                '${offer.discountPercent.toStringAsFixed(2)}% (-' +
-                    currency.format(percentAmount) +
-                    ')',
-                textAlign: pw.TextAlign.right)),
-      ]),
-    pw.TableRow(children: [
-      pw.Padding(
-          padding: pw.EdgeInsets.all(4),
-          child: pw.Text('Çmimi total (€)', style: headerStyle)),
-      pw.Padding(
-          padding: pw.EdgeInsets.all(4),
-          child: pw.Text(formattedFinalTotal,
-              style: headerStyle, textAlign: pw.TextAlign.right)),
-    ]),
-  ];
-
-  final summarySection = pw.Column(
-    crossAxisAlignment: pw.CrossAxisAlignment.start,
-    children: [
-      pw.Table(
-        border: pw.TableBorder.all(width: 0.5),
-        defaultVerticalAlignment: pw.TableCellVerticalAlignment.middle,
-        columnWidths: {
-          0: pw.FlexColumnWidth(),
-          1: pw.FixedColumnWidth(100),
-        },
-        children: summaryRows,
-      ),
-      if (offer.notes.isNotEmpty) ...[
-        pw.SizedBox(height: 8),
-        pw.Text('Vërejtje/Notes: ${offer.notes}'),
-      ],
-    ],
-  );
-
   // ---- PHOTO CONTAINER SETTINGS ----
   final containerWidth = 150.0;
   final containerHeight = 110.0;
@@ -281,20 +198,16 @@ Future<void> printOfferPdf({
               ),
             )
           : pw.SizedBox(),
-      footer: (context) => pw.Column(
-        crossAxisAlignment: pw.CrossAxisAlignment.stretch,
-        children: [
-          if (context.pageNumber == context.pagesCount) summarySection,
-          pw.Align(
-            alignment: pw.Alignment.centerRight,
-            child: pw.Text(
-              'Page ${context.pageNumber} / ${context.pagesCount}',
-              style: pw.TextStyle(fontSize: 12),
-            ),
-          ),
-        ],
+      footer: (context) => pw.Align(
+        alignment: pw.Alignment.centerRight,
+        child: pw.Text(
+          'Page ${context.pageNumber} / ${context.pagesCount}',
+          style: pw.TextStyle(fontSize: 12),
+        ),
       ),
       build: (context) {
+        final headerStyle = pw.TextStyle(fontWeight: pw.FontWeight.bold);
+
         final widgets = <pw.Widget>[];
         widgets.add(pw.Header(
             level: 0,
@@ -553,6 +466,103 @@ Future<void> printOfferPdf({
           ),
         );
         widgets.add(pw.SizedBox(height: 12));
+
+        final summaryRows = <pw.TableRow>[];
+        summaryRows.add(
+          pw.TableRow(children: [
+            pw.Padding(
+                padding: pw.EdgeInsets.all(4),
+                child: pw.Text('Numri total i artikujve (pcs)')),
+            pw.Padding(
+                padding: pw.EdgeInsets.all(4),
+                child: pw.Text('$totalPcs', textAlign: pw.TextAlign.right)),
+          ]),
+        );
+        summaryRows.add(
+          pw.TableRow(children: [
+            pw.Padding(
+                padding: pw.EdgeInsets.all(4),
+                child: pw.Text('Çmimi i artikujve (€)')),
+            pw.Padding(
+                padding: pw.EdgeInsets.all(4),
+                child: pw.Text(currency.format(itemsFinal),
+                    textAlign: pw.TextAlign.right)),
+          ]),
+        );
+        if (offer.extraCharges.isNotEmpty) {
+          for (final c in offer.extraCharges) {
+            summaryRows.add(
+              pw.TableRow(children: [
+                pw.Padding(
+                    padding: pw.EdgeInsets.all(4),
+                    child: pw.Text(
+                        c.description.isNotEmpty ? c.description : 'Ekstra')),
+                pw.Padding(
+                    padding: pw.EdgeInsets.all(4),
+                    child: pw.Text(currency.format(c.amount),
+                        textAlign: pw.TextAlign.right)),
+              ]),
+            );
+          }
+        }
+        if (offer.discountAmount != 0) {
+          summaryRows.add(
+            pw.TableRow(children: [
+              pw.Padding(
+                  padding: pw.EdgeInsets.all(4),
+                  child: pw.Text('Shuma e zbritjes')),
+              pw.Padding(
+                  padding: pw.EdgeInsets.all(4),
+                  child: pw.Text('-' + currency.format(offer.discountAmount),
+                      textAlign: pw.TextAlign.right)),
+            ]),
+          );
+        }
+        if (offer.discountPercent != 0) {
+          summaryRows.add(
+            pw.TableRow(children: [
+              pw.Padding(
+                  padding: pw.EdgeInsets.all(4), child: pw.Text('Zbritje %')),
+              pw.Padding(
+                  padding: pw.EdgeInsets.all(4),
+                  child: pw.Text(
+                      '${offer.discountPercent.toStringAsFixed(2)}% (-' +
+                          currency.format(percentAmount) +
+                          ')',
+                      textAlign: pw.TextAlign.right)),
+            ]),
+          );
+        }
+        summaryRows.add(
+          pw.TableRow(children: [
+            pw.Padding(
+                padding: pw.EdgeInsets.all(4),
+                child: pw.Text('Çmimi total (€)', style: headerStyle)),
+            pw.Padding(
+                padding: pw.EdgeInsets.all(4),
+                child: pw.Text(formattedFinalTotal,
+                    style: headerStyle, textAlign: pw.TextAlign.right)),
+          ]),
+        );
+
+        widgets.add(
+          pw.Table(
+            border: pw.TableBorder.all(width: 0.5),
+            defaultVerticalAlignment: pw.TableCellVerticalAlignment.middle,
+            columnWidths: {
+              0: pw.FlexColumnWidth(),
+              1: pw.FixedColumnWidth(100),
+            },
+            children: summaryRows,
+          ),
+        );
+        if (offer.notes.isNotEmpty) {
+          widgets.add(pw.SizedBox(height: 8));
+          widgets.add(pw.Text('Vërejtje/Notes: ${offer.notes}'));
+        }
+
+        widgets.add(pw.SizedBox(height: 8));
+
         return widgets;
       },
     ),
