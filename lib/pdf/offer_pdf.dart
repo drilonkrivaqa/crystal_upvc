@@ -297,6 +297,8 @@ Future<void> printOfferPdf({
               blindMass +
               mechanismMass +
               accessoryMass;
+          final uw =
+              item.calculateUw(profile, glass, boxHeight: blind?.boxHeight ?? 0);
 
           double base = profileCost +
               glassCost +
@@ -347,6 +349,10 @@ Future<void> printOfferPdf({
             if (item.verticalSections != 1) pw.Text('V div: $vAdapters'),
             if (item.horizontalSections != 1) pw.Text('H div: $hAdapters'),
             pw.Text('Masa totale: ${totalMass.toStringAsFixed(2)} kg'),
+            if (glass.ug != null)
+              pw.Text('Ug: ${glass.ug!.toStringAsFixed(2)} W/m²K'),
+            if (uw != null)
+              pw.Text('Uw: ${uw.toStringAsFixed(2)} W/m²K'),
           ];
 
           rows.add(
