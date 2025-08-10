@@ -568,17 +568,23 @@ class WindowDoorItem extends HiveObject {
         double glassH;
         if (!fixedSectors[idx]) {
           final sashW =
-              (w - insets.left - insets.right + sashAdd).clamp(0, w);
+              (w - insets.left - insets.right + sashAdd).clamp(0, w).toDouble();
           final sashH =
-              (h - insets.top - insets.bottom + sashAdd).clamp(0, h);
+              (h - insets.top - insets.bottom + sashAdd).clamp(0, h).toDouble();
           sashLen += 2 * (sashW + sashH) / 1000.0;
-          glassW = (sashW - melt - 2 * z - sashTakeoff).clamp(0, sashW);
-          glassH = (sashH - melt - 2 * z - sashTakeoff).clamp(0, sashH);
+          glassW = (sashW - melt - 2 * z - sashTakeoff)
+              .clamp(0, sashW)
+              .toDouble();
+          glassH = (sashH - melt - 2 * z - sashTakeoff)
+              .clamp(0, sashH)
+              .toDouble();
         } else {
-          glassW =
-              (w - insets.left - insets.right - fixedTakeoff).clamp(0, w);
-          glassH =
-              (h - insets.top - insets.bottom - fixedTakeoff).clamp(0, h);
+          glassW = (w - insets.left - insets.right - fixedTakeoff)
+              .clamp(0, w)
+              .toDouble();
+          glassH = (h - insets.top - insets.bottom - fixedTakeoff)
+              .clamp(0, h)
+              .toDouble();
         }
         ag += (glassW / 1000.0) * (glassH / 1000.0);
         lg += 2 * ((glassW + glassH) / 1000.0);
