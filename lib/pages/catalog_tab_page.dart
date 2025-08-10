@@ -71,16 +71,6 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
         text: item is ProfileSet ? item.zInnerThickness.toString() : "");
     final tInnerController = TextEditingController(
         text: item is ProfileSet ? item.tInnerThickness.toString() : "");
-    final ufController = TextEditingController(
-        text: item is ProfileSet ? (item.uf?.toString() ?? '') : '');
-    final lOuterController = TextEditingController(
-        text: item is ProfileSet ? item.lOuterThickness.toString() : "");
-    final zOuterController = TextEditingController(
-        text: item is ProfileSet ? item.zOuterThickness.toString() : "");
-    final tOuterController = TextEditingController(
-        text: item is ProfileSet ? item.tOuterThickness.toString() : "");
-    final adapterOuterController = TextEditingController(
-        text: item is ProfileSet ? item.adapterOuterThickness.toString() : "");
     final fixedGlassController = TextEditingController(
         text: item is ProfileSet ? item.fixedGlassTakeoff.toString() : "");
     final sashGlassController = TextEditingController(
@@ -93,10 +83,6 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
     final massPerM2Controller = TextEditingController(
         text:
             (item is Glass || item is Blind) ? item.massPerM2.toString() : "");
-    final ugController = TextEditingController(
-        text: item is Glass ? (item.ug?.toString() ?? '') : '');
-    final psiController = TextEditingController(
-        text: item is Glass ? (item.psi?.toString() ?? '') : '');
     final boxHeightController = TextEditingController(
         text: item is Blind ? item.boxHeight.toString() : "");
     final priceController = TextEditingController(
@@ -174,26 +160,6 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                     decoration: const InputDecoration(
                         labelText: 'Trashësia e brendshme T (mm)')),
                 TextField(
-                    controller: lOuterController,
-                    decoration: const InputDecoration(
-                        labelText: 'Trashësia e jashtme L (mm)')),
-                TextField(
-                    controller: zOuterController,
-                    decoration: const InputDecoration(
-                        labelText: 'Trashësia e jashtme Z (mm)')),
-                TextField(
-                    controller: tOuterController,
-                    decoration: const InputDecoration(
-                        labelText: 'Trashësia e jashtme T (mm)')),
-                TextField(
-                    controller: adapterOuterController,
-                    decoration: const InputDecoration(
-                        labelText: 'Trashësia e jashtme Adapter (mm)')),
-                TextField(
-                    controller: ufController,
-                    decoration:
-                        const InputDecoration(labelText: 'Uf (W/m²K)')),
-                TextField(
                     controller: fixedGlassController,
                     decoration: const InputDecoration(
                         labelText: 'Humbja xhami fiks (mm)')),
@@ -216,16 +182,6 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                 TextField(
                     controller: massPerM2Controller,
                     decoration: const InputDecoration(labelText: 'Masa kg/m²')),
-              if (widget.type == CatalogType.glass)
-                TextField(
-                    controller: ugController,
-                    decoration:
-                        const InputDecoration(labelText: 'Ug (W/m²K)')),
-              if (widget.type == CatalogType.glass)
-                TextField(
-                    controller: psiController,
-                    decoration:
-                        const InputDecoration(labelText: 'Psi (W/mK)')),
               if (widget.type == CatalogType.blind)
                 TextField(
                     controller: boxHeightController,
@@ -291,15 +247,6 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                             int.tryParse(zInnerController.text) ?? 0,
                         tInnerThickness:
                             int.tryParse(tInnerController.text) ?? 0,
-                        lOuterThickness:
-                            int.tryParse(lOuterController.text) ?? 0,
-                        zOuterThickness:
-                            int.tryParse(zOuterController.text) ?? 0,
-                        tOuterThickness:
-                            int.tryParse(tOuterController.text) ?? 0,
-                        adapterOuterThickness:
-                            int.tryParse(adapterOuterController.text) ?? 0,
-                        uf: double.tryParse(ufController.text),
                         fixedGlassTakeoff:
                             int.tryParse(fixedGlassController.text) ?? 0,
                         sashGlassTakeoff:
@@ -317,8 +264,6 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                             double.tryParse(pricePerM2Controller.text) ?? 0,
                         massPerM2:
                             double.tryParse(massPerM2Controller.text) ?? 0,
-                        ug: double.tryParse(ugController.text),
-                        psi: double.tryParse(psiController.text),
                       ));
                   break;
                 case CatalogType.blind:
@@ -378,18 +323,11 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
     final lInnerController = TextEditingController();
     final zInnerController = TextEditingController();
     final tInnerController = TextEditingController();
-    final ufController = TextEditingController();
-    final lOuterController = TextEditingController();
-    final zOuterController = TextEditingController();
-    final tOuterController = TextEditingController();
-    final adapterOuterController = TextEditingController();
     final fixedGlassController = TextEditingController();
     final sashGlassController = TextEditingController();
     final sashValueController = TextEditingController();
     final pricePerM2Controller = TextEditingController();
     final massPerM2Controller = TextEditingController();
-    final ugController = TextEditingController();
-    final psiController = TextEditingController();
     final boxHeightController = TextEditingController();
     final priceController = TextEditingController();
     final massController = TextEditingController();
@@ -462,26 +400,6 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                     decoration: const InputDecoration(
                         labelText: 'Trashësia e brendshme T (mm)')),
                 TextField(
-                    controller: lOuterController,
-                    decoration: const InputDecoration(
-                        labelText: 'Trashësia e jashtme L (mm)')),
-                TextField(
-                    controller: zOuterController,
-                    decoration: const InputDecoration(
-                        labelText: 'Trashësia e jashtme Z (mm)')),
-                TextField(
-                    controller: tOuterController,
-                    decoration: const InputDecoration(
-                        labelText: 'Trashësia e jashtme T (mm)')),
-                TextField(
-                    controller: adapterOuterController,
-                    decoration: const InputDecoration(
-                        labelText: 'Trashësia e jashtme Adapter (mm)')),
-                TextField(
-                    controller: ufController,
-                    decoration:
-                        const InputDecoration(labelText: 'Uf (W/m²K)')),
-                TextField(
                     controller: fixedGlassController,
                     decoration: const InputDecoration(
                         labelText: 'Humbja xhami fiks (mm)')),
@@ -504,16 +422,6 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                 TextField(
                     controller: massPerM2Controller,
                     decoration: const InputDecoration(labelText: 'Masa kg/m²')),
-              if (widget.type == CatalogType.glass)
-                TextField(
-                    controller: ugController,
-                    decoration:
-                        const InputDecoration(labelText: 'Ug (W/m²K)')),
-              if (widget.type == CatalogType.glass)
-                TextField(
-                    controller: psiController,
-                    decoration:
-                        const InputDecoration(labelText: 'Psi (W/mK)')),
               if (widget.type == CatalogType.blind)
                 TextField(
                     controller: boxHeightController,
@@ -563,15 +471,6 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                         int.tryParse(zInnerController.text) ?? 0,
                     tInnerThickness:
                         int.tryParse(tInnerController.text) ?? 0,
-                    lOuterThickness:
-                        int.tryParse(lOuterController.text) ?? 0,
-                    zOuterThickness:
-                        int.tryParse(zOuterController.text) ?? 0,
-                    tOuterThickness:
-                        int.tryParse(tOuterController.text) ?? 0,
-                    adapterOuterThickness:
-                        int.tryParse(adapterOuterController.text) ?? 0,
-                    uf: double.tryParse(ufController.text),
                     fixedGlassTakeoff:
                         int.tryParse(fixedGlassController.text) ?? 0,
                     sashGlassTakeoff:
@@ -585,8 +484,6 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                     name: nameController.text,
                     pricePerM2: double.tryParse(pricePerM2Controller.text) ?? 0,
                     massPerM2: double.tryParse(massPerM2Controller.text) ?? 0,
-                    ug: double.tryParse(ugController.text),
-                    psi: double.tryParse(psiController.text),
                   ));
                   break;
                 case CatalogType.blind:
