@@ -546,14 +546,16 @@ Future<void> printOfferPdf({
         );
 
         widgets.add(
-          pw.Table(
-            border: pw.TableBorder.all(width: 0.5),
-            defaultVerticalAlignment: pw.TableCellVerticalAlignment.middle,
-            columnWidths: {
-              0: pw.FlexColumnWidth(),
-              1: pw.FixedColumnWidth(100),
-            },
-            children: summaryRows,
+          pw.KeepTogether(
+            child: pw.Table(
+              border: pw.TableBorder.all(width: 0.5),
+              defaultVerticalAlignment: pw.TableCellVerticalAlignment.middle,
+              columnWidths: {
+                0: pw.FlexColumnWidth(),
+                1: pw.FixedColumnWidth(100),
+              },
+              children: summaryRows,
+            ),
           ),
         );
         if (offer.notes.isNotEmpty) {
