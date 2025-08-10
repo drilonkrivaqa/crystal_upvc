@@ -66,16 +66,6 @@ class ProfileSet extends HiveObject {
   int sashGlassTakeoff; // Takeoff for sash glass
   @HiveField(20)
   int sashValue; // Value added for sash calculation
-  @HiveField(21)
-  double? uf; // Thermal transmittance of profiles
-  @HiveField(22)
-  int lOuterThickness; // Outer thickness of L profile
-  @HiveField(23)
-  int zOuterThickness; // Outer thickness of Z profile
-  @HiveField(24)
-  int tOuterThickness; // Outer thickness of T profile
-  @HiveField(25)
-  int adapterOuterThickness; // Outer thickness of Adapter
 
   ProfileSet({
     required this.name,
@@ -99,11 +89,6 @@ class ProfileSet extends HiveObject {
     this.fixedGlassTakeoff = 0,
     this.sashGlassTakeoff = 0,
     this.sashValue = 0,
-    this.uf,
-    this.lOuterThickness = 0,
-    this.zOuterThickness = 0,
-    this.tOuterThickness = 0,
-    this.adapterOuterThickness = 0,
   });
 }
 
@@ -115,16 +100,10 @@ class Glass extends HiveObject {
   double pricePerM2;
   @HiveField(2)
   double massPerM2;
-  @HiveField(3)
-  double? ug; // Thermal transmittance of glass
-  @HiveField(4)
-  double? psi; // Linear thermal transmittance of glass
   Glass({
     required this.name,
     required this.pricePerM2,
     this.massPerM2 = 0,
-    this.ug,
-    this.psi,
   });
 }
 
@@ -528,89 +507,6 @@ class WindowDoorItem extends HiveObject {
       }
     }
     return total;
-  }
-
-  /// Calculates Uw value for the window/door item. Returns null if any
-  /// required parameter is missing.
-  double? calculateUw(ProfileSet set, Glass glass, {int boxHeight = 0}) {
-    final uf = set.uf;
-    final ug = glass.ug;
-    final psi = glass.psi;
-    if (uf == null || ug == null || psi == null) return null;
-
-    final effectiveHeight = (height - boxHeight).clamp(0, height);
-    final effectiveHeights = List<int>.from(sectionHeights);
-    if (effectiveHeights.isNotEmpty) {
-      effectiveHeights[effectiveHeights.length - 1] =
-          (effectiveHeights.last - boxHeight).clamp(0, effectiveHeights.last);
-    }
-    final l = set.lInnerThickness.toDouble();
-    final z = set.zInnerThickness.toDouble();
-    const melt = 6.0;
-    final sashAdd = set.sashValue.toDouble();
-    final fixedTakeoff = set.fixedGlassTakeoff.toDouble();
-    final sashTakeoff = set.sashGlassTakeoff.toDouble();
-
-    double frameLen = 2 * (width + effectiveHeight) / 1000.0;
-    double sashLen = 0;
-    double adapterLen = 0;
-    double tLen = 0;
-    double ag = 0;
-    double lg = 0;
-
-    for (int r = 0; r < horizontalSections; r++) {
-      for (int c = 0; c < verticalSections; c++) {
-        final w = sectionWidths[c].toDouble();
-        final h = effectiveHeights[r].toDouble();
-        final idx = r * verticalSections + c;
-        final insets = sectionInsets(set, r, c);
-        double glassW;
-        double glassH;
-        if (!fixedSectors[idx]) {
-          final sashW =
-              (w - insets.left - insets.right + sashAdd).clamp(0, w);
-          final sashH =
-              (h - insets.top - insets.bottom + sashAdd).clamp(0, h);
-          sashLen += 2 * (sashW + sashH) / 1000.0;
-          glassW = (sashW - melt - 2 * z - sashTakeoff).clamp(0, sashW);
-          glassH = (sashH - melt - 2 * z - sashTakeoff).clamp(0, sashH);
-        } else {
-          glassW =
-              (w - insets.left - insets.right - fixedTakeoff).clamp(0, w);
-          glassH =
-              (h - insets.top - insets.bottom - fixedTakeoff).clamp(0, h);
-        }
-        ag += (glassW / 1000.0) * (glassH / 1000.0);
-        lg += 2 * ((glassW + glassH) / 1000.0);
-      }
-    }
-
-    for (int i = 0; i < verticalSections - 1; i++) {
-      final len = (effectiveHeight - 2 * l).clamp(0, effectiveHeight) / 1000.0;
-      if (verticalAdapters[i]) {
-        adapterLen += len;
-      } else {
-        tLen += len;
-      }
-    }
-    for (int i = 0; i < horizontalSections - 1; i++) {
-      final len = (width - 2 * l).clamp(0, width) / 1000.0;
-      if (horizontalAdapters[i]) {
-        adapterLen += len;
-      } else {
-        tLen += len;
-      }
-    }
-
-    final af =
-        frameLen * (set.lOuterThickness / 1000.0) +
-            sashLen * (set.zOuterThickness / 1000.0) +
-            adapterLen * (set.adapterOuterThickness / 1000.0) +
-            tLen * (set.tOuterThickness / 1000.0);
-
-    final denom = ag + af;
-    if (denom == 0) return null;
-    return (af * uf + ag * ug + lg * psi) / denom;
   }
 }
 
