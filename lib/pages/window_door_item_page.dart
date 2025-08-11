@@ -790,7 +790,10 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (verticalSections > 0) const Text('Gjerësitë e sektorëve (mm)'),
+        if (verticalSections > 0)
+          Text(verticalSections > 1
+              ? 'Gjerësitë e sektorëve (mm)'
+              : 'Gjerësia e sektorit (mm)'),
         for (int i = 0; i < verticalSections; i++)
           TextField(
             controller: sectionWidthCtrls[i],
@@ -805,7 +808,10 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                 i < verticalSections - 1 ? (_) => _recalculateWidths() : null,
           ),
         if (horizontalSections > 0) const SizedBox(height: 8),
-        if (horizontalSections > 0) const Text('Lartësitë e sektorëve (mm)'),
+        if (horizontalSections > 0)
+          Text(horizontalSections > 1
+              ? 'Lartësitë e sektorëve (mm)'
+              : 'Lartësia e sektorit (mm)'),
         for (int i = 0; i < horizontalSections; i++)
           TextField(
             controller: sectionHeightCtrls[i],
