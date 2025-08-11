@@ -2,8 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../theme/app_background.dart';
 
-class WelcomePage extends StatelessWidget {
-  const WelcomePage({super.key});
+class WelcomePage extends StatefulWidget {
+  final List<String> failedBoxes;
+  const WelcomePage({super.key, this.failedBoxes = const []});
+
+  @override
+  State<WelcomePage> createState() => _WelcomePageState();
+}
+
+class _WelcomePageState extends State<WelcomePage> {
+  @override
+  void initState() {
+    super.initState();
+    if (widget.failedBoxes.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final names = widget.failedBoxes.join(', ');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Disa të dhëna nuk u ngarkuan: $names')),
+        );
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
