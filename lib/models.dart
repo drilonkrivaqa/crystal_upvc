@@ -123,8 +123,8 @@ class Glass extends HiveObject {
     required this.name,
     required this.pricePerM2,
     this.massPerM2 = 0,
-    this.ug = 0,
-    this.psi = 0,
+    this.ug,
+    this.psi,
   });
 }
 
