@@ -1,8 +1,5 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'theme/app_background.dart';
 import 'widgets/glass_card.dart';
@@ -40,20 +37,8 @@ void main() async {
       return true;
     } catch (e) {
       debugPrint('Error opening box $name: $e');
-      try {
-        final dir = await getApplicationDocumentsDirectory();
-        final file = File('${dir.path}/$name.hive');
-        if (await file.exists()) {
-          await file.copy('${file.path}.bak');
-        }
-        await Hive.deleteBoxFromDisk(name);
-        await Hive.openBox<T>(name);
-        return true;
-      } catch (e2) {
-        failedBoxes.add(name);
-        debugPrint('Recovery failed for box $name: $e2');
-        return false;
-      }
+      failedBoxes.add(name);
+      return false;
     }
   }
 
