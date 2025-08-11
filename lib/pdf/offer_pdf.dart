@@ -201,7 +201,7 @@ Future<void> printOfferPdf({
       footer: (context) => pw.Align(
         alignment: pw.Alignment.centerRight,
         child: pw.Text(
-          'Page ${context.pageNumber} / ${context.pagesCount}',
+          'Faqja ${context.pageNumber} / ${context.pagesCount}',
           style: pw.TextStyle(fontSize: 12),
         ),
       ),
@@ -350,9 +350,9 @@ Future<void> printOfferPdf({
             if (item.horizontalSections != 1) pw.Text('H div: $hAdapters'),
             pw.Text('Masa totale: ${totalMass.toStringAsFixed(2)} kg'),
             if (glass.ug != null)
-              pw.Text('Ug: ${glass.ug!.toStringAsFixed(2)} W/m²K'),
+              pw.Text('Ug: ${glass.ug!.toStringAsFixed(2)}', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
             if (uw != null)
-              pw.Text('Uw: ${uw.toStringAsFixed(2)} W/m²K'),
+              pw.Text('Uw: ${uw.toStringAsFixed(2)}', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
           ];
 
           rows.add(
