@@ -310,11 +310,11 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                         massLlajsne:
                             double.tryParse(massLlajsneController.text) ?? 0,
                         lInnerThickness:
-                            int.tryParse(lInnerController.text) ?? 0,
+                            int.tryParse(lInnerController.text) ?? 40,
                         zInnerThickness:
-                            int.tryParse(zInnerController.text) ?? 0,
+                            int.tryParse(zInnerController.text) ?? 40,
                         tInnerThickness:
-                            int.tryParse(tInnerController.text) ?? 0,
+                            int.tryParse(tInnerController.text) ?? 40,
                         lOuterThickness:
                             int.tryParse(lOuterController.text) ?? 0,
                         zOuterThickness:
@@ -325,11 +325,11 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                             int.tryParse(adapterOuterController.text) ?? 0,
                         uf: double.tryParse(ufController.text),
                         fixedGlassTakeoff:
-                            int.tryParse(fixedGlassController.text) ?? 0,
+                            int.tryParse(fixedGlassController.text) ?? 15,
                         sashGlassTakeoff:
-                            int.tryParse(sashGlassController.text) ?? 0,
+                            int.tryParse(sashGlassController.text) ?? 10,
                         sashValue:
-                            int.tryParse(sashValueController.text) ?? 0,
+                            int.tryParse(sashValueController.text) ?? 22,
                       ));
                   break;
                 case CatalogType.glass:
@@ -399,17 +399,17 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
     final massTController = TextEditingController();
     final massAdapterController = TextEditingController();
     final massLlajsneController = TextEditingController();
-    final lInnerController = TextEditingController();
-    final zInnerController = TextEditingController();
-    final tInnerController = TextEditingController();
+    final lInnerController = TextEditingController(text: '40');
+    final zInnerController = TextEditingController(text: '40');
+    final tInnerController = TextEditingController(text: '40');
     final ufController = TextEditingController();
     final lOuterController = TextEditingController();
     final zOuterController = TextEditingController();
     final tOuterController = TextEditingController();
     final adapterOuterController = TextEditingController();
-    final fixedGlassController = TextEditingController();
-    final sashGlassController = TextEditingController();
-    final sashValueController = TextEditingController();
+    final fixedGlassController = TextEditingController(text: '15');
+    final sashGlassController = TextEditingController(text: '10');
+    final sashValueController = TextEditingController(text: '22');
     final pricePerM2Controller = TextEditingController();
     final massPerM2Controller = TextEditingController();
     final ugController = TextEditingController();
@@ -606,11 +606,11 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                     massLlajsne:
                         double.tryParse(massLlajsneController.text) ?? 0,
                     lInnerThickness:
-                        int.tryParse(lInnerController.text) ?? 0,
+                        int.tryParse(lInnerController.text) ?? 40,
                     zInnerThickness:
-                        int.tryParse(zInnerController.text) ?? 0,
+                        int.tryParse(zInnerController.text) ?? 40,
                     tInnerThickness:
-                        int.tryParse(tInnerController.text) ?? 0,
+                        int.tryParse(tInnerController.text) ?? 40,
                     lOuterThickness:
                         int.tryParse(lOuterController.text) ?? 0,
                     zOuterThickness:
@@ -621,11 +621,11 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                         int.tryParse(adapterOuterController.text) ?? 0,
                     uf: double.tryParse(ufController.text),
                     fixedGlassTakeoff:
-                        int.tryParse(fixedGlassController.text) ?? 0,
+                        int.tryParse(fixedGlassController.text) ?? 15,
                     sashGlassTakeoff:
-                        int.tryParse(sashGlassController.text) ?? 0,
+                        int.tryParse(sashGlassController.text) ?? 10,
                     sashValue:
-                        int.tryParse(sashValueController.text) ?? 0,
+                        int.tryParse(sashValueController.text) ?? 22,
                   ));
                   break;
                 case CatalogType.glass:
