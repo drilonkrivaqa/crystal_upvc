@@ -213,9 +213,10 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
             double profileCost = item.calculateProfileCost(profileSet,
                     boxHeight: blind?.boxHeight ?? 0) *
                 item.quantity;
-            double glassCost = item.calculateGlassCost(glass,
-                    boxHeight: blind?.boxHeight ?? 0) *
-                item.quantity;
+            double glassCost =
+                item.calculateGlassCost(profileSet, glass,
+                        boxHeight: blind?.boxHeight ?? 0) *
+                    item.quantity;
             double blindCost = (blind != null)
                 ? ((item.width / 1000.0) *
                     (item.height / 1000.0) *
@@ -234,9 +235,10 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
             double profileMass = item.calculateProfileMass(profileSet,
                     boxHeight: blind?.boxHeight ?? 0) *
                 item.quantity;
-            double glassMass = item.calculateGlassMass(glass,
-                    boxHeight: blind?.boxHeight ?? 0) *
-                item.quantity;
+            double glassMass =
+                item.calculateGlassMass(profileSet, glass,
+                        boxHeight: blind?.boxHeight ?? 0) *
+                    item.quantity;
             double blindMass = (blind != null)
                 ? ((item.width / 1000.0) *
                     (item.height / 1000.0) *
@@ -376,9 +378,10 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 double profileCost = item.calculateProfileCost(profileSet,
                         boxHeight: blind?.boxHeight ?? 0) *
                     item.quantity;
-                double glassCost = item.calculateGlassCost(glass,
-                        boxHeight: blind?.boxHeight ?? 0) *
-                    item.quantity;
+                double glassCost =
+                    item.calculateGlassCost(profileSet, glass,
+                            boxHeight: blind?.boxHeight ?? 0) *
+                        item.quantity;
                 double blindCost = (blind != null)
                     ? ((item.width / 1000.0) *
                         (item.height / 1000.0) *

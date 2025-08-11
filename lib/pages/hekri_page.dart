@@ -49,7 +49,8 @@ class _HekriPageState extends State<HekriPage> {
       final blind = item.blindIndex != null
           ? Hive.box<Blind>('blinds').getAt(item.blindIndex!)
           : null;
-      final itemPieces = _pieceLengths(item, boxHeight: blind?.boxHeight ?? 0);
+      final itemPieces =
+          _pieceLengths(item, profile, boxHeight: blind?.boxHeight ?? 0);
 
       for (int q = 0; q < item.quantity; q++) {
         final list = piecesMap.putIfAbsent(item.profileSetIndex, () => <int>[]);
@@ -79,7 +80,7 @@ class _HekriPageState extends State<HekriPage> {
     setState(() => results = res);
   }
 
-  Map<PieceType, List<int>> _pieceLengths(WindowDoorItem item,
+  Map<PieceType, List<int>> _pieceLengths(WindowDoorItem item, ProfileSet set,
       {int boxHeight = 0}) {
     final map = {
       PieceType.l: <int>[],
@@ -92,30 +93,39 @@ class _HekriPageState extends State<HekriPage> {
     map[PieceType.l]!
         .addAll([effectiveHeight, effectiveHeight, item.width, item.width]);
 
+    final l = set.lInnerThickness.toDouble();
+    final sashAdd = set.sashValue.toDouble();
+
     for (int r = 0; r < item.horizontalSections; r++) {
       for (int c = 0; c < item.verticalSections; c++) {
-        final w = item.sectionWidths[c];
-        int h = item.sectionHeights[r];
+        final w = item.sectionWidths[c].toDouble();
+        double h = item.sectionHeights[r].toDouble();
         if (r == item.horizontalSections - 1) {
           h = (h - boxHeight).clamp(0, h);
         }
         final idx = r * item.verticalSections + c;
+        final insets = item.sectionInsets(set, r, c);
         if (!item.fixedSectors[idx]) {
-          final sashW = (w - 90).clamp(0, w);
-          final sashH = (h - 90).clamp(0, h);
-          map[PieceType.z]!.addAll([sashH, sashH, sashW, sashW]);
+          final sashW =
+              (w - insets.left - insets.right + sashAdd).clamp(0, w);
+          final sashH =
+              (h - insets.top - insets.bottom + sashAdd).clamp(0, h);
+          map[PieceType.z]!
+              .addAll([sashH.round(), sashH.round(), sashW.round(), sashW.round()]);
         }
       }
     }
 
     for (int i = 0; i < item.verticalSections - 1; i++) {
       if (!item.verticalAdapters[i]) {
-        map[PieceType.t]!.add((effectiveHeight - 80).clamp(0, effectiveHeight));
+        final len = (effectiveHeight - 2 * l).clamp(0, effectiveHeight).round();
+        map[PieceType.t]!.add(len);
       }
     }
     for (int i = 0; i < item.horizontalSections - 1; i++) {
       if (!item.horizontalAdapters[i]) {
-        map[PieceType.t]!.add((item.width - 80).clamp(0, item.width));
+        final len = (item.width - 2 * l).clamp(0, item.width).round();
+        map[PieceType.t]!.add(len);
       }
     }
     return map;

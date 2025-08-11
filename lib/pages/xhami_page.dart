@@ -16,6 +16,7 @@ class _XhamiPageState extends State<XhamiPage> {
   late Box<Offer> offerBox;
   late Box<Glass> glassBox;
   late Box<Blind> blindBox;
+  late Box<ProfileSet> profileBox;
   int? selectedOffer;
   Map<int, Map<String, int>>? results; // glassIndex -> size -> qty
 
@@ -25,6 +26,7 @@ class _XhamiPageState extends State<XhamiPage> {
     offerBox = Hive.box<Offer>('offers');
     glassBox = Hive.box<Glass>('glasses');
     blindBox = Hive.box<Blind>('blinds');
+    profileBox = Hive.box<ProfileSet>('profileSets');
     if (offerBox.isNotEmpty) selectedOffer = 0;
   }
 
@@ -38,7 +40,10 @@ class _XhamiPageState extends State<XhamiPage> {
     for (final item in offer.items) {
       final blind =
           item.blindIndex != null ? blindBox.getAt(item.blindIndex!) : null;
-      final sizes = _glassSizes(item, boxHeight: blind?.boxHeight ?? 0);
+      final profile = profileBox.getAt(item.profileSetIndex);
+      if (profile == null) continue;
+      final sizes =
+          _glassSizes(item, profile, boxHeight: blind?.boxHeight ?? 0);
       final target = res.putIfAbsent(item.glassIndex, () => {});
       for (final size in sizes) {
         final key = '${size[0]} x ${size[1]}';
@@ -49,7 +54,8 @@ class _XhamiPageState extends State<XhamiPage> {
     setState(() => results = res);
   }
 
-  List<List<int>> _glassSizes(WindowDoorItem item, {int boxHeight = 0}) {
+  List<List<int>> _glassSizes(WindowDoorItem item, ProfileSet set,
+      {int boxHeight = 0}) {
     final sizes = <List<int>>[];
     final effectiveHeights = List<int>.from(item.sectionHeights);
     if (effectiveHeights.isNotEmpty) {
@@ -59,19 +65,32 @@ class _XhamiPageState extends State<XhamiPage> {
 
     for (int r = 0; r < item.horizontalSections; r++) {
       for (int c = 0; c < item.verticalSections; c++) {
-        final w = item.sectionWidths[c];
-        final h = effectiveHeights[r];
+        final w = item.sectionWidths[c].toDouble();
+        final h = effectiveHeights[r].toDouble();
         final idx = r * item.verticalSections + c;
+        final l = set.lInnerThickness.toDouble();
+        final z = set.zInnerThickness.toDouble();
+        const melt = 6.0;
+        final sashAdd = set.sashValue.toDouble();
+        final fixedTakeoff = set.fixedGlassTakeoff.toDouble();
+        final sashTakeoff = set.sashGlassTakeoff.toDouble();
+        final insets = item.sectionInsets(set, r, c);
         if (!item.fixedSectors[idx]) {
-          final sashW = (w - 90).clamp(0, w);
-          final sashH = (h - 90).clamp(0, h);
-          final glassW = (sashW - 10).clamp(0, sashW);
-          final glassH = (sashH - 10).clamp(0, sashH);
-          sizes.add([glassW, glassH]);
+          final sashW =
+              (w - insets.left - insets.right + sashAdd).clamp(0, w);
+          final sashH =
+              (h - insets.top - insets.bottom + sashAdd).clamp(0, h);
+          final glassW =
+              (sashW - melt - 2 * z - sashTakeoff).clamp(0, sashW);
+          final glassH =
+              (sashH - melt - 2 * z - sashTakeoff).clamp(0, sashH);
+          sizes.add([glassW.round(), glassH.round()]);
         } else {
-          final glassW = (w - 100).clamp(0, w);
-          final glassH = (h - 100).clamp(0, h);
-          sizes.add([glassW, glassH]);
+          final glassW = (w - insets.left - insets.right - fixedTakeoff)
+              .clamp(0, w);
+          final glassH = (h - insets.top - insets.bottom - fixedTakeoff)
+              .clamp(0, h);
+          sizes.add([glassW.round(), glassH.round()]);
         }
       }
     }

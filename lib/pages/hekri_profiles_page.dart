@@ -76,6 +76,17 @@ class _HekriProfilesPageState extends State<HekriProfilesPage> {
                   hekriOffsetL: int.tryParse(offsetLController.text) ?? 0,
                   hekriOffsetZ: int.tryParse(offsetZController.text) ?? 0,
                   hekriOffsetT: int.tryParse(offsetTController.text) ?? 0,
+                  massL: profile.massL,
+                  massZ: profile.massZ,
+                  massT: profile.massT,
+                  massAdapter: profile.massAdapter,
+                  massLlajsne: profile.massLlajsne,
+                  lInnerThickness: profile.lInnerThickness,
+                  zInnerThickness: profile.zInnerThickness,
+                  tInnerThickness: profile.tInnerThickness,
+                  fixedGlassTakeoff: profile.fixedGlassTakeoff,
+                  sashGlassTakeoff: profile.sashGlassTakeoff,
+                  sashValue: profile.sashValue,
                 ),
               );
               Navigator.pop(context);
