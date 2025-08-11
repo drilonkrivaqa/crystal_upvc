@@ -36,45 +36,45 @@ class ProfileSet extends HiveObject {
   double priceAdapter; // Adapter (for double sash)
   @HiveField(5)
   double priceLlajsne; // Glazing bead
-  @HiveField(6)
+  @HiveField(6, defaultValue: 0)
   int pipeLength; // Standard pipe length in mm
-  @HiveField(7)
+  @HiveField(7, defaultValue: 0)
   int hekriOffsetL; // Hekri length difference for L profile
-  @HiveField(8)
+  @HiveField(8, defaultValue: 0)
   int hekriOffsetZ; // Hekri length difference for Z profile
-  @HiveField(9)
+  @HiveField(9, defaultValue: 0)
   int hekriOffsetT; // Hekri length difference for T profile
-  @HiveField(10)
+  @HiveField(10, defaultValue: 0)
   double massL; // Mass per meter for L profile
-  @HiveField(11)
+  @HiveField(11, defaultValue: 0)
   double massZ; // Mass per meter for Z profile
-  @HiveField(12)
+  @HiveField(12, defaultValue: 0)
   double massT; // Mass per meter for T profile
-  @HiveField(13)
+  @HiveField(13, defaultValue: 0)
   double massAdapter; // Mass per meter for Adapter
-  @HiveField(14)
+  @HiveField(14, defaultValue: 0)
   double massLlajsne; // Mass per meter for Glazing bead
-  @HiveField(15)
+  @HiveField(15, defaultValue: 0)
   int lInnerThickness; // Inner thickness of L profile
-  @HiveField(16)
+  @HiveField(16, defaultValue: 0)
   int zInnerThickness; // Inner thickness of Z profile
-  @HiveField(17)
+  @HiveField(17, defaultValue: 0)
   int tInnerThickness; // Inner thickness of T profile
-  @HiveField(18)
+  @HiveField(18, defaultValue: 0)
   int fixedGlassTakeoff; // Takeoff for fixed glass
-  @HiveField(19)
+  @HiveField(19, defaultValue: 0)
   int sashGlassTakeoff; // Takeoff for sash glass
-  @HiveField(20)
+  @HiveField(20, defaultValue: 0)
   int sashValue; // Value added for sash calculation
-  @HiveField(21)
+  @HiveField(21, defaultValue: 0)
   double? uf; // Thermal transmittance of profiles
-  @HiveField(22)
+  @HiveField(22, defaultValue: 0)
   int lOuterThickness; // Outer thickness of L profile
-  @HiveField(23)
+  @HiveField(23, defaultValue: 0)
   int zOuterThickness; // Outer thickness of Z profile
-  @HiveField(24)
+  @HiveField(24, defaultValue: 0)
   int tOuterThickness; // Outer thickness of T profile
-  @HiveField(25)
+  @HiveField(25, defaultValue: 0)
   int adapterOuterThickness; // Outer thickness of Adapter
 
   ProfileSet({
@@ -113,11 +113,11 @@ class Glass extends HiveObject {
   String name;
   @HiveField(1)
   double pricePerM2;
-  @HiveField(2)
+  @HiveField(2, defaultValue: 0)
   double massPerM2;
-  @HiveField(3)
+  @HiveField(3, defaultValue: 0)
   double? ug; // Thermal transmittance of glass
-  @HiveField(4)
+  @HiveField(4, defaultValue: 0)
   double? psi; // Linear thermal transmittance of glass
   Glass({
     required this.name,
@@ -134,9 +134,9 @@ class Blind extends HiveObject {
   String name;
   @HiveField(1)
   double pricePerM2;
-  @HiveField(2)
+  @HiveField(2, defaultValue: 0)
   int boxHeight; // height of the box in mm
-  @HiveField(3)
+  @HiveField(3, defaultValue: 0)
   double massPerM2;
   Blind({
     required this.name,
@@ -152,7 +152,7 @@ class Mechanism extends HiveObject {
   String name;
   @HiveField(1)
   double price;
-  @HiveField(2)
+  @HiveField(2, defaultValue: 0)
   double mass;
   Mechanism({required this.name, required this.price, this.mass = 0});
 }
@@ -163,7 +163,7 @@ class Accessory extends HiveObject {
   String name;
   @HiveField(1)
   double price;
-  @HiveField(2)
+  @HiveField(2, defaultValue: 0)
   double mass;
   Accessory({required this.name, required this.price, this.mass = 0});
 }
@@ -628,17 +628,17 @@ class Offer extends HiveObject {
   int customerIndex;
   @HiveField(2)
   DateTime date;
-  @HiveField(3)
+  @HiveField(3, defaultValue: const [])
   List<WindowDoorItem> items;
-  @HiveField(4)
+  @HiveField(4, defaultValue: 0)
   double profitPercent;
-  @HiveField(5)
+  @HiveField(5, defaultValue: const [])
   List<ExtraCharge> extraCharges;
-  @HiveField(6)
+  @HiveField(6, defaultValue: 0)
   double discountPercent;
-  @HiveField(7)
+  @HiveField(7, defaultValue: 0)
   double discountAmount;
-  @HiveField(8)
+  @HiveField(8, defaultValue: '')
   String notes;
   @HiveField(9)
   DateTime lastEdited;
