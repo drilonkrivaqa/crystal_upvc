@@ -344,8 +344,10 @@ Future<void> printOfferPdf({
             pw.Text(
                 'Sektorët: ${item.horizontalSections}x${item.verticalSections}'),
             pw.Text('Hapje: ${item.openings}'),
-            pw.Text('Gjerësitë: ${item.sectionWidths.join(', ')}'),
-            pw.Text('Lartësitë: ${item.sectionHeights.join(', ')}'),
+            pw.Text(
+                '${item.sectionWidths.length > 1 ? 'Gjerësitë' : 'Gjerësia'}: ${item.sectionWidths.join(', ')}'),
+            pw.Text(
+                '${item.sectionHeights.length > 1 ? 'Lartësitë' : 'Lartësia'}: ${item.sectionHeights.join(', ')}'),
             if (item.verticalSections != 1) pw.Text('V div: $vAdapters'),
             if (item.horizontalSections != 1) pw.Text('H div: $hAdapters'),
             pw.Text('Masa totale: ${totalMass.toStringAsFixed(2)} kg'),
