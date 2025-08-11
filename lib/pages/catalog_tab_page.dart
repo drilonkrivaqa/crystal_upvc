@@ -113,134 +113,158 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
         content: SingleChildScrollView(
           child: Column(
             children: [
-              TextField(
-                  controller: nameController,
-                  decoration: const InputDecoration(labelText: 'Emri')),
               if (widget.type == CatalogType.profileSet) ...[
+                ExpansionTile(
+                  title: const Text('Përgjithshme'),
+                  children: [
+                    TextField(
+                        controller: nameController,
+                        decoration:
+                            const InputDecoration(labelText: 'Emri')),
+                    TextField(
+                        controller: priceLController,
+                        decoration:
+                            const InputDecoration(labelText: 'Rami (L) €/m')),
+                    TextField(
+                        controller: priceZController,
+                        decoration:
+                            const InputDecoration(labelText: 'Krahu (Z) €/m')),
+                    TextField(
+                        controller: priceTController,
+                        decoration:
+                            const InputDecoration(labelText: 'T Profili €/m')),
+                    TextField(
+                        controller: priceAdapterController,
+                        decoration:
+                            const InputDecoration(labelText: 'Adapteri €/m')),
+                    TextField(
+                        controller: priceLlajsneController,
+                        decoration:
+                            const InputDecoration(labelText: 'Llajsne €/m')),
+                  ],
+                ),
+                ExpansionTile(
+                  title: const Text('Uw'),
+                  children: [
+                    TextField(
+                        controller: lOuterController,
+                        decoration: const InputDecoration(
+                            labelText: 'Trashësia e jashtme L (mm)')),
+                    TextField(
+                        controller: zOuterController,
+                        decoration: const InputDecoration(
+                            labelText: 'Trashësia e jashtme Z (mm)')),
+                    TextField(
+                        controller: tOuterController,
+                        decoration: const InputDecoration(
+                            labelText: 'Trashësia e jashtme T (mm)')),
+                    TextField(
+                        controller: adapterOuterController,
+                        decoration: const InputDecoration(
+                            labelText: 'Trashësia e jashtme Adapter (mm)')),
+                    TextField(
+                        controller: ufController,
+                        decoration:
+                            const InputDecoration(labelText: 'Uf (W/m²K)')),
+                  ],
+                ),
+                ExpansionTile(
+                  title: const Text('Prodhimi'),
+                  children: [
+                    TextField(
+                        controller: massLController,
+                        decoration:
+                            const InputDecoration(labelText: 'Masa L kg/m')),
+                    TextField(
+                        controller: massZController,
+                        decoration:
+                            const InputDecoration(labelText: 'Masa Z kg/m')),
+                    TextField(
+                        controller: massTController,
+                        decoration:
+                            const InputDecoration(labelText: 'Masa T kg/m')),
+                    TextField(
+                        controller: massAdapterController,
+                        decoration:
+                            const InputDecoration(labelText: 'Masa Adapter kg/m')),
+                    TextField(
+                        controller: massLlajsneController,
+                        decoration:
+                            const InputDecoration(labelText: 'Masa Llajsne kg/m')),
+                    TextField(
+                        controller: lInnerController,
+                        decoration: const InputDecoration(
+                            labelText: 'Trashësia e brendshme L (mm)')),
+                    TextField(
+                        controller: zInnerController,
+                        decoration: const InputDecoration(
+                            labelText: 'Trashësia e brendshme Z (mm)')),
+                    TextField(
+                        controller: tInnerController,
+                        decoration: const InputDecoration(
+                            labelText: 'Trashësia e brendshme T (mm)')),
+                    TextField(
+                        controller: fixedGlassController,
+                        decoration: const InputDecoration(
+                            labelText: 'Humbja xhami fiks (mm)')),
+                    TextField(
+                        controller: sashGlassController,
+                        decoration: const InputDecoration(
+                            labelText: 'Humbja xhami krah (mm)')),
+                    TextField(
+                        controller: sashValueController,
+                        decoration: const InputDecoration(
+                            labelText: 'Vlera krah (+mm)')),
+                    TextField(
+                        controller: pipeLengthController,
+                        decoration: const InputDecoration(
+                            labelText: 'Gjatësia e profilit (mm)')),
+                  ],
+                ),
+              ] else ...[
                 TextField(
-                    controller: priceLController,
-                    decoration:
-                        const InputDecoration(labelText: 'Rami (L) €/m')),
-                TextField(
-                    controller: priceZController,
-                    decoration:
-                        const InputDecoration(labelText: 'Krahu (Z) €/m')),
-                TextField(
-                    controller: priceTController,
-                    decoration:
-                        const InputDecoration(labelText: 'T Profili €/m')),
-                TextField(
-                    controller: priceAdapterController,
-                    decoration:
-                        const InputDecoration(labelText: 'Adapteri €/m')),
-                TextField(
-                    controller: priceLlajsneController,
-                    decoration:
-                        const InputDecoration(labelText: 'Llajsne €/m')),
-                TextField(
-                    controller: pipeLengthController,
-                    decoration: const InputDecoration(
-                        labelText: 'Gjatësia e profilit (mm)')),
-                TextField(
-                    controller: massLController,
-                    decoration:
-                        const InputDecoration(labelText: 'Masa L kg/m')),
-                TextField(
-                    controller: massZController,
-                    decoration:
-                        const InputDecoration(labelText: 'Masa Z kg/m')),
-                TextField(
-                    controller: massTController,
-                    decoration:
-                        const InputDecoration(labelText: 'Masa T kg/m')),
-                TextField(
-                    controller: massAdapterController,
-                    decoration:
-                        const InputDecoration(labelText: 'Masa Adapter kg/m')),
-                TextField(
-                    controller: massLlajsneController,
-                    decoration:
-                        const InputDecoration(labelText: 'Masa Llajsne kg/m')),
-                TextField(
-                    controller: lInnerController,
-                    decoration: const InputDecoration(
-                        labelText: 'Trashësia e brendshme L (mm)')),
-                TextField(
-                    controller: zInnerController,
-                    decoration: const InputDecoration(
-                        labelText: 'Trashësia e brendshme Z (mm)')),
-                TextField(
-                    controller: tInnerController,
-                    decoration: const InputDecoration(
-                        labelText: 'Trashësia e brendshme T (mm)')),
-                TextField(
-                    controller: lOuterController,
-                    decoration: const InputDecoration(
-                        labelText: 'Trashësia e jashtme L (mm)')),
-                TextField(
-                    controller: zOuterController,
-                    decoration: const InputDecoration(
-                        labelText: 'Trashësia e jashtme Z (mm)')),
-                TextField(
-                    controller: tOuterController,
-                    decoration: const InputDecoration(
-                        labelText: 'Trashësia e jashtme T (mm)')),
-                TextField(
-                    controller: adapterOuterController,
-                    decoration: const InputDecoration(
-                        labelText: 'Trashësia e jashtme Adapter (mm)')),
-                TextField(
-                    controller: ufController,
-                    decoration:
-                        const InputDecoration(labelText: 'Uf (W/m²K)')),
-                TextField(
-                    controller: fixedGlassController,
-                    decoration: const InputDecoration(
-                        labelText: 'Humbja xhami fiks (mm)')),
-                TextField(
-                    controller: sashGlassController,
-                    decoration: const InputDecoration(
-                        labelText: 'Humbja xhami krah (mm)')),
-                TextField(
-                    controller: sashValueController,
-                    decoration: const InputDecoration(
-                        labelText: 'Vlera krah (+mm)')),
+                    controller: nameController,
+                    decoration: const InputDecoration(labelText: 'Emri')),
+                if (widget.type == CatalogType.glass ||
+                    widget.type == CatalogType.blind)
+                  TextField(
+                      controller: pricePerM2Controller,
+                      decoration:
+                          const InputDecoration(labelText: 'Çmimi €/m²')),
+                if (widget.type == CatalogType.glass ||
+                    widget.type == CatalogType.blind)
+                  TextField(
+                      controller: massPerM2Controller,
+                      decoration:
+                          const InputDecoration(labelText: 'Masa kg/m²')),
+                if (widget.type == CatalogType.glass)
+                  TextField(
+                      controller: ugController,
+                      decoration: const InputDecoration(
+                          labelText: 'Ug (W/m²K)')),
+                if (widget.type == CatalogType.glass)
+                  TextField(
+                      controller: psiController,
+                      decoration:
+                          const InputDecoration(labelText: 'Psi (W/mK)')),
+                if (widget.type == CatalogType.blind)
+                  TextField(
+                      controller: boxHeightController,
+                      decoration: const InputDecoration(
+                          labelText: 'Lartësia e kutisë (mm)')),
+                if (widget.type == CatalogType.mechanism ||
+                    widget.type == CatalogType.accessory)
+                  TextField(
+                      controller: priceController,
+                      decoration:
+                          const InputDecoration(labelText: 'Çmimi (€)')),
+                if (widget.type == CatalogType.mechanism ||
+                    widget.type == CatalogType.accessory)
+                  TextField(
+                      controller: massController,
+                      decoration:
+                          const InputDecoration(labelText: 'Masa (kg)')),
               ],
-              if (widget.type == CatalogType.glass ||
-                  widget.type == CatalogType.blind)
-                TextField(
-                    controller: pricePerM2Controller,
-                    decoration: const InputDecoration(labelText: 'Çmimi €/m²')),
-              if (widget.type == CatalogType.glass ||
-                  widget.type == CatalogType.blind)
-                TextField(
-                    controller: massPerM2Controller,
-                    decoration: const InputDecoration(labelText: 'Masa kg/m²')),
-              if (widget.type == CatalogType.glass)
-                TextField(
-                    controller: ugController,
-                    decoration:
-                        const InputDecoration(labelText: 'Ug (W/m²K)')),
-              if (widget.type == CatalogType.glass)
-                TextField(
-                    controller: psiController,
-                    decoration:
-                        const InputDecoration(labelText: 'Psi (W/mK)')),
-              if (widget.type == CatalogType.blind)
-                TextField(
-                    controller: boxHeightController,
-                    decoration: const InputDecoration(
-                        labelText: 'Lartësia e kutisë (mm)')),
-              if (widget.type == CatalogType.mechanism ||
-                  widget.type == CatalogType.accessory)
-                TextField(
-                    controller: priceController,
-                    decoration: const InputDecoration(labelText: 'Çmimi (€)')),
-              if (widget.type == CatalogType.mechanism ||
-                  widget.type == CatalogType.accessory)
-                TextField(
-                    controller: massController,
-                    decoration: const InputDecoration(labelText: 'Masa (kg)')),
             ],
           ),
         ),
@@ -401,134 +425,158 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
         content: SingleChildScrollView(
           child: Column(
             children: [
-              TextField(
-                  controller: nameController,
-                  decoration: const InputDecoration(labelText: 'Emri')),
               if (widget.type == CatalogType.profileSet) ...[
+                ExpansionTile(
+                  title: const Text('Përgjithshme'),
+                  children: [
+                    TextField(
+                        controller: nameController,
+                        decoration:
+                            const InputDecoration(labelText: 'Emri')),
+                    TextField(
+                        controller: priceLController,
+                        decoration:
+                            const InputDecoration(labelText: 'Rami (L) €/m')),
+                    TextField(
+                        controller: priceZController,
+                        decoration:
+                            const InputDecoration(labelText: 'Krahu (Z) €/m')),
+                    TextField(
+                        controller: priceTController,
+                        decoration:
+                            const InputDecoration(labelText: 'T Profili €/m')),
+                    TextField(
+                        controller: priceAdapterController,
+                        decoration:
+                            const InputDecoration(labelText: 'Adapteri €/m')),
+                    TextField(
+                        controller: priceLlajsneController,
+                        decoration:
+                            const InputDecoration(labelText: 'Llajsne €/m')),
+                  ],
+                ),
+                ExpansionTile(
+                  title: const Text('Uw'),
+                  children: [
+                    TextField(
+                        controller: lOuterController,
+                        decoration: const InputDecoration(
+                            labelText: 'Trashësia e jashtme L (mm)')),
+                    TextField(
+                        controller: zOuterController,
+                        decoration: const InputDecoration(
+                            labelText: 'Trashësia e jashtme Z (mm)')),
+                    TextField(
+                        controller: tOuterController,
+                        decoration: const InputDecoration(
+                            labelText: 'Trashësia e jashtme T (mm)')),
+                    TextField(
+                        controller: adapterOuterController,
+                        decoration: const InputDecoration(
+                            labelText: 'Trashësia e jashtme Adapter (mm)')),
+                    TextField(
+                        controller: ufController,
+                        decoration:
+                            const InputDecoration(labelText: 'Uf (W/m²K)')),
+                  ],
+                ),
+                ExpansionTile(
+                  title: const Text('Prodhimi'),
+                  children: [
+                    TextField(
+                        controller: massLController,
+                        decoration:
+                            const InputDecoration(labelText: 'Masa L kg/m')),
+                    TextField(
+                        controller: massZController,
+                        decoration:
+                            const InputDecoration(labelText: 'Masa Z kg/m')),
+                    TextField(
+                        controller: massTController,
+                        decoration:
+                            const InputDecoration(labelText: 'Masa T kg/m')),
+                    TextField(
+                        controller: massAdapterController,
+                        decoration:
+                            const InputDecoration(labelText: 'Masa Adapter kg/m')),
+                    TextField(
+                        controller: massLlajsneController,
+                        decoration:
+                            const InputDecoration(labelText: 'Masa Llajsne kg/m')),
+                    TextField(
+                        controller: lInnerController,
+                        decoration: const InputDecoration(
+                            labelText: 'Trashësia e brendshme L (mm)')),
+                    TextField(
+                        controller: zInnerController,
+                        decoration: const InputDecoration(
+                            labelText: 'Trashësia e brendshme Z (mm)')),
+                    TextField(
+                        controller: tInnerController,
+                        decoration: const InputDecoration(
+                            labelText: 'Trashësia e brendshme T (mm)')),
+                    TextField(
+                        controller: fixedGlassController,
+                        decoration: const InputDecoration(
+                            labelText: 'Humbja xhami fiks (mm)')),
+                    TextField(
+                        controller: sashGlassController,
+                        decoration: const InputDecoration(
+                            labelText: 'Humbja xhami krah (mm)')),
+                    TextField(
+                        controller: sashValueController,
+                        decoration: const InputDecoration(
+                            labelText: 'Vlera krah (+mm)')),
+                    TextField(
+                        controller: pipeLengthController,
+                        decoration: const InputDecoration(
+                            labelText: 'Gjatësia e profilit (mm)')),
+                  ],
+                ),
+              ] else ...[
                 TextField(
-                    controller: priceLController,
-                    decoration:
-                        const InputDecoration(labelText: 'Rami (L) €/m')),
-                TextField(
-                    controller: priceZController,
-                    decoration:
-                        const InputDecoration(labelText: 'Krahu (Z) €/m')),
-                TextField(
-                    controller: priceTController,
-                    decoration:
-                        const InputDecoration(labelText: 'T Profili €/m')),
-                TextField(
-                    controller: priceAdapterController,
-                    decoration:
-                        const InputDecoration(labelText: 'Adapteri €/m')),
-                TextField(
-                    controller: priceLlajsneController,
-                    decoration:
-                        const InputDecoration(labelText: 'Llajsne €/m')),
-                TextField(
-                    controller: pipeLengthController,
-                    decoration: const InputDecoration(
-                        labelText: 'Gjatësia e profilit (mm)')),
-                TextField(
-                    controller: massLController,
-                    decoration:
-                        const InputDecoration(labelText: 'Masa L kg/m')),
-                TextField(
-                    controller: massZController,
-                    decoration:
-                        const InputDecoration(labelText: 'Masa Z kg/m')),
-                TextField(
-                    controller: massTController,
-                    decoration:
-                        const InputDecoration(labelText: 'Masa T kg/m')),
-                TextField(
-                    controller: massAdapterController,
-                    decoration:
-                        const InputDecoration(labelText: 'Masa Adapter kg/m')),
-                TextField(
-                    controller: massLlajsneController,
-                    decoration:
-                        const InputDecoration(labelText: 'Masa Llajsne kg/m')),
-                TextField(
-                    controller: lInnerController,
-                    decoration: const InputDecoration(
-                        labelText: 'Trashësia e brendshme L (mm)')),
-                TextField(
-                    controller: zInnerController,
-                    decoration: const InputDecoration(
-                        labelText: 'Trashësia e brendshme Z (mm)')),
-                TextField(
-                    controller: tInnerController,
-                    decoration: const InputDecoration(
-                        labelText: 'Trashësia e brendshme T (mm)')),
-                TextField(
-                    controller: lOuterController,
-                    decoration: const InputDecoration(
-                        labelText: 'Trashësia e jashtme L (mm)')),
-                TextField(
-                    controller: zOuterController,
-                    decoration: const InputDecoration(
-                        labelText: 'Trashësia e jashtme Z (mm)')),
-                TextField(
-                    controller: tOuterController,
-                    decoration: const InputDecoration(
-                        labelText: 'Trashësia e jashtme T (mm)')),
-                TextField(
-                    controller: adapterOuterController,
-                    decoration: const InputDecoration(
-                        labelText: 'Trashësia e jashtme Adapter (mm)')),
-                TextField(
-                    controller: ufController,
-                    decoration:
-                        const InputDecoration(labelText: 'Uf (W/m²K)')),
-                TextField(
-                    controller: fixedGlassController,
-                    decoration: const InputDecoration(
-                        labelText: 'Humbja xhami fiks (mm)')),
-                TextField(
-                    controller: sashGlassController,
-                    decoration: const InputDecoration(
-                        labelText: 'Humbja xhami krah (mm)')),
-                TextField(
-                    controller: sashValueController,
-                    decoration: const InputDecoration(
-                        labelText: 'Vlera krah (+mm)')),
+                    controller: nameController,
+                    decoration: const InputDecoration(labelText: 'Emri')),
+                if (widget.type == CatalogType.glass ||
+                    widget.type == CatalogType.blind)
+                  TextField(
+                      controller: pricePerM2Controller,
+                      decoration:
+                          const InputDecoration(labelText: 'Çmimi €/m²')),
+                if (widget.type == CatalogType.glass ||
+                    widget.type == CatalogType.blind)
+                  TextField(
+                      controller: massPerM2Controller,
+                      decoration:
+                          const InputDecoration(labelText: 'Masa kg/m²')),
+                if (widget.type == CatalogType.glass)
+                  TextField(
+                      controller: ugController,
+                      decoration: const InputDecoration(
+                          labelText: 'Ug (W/m²K)')),
+                if (widget.type == CatalogType.glass)
+                  TextField(
+                      controller: psiController,
+                      decoration:
+                          const InputDecoration(labelText: 'Psi (W/mK)')),
+                if (widget.type == CatalogType.blind)
+                  TextField(
+                      controller: boxHeightController,
+                      decoration: const InputDecoration(
+                          labelText: 'Lartësia e kutisë (mm)')),
+                if (widget.type == CatalogType.mechanism ||
+                    widget.type == CatalogType.accessory)
+                  TextField(
+                      controller: priceController,
+                      decoration:
+                          const InputDecoration(labelText: 'Çmimi (€)')),
+                if (widget.type == CatalogType.mechanism ||
+                    widget.type == CatalogType.accessory)
+                  TextField(
+                      controller: massController,
+                      decoration:
+                          const InputDecoration(labelText: 'Masa (kg)')),
               ],
-              if (widget.type == CatalogType.glass ||
-                  widget.type == CatalogType.blind)
-                TextField(
-                    controller: pricePerM2Controller,
-                    decoration: const InputDecoration(labelText: 'Çmimi €/m²')),
-              if (widget.type == CatalogType.glass ||
-                  widget.type == CatalogType.blind)
-                TextField(
-                    controller: massPerM2Controller,
-                    decoration: const InputDecoration(labelText: 'Masa kg/m²')),
-              if (widget.type == CatalogType.glass)
-                TextField(
-                    controller: ugController,
-                    decoration:
-                        const InputDecoration(labelText: 'Ug (W/m²K)')),
-              if (widget.type == CatalogType.glass)
-                TextField(
-                    controller: psiController,
-                    decoration:
-                        const InputDecoration(labelText: 'Psi (W/mK)')),
-              if (widget.type == CatalogType.blind)
-                TextField(
-                    controller: boxHeightController,
-                    decoration: const InputDecoration(
-                        labelText: 'Lartësia e kutisë (mm)')),
-              if (widget.type == CatalogType.mechanism ||
-                  widget.type == CatalogType.accessory)
-                TextField(
-                    controller: priceController,
-                    decoration: const InputDecoration(labelText: 'Çmimi (€)')),
-              if (widget.type == CatalogType.mechanism ||
-                  widget.type == CatalogType.accessory)
-                TextField(
-                    controller: massController,
-                    decoration: const InputDecoration(labelText: 'Masa (kg)')),
             ],
           ),
         ),
