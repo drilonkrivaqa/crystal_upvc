@@ -351,10 +351,15 @@ Future<void> printOfferPdf({
             if (item.verticalSections != 1) pw.Text('V div: $vAdapters'),
             if (item.horizontalSections != 1) pw.Text('H div: $hAdapters'),
             pw.Text('Masa totale: ${totalMass.toStringAsFixed(2)} kg'),
+            if (profile.uf != null)
+              pw.Text('Uf: ${profile.uf!.toStringAsFixed(2)}',
+                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
             if (glass.ug != null)
-              pw.Text('Ug: ${glass.ug!.toStringAsFixed(2)}', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+              pw.Text('Ug: ${glass.ug!.toStringAsFixed(2)}',
+                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
             if (uw != null)
-              pw.Text('Uw: ${uw.toStringAsFixed(2)}', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+              pw.Text('Uw: ${uw.toStringAsFixed(2)}',
+                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
           ];
 
           rows.add(
