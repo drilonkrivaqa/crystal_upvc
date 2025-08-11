@@ -388,13 +388,13 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                       'Fitimi 1pcs: €${profitPer.toStringAsFixed(2)}, Totali i fitimi (${item.quantity}pcs): €${profitAmount.toStringAsFixed(2)}');
                   sb.writeln('Masa: ${totalMass.toStringAsFixed(2)} kg');
                   if (profileSet.uf != null) {
-                    sb.writeln('Uf: ${profileSet.uf!.toStringAsFixed(2)}');
+                    sb.writeln('Uf: ${profileSet.uf!.toStringAsFixed(2)} W/m²K');
                   }
                   if (glass.ug != null) {
-                    sb.writeln('Ug: ${glass.ug!.toStringAsFixed(2)}');
+                    sb.writeln('Ug: ${glass.ug!.toStringAsFixed(2)} W/m²K');
                   }
                   if (uw != null) {
-                    sb.writeln('Uw: ${uw!.toStringAsFixed(2)}');
+                    sb.writeln('Uw: ${uw!.toStringAsFixed(2)} W/m²K');
                   }
                   return sb.toString();
                 }()),
