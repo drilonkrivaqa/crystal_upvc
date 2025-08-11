@@ -66,26 +66,26 @@ class ProfileSetAdapter extends TypeAdapter<ProfileSet> {
       priceT: fields[3] as double,
       priceAdapter: fields[4] as double,
       priceLlajsne: fields[5] as double,
-      pipeLength: fields[6] as int? ?? 0,
-      hekriOffsetL: fields[7] as int? ?? 0,
-      hekriOffsetZ: fields[8] as int? ?? 0,
-      hekriOffsetT: fields[9] as int? ?? 0,
-      massL: fields[10] as double? ?? 0,
-      massZ: fields[11] as double? ?? 0,
-      massT: fields[12] as double? ?? 0,
-      massAdapter: fields[13] as double? ?? 0,
-      massLlajsne: fields[14] as double? ?? 0,
-      lInnerThickness: fields[15] as int? ?? 0,
-      zInnerThickness: fields[16] as int? ?? 0,
-      tInnerThickness: fields[17] as int? ?? 0,
-      fixedGlassTakeoff: fields[18] as int? ?? 0,
-      sashGlassTakeoff: fields[19] as int? ?? 0,
-      sashValue: fields[20] as int? ?? 0,
-      uf: fields[21] as double? ?? 0,
-      lOuterThickness: fields[22] as int? ?? 0,
-      zOuterThickness: fields[23] as int? ?? 0,
-      tOuterThickness: fields[24] as int? ?? 0,
-      adapterOuterThickness: fields[25] as int? ?? 0,
+      pipeLength: fields[6] == null ? 0 : fields[6] as int,
+      hekriOffsetL: fields[7] == null ? 0 : fields[7] as int,
+      hekriOffsetZ: fields[8] == null ? 0 : fields[8] as int,
+      hekriOffsetT: fields[9] == null ? 0 : fields[9] as int,
+      massL: fields[10] == null ? 0 : fields[10] as double,
+      massZ: fields[11] == null ? 0 : fields[11] as double,
+      massT: fields[12] == null ? 0 : fields[12] as double,
+      massAdapter: fields[13] == null ? 0 : fields[13] as double,
+      massLlajsne: fields[14] == null ? 0 : fields[14] as double,
+      lInnerThickness: fields[15] == null ? 0 : fields[15] as int,
+      zInnerThickness: fields[16] == null ? 0 : fields[16] as int,
+      tInnerThickness: fields[17] == null ? 0 : fields[17] as int,
+      fixedGlassTakeoff: fields[18] == null ? 0 : fields[18] as int,
+      sashGlassTakeoff: fields[19] == null ? 0 : fields[19] as int,
+      sashValue: fields[20] == null ? 0 : fields[20] as int,
+      uf: fields[21] == null ? 0 : fields[21] as double?,
+      lOuterThickness: fields[22] == null ? 0 : fields[22] as int,
+      zOuterThickness: fields[23] == null ? 0 : fields[23] as int,
+      tOuterThickness: fields[24] == null ? 0 : fields[24] as int,
+      adapterOuterThickness: fields[25] == null ? 0 : fields[25] as int,
     );
   }
 
@@ -171,9 +171,9 @@ class GlassAdapter extends TypeAdapter<Glass> {
     return Glass(
       name: fields[0] as String,
       pricePerM2: fields[1] as double,
-      massPerM2: fields[2] as double? ?? 0,
-      ug: fields[3] as double? ?? 0,
-      psi: fields[4] as double? ?? 0,
+      massPerM2: fields[2] == null ? 0 : fields[2] as double,
+      ug: fields[3] == null ? 0 : fields[3] as double?,
+      psi: fields[4] == null ? 0 : fields[4] as double?,
     );
   }
 
@@ -217,8 +217,8 @@ class BlindAdapter extends TypeAdapter<Blind> {
     return Blind(
       name: fields[0] as String,
       pricePerM2: fields[1] as double,
-      boxHeight: fields[2] as int? ?? 0,
-      massPerM2: fields[3] as double? ?? 0,
+      boxHeight: fields[2] == null ? 0 : fields[2] as int,
+      massPerM2: fields[3] == null ? 0 : fields[3] as double,
     );
   }
 
@@ -260,7 +260,7 @@ class MechanismAdapter extends TypeAdapter<Mechanism> {
     return Mechanism(
       name: fields[0] as String,
       price: fields[1] as double,
-      mass: fields[2] as double? ?? 0,
+      mass: fields[2] == null ? 0 : fields[2] as double,
     );
   }
 
@@ -300,7 +300,7 @@ class AccessoryAdapter extends TypeAdapter<Accessory> {
     return Accessory(
       name: fields[0] as String,
       price: fields[1] as double,
-      mass: fields[2] as double? ?? 0,
+      mass: fields[2] == null ? 0 : fields[2] as double,
     );
   }
 
@@ -487,12 +487,14 @@ class OfferAdapter extends TypeAdapter<Offer> {
       id: fields[0] as String,
       customerIndex: fields[1] as int,
       date: fields[2] as DateTime,
-      items: (fields[3] as List?)?.cast<WindowDoorItem>() ?? const [],
-      profitPercent: fields[4] as double? ?? 0,
-      extraCharges: (fields[5] as List?)?.cast<ExtraCharge>() ?? const [],
-      discountPercent: fields[6] as double? ?? 0,
-      discountAmount: fields[7] as double? ?? 0,
-      notes: fields[8] as String? ?? '',
+      items:
+          fields[3] == null ? [] : (fields[3] as List).cast<WindowDoorItem>(),
+      profitPercent: fields[4] == null ? 0 : fields[4] as double,
+      extraCharges:
+          fields[5] == null ? [] : (fields[5] as List?)?.cast<ExtraCharge>(),
+      discountPercent: fields[6] == null ? 0 : fields[6] as double,
+      discountAmount: fields[7] == null ? 0 : fields[7] as double,
+      notes: fields[8] == null ? '' : fields[8] as String,
       lastEdited: fields[9] as DateTime?,
     );
   }
