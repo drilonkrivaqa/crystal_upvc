@@ -210,68 +210,75 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 ? accessoryBox.getAt(item.accessoryIndex!)
                 : null;
 
-            double profileCost = item.calculateProfileCost(profileSet,
-                    boxHeight: blind?.boxHeight ?? 0) *
-                item.quantity;
-            double glassCost =
-                item.calculateGlassCost(profileSet, glass,
-                        boxHeight: blind?.boxHeight ?? 0) *
-                    item.quantity;
-            double blindCost = (blind != null)
+            double profileCostPer = item.calculateProfileCost(profileSet,
+                boxHeight: blind?.boxHeight ?? 0);
+            double profileCost = profileCostPer * item.quantity;
+            double glassCostPer = item.calculateGlassCost(profileSet, glass,
+                boxHeight: blind?.boxHeight ?? 0);
+            double glassCost = glassCostPer * item.quantity;
+            double blindCostPer = (blind != null)
                 ? ((item.width / 1000.0) *
                     (item.height / 1000.0) *
-                    blind.pricePerM2 *
-                    item.quantity)
+                    blind.pricePerM2)
                 : 0;
-            double mechanismCost = (mechanism != null)
-                ? mechanism.price * item.quantity * item.openings
+            double blindCost = blindCostPer * item.quantity;
+            double mechanismCostPer = (mechanism != null)
+                ? mechanism.price * item.openings
                 : 0;
-            double accessoryCost =
-                (accessory != null) ? accessory.price * item.quantity : 0;
-            double extras =
-                ((item.extra1Price ?? 0) + (item.extra2Price ?? 0)) *
-                    item.quantity;
+            double mechanismCost = mechanismCostPer * item.quantity;
+            double accessoryCostPer =
+                (accessory != null) ? accessory.price : 0;
+            double accessoryCost = accessoryCostPer * item.quantity;
+            double extrasPer =
+                (item.extra1Price ?? 0) + (item.extra2Price ?? 0);
+            double extras = extrasPer * item.quantity;
 
-            double profileMass = item.calculateProfileMass(profileSet,
-                    boxHeight: blind?.boxHeight ?? 0) *
-                item.quantity;
-            double glassMass =
-                item.calculateGlassMass(profileSet, glass,
-                        boxHeight: blind?.boxHeight ?? 0) *
-                    item.quantity;
-            double blindMass = (blind != null)
+            double profileMassPer = item.calculateProfileMass(profileSet,
+                boxHeight: blind?.boxHeight ?? 0);
+            double glassMassPer = item.calculateGlassMass(profileSet, glass,
+                boxHeight: blind?.boxHeight ?? 0);
+            double blindMassPer = (blind != null)
                 ? ((item.width / 1000.0) *
                     (item.height / 1000.0) *
-                    blind.massPerM2 *
-                    item.quantity)
+                    blind.massPerM2)
                 : 0;
-            double mechanismMass = (mechanism != null)
-                ? mechanism.mass * item.quantity * item.openings
+            double mechanismMassPer = (mechanism != null)
+                ? mechanism.mass * item.openings
                 : 0;
-            double accessoryMass =
-                (accessory != null) ? accessory.mass * item.quantity : 0;
-            double totalMass = profileMass +
-                glassMass +
-                blindMass +
-                mechanismMass +
-                accessoryMass;
+            double accessoryMassPer =
+                (accessory != null) ? accessory.mass : 0;
+            double totalMass = (profileMassPer +
+                    glassMassPer +
+                    blindMassPer +
+                    mechanismMassPer +
+                    accessoryMassPer) *
+                item.quantity;
 
-            double base = profileCost +
-                glassCost +
-                blindCost +
-                mechanismCost +
-                accessoryCost;
+            double basePer = profileCostPer +
+                glassCostPer +
+                blindCostPer +
+                mechanismCostPer +
+                accessoryCostPer;
+            double base = basePer * item.quantity;
             if (item.manualBasePrice != null) {
               base = item.manualBasePrice!;
+              basePer = base / item.quantity;
             }
+            double totalPer = basePer + extrasPer;
             double total = base + extras;
             double finalPrice;
+            double finalPer;
             if (item.manualPrice != null) {
               finalPrice = item.manualPrice!;
+              finalPer = finalPrice / item.quantity;
             } else {
               finalPrice = base * (1 + offer.profitPercent / 100) + extras;
+              finalPer = finalPrice / item.quantity;
             }
             double profitAmount = finalPrice - total;
+            double profitPer = finalPer - totalPer;
+            double? uw = item.calculateUw(profileSet, glass,
+                boxHeight: blind?.boxHeight ?? 0);
 
             return GlassCard(
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -330,30 +337,67 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                             width: 60, height: 60, fit: BoxFit.contain))
                     : null,
                 title: Text(item.name),
-                subtitle: Text(
-                  'Madhësia: ${item.width} x ${item.height} mm\n'
-                  'Pcs: ${item.quantity}\n'
-                  'Profili: ${profileSet.name}\n'
-                  'Xhami: ${glass.name}\n'
-                  'Sektorët: ${item.horizontalSections}x${item.verticalSections}\n'
-                  'Krahët: ${item.openings}\n'
-                  '${item.sectionWidths.length > 1 ? 'Gjerësitë' : 'Gjerësia'}: ${item.sectionWidths.join(', ')}\n'
-                  '${item.sectionHeights.length > 1 ? 'Lartësitë' : 'Lartësia'}: ${item.sectionHeights.join(', ')}\n'
-                  'V div: ${item.verticalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ')}\n'
-                  'H div: ${item.horizontalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ')}\n'
-                  'Kostoja e Profilit: €${profileCost.toStringAsFixed(2)}\n'
-                  'Kostoja e Xhamit: €${glassCost.toStringAsFixed(2)}\n'
-                  '${blind != null ? "Roleta: ${blind.name}, €${blindCost.toStringAsFixed(2)}\n" : ""}'
-                  '${mechanism != null ? "Mekanizmi: ${mechanism.name}, €${mechanismCost.toStringAsFixed(2)}\n" : ""}'
-                  '${accessory != null ? "Aksesori: ${accessory.name}, €${accessoryCost.toStringAsFixed(2)}\n" : ""}'
-                  '${item.extra1Price != null ? "${item.extra1Desc ?? 'Shtesa 1'}: €${(item.extra1Price! * item.quantity).toStringAsFixed(2)}\n" : ""}'
-                  '${item.extra2Price != null ? "${item.extra2Desc ?? 'Shtesa 2'}: €${(item.extra2Price! * item.quantity).toStringAsFixed(2)}\n" : ""}'
-                  '${item.notes != null && item.notes!.isNotEmpty ? "Shënime: ${item.notes!}\n" : ""}'
-                  'Kostoja (0%): €${total.toStringAsFixed(2)}\n'
-                  'Kostoja me Fitim: €${finalPrice.toStringAsFixed(2)}\n'
-                  'Fitimi: €${profitAmount.toStringAsFixed(2)}\n'
-                  'Masa: ${totalMass.toStringAsFixed(2)} kg',
-                ),
+                subtitle: Text(() {
+                  final sb = StringBuffer();
+                  sb.writeln('Madhësia: ${item.width} x ${item.height} mm');
+                  sb.writeln('Pcs: ${item.quantity}');
+                  sb.writeln('Profili: ${profileSet.name}');
+                  sb.writeln('Xhami: ${glass.name}');
+                  sb.writeln(
+                      'Sektorët: ${item.horizontalSections}x${item.verticalSections}');
+                  sb.writeln('Krahët: ${item.openings}');
+                  sb.writeln(
+                      '${item.sectionWidths.length > 1 ? 'Gjerësitë' : 'Gjerësia'}: ${item.sectionWidths.join(', ')}');
+                  sb.writeln(
+                      '${item.sectionHeights.length > 1 ? 'Lartësitë' : 'Lartësia'}: ${item.sectionHeights.join(', ')}');
+                  sb.writeln(
+                      'V div: ${item.verticalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ')}');
+                  sb.writeln(
+                      'H div: ${item.horizontalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ')}');
+                  sb.writeln(
+                      'Kostoja e profilit 1pcs: €${profileCostPer.toStringAsFixed(2)}, Totali i kostoja e profilit (${item.quantity}pcs): €${profileCost.toStringAsFixed(2)}');
+                  sb.writeln(
+                      'Kostoja e xhamit 1pcs: €${glassCostPer.toStringAsFixed(2)}, Totali i kostoja e xhamit (${item.quantity}pcs): €${glassCost.toStringAsFixed(2)}');
+                  if (blind != null) {
+                    sb.writeln('Roleta: ${blind.name}, €${blindCost.toStringAsFixed(2)}');
+                  }
+                  if (mechanism != null) {
+                    sb.writeln(
+                        'Mekanizmi: ${mechanism.name}, €${mechanismCost.toStringAsFixed(2)}');
+                  }
+                  if (accessory != null) {
+                    sb.writeln(
+                        'Aksesori: ${accessory.name}, €${accessoryCost.toStringAsFixed(2)}');
+                  }
+                  if (item.extra1Price != null) {
+                    sb.writeln(
+                        '${item.extra1Desc ?? 'Shtesa 1'}: €${(item.extra1Price! * item.quantity).toStringAsFixed(2)}');
+                  }
+                  if (item.extra2Price != null) {
+                    sb.writeln(
+                        '${item.extra2Desc ?? 'Shtesa 2'}: €${(item.extra2Price! * item.quantity).toStringAsFixed(2)}');
+                  }
+                  if (item.notes != null && item.notes!.isNotEmpty) {
+                    sb.writeln('Shënime: ${item.notes!}');
+                  }
+                  sb.writeln(
+                      'Kostoja 0% 1pcs: €${totalPer.toStringAsFixed(2)}, Totali i kostoja 0% (${item.quantity}pcs): €${total.toStringAsFixed(2)}');
+                  sb.writeln(
+                      'Kostoja me fitim 1pcs: €${finalPer.toStringAsFixed(2)}, Totali i kostoja me fitim (${item.quantity}pcs): €${finalPrice.toStringAsFixed(2)}');
+                  sb.writeln(
+                      'Fitimi 1pcs: €${profitPer.toStringAsFixed(2)}, Totali i fitimi (${item.quantity}pcs): €${profitAmount.toStringAsFixed(2)}');
+                  sb.writeln('Masa: ${totalMass.toStringAsFixed(2)} kg');
+                  if (profileSet.uf != null) {
+                    sb.writeln('Uf: ${profileSet.uf!.toStringAsFixed(2)}');
+                  }
+                  if (glass.ug != null) {
+                    sb.writeln('Ug: ${glass.ug!.toStringAsFixed(2)}');
+                  }
+                  if (uw != null) {
+                    sb.writeln('Uw: ${uw!.toStringAsFixed(2)}');
+                  }
+                  return sb.toString();
+                }()),
               ),
             ).animate().fadeIn(duration: 200.ms).slideY(begin: 0.3);
           }),
