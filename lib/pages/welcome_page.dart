@@ -4,7 +4,12 @@ import '../theme/app_background.dart';
 
 class WelcomePage extends StatefulWidget {
   final List<String> failedBoxes;
-  const WelcomePage({super.key, this.failedBoxes = const []});
+  final List<String> migrationFailures;
+  const WelcomePage({
+    super.key,
+    this.failedBoxes = const [],
+    this.migrationFailures = const [],
+  });
 
   @override
   State<WelcomePage> createState() => _WelcomePageState();
@@ -14,14 +19,23 @@ class _WelcomePageState extends State<WelcomePage> {
   @override
   void initState() {
     super.initState();
-    if (widget.failedBoxes.isNotEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.failedBoxes.isNotEmpty) {
         final names = widget.failedBoxes.join(', ');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Disa të dhëna nuk u ngarkuan: $names')),
         );
-      });
-    }
+      }
+      if (widget.migrationFailures.isNotEmpty) {
+        final names = widget.migrationFailures.join(', ');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                'Disa të dhëna nuk u migruan: $names. Ju lutemi kontrolloni dhe rikuperoni manualisht nëse është e nevojshme.'),
+          ),
+        );
+      }
+    });
   }
 
   @override

@@ -30,7 +30,7 @@ void main() async {
   Hive.registerAdapter(OfferAdapter());
   Hive.registerAdapter(ExtraChargeAdapter());
 
-  await runMigrations();
+  final migrationFailures = await runMigrations();
 
   final failedBoxes = <String>[];
 
@@ -65,12 +65,20 @@ void main() async {
   await openBoxSafe<Accessory>('accessories');
   await openBoxSafe<Offer>('offers');
 
-  runApp(MyApp(failedBoxes: failedBoxes));
+  runApp(MyApp(
+    failedBoxes: failedBoxes,
+    migrationFailures: migrationFailures,
+  ));
 }
 
 class MyApp extends StatelessWidget {
   final List<String> failedBoxes;
-  const MyApp({super.key, required this.failedBoxes});
+  final List<String> migrationFailures;
+  const MyApp({
+    super.key,
+    required this.failedBoxes,
+    required this.migrationFailures,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -78,7 +86,10 @@ class MyApp extends StatelessWidget {
       title: 'TONI AL-PVC',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
-      home: WelcomePage(failedBoxes: failedBoxes),
+      home: WelcomePage(
+        failedBoxes: failedBoxes,
+        migrationFailures: migrationFailures,
+      ),
       routes: {
         '/home': (_) => const HomePage(),
       },
