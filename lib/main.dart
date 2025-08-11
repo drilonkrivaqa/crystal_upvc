@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'theme/app_background.dart';
 import 'widgets/glass_card.dart';
@@ -31,12 +34,26 @@ void main() async {
 
   final failedBoxes = <String>[];
 
-  Future<void> openBoxSafe<T>(String name) async {
+  Future<bool> openBoxSafe<T>(String name) async {
     try {
       await Hive.openBox<T>(name);
+      return true;
     } catch (e) {
-      failedBoxes.add(name);
       debugPrint('Error opening box $name: $e');
+      try {
+        final dir = await getApplicationDocumentsDirectory();
+        final file = File('${dir.path}/$name.hive');
+        if (await file.exists()) {
+          await file.copy('${file.path}.bak');
+        }
+        await Hive.deleteBoxFromDisk(name);
+        await Hive.openBox<T>(name);
+        return true;
+      } catch (e2) {
+        failedBoxes.add(name);
+        debugPrint('Recovery failed for box $name: $e2');
+        return false;
+      }
     }
   }
 
@@ -48,14 +65,12 @@ void main() async {
   await openBoxSafe<Accessory>('accessories');
   await openBoxSafe<Offer>('offers');
 
-  final hasBoxErrors = failedBoxes.isNotEmpty;
-
-  runApp(MyApp(hasBoxErrors: hasBoxErrors));
+  runApp(MyApp(failedBoxes: failedBoxes));
 }
 
 class MyApp extends StatelessWidget {
-  final bool hasBoxErrors;
-  const MyApp({super.key, required this.hasBoxErrors});
+  final List<String> failedBoxes;
+  const MyApp({super.key, required this.failedBoxes});
 
   @override
   Widget build(BuildContext context) {
@@ -63,23 +78,10 @@ class MyApp extends StatelessWidget {
       title: 'TONI AL-PVC',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
-      home: hasBoxErrors ? const _BoxErrorPage() : const WelcomePage(),
+      home: WelcomePage(failedBoxes: failedBoxes),
       routes: {
         '/home': (_) => const HomePage(),
       },
-    );
-  }
-}
-
-class _BoxErrorPage extends StatelessWidget {
-  const _BoxErrorPage();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Text('Failed to load local data. Please contact support.'),
-      ),
     );
   }
 }
