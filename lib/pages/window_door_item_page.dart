@@ -6,6 +6,7 @@ import 'dart:io' show File;
 import 'dart:typed_data';
 import '../models.dart';
 import '../theme/app_colors.dart';
+import 'window_door_designer_page.dart';
 
 class WindowDoorItemPage extends StatefulWidget {
   final void Function(WindowDoorItem) onSave;
@@ -45,6 +46,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   int? accessoryIndex;
   String? photoPath;
   Uint8List? photoBytes;
+  Uint8List? _designImageBytes;
   double? manualPrice;
   double? manualBasePrice;
   double? extra1Price;
@@ -134,7 +136,27 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
             appBar: AppBar(
                 title: Text(widget.existingItem == null
                     ? 'Shto Dritare/Derë'
-                    : 'Ndrysho Dritaren/Derën')),
+                    : 'Ndrysho Dritaren/Derën'),
+                actions: [
+                  IconButton(
+                    tooltip: 'Design window/door',
+                    icon: const Icon(Icons.design_services),
+                    onPressed: () async {
+                      final bytes = await Navigator.push<Uint8List>(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const WindowDoorDesignerPage()),
+                      );
+                      if (bytes != null && mounted) {
+                        setState(() => _designImageBytes = bytes);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('Design image attached')),
+                        );
+                      }
+                    },
+                  ),
+                ]),
             body: SafeArea(
               top: false,
               child: SingleChildScrollView(
@@ -188,6 +210,15 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                                                   'Kliko për të \nvendosë foton'),
                                             ),
                                           )),
+                            if (_designImageBytes != null)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 12.0),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Image.memory(_designImageBytes!,
+                                      height: 180, fit: BoxFit.contain),
+                                ),
+                              ),
                             const SizedBox(height: 12),
                             TextField(
                                 controller: nameController,
@@ -502,8 +533,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
         sectionHeights: sectionHeights,
         verticalAdapters: verticalAdapters,
         horizontalAdapters: horizontalAdapters,
-        photoPath: photoPath,
-        photoBytes: photoBytes,
+        photoPath: _designImageBytes != null ? null : photoPath,
+        photoBytes: _designImageBytes ?? photoBytes,
         manualPrice: mPrice,
         manualBasePrice: mBasePrice,
         extra1Price: double.tryParse(extra1Controller.text),
