@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
+import 'package:flutter/rendering.dart' show RenderRepaintBoundary;
 
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
@@ -1017,8 +1018,8 @@ class _BottomToolbar extends StatelessWidget {
       (Icons.crop_square, 'Fixed', PanelType.fixed),
       (Icons.keyboard_arrow_left, 'Sash L', PanelType.sashLeft),
       (Icons.keyboard_arrow_right, 'Sash R', PanelType.sashRight),
-      (Icons.keyboard_arrow_upward, 'Sash T', PanelType.sashTop),
-      (Icons.keyboard_arrow_downward, 'Sash B', PanelType.sashBottom),
+      (Icons.keyboard_arrow_up, 'Sash T', PanelType.sashTop),
+      (Icons.keyboard_arrow_down, 'Sash B', PanelType.sashBottom),
     ];
 
     return Container(
