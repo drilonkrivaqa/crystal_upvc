@@ -568,6 +568,10 @@ class _DesignerPainter extends CustomPainter {
   final bool showSizes;
   final CellIndex? selectedCell;
 
+  static const _frameColor = Colors.white;
+  static const _outlineColor = Color(0xFF8A8A8A);
+  static const _glassColor = Color(0xFFDDE7F0);
+
   _DesignerPainter({
     required this.widthMm,
     required this.heightMm,
@@ -599,7 +603,7 @@ class _DesignerPainter extends CustomPainter {
     final innerRect = frameRect.deflate(mm2px(frameThicknessMm));
 
     // background
-    final bg = Paint()..color = const Color(0xFFF8F9FB);
+    final bg = Paint()..color = Colors.white;
     canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), bg);
 
     // shadow
@@ -610,12 +614,17 @@ class _DesignerPainter extends CustomPainter {
 
     // frame (outer)
     final framePaint = Paint()
-      ..color = const Color(0xFF2D5BFF)
+      ..color = _frameColor
       ..style = PaintingStyle.fill;
+    final frameStroke = Paint()
+      ..color = _outlineColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
     canvas.drawRect(frameRect, framePaint);
+    canvas.drawRect(frameRect, frameStroke);
 
     // glass area
-    final glassPaint = Paint()..color = const Color(0xFFEAF2FF);
+    final glassPaint = Paint()..color = _glassColor;
     canvas.drawRect(innerRect, glassPaint);
 
     // Mullions (dividers)
@@ -631,6 +640,7 @@ class _DesignerPainter extends CustomPainter {
           width: mullionT,
           height: innerRect.height);
       canvas.drawRect(r, framePaint);
+      canvas.drawRect(r, frameStroke);
     }
     for (var j = 1; j < ys.length - 1; j++) {
       final y = innerRect.top + ys[j] * innerRect.height;
@@ -639,13 +649,14 @@ class _DesignerPainter extends CustomPainter {
           width: innerRect.width,
           height: mullionT);
       canvas.drawRect(r, framePaint);
+      canvas.drawRect(r, frameStroke);
     }
 
     // Cells
     final cellStroke = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1
-      ..color = Colors.black.withOpacity(0.15);
+      ..color = _outlineColor.withOpacity(0.4);
 
     for (var r = 0; r < ys.length - 1; r++) {
       for (var c = 0; c < xs.length - 1; c++) {
@@ -699,7 +710,7 @@ class _DesignerPainter extends CustomPainter {
 
   void _drawPanelSymbol(Canvas canvas, Rect rect, PanelType type) {
     final stroke = Paint()
-      ..color = const Color(0xFF2D5BFF)
+      ..color = _outlineColor
       ..strokeWidth = 2
       ..style = PaintingStyle.stroke;
 
