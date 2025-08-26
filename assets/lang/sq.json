@@ -1,0 +1,14 @@
+{
+  "app_title": "TONI AL-PVC",
+  "menu_catalogs": "Çmimore",
+  "menu_customers": "Klientët",
+  "menu_offers": "Ofertat",
+  "menu_production": "Prodhimi",
+  "enter": "Hyr",
+  "language": "Gjuha",
+  "address": "Rr. Ilir Konushevci, Nr. 80, Kamenicë, Kosovë, 62000",
+  "phone": "+38344357639 | +38344268300",
+  "web": "www.tonialpvc.com | tonialpvc@gmail.com",
+  "error_failed_boxes": "Disa të dhëna nuk u ngarkuan: {names}",
+  "error_migration_failures": "Disa të dhëna nuk u migruan: {names}. Ju lutemi kontrolloni dhe rikuperoni manualisht nëse është e nevojshme."
+}
