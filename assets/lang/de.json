@@ -1,0 +1,14 @@
+{
+  "app_title": "TONI AL-PVC",
+  "menu_catalogs": "Preislisten",
+  "menu_customers": "Kunden",
+  "menu_offers": "Angebote",
+  "menu_production": "Produktion",
+  "enter": "Eingeben",
+  "language": "Sprache",
+  "address": "Rr. Ilir Konushevci, Nr. 80, Kamenica, Kosovo, 62000",
+  "phone": "+38344357639 | +38344268300",
+  "web": "www.tonialpvc.com | tonialpvc@gmail.com",
+  "error_failed_boxes": "Einige Daten konnten nicht geladen werden: {names}",
+  "error_migration_failures": "Einige Daten konnten nicht migriert werden: {names}. Bitte prüfen und bei Bedarf manuell wiederherstellen."
+}
