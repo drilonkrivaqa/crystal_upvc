@@ -12,10 +12,6 @@ import 'pages/production_page.dart';
 import 'theme/app_theme.dart';
 import 'pages/welcome_page.dart';
 import 'data_migrations.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'l10n/app_localizations.dart';
-import 'locale_controller.dart';
-import 'widgets/language_selector.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -71,35 +67,16 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: localeController,
-      builder: (context, _) {
-        return MaterialApp(
-          title: 'TONI AL-PVC',
-          debugShowCheckedModeBanner: false,
-          theme: AppTheme.light,
-          locale: localeController.locale,
-          localizationsDelegates: const [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: const [
-            Locale('sq'),
-            Locale('en'),
-            Locale('de'),
-            Locale('it'),
-            Locale('fr'),
-          ],
-          home: WelcomePage(
-            failedBoxes: failedBoxes,
-            migrationFailures: migrationFailures,
-          ),
-          routes: {
-            '/home': (_) => const HomePage(),
-          },
-        );
+    return MaterialApp(
+      title: 'TONI AL-PVC',
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.light,
+      home: WelcomePage(
+        failedBoxes: failedBoxes,
+        migrationFailures: migrationFailures,
+      ),
+      routes: {
+        '/home': (_) => const HomePage(),
       },
     );
   }
@@ -110,23 +87,15 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context);
     final items = [
-      _NavItem(Icons.auto_awesome_motion_outlined,
-          loc.t('menu_catalogs'), const CatalogsPage()),
-      _NavItem(Icons.people_outline, loc.t('menu_customers'),
-          const CustomersPage()),
-      _NavItem(Icons.description_outlined, loc.t('menu_offers'),
-          const OffersPage()),
-      _NavItem(Icons.build, loc.t('menu_production'),
-          const ProductionPage()),
+      _NavItem(
+          Icons.auto_awesome_motion_outlined, 'Çmimore', const CatalogsPage()),
+      _NavItem(Icons.people_outline, 'Klientët', const CustomersPage()),
+      _NavItem(Icons.description_outlined, 'Ofertat', const OffersPage()),
+      _NavItem(Icons.build, 'Prodhimi', const ProductionPage()),
     ];
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(loc.t('app_title')),
-        actions: const [LanguageSelector()],
-      ),
       body: AppBackground(
         child: SafeArea(
           child: Center(
