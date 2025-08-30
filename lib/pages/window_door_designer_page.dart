@@ -713,21 +713,27 @@ class _DesignerPainter extends CustomPainter {
   }
 
   void _drawPanelSymbol(Canvas canvas, Rect rect, PanelType type) {
-    final stroke = Paint()
-      ..color = _outlineColor
-      ..strokeWidth = 2
-      ..style = PaintingStyle.stroke;
-
     final thin = Paint()
       ..color = _outlineColor
-      ..strokeWidth = 1.6
+      ..strokeWidth = 1.2
       ..style = PaintingStyle.stroke;
 
     // helpers
-    void diagTLBR() => canvas.drawLine(rect.topLeft + const Offset(6, 6),
-        rect.bottomRight - const Offset(6, 6), stroke);
-    void diagTRBL() => canvas.drawLine(rect.topRight + const Offset(-6, 6),
-        rect.bottomLeft + const Offset(6, -6), stroke);
+    void casementLeftV() {
+      final path = Path()
+        ..moveTo(rect.left + 6, rect.top + 6)
+        ..lineTo(rect.right - 6, rect.center.dy)
+        ..lineTo(rect.left + 6, rect.bottom - 6);
+      canvas.drawPath(path, thin);
+    }
+
+    void casementRightV() {
+      final path = Path()
+        ..moveTo(rect.right - 6, rect.top + 6)
+        ..lineTo(rect.left + 6, rect.center.dy)
+        ..lineTo(rect.right - 6, rect.bottom - 6);
+      canvas.drawPath(path, thin);
+    }
 
     void triangleTopDown() {
       final p1 = rect.topCenter + const Offset(0, 8);
@@ -761,6 +767,15 @@ class _DesignerPainter extends CustomPainter {
       canvas.drawPath(path, thin);
     }
 
+    void slidingRails() {
+      final x1 = rect.left + rect.width / 3;
+      final x2 = rect.left + rect.width * 2 / 3;
+      canvas.drawLine(
+          Offset(x1, rect.top + 4), Offset(x1, rect.bottom - 4), thin);
+      canvas.drawLine(
+          Offset(x2, rect.top + 4), Offset(x2, rect.bottom - 4), thin);
+    }
+
     void arrowHoriz(bool toRight) {
       final y = rect.center.dy;
       final start = Offset(rect.left + 10, y);
@@ -770,8 +785,10 @@ class _DesignerPainter extends CustomPainter {
       final a = toRight ? -math.pi / 6 : math.pi - math.pi / 6;
       final b = toRight ? math.pi / 6 : math.pi + math.pi / 6;
       final len = 8.0;
-      final wing1 = Offset(tip.dx + len * math.cos(a), tip.dy + len * math.sin(a));
-      final wing2 = Offset(tip.dx + len * math.cos(b), tip.dy + len * math.sin(b));
+      final wing1 =
+          Offset(tip.dx + len * math.cos(a), tip.dy + len * math.sin(a));
+      final wing2 =
+          Offset(tip.dx + len * math.cos(b), tip.dy + len * math.sin(b));
       canvas.drawLine(tip, wing1, thin);
       canvas.drawLine(tip, wing2, thin);
     }
@@ -801,12 +818,11 @@ class _DesignerPainter extends CustomPainter {
         break;
 
       case PanelType.casementLeft:
-      // diagonal indicating swing from left
-        diagTLBR();
+        casementLeftV();
         break;
 
       case PanelType.casementRight:
-        diagTRBL();
+        casementRightV();
         break;
 
       case PanelType.tiltTop:
@@ -826,20 +842,22 @@ class _DesignerPainter extends CustomPainter {
         break;
 
       case PanelType.tiltTurnLeft:
-        diagTLBR();
+        casementLeftV();
         triangleTopDown();
         break;
 
       case PanelType.tiltTurnRight:
-        diagTRBL();
+        casementRightV();
         triangleTopDown();
         break;
 
       case PanelType.slidingLeft:
+        slidingRails();
         arrowHoriz(false);
         break;
 
       case PanelType.slidingRight:
+        slidingRails();
         arrowHoriz(true);
         break;
     }
