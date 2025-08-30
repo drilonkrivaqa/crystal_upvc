@@ -778,15 +778,26 @@ class _DesignerPainter extends CustomPainter {
 
     switch (type) {
       case PanelType.fixed:
-      // WinStudio uses X/plus. We draw a subtle “+” and “×”.
-        diagTLBR();
-        diagTRBL();
-        final v = Offset(rect.center.dx, rect.top + 6);
-        final v2 = Offset(rect.center.dx, rect.bottom - 6);
-        final h = Offset(rect.left + 6, rect.center.dy);
-        final h2 = Offset(rect.right - 6, rect.center.dy);
-        canvas.drawLine(v, v2, thin);
-        canvas.drawLine(h, h2, thin);
+        final fontSize = math.min(rect.width, rect.height) * 0.55;
+        final tp = TextPainter(
+          text: TextSpan(
+            text: 'F',
+            style: TextStyle(
+              fontSize: fontSize,
+              fontWeight: FontWeight.bold,
+              color: _outlineColor,
+            ),
+          ),
+          textDirection: TextDirection.ltr,
+        )
+          ..layout();
+        tp.paint(
+          canvas,
+          Offset(
+            rect.center.dx - tp.width / 2,
+            rect.center.dy - tp.height / 2,
+          ),
+        );
         break;
 
       case PanelType.casementLeft:
@@ -835,14 +846,12 @@ class _DesignerPainter extends CustomPainter {
   }
 
   void _drawHandleDot(Canvas canvas, Rect rect, PanelType type) {
+    if (type == PanelType.fixed) return;
     // Place a small dot roughly where the handle would be for the given opening.
     // This matches WinStudio’s little circle marker.
     late Offset p;
     const r = 3.0;
     switch (type) {
-      case PanelType.fixed:
-        p = rect.center;
-        break;
       case PanelType.casementLeft:
       case PanelType.tiltTurnLeft:
         p = Offset(rect.right - 12, rect.center.dy);
@@ -869,6 +878,9 @@ class _DesignerPainter extends CustomPainter {
       case PanelType.slidingRight:
         p = Offset(rect.left + (rect.width * 0.65), rect.center.dy);
         break;
+      case PanelType.fixed:
+        // unreachable because of early return
+        return;
     }
     final paint = Paint()..color = _outlineColor.withOpacity(0.55);
     canvas.drawCircle(p, r, paint);
