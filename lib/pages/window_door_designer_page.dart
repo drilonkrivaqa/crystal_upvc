@@ -545,6 +545,14 @@ class _DesignerPainter extends CustomPainter {
   static const _outlineColor = Color(0xFF8A8A8A);
   static const _glassColor = Color(0xFFDDE7F0);
 
+  // Device pixel ratio-aware snapping helpers. These align drawing
+  // coordinates to the physical pixel grid to avoid blurry, off-center
+  // lines when using thin strokes.
+  static final double _dpr = ui.window.devicePixelRatio;
+  static double _snap(double v) => (v * _dpr).roundToDouble() / _dpr;
+  static Rect _snapRect(Rect r) =>
+      Rect.fromLTRB(_snap(r.left), _snap(r.top), _snap(r.right), _snap(r.bottom));
+
   _DesignerPainter({
     required this.widthMm,
     required this.heightMm,
@@ -574,8 +582,9 @@ class _DesignerPainter extends CustomPainter {
     canvas.translate(letter.left, letter.top);
     canvas.scale(fitScale, fitScale);
 
-    final frameRect = Rect.fromLTWH(0, 0, contentSize.width, contentSize.height);
-    final innerRect = frameRect.deflate(mm2px(frameThicknessMm));
+    final frameRect =
+        _snapRect(Rect.fromLTWH(0, 0, contentSize.width, contentSize.height));
+    final innerRect = _snapRect(frameRect.deflate(mm2px(frameThicknessMm)));
 
     // background
     final bg = Paint()..color = Colors.white;
@@ -608,20 +617,20 @@ class _DesignerPainter extends CustomPainter {
 
     final mullionT = mm2px(mullionThicknessMm);
     for (var i = 1; i < xsAll.length - 1; i++) {
-      final x = innerRect.left + xsAll[i] * innerRect.width;
-      final r = Rect.fromCenter(
+      final x = _snap(innerRect.left + xsAll[i] * innerRect.width);
+      final r = _snapRect(Rect.fromCenter(
           center: Offset(x, innerRect.center.dy),
           width: mullionT,
-          height: innerRect.height);
+          height: innerRect.height));
       canvas.drawRect(r, framePaint);
       canvas.drawRect(r, frameStroke);
     }
     for (var j = 1; j < ysAll.length - 1; j++) {
-      final y = innerRect.top + ysAll[j] * innerRect.height;
-      final r = Rect.fromCenter(
+      final y = _snap(innerRect.top + ysAll[j] * innerRect.height);
+      final r = _snapRect(Rect.fromCenter(
           center: Offset(innerRect.center.dx, y),
           width: innerRect.width,
-          height: mullionT);
+          height: mullionT));
       canvas.drawRect(r, framePaint);
       canvas.drawRect(r, frameStroke);
     }
@@ -630,18 +639,19 @@ class _DesignerPainter extends CustomPainter {
     final cellStroke = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1
+      ..isAntiAlias = false
       ..color = _outlineColor.withOpacity(0.4);
 
     for (var r = 0; r < ysAll.length - 1; r++) {
       for (var c = 0; c < xsAll.length - 1; c++) {
-        final rect = Rect.fromLTRB(
+        final rect = _snapRect(Rect.fromLTRB(
           innerRect.left + xsAll[c] * innerRect.width + (c > 0 ? mullionT / 2 : 0),
           innerRect.top + ysAll[r] * innerRect.height + (r > 0 ? mullionT / 2 : 0),
           innerRect.left + xsAll[c + 1] * innerRect.width -
               (c < xsAll.length - 2 ? mullionT / 2 : 0),
           innerRect.top + ysAll[r + 1] * innerRect.height -
               (r < ysAll.length - 2 ? mullionT / 2 : 0),
-        );
+        ));
 
         // Highlight selected cell
         if (selectedCell?.row == r && selectedCell?.col == c) {
@@ -716,79 +726,96 @@ class _DesignerPainter extends CustomPainter {
     final thin = Paint()
       ..color = _outlineColor
       ..strokeWidth = 1.2
+      ..isAntiAlias = false
       ..style = PaintingStyle.stroke;
 
     // helpers
     void casementLeftV() {
       final path = Path()
-        ..moveTo(rect.left + 6, rect.top + 6)
-        ..lineTo(rect.right - 6, rect.center.dy)
-        ..lineTo(rect.left + 6, rect.bottom - 6);
+        ..moveTo(_snap(rect.left + 6), _snap(rect.top + 6))
+        ..lineTo(_snap(rect.right - 6), _snap(rect.center.dy))
+        ..lineTo(_snap(rect.left + 6), _snap(rect.bottom - 6));
       canvas.drawPath(path, thin);
     }
 
     void casementRightV() {
       final path = Path()
-        ..moveTo(rect.right - 6, rect.top + 6)
-        ..lineTo(rect.left + 6, rect.center.dy)
-        ..lineTo(rect.right - 6, rect.bottom - 6);
+        ..moveTo(_snap(rect.right - 6), _snap(rect.top + 6))
+        ..lineTo(_snap(rect.left + 6), _snap(rect.center.dy))
+        ..lineTo(_snap(rect.right - 6), _snap(rect.bottom - 6));
       canvas.drawPath(path, thin);
     }
 
     void triangleTopDown() {
-      final p1 = rect.topCenter + const Offset(0, 8);
-      final p2 = rect.centerLeft + const Offset(8, 0);
-      final p3 = rect.centerRight + const Offset(-8, 0);
-      final path = Path()..moveTo(p1.dx, p1.dy)..lineTo(p2.dx, p2.dy)..lineTo(p3.dx, p3.dy)..close();
+      final p1 = Offset(_snap(rect.topCenter.dx), _snap(rect.topCenter.dy + 8));
+      final p2 = Offset(_snap(rect.centerLeft.dx + 8), _snap(rect.centerLeft.dy));
+      final p3 = Offset(_snap(rect.centerRight.dx - 8), _snap(rect.centerRight.dy));
+      final path = Path()
+        ..moveTo(p1.dx, p1.dy)
+        ..lineTo(p2.dx, p2.dy)
+        ..lineTo(p3.dx, p3.dy)
+        ..close();
       canvas.drawPath(path, thin);
     }
 
     void triangleBottomUp() {
-      final p1 = rect.bottomCenter + const Offset(0, -8);
-      final p2 = rect.centerLeft + const Offset(8, 0);
-      final p3 = rect.centerRight + const Offset(-8, 0);
-      final path = Path()..moveTo(p1.dx, p1.dy)..lineTo(p2.dx, p2.dy)..lineTo(p3.dx, p3.dy)..close();
+      final p1 = Offset(_snap(rect.bottomCenter.dx), _snap(rect.bottomCenter.dy - 8));
+      final p2 = Offset(_snap(rect.centerLeft.dx + 8), _snap(rect.centerLeft.dy));
+      final p3 = Offset(_snap(rect.centerRight.dx - 8), _snap(rect.centerRight.dy));
+      final path = Path()
+        ..moveTo(p1.dx, p1.dy)
+        ..lineTo(p2.dx, p2.dy)
+        ..lineTo(p3.dx, p3.dy)
+        ..close();
       canvas.drawPath(path, thin);
     }
 
     void triangleLeftRight() {
-      final p1 = rect.centerLeft + const Offset(8, 0);
-      final p2 = rect.topCenter + const Offset(0, 8);
-      final p3 = rect.bottomCenter + const Offset(0, -8);
-      final path = Path()..moveTo(p1.dx, p1.dy)..lineTo(p2.dx, p2.dy)..lineTo(p3.dx, p3.dy)..close();
+      final p1 = Offset(_snap(rect.centerLeft.dx + 8), _snap(rect.centerLeft.dy));
+      final p2 = Offset(_snap(rect.topCenter.dx), _snap(rect.topCenter.dy + 8));
+      final p3 = Offset(_snap(rect.bottomCenter.dx), _snap(rect.bottomCenter.dy - 8));
+      final path = Path()
+        ..moveTo(p1.dx, p1.dy)
+        ..lineTo(p2.dx, p2.dy)
+        ..lineTo(p3.dx, p3.dy)
+        ..close();
       canvas.drawPath(path, thin);
     }
 
     void triangleRightLeft() {
-      final p1 = rect.centerRight + const Offset(-8, 0);
-      final p2 = rect.topCenter + const Offset(0, 8);
-      final p3 = rect.bottomCenter + const Offset(0, -8);
-      final path = Path()..moveTo(p1.dx, p1.dy)..lineTo(p2.dx, p2.dy)..lineTo(p3.dx, p3.dy)..close();
+      final p1 = Offset(_snap(rect.centerRight.dx - 8), _snap(rect.centerRight.dy));
+      final p2 = Offset(_snap(rect.topCenter.dx), _snap(rect.topCenter.dy + 8));
+      final p3 = Offset(_snap(rect.bottomCenter.dx), _snap(rect.bottomCenter.dy - 8));
+      final path = Path()
+        ..moveTo(p1.dx, p1.dy)
+        ..lineTo(p2.dx, p2.dy)
+        ..lineTo(p3.dx, p3.dy)
+        ..close();
       canvas.drawPath(path, thin);
     }
 
     void slidingRails() {
-      final x1 = rect.left + rect.width / 3;
-      final x2 = rect.left + rect.width * 2 / 3;
+      final x1 = _snap(rect.left + rect.width / 3);
+      final x2 = _snap(rect.left + rect.width * 2 / 3);
       canvas.drawLine(
-          Offset(x1, rect.top + 4), Offset(x1, rect.bottom - 4), thin);
+          Offset(x1, _snap(rect.top + 4)), Offset(x1, _snap(rect.bottom - 4)), thin);
       canvas.drawLine(
-          Offset(x2, rect.top + 4), Offset(x2, rect.bottom - 4), thin);
+          Offset(x2, _snap(rect.top + 4)), Offset(x2, _snap(rect.bottom - 4)), thin);
     }
 
     void arrowHoriz(bool toRight) {
-      final y = rect.center.dy;
-      final start = Offset(rect.left + 10, y);
-      final end = Offset(rect.right - 10, y);
+      final y = _snap(rect.center.dy);
+      final start = Offset(_snap(rect.left + 10), y);
+      final end = Offset(_snap(rect.right - 10), y);
       canvas.drawLine(toRight ? start : end, toRight ? end : start, thin);
       final tip = toRight ? end : start;
       final a = toRight ? -math.pi / 6 : math.pi - math.pi / 6;
       final b = toRight ? math.pi / 6 : math.pi + math.pi / 6;
       final len = 8.0;
-      final wing1 =
-          Offset(tip.dx + len * math.cos(a), tip.dy + len * math.sin(a));
-      final wing2 =
-          Offset(tip.dx + len * math.cos(b), tip.dy + len * math.sin(b));
+      final wing1 = Offset(
+          _snap(tip.dx + len * math.cos(a)), _snap(tip.dy + len * math.sin(a)));
+      final wing2 = Offset(
+          _snap(tip.dx + len * math.cos(b)), _snap(tip.dy + len * math.sin(b)));
       canvas.drawLine(tip, wing1, thin);
       canvas.drawLine(tip, wing2, thin);
     }
@@ -797,9 +824,10 @@ class _DesignerPainter extends CustomPainter {
       final radius = math.min(rect.width, rect.height) - 12;
       if (radius <= 0) return;
       final center = leftHinged
-          ? Offset(rect.left + 6, rect.center.dy)
-          : Offset(rect.right - 6, rect.center.dy);
-      final arcRect = Rect.fromCircle(center: center, radius: radius);
+          ? Offset(_snap(rect.left + 6), _snap(rect.center.dy))
+          : Offset(_snap(rect.right - 6), _snap(rect.center.dy));
+      final arcRect =
+          _snapRect(Rect.fromCircle(center: center, radius: radius));
       final startAngle = leftHinged ? -math.pi / 2 : math.pi / 2;
       final sweepAngle = leftHinged ? math.pi : -math.pi;
       canvas.drawArc(arcRect, startAngle, sweepAngle, false, thin);
@@ -888,35 +916,39 @@ class _DesignerPainter extends CustomPainter {
     switch (type) {
       case PanelType.casementLeft:
       case PanelType.tiltTurnLeft:
-        p = Offset(rect.right - 12, rect.center.dy);
+        p = Offset(_snap(rect.right - 12), _snap(rect.center.dy));
         break;
       case PanelType.casementRight:
       case PanelType.tiltTurnRight:
-        p = Offset(rect.left + 12, rect.center.dy);
+        p = Offset(_snap(rect.left + 12), _snap(rect.center.dy));
         break;
       case PanelType.tiltTop:
-        p = Offset(rect.center.dx, rect.bottom - 12);
+        p = Offset(_snap(rect.center.dx), _snap(rect.bottom - 12));
         break;
       case PanelType.tiltBottom:
-        p = Offset(rect.center.dx, rect.top + 12);
+        p = Offset(_snap(rect.center.dx), _snap(rect.top + 12));
         break;
       case PanelType.tiltSideLeft:
-        p = Offset(rect.right - 12, rect.center.dy);
+        p = Offset(_snap(rect.right - 12), _snap(rect.center.dy));
         break;
       case PanelType.tiltSideRight:
-        p = Offset(rect.left + 12, rect.center.dy);
+        p = Offset(_snap(rect.left + 12), _snap(rect.center.dy));
         break;
       case PanelType.slidingLeft:
-        p = Offset(rect.left + (rect.width * 0.35), rect.center.dy);
+        p = Offset(
+            _snap(rect.left + (rect.width * 0.35)), _snap(rect.center.dy));
         break;
       case PanelType.slidingRight:
-        p = Offset(rect.left + (rect.width * 0.65), rect.center.dy);
+        p = Offset(
+            _snap(rect.left + (rect.width * 0.65)), _snap(rect.center.dy));
         break;
       case PanelType.fixed:
         // unreachable because of early return
         return;
     }
-    final paint = Paint()..color = _outlineColor.withOpacity(0.55);
+    final paint = Paint()
+      ..color = _outlineColor.withOpacity(0.55)
+      ..isAntiAlias = false;
     canvas.drawCircle(p, r, paint);
   }
 
@@ -924,20 +956,29 @@ class _DesignerPainter extends CustomPainter {
     final textStyle = const TextStyle(fontSize: 10, color: Colors.black54);
     final stroke = Paint()
       ..color = Colors.black26
-      ..strokeWidth = 1;
+      ..strokeWidth = 1
+      ..isAntiAlias = false;
 
     // top ruler line
-    canvas.drawLine(outer.topLeft + const Offset(0, -10),
-        outer.topRight + const Offset(0, -10), stroke);
+    canvas.drawLine(
+        Offset(_snap(outer.left), _snap(outer.top - 10)),
+        Offset(_snap(outer.right), _snap(outer.top - 10)),
+        stroke);
     // bottom ruler line
-    canvas.drawLine(outer.bottomLeft + const Offset(0, 10),
-        outer.bottomRight + const Offset(0, 10), stroke);
+    canvas.drawLine(
+        Offset(_snap(outer.left), _snap(outer.bottom + 10)),
+        Offset(_snap(outer.right), _snap(outer.bottom + 10)),
+        stroke);
     // left ruler
-    canvas.drawLine(outer.topLeft + const Offset(-10, 0),
-        outer.bottomLeft + const Offset(-10, 0), stroke);
+    canvas.drawLine(
+        Offset(_snap(outer.left - 10), _snap(outer.top)),
+        Offset(_snap(outer.left - 10), _snap(outer.bottom)),
+        stroke);
     // right ruler
-    canvas.drawLine(outer.topRight + const Offset(10, 0),
-        outer.bottomRight + const Offset(10, 0), stroke);
+    canvas.drawLine(
+        Offset(_snap(outer.right + 10), _snap(outer.top)),
+        Offset(_snap(outer.right + 10), _snap(outer.bottom)),
+        stroke);
 
     // labels for inner width/height
     final widthMm = (inner.width / zoom).round();
