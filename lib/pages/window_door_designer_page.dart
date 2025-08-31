@@ -793,6 +793,18 @@ class _DesignerPainter extends CustomPainter {
       canvas.drawLine(tip, wing2, thin);
     }
 
+    void swingArc(bool leftHinged) {
+      final radius = math.min(rect.width, rect.height) - 12;
+      if (radius <= 0) return;
+      final center = leftHinged
+          ? Offset(rect.left + 6, rect.center.dy)
+          : Offset(rect.right - 6, rect.center.dy);
+      final arcRect = Rect.fromCircle(center: center, radius: radius);
+      final startAngle = leftHinged ? -math.pi / 2 : math.pi / 2;
+      final sweepAngle = leftHinged ? math.pi : -math.pi;
+      canvas.drawArc(arcRect, startAngle, sweepAngle, false, thin);
+    }
+
     switch (type) {
       case PanelType.fixed:
         final fontSize = math.min(rect.width, rect.height) * 0.55;
@@ -819,10 +831,12 @@ class _DesignerPainter extends CustomPainter {
 
       case PanelType.casementLeft:
         casementLeftV();
+        swingArc(true);
         break;
 
       case PanelType.casementRight:
         casementRightV();
+        swingArc(false);
         break;
 
       case PanelType.tiltTop:
@@ -844,11 +858,13 @@ class _DesignerPainter extends CustomPainter {
       case PanelType.tiltTurnLeft:
         casementLeftV();
         triangleTopDown();
+        swingArc(true);
         break;
 
       case PanelType.tiltTurnRight:
         casementRightV();
         triangleTopDown();
+        swingArc(false);
         break;
 
       case PanelType.slidingLeft:
