@@ -713,21 +713,25 @@ class _DesignerPainter extends CustomPainter {
   }
 
   void _drawPanelSymbol(Canvas canvas, Rect rect, PanelType type) {
-    final stroke = Paint()
-      ..color = _outlineColor
-      ..strokeWidth = 2
-      ..style = PaintingStyle.stroke;
-
     final thin = Paint()
       ..color = _outlineColor
-      ..strokeWidth = 1.6
+      ..strokeWidth = 1.2
       ..style = PaintingStyle.stroke;
 
     // helpers
-    void diagTLBR() => canvas.drawLine(rect.topLeft + const Offset(6, 6),
-        rect.bottomRight - const Offset(6, 6), stroke);
-    void diagTRBL() => canvas.drawLine(rect.topRight + const Offset(-6, 6),
-        rect.bottomLeft + const Offset(6, -6), stroke);
+    void casementLeftDiag() {
+      // Single diagonal like WinStudio/iWindoor icons (hinges on left)
+      final p1 = rect.topLeft + const Offset(6, 6);
+      final p2 = rect.bottomRight + const Offset(-6, -6);
+      canvas.drawLine(p1, p2, thin);
+    }
+
+    void casementRightDiag() {
+      // Single diagonal with hinges on right side
+      final p1 = rect.topRight + const Offset(-6, 6);
+      final p2 = rect.bottomLeft + const Offset(6, -6);
+      canvas.drawLine(p1, p2, thin);
+    }
 
     void triangleTopDown() {
       final p1 = rect.topCenter + const Offset(0, 8);
@@ -761,6 +765,15 @@ class _DesignerPainter extends CustomPainter {
       canvas.drawPath(path, thin);
     }
 
+    void slidingRails() {
+      final x1 = rect.left + rect.width / 3;
+      final x2 = rect.left + rect.width * 2 / 3;
+      canvas.drawLine(
+          Offset(x1, rect.top + 4), Offset(x1, rect.bottom - 4), thin);
+      canvas.drawLine(
+          Offset(x2, rect.top + 4), Offset(x2, rect.bottom - 4), thin);
+    }
+
     void arrowHoriz(bool toRight) {
       final y = rect.center.dy;
       final start = Offset(rect.left + 10, y);
@@ -770,32 +783,44 @@ class _DesignerPainter extends CustomPainter {
       final a = toRight ? -math.pi / 6 : math.pi - math.pi / 6;
       final b = toRight ? math.pi / 6 : math.pi + math.pi / 6;
       final len = 8.0;
-      final wing1 = Offset(tip.dx + len * math.cos(a), tip.dy + len * math.sin(a));
-      final wing2 = Offset(tip.dx + len * math.cos(b), tip.dy + len * math.sin(b));
+      final wing1 =
+          Offset(tip.dx + len * math.cos(a), tip.dy + len * math.sin(a));
+      final wing2 =
+          Offset(tip.dx + len * math.cos(b), tip.dy + len * math.sin(b));
       canvas.drawLine(tip, wing1, thin);
       canvas.drawLine(tip, wing2, thin);
     }
 
     switch (type) {
       case PanelType.fixed:
-      // WinStudio uses X/plus. We draw a subtle “+” and “×”.
-        diagTLBR();
-        diagTRBL();
-        final v = Offset(rect.center.dx, rect.top + 6);
-        final v2 = Offset(rect.center.dx, rect.bottom - 6);
-        final h = Offset(rect.left + 6, rect.center.dy);
-        final h2 = Offset(rect.right - 6, rect.center.dy);
-        canvas.drawLine(v, v2, thin);
-        canvas.drawLine(h, h2, thin);
+        final fontSize = math.min(rect.width, rect.height) * 0.55;
+        final tp = TextPainter(
+          text: TextSpan(
+            text: 'F',
+            style: TextStyle(
+              fontSize: fontSize,
+              fontWeight: FontWeight.bold,
+              color: _outlineColor,
+            ),
+          ),
+          textDirection: TextDirection.ltr,
+        )
+          ..layout();
+        tp.paint(
+          canvas,
+          Offset(
+            rect.center.dx - tp.width / 2,
+            rect.center.dy - tp.height / 2,
+          ),
+        );
         break;
 
       case PanelType.casementLeft:
-      // diagonal indicating swing from left
-        diagTLBR();
+        casementLeftDiag();
         break;
 
       case PanelType.casementRight:
-        diagTRBL();
+        casementRightDiag();
         break;
 
       case PanelType.tiltTop:
@@ -815,34 +840,34 @@ class _DesignerPainter extends CustomPainter {
         break;
 
       case PanelType.tiltTurnLeft:
-        diagTLBR();
+        casementLeftDiag();
         triangleTopDown();
         break;
 
       case PanelType.tiltTurnRight:
-        diagTRBL();
+        casementRightDiag();
         triangleTopDown();
         break;
 
       case PanelType.slidingLeft:
+        slidingRails();
         arrowHoriz(false);
         break;
 
       case PanelType.slidingRight:
+        slidingRails();
         arrowHoriz(true);
         break;
     }
   }
 
   void _drawHandleDot(Canvas canvas, Rect rect, PanelType type) {
+    if (type == PanelType.fixed) return;
     // Place a small dot roughly where the handle would be for the given opening.
     // This matches WinStudio’s little circle marker.
     late Offset p;
     const r = 3.0;
     switch (type) {
-      case PanelType.fixed:
-        p = rect.center;
-        break;
       case PanelType.casementLeft:
       case PanelType.tiltTurnLeft:
         p = Offset(rect.right - 12, rect.center.dy);
@@ -869,6 +894,9 @@ class _DesignerPainter extends CustomPainter {
       case PanelType.slidingRight:
         p = Offset(rect.left + (rect.width * 0.65), rect.center.dy);
         break;
+      case PanelType.fixed:
+        // unreachable because of early return
+        return;
     }
     final paint = Paint()..color = _outlineColor.withOpacity(0.55);
     canvas.drawCircle(p, r, paint);
@@ -1503,14 +1531,26 @@ class _MiniSymbolPainter {
 
     switch (type) {
       case PanelType.fixed:
-        diagTLBR();
-        diagTRBL();
-        final v = Offset(rect.center.dx, rect.top + 4);
-        final v2 = Offset(rect.center.dx, rect.bottom - 4);
-        final h = Offset(rect.left + 4, rect.center.dy);
-        final h2 = Offset(rect.right - 4, rect.center.dy);
-        canvas.drawLine(v, v2, thin);
-        canvas.drawLine(h, h2, thin);
+        final fontSize = math.min(rect.width, rect.height) * 0.5;
+        final tp = TextPainter(
+          text: TextSpan(
+            text: 'F',
+            style: TextStyle(
+              fontSize: fontSize,
+              fontWeight: FontWeight.bold,
+              color: const Color(0xFF8A8A8A),
+            ),
+          ),
+          textDirection: TextDirection.ltr,
+        )
+          ..layout(maxWidth: rect.width);
+        tp.paint(
+          canvas,
+          Offset(
+            rect.center.dx - tp.width / 2,
+            rect.center.dy - tp.height / 2,
+          ),
+        );
         break;
       case PanelType.casementLeft:
         diagTLBR();
