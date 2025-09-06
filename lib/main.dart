@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'l10n/app_localizations.dart';
 import 'theme/app_background.dart';
 import 'widgets/glass_card.dart';
 import 'theme/app_colors.dart';
@@ -70,15 +68,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      locale: const Locale('sq'),
-      supportedLocales: AppLocalizations.supportedLocales,
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
+      title: 'TONI AL-PVC',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       home: WelcomePage(
@@ -97,15 +87,12 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     final items = [
-      _NavItem(Icons.auto_awesome_motion_outlined, l10n.homeCatalogs,
-          const CatalogsPage()),
-      _NavItem(Icons.people_outline, l10n.homeCustomers,
-          const CustomersPage()),
-      _NavItem(Icons.description_outlined, l10n.homeOffers,
-          const OffersPage()),
-      _NavItem(Icons.build, l10n.homeProduction, const ProductionPage()),
+      _NavItem(
+          Icons.auto_awesome_motion_outlined, 'Çmimore', const CatalogsPage()),
+      _NavItem(Icons.people_outline, 'Klientët', const CustomersPage()),
+      _NavItem(Icons.description_outlined, 'Ofertat', const OffersPage()),
+      _NavItem(Icons.build, 'Prodhimi', const ProductionPage()),
     ];
 
     return Scaffold(
