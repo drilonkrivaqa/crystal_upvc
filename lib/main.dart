@@ -92,7 +92,7 @@ class HomePage extends StatelessWidget {
           Icons.auto_awesome_motion_outlined, 'Çmimore', const CatalogsPage()),
       _NavItem(Icons.people_outline, 'Klientët', const CustomersPage()),
       _NavItem(Icons.description_outlined, 'Ofertat', const OffersPage()),
-      _NavItem(Icons.build, 'Prodhimi', const ProductionPage()),
+      _NavItem(Icons.precision_manufacturing, 'Prodhimi', const ProductionPage()),
     ];
 
     return Scaffold(
