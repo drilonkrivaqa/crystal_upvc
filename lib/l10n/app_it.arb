@@ -1,0 +1,23 @@
+{
+  "appTitle": "TONI AL-PVC",
+  "homeCatalogs": "Listino prezzi",
+  "homeCustomers": "Clienti",
+  "homeOffers": "Offerte",
+  "homeProduction": "Produzione",
+  "welcomeAddress": "Rr. Ilir Konushevci, Nr. 80, Kamenicë, Kosovë, 62000",
+  "welcomePhones": "+38344357639 | +38344268300",
+  "welcomeWebsite": "www.tonialpvc.com | tonialpvc@gmail.com",
+  "welcomeEnter": "Entra",
+  "snackLoadFailure": "Alcuni dati non sono stati caricati: {names}",
+  "@snackLoadFailure": {
+    "placeholders": {
+      "names": {}
+    }
+  },
+  "snackMigrationFailure": "Alcuni dati non sono stati migrati: {names}. Controlla e ripristina manualmente se necessario.",
+  "@snackMigrationFailure": {
+    "placeholders": {
+      "names": {}
+    }
+  }
+}
