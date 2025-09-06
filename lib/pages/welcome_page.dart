@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../theme/app_background.dart';
-import 'package:crystal_upvc/l10n/app_localizations.dart';
 
 class WelcomePage extends StatefulWidget {
   final List<String> failedBoxes;
@@ -23,17 +22,16 @@ class _WelcomePageState extends State<WelcomePage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.failedBoxes.isNotEmpty) {
         final names = widget.failedBoxes.join(', ');
-        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.snackLoadFailure(names))),
+          SnackBar(content: Text('Disa të dhëna nuk u ngarkuan: $names')),
         );
       }
       if (widget.migrationFailures.isNotEmpty) {
         final names = widget.migrationFailures.join(', ');
-        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(l10n.snackMigrationFailure(names)),
+            content: Text(
+                'Disa të dhëna nuk u migruan: $names. Ju lutemi kontrolloni dhe rikuperoni manualisht nëse është e nevojshme.'),
           ),
         );
       }
@@ -42,7 +40,6 @@ class _WelcomePageState extends State<WelcomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       body: AppBackground(
         child: SafeArea(
@@ -57,23 +54,23 @@ class _WelcomePageState extends State<WelcomePage> {
                       .fadeIn(duration: 600.ms)
                       .slideY(begin: 0.2),
                   const SizedBox(height: 24),
-                  Text(
-                    l10n.welcomeAddress,
+                  const Text(
+                    'Rr. Ilir Konushevci, Nr. 80, Kamenicë, Kosovë, 62000',
                     textAlign: TextAlign.center,
                   ),
-                  Text(
-                    l10n.welcomePhones,
+                  const Text(
+                    '+38344357639 | +38344268300',
                     textAlign: TextAlign.center,
                   ),
-                  Text(
-                    l10n.welcomeWebsite,
+                  const Text(
+                    'www.tonialpvc.com | tonialpvc@gmail.com',
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 32),
                   ElevatedButton(
                     onPressed: () =>
                         Navigator.pushReplacementNamed(context, '/home'),
-                    child: Text(l10n.welcomeEnter),
+                    child: const Text('Hyr'),
                   ).animate().fadeIn(duration: 220.ms, delay: 100.ms),
                 ],
               ),
