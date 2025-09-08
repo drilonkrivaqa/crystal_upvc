@@ -819,7 +819,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   }
 
   Widget _buildDimensionInputs() {
-    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -856,24 +855,24 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                 : null,
           ),
         if (verticalSections > 1) const SizedBox(height: 8),
-        if (verticalSections > 1) Text(l10n.verticalDivision),
+        if (verticalSections > 1) const Text('Ndarja Vertikale'),
         for (int i = 0; i < verticalSections - 1; i++)
           DropdownButton<bool>(
             value: verticalAdapters[i],
-            items: [
-              const DropdownMenuItem(value: false, child: Text('T')),
+            items: const [
+              DropdownMenuItem(value: false, child: Text('T')),
               DropdownMenuItem(value: true, child: Text(l10n.pdfAdapter)),
             ],
             onChanged: (val) =>
                 setState(() => verticalAdapters[i] = val ?? false),
           ),
         if (horizontalSections > 1) const SizedBox(height: 8),
-        if (horizontalSections > 1) Text(l10n.horizontalDivision),
+        if (horizontalSections > 1) const Text('Ndarja Horizontale'),
         for (int i = 0; i < horizontalSections - 1; i++)
           DropdownButton<bool>(
             value: horizontalAdapters[i],
-            items: [
-              const DropdownMenuItem(value: false, child: Text('T')),
+            items: const [
+              DropdownMenuItem(value: false, child: Text('T')),
               DropdownMenuItem(value: true, child: Text(l10n.pdfAdapter)),
             ],
             onChanged: (val) =>
