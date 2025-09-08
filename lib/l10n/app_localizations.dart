@@ -69,7 +69,7 @@ class AppLocalizations {
       'cancel': 'Anulo',
       'add': 'Shto',
       'delete': 'Fshij',
-      'save': 'Ruaj',
+            'save': 'Ruaj',
       'addWindowDoor': 'Shto Dritare/Derë',
       'editWindowDoor': 'Ndrysho Dritaren/Derën',
       'designWindowDoor': 'Dizajno dritare/derë',
@@ -743,7 +743,7 @@ class AppLocalizations {
   String get quantity => _t('quantity');
   String get basePriceOptional => _t('basePriceOptional');
   String get priceWithProfitOptional => _t('priceWithProfitOptional');
-  String get verticalSections => _t('verticalSections');
+   String get verticalSections => _t('verticalSections');
   String get horizontalSections => _t('horizontalSections');
   String get verticalDivision => _t('verticalDivision');
   String get horizontalDivision => _t('horizontalDivision');
