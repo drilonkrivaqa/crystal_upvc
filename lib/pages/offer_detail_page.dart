@@ -61,10 +61,9 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
   @override
   Widget build(BuildContext context) {
     Offer offer = offerBox.getAt(widget.offerIndex)!;
-    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: Text('${l10n.pdfOffer} ${widget.offerIndex + 1}'),
+        title: Text('Oferta ${widget.offerIndex + 1}'),
         actions: [
           IconButton(
             icon: const Icon(Icons.picture_as_pdf),
@@ -79,7 +78,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 blindBox: blindBox,
                 mechanismBox: mechanismBox,
                 accessoryBox: accessoryBox,
-                l10n: l10n,
+                l10n: AppLocalizations.of(context)!,
               );
             },
           ),
@@ -95,7 +94,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
               children: [
                 Expanded(
                   child: Text(
-                    '${l10n.pdfClient}: ${customerBox.getAt(offer.customerIndex)?.name ?? ''}',
+                    'Customer: ${customerBox.getAt(offer.customerIndex)?.name ?? ''}',
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -109,7 +108,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                       builder: (_) => StatefulBuilder(
                         builder: (context, setStateDialog) {
                           return AlertDialog(
-                            title: Text(l10n.selectCustomer),
+                            title: const Text('Zgjedh Klientin'),
                             content: DropdownButton<int>(
                               value: selected,
                               items: List.generate(
@@ -125,7 +124,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.pop(context),
-                                child: Text(l10n.cancel),
+                                child: const Text('Anulo'),
                               ),
                               ElevatedButton(
                                 onPressed: () {
@@ -135,7 +134,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                                   setState(() {});
                                   Navigator.pop(context);
                                 },
-                                child: Text(l10n.save),
+                                child: const Text('Ruaj'),
                               ),
                             ],
                           );
@@ -154,7 +153,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
               children: [
                 Expanded(
                   child: Text(
-                    '${l10n.profit}: ${offer.profitPercent.toStringAsFixed(2)}%',
+                    'Fitimi: ${offer.profitPercent.toStringAsFixed(2)}%',
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -166,17 +165,17 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                     await showDialog(
                       context: context,
                       builder: (_) => AlertDialog(
-                        title: Text(l10n.setProfitPercent),
+                        title: const Text('Vendos Përqindjen e Fitimit'),
                         content: TextField(
                           controller: controller,
                           keyboardType: TextInputType.number,
                           decoration:
-                              InputDecoration(labelText: l10n.profitPercent),
+                              const InputDecoration(labelText: 'Fitimi %'),
                         ),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(context),
-                            child: Text(l10n.cancel),
+                            child: const Text('Anulo'),
                           ),
                           ElevatedButton(
                             onPressed: () {
@@ -188,7 +187,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                               setState(() {});
                               Navigator.pop(context);
                             },
-                            child: Text(l10n.save),
+                            child: const Text('Ruaj'),
                           ),
                         ],
                       ),
@@ -289,8 +288,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 await showDialog(
                   context: context,
                   builder: (_) => AlertDialog(
-                    title: Text(l10n.editDeleteWindowDoor),
-                    content: Text(l10n.deleteWindowDoorConfirm),
+                    title: const Text("Ndrysho/Fshij Dritaren/Derën"),
+                    content: const Text("A dëshironi ta fshini këtë?"),
                     actions: [
                       TextButton(
                         onPressed: () {
@@ -300,8 +299,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                           setState(() {});
                           Navigator.pop(context);
                         },
-                        child: Text(l10n.delete,
-                            style: const TextStyle(color: AppColors.delete)),
+                        child: const Text("Fshij",
+                            style: TextStyle(color: AppColors.delete)),
                       ),
                       TextButton(
                         onPressed: () async {
@@ -321,11 +320,11 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                             ),
                           );
                         },
-                        child: Text(l10n.edit),
+                        child: const Text("Ndrysho"),
                       ),
                       TextButton(
                         onPressed: () => Navigator.pop(context),
-                        child: Text(l10n.cancel),
+                        child: const Text("Anulo"),
                       ),
                     ],
                   ),
@@ -342,63 +341,62 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 title: Text(item.name),
                 subtitle: Text(() {
                   final sb = StringBuffer();
-                  sb.writeln('${l10n.pdfDimensions} ${item.width} x ${item.height} mm');
-                  sb.writeln('${l10n.pdfPieces} ${item.quantity}');
-                  sb.writeln('${l10n.catalogProfile}: ${profileSet.name}');
-                  sb.writeln('${l10n.catalogGlass}: ${glass.name}');
+                  sb.writeln('Madhësia: ${item.width} x ${item.height} mm');
+                  sb.writeln('Pcs: ${item.quantity}');
+                  sb.writeln('Profili: ${profileSet.name}');
+                  sb.writeln('Xhami: ${glass.name}');
                   sb.writeln(
-                      '${l10n.pdfSections} ${item.horizontalSections}x${item.verticalSections}');
-                  sb.writeln('${l10n.pdfOpening} ${item.openings}');
+                      'Sektorët: ${item.horizontalSections}x${item.verticalSections}');
+                  sb.writeln('Krahët: ${item.openings}');
                   sb.writeln(
-                      '${item.sectionWidths.length > 1 ? l10n.pdfWidths : l10n.pdfWidth} ${item.sectionWidths.join(', ')}');
+                      '${item.sectionWidths.length > 1 ? 'Gjerësitë' : 'Gjerësia'}: ${item.sectionWidths.join(', ')}');
                   sb.writeln(
-                      '${item.sectionHeights.length > 1 ? l10n.pdfHeights : l10n.pdfHeight} ${item.sectionHeights.join(', ')}');
+                      '${item.sectionHeights.length > 1 ? 'Lartësitë' : 'Lartësia'}: ${item.sectionHeights.join(', ')}');
                   sb.writeln(
-                      '${l10n.pdfVDiv} ${item.verticalAdapters.map((a) => a ? l10n.pdfAdapter : 'T').join(', ')}');
+                      'V div: ${item.verticalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ')}');
                   sb.writeln(
-                      '${l10n.pdfHDiv} ${item.horizontalAdapters.map((a) => a ? l10n.pdfAdapter : 'T').join(', ')}');
+                      'H div: ${item.horizontalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ')}');
                   sb.writeln(
-                      '${l10n.profileCostPer}: €${profileCostPer.toStringAsFixed(2)}, ${l10n.profileCostTotal}: €${profileCost.toStringAsFixed(2)}');
+                      'Kostoja e profilit 1pcs: €${profileCostPer.toStringAsFixed(2)}, Totali i kostoja e profilit (${item.quantity}pcs): €${profileCost.toStringAsFixed(2)}');
                   sb.writeln(
-                      '${l10n.glassCostPer}: €${glassCostPer.toStringAsFixed(2)}, ${l10n.glassCostTotal}: €${glassCost.toStringAsFixed(2)}');
+                      'Kostoja e xhamit 1pcs: €${glassCostPer.toStringAsFixed(2)}, Totali i kostoja e xhamit (${item.quantity}pcs): €${glassCost.toStringAsFixed(2)}');
                   if (blind != null) {
-                    sb.writeln(
-                        '${l10n.catalogBlind}: ${blind.name}, €${blindCost.toStringAsFixed(2)}');
+                    sb.writeln('Roleta: ${blind.name}, €${blindCost.toStringAsFixed(2)}');
                   }
                   if (mechanism != null) {
                     sb.writeln(
-                        '${l10n.catalogMechanism}: ${mechanism.name}, €${mechanismCost.toStringAsFixed(2)}');
+                        'Mekanizmi: ${mechanism.name}, €${mechanismCost.toStringAsFixed(2)}');
                   }
                   if (accessory != null) {
                     sb.writeln(
-                        '${l10n.catalogAccessory}: ${accessory.name}, €${accessoryCost.toStringAsFixed(2)}');
+                        'Aksesori: ${accessory.name}, €${accessoryCost.toStringAsFixed(2)}');
                   }
                   if (item.extra1Price != null) {
                     sb.writeln(
-                        '${item.extra1Desc ?? l10n.pdfExtra1}: €${(item.extra1Price! * item.quantity).toStringAsFixed(2)}');
+                        '${item.extra1Desc ?? 'Shtesa 1'}: €${(item.extra1Price! * item.quantity).toStringAsFixed(2)}');
                   }
                   if (item.extra2Price != null) {
                     sb.writeln(
-                        '${item.extra2Desc ?? l10n.pdfExtra2}: €${(item.extra2Price! * item.quantity).toStringAsFixed(2)}');
+                        '${item.extra2Desc ?? 'Shtesa 2'}: €${(item.extra2Price! * item.quantity).toStringAsFixed(2)}');
                   }
                   if (item.notes != null && item.notes!.isNotEmpty) {
-                    sb.writeln('${l10n.pdfNotesItem} ${item.notes!}');
+                    sb.writeln('Shënime: ${item.notes!}');
                   }
                   sb.writeln(
-                      '${l10n.baseCostPer}: €${totalPer.toStringAsFixed(2)}, ${l10n.baseCostTotal}: €${total.toStringAsFixed(2)}');
+                      'Kostoja 0% 1pcs: €${totalPer.toStringAsFixed(2)}, Totali i kostoja 0% (${item.quantity}pcs): €${total.toStringAsFixed(2)}');
                   sb.writeln(
-                      '${l10n.finalCostPer}: €${finalPer.toStringAsFixed(2)}, ${l10n.finalCostTotal}: €${finalPrice.toStringAsFixed(2)}');
+                      'Kostoja me fitim 1pcs: €${finalPer.toStringAsFixed(2)}, Totali i kostoja me fitim (${item.quantity}pcs): €${finalPrice.toStringAsFixed(2)}');
                   sb.writeln(
-                      '${l10n.profitPer}: €${profitPer.toStringAsFixed(2)}, ${l10n.profitTotal}: €${profitAmount.toStringAsFixed(2)}');
-                  sb.writeln('${l10n.pdfTotalMass} ${totalMass.toStringAsFixed(2)} kg');
+                      'Fitimi 1pcs: €${profitPer.toStringAsFixed(2)}, Totali i fitimi (${item.quantity}pcs): €${profitAmount.toStringAsFixed(2)}');
+                  sb.writeln('Masa: ${totalMass.toStringAsFixed(2)} kg');
                   if (profileSet.uf != null) {
-                    sb.writeln('${l10n.pdfUf} ${profileSet.uf!.toStringAsFixed(2)} W/m²K');
+                    sb.writeln('Uf: ${profileSet.uf!.toStringAsFixed(2)} W/m²K');
                   }
                   if (glass.ug != null) {
-                    sb.writeln('${l10n.pdfUg} ${glass.ug!.toStringAsFixed(2)} W/m²K');
+                    sb.writeln('Ug: ${glass.ug!.toStringAsFixed(2)} W/m²K');
                   }
                   if (uw != null) {
-                    sb.writeln('${l10n.pdfUw} ${uw!.toStringAsFixed(2)} W/m²K');
+                    sb.writeln('Uw: ${uw!.toStringAsFixed(2)} W/m²K');
                   }
                   return sb.toString();
                 }()),
@@ -471,23 +469,23 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
               double percentAmount = subtotal * (offer.discountPercent / 100);
               double finalTotal = subtotal - percentAmount;
               double profitTotal = finalTotal - baseTotal;
-              String summary = '${l10n.pdfTotalItems}: $totalPcs pcs\n';
+              String summary = 'Numri total i artikujve: $totalPcs pcs\n';
               summary +=
-                  '${l10n.totalWithoutProfit}: €${baseTotal.toStringAsFixed(2)}\n';
+                  'Totali pa Fitim (0%): €${baseTotal.toStringAsFixed(2)}\n';
               for (var charge in offer.extraCharges) {
                 summary +=
-                    '${charge.description.isNotEmpty ? charge.description : l10n.pdfExtra}: €${charge.amount.toStringAsFixed(2)}\n';
+                    '${charge.description.isNotEmpty ? charge.description : 'Ekstra'}: €${charge.amount.toStringAsFixed(2)}\n';
               }
               if (offer.discountAmount != 0) {
                 summary +=
-                    '${l10n.pdfDiscountAmount}: -€${offer.discountAmount.toStringAsFixed(2)}\n';
+                    'Zbritje: -€${offer.discountAmount.toStringAsFixed(2)}\n';
               }
               if (offer.discountPercent != 0) {
                 summary +=
-                    '${l10n.pdfDiscountPercent}: ${offer.discountPercent.toStringAsFixed(2)}% (-€${percentAmount.toStringAsFixed(2)})\n';
+                    'Zbritje me përqindje %: ${offer.discountPercent.toStringAsFixed(2)}% (-€${percentAmount.toStringAsFixed(2)})\n';
               }
               summary +=
-                  '${l10n.withProfit}: €${finalTotal.toStringAsFixed(2)}\n${l10n.profitTotal}: €${profitTotal.toStringAsFixed(2)}';
+                  'Me Fitim: €${finalTotal.toStringAsFixed(2)}\nFitimi Total: €${profitTotal.toStringAsFixed(2)}';
               return Text(
                 summary,
                 textAlign: TextAlign.center,
@@ -518,7 +516,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                         child: TextField(
                           controller: descCtl,
                           decoration:
-                              InputDecoration(labelText: l10n.description),
+                              const InputDecoration(labelText: 'Përshkrimi'),
                           onChanged: (v) {
                             charge.description = v;
                             offer.lastEdited = DateTime.now();
@@ -532,7 +530,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                         child: TextField(
                           controller: amtCtl,
                           keyboardType: TextInputType.number,
-                          decoration: InputDecoration(labelText: l10n.amount),
+                          decoration: const InputDecoration(labelText: 'Sasia'),
                           onChanged: (v) {
                             charge.amount = double.tryParse(v) ?? 0;
                             offer.lastEdited = DateTime.now();
@@ -571,14 +569,13 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                       setState(() {});
                     },
                     icon: const Icon(Icons.add),
-                    label: Text(l10n.addExtra),
+                    label: const Text('Shto ekstra'),
                   ),
                 ),
                 TextField(
                   controller: discountPercentController,
                   keyboardType: TextInputType.number,
-                  decoration:
-                      InputDecoration(labelText: l10n.pdfDiscountPercent),
+                  decoration: const InputDecoration(labelText: 'Zbritja %'),
                   onChanged: (val) {
                     offer.discountPercent = double.tryParse(val) ?? 0;
                     offer.lastEdited = DateTime.now();
@@ -589,8 +586,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 TextField(
                   controller: discountAmountController,
                   keyboardType: TextInputType.number,
-                  decoration:
-                      InputDecoration(labelText: l10n.pdfDiscountAmount),
+                  decoration: const InputDecoration(labelText: 'Zbritja'),
                   onChanged: (val) {
                     offer.discountAmount = double.tryParse(val) ?? 0;
                     offer.lastEdited = DateTime.now();
@@ -600,7 +596,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 ),
                 TextField(
                   controller: notesController,
-                  decoration: InputDecoration(labelText: l10n.pdfNotes),
+                  decoration:
+                      const InputDecoration(labelText: 'Vërejtje/Notes'),
                   minLines: 1,
                   maxLines: 3,
                   onChanged: (val) {
