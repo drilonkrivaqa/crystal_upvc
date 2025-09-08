@@ -116,6 +116,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final settingsBox = Hive.box('settings');
     final items = [
       _NavItem(Icons.auto_awesome_motion_outlined, l10n.homeCatalogs,
           const CatalogsPage()),
@@ -133,6 +134,33 @@ class HomePage extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
               child: Column(
                 children: [
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: ValueListenableBuilder(
+                      valueListenable:
+                          settingsBox.listenable(keys: ['locale']),
+                      builder: (context, Box box, _) {
+                        final code =
+                            box.get('locale', defaultValue: 'sq') as String;
+                        return DropdownButton<String>(
+                          value: code,
+                          onChanged: (val) {
+                            if (val != null) {
+                              box.put('locale', val);
+                            }
+                          },
+                          items: const [
+                            DropdownMenuItem(value: 'sq', child: Text('Shqip')),
+                            DropdownMenuItem(value: 'en', child: Text('English')),
+                            DropdownMenuItem(value: 'de', child: Text('Deutsch')),
+                            DropdownMenuItem(
+                                value: 'fr', child: Text('Français')),
+                            DropdownMenuItem(value: 'it', child: Text('Italiano')),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
                   Image.asset(
                     'assets/logo.png',
                     width: 200,
