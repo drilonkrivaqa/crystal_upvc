@@ -6,6 +6,7 @@ import 'offer_detail_page.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_background.dart';
 import '../widgets/glass_card.dart';
+import '../l10n/app_localizations.dart';
 
 class OffersPage extends StatefulWidget {
   const OffersPage({super.key});
@@ -26,9 +27,10 @@ class _OffersPageState extends State<OffersPage> {
   }
 
   void _addOffer() {
+    final l10n = AppLocalizations.of(context)!;
     if (customerBox.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Së pari shtoni një klient të ri!')),
+        SnackBar(content: Text(l10n.addCustomerFirst)),
       );
       return;
     }
@@ -42,13 +44,14 @@ class _OffersPageState extends State<OffersPage> {
       context: context,
       builder: (_) => StatefulBuilder(
         builder: (context, setStateDialog) => AlertDialog(
-          title: const Text('Krijo Ofertë'),
+          title: Text(l10n.createOffer),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
-                decoration: const InputDecoration(
-                    icon: Icon(Icons.search), labelText: 'Kërko klientin'),
+                decoration: InputDecoration(
+                    icon: const Icon(Icons.search),
+                    labelText: l10n.searchCustomer),
                 onChanged: (val) =>
                     setStateDialog(() => customerSearch = val.toLowerCase()),
               ),
@@ -76,11 +79,11 @@ class _OffersPageState extends State<OffersPage> {
                                 child: Text(customerBox.getAt(i)?.name ?? ''),
                               ),
                           ]
-                        : const [
+                        : [
                             DropdownMenuItem(
                               value: null,
                               enabled: false,
-                              child: Text('Pa rezultate'),
+                              child: Text(l10n.noResults),
                             ),
                           ],
                     onChanged: filtered.isEmpty
@@ -96,14 +99,14 @@ class _OffersPageState extends State<OffersPage> {
               TextField(
                 controller: profitController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Fitimi %'),
+                decoration: InputDecoration(labelText: l10n.profitPercent),
               ),
             ],
           ),
           actions: [
             TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Anulo')),
+                child: Text(l10n.cancel)),
             ElevatedButton(
               onPressed: () {
                 offerBox.add(
@@ -119,7 +122,7 @@ class _OffersPageState extends State<OffersPage> {
                 Navigator.pop(context);
                 setState(() {});
               },
-              child: const Text('Shto'),
+              child: Text(l10n.add),
             ),
           ],
         ),
@@ -129,17 +132,18 @@ class _OffersPageState extends State<OffersPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: const Text('Ofertat')),
+      appBar: AppBar(title: Text(l10n.homeOffers)),
       body: AppBackground(
         child: Column(
           children: [
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextField(
-                decoration: const InputDecoration(
-                  labelText: 'Kërko me emër të klientit ose me numër oferte',
-                  prefixIcon: Icon(Icons.search),
+                decoration: InputDecoration(
+                  labelText: l10n.offerSearchHint,
+                  prefixIcon: const Icon(Icons.search),
                 ),
                 onChanged: (val) => setState(() => _searchQuery = val.trim()),
               ),
@@ -193,20 +197,19 @@ class _OffersPageState extends State<OffersPage> {
                           final confirm = await showDialog<bool>(
                             context: context,
                             builder: (_) => AlertDialog(
-                              title: const Text('Fshij Ofertën'),
-                              content: const Text(
-                                  'A jeni të sigurtë se dëshironi ta fshini këtë ofertë?'),
+                              title: Text(l10n.deleteOffer),
+                              content: Text(l10n.deleteOfferConfirm),
                               actions: [
                                 TextButton(
                                   onPressed: () =>
                                       Navigator.pop(context, false),
-                                  child: const Text('Anulo'),
+                                  child: Text(l10n.cancel),
                                 ),
                                 TextButton(
                                   onPressed: () => Navigator.pop(context, true),
-                                  child: const Text('Fshij',
+                                  child: Text(l10n.delete,
                                       style:
-                                          TextStyle(color: AppColors.delete)),
+                                          const TextStyle(color: AppColors.delete)),
                                 ),
                               ],
                             ),
@@ -218,11 +221,11 @@ class _OffersPageState extends State<OffersPage> {
                         },
                         child: ListTile(
                           title: Text(
-                            'Oferta ${i + 1}',
+                            '${l10n.pdfOffer} ${i + 1}',
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                           subtitle: Text(
-                              'Klienti: ${customer?.name ?? "-"}\ Data: ${offer?.date.toString().split(' ').first ?? "-"}'),
+                              '${l10n.pdfClient}: ${customer?.name ?? "-"}\n${l10n.pdfDate} ${offer?.date.toString().split(' ').first ?? "-"}'),
                         ),
                       ).animate().fadeIn(duration: 200.ms).slideY(begin: 0.3);
                     },

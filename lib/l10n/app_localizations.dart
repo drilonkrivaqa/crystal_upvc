@@ -135,6 +135,26 @@ class AppLocalizations {
       'add': 'Add',
       'delete': 'Delete',
       'save': 'Save',
+      'addCustomerFirst': 'Please add a new customer first!',
+      'createOffer': 'Create Offer',
+      'searchCustomer': 'Search customer',
+      'noResults': 'No results',
+      'profitPercent': 'Profit %',
+      'offerSearchHint': 'Search by customer name or offer number',
+      'deleteOffer': 'Delete Offer',
+      'deleteOfferConfirm': 'Are you sure you want to delete this offer?',
+      'chooseCustomer': 'Choose Customer',
+      'profit': 'Profit',
+      'setProfitPercent': 'Set Profit Percentage',
+      'editDeleteWindowDoor': 'Edit/Delete Window/Door',
+      'confirmDeleteQuestion': 'Do you want to delete this?',
+      'edit': 'Edit',
+      'description': 'Description',
+      'amount': 'Amount',
+      'addExtra': 'Add extra',
+      'totalWithoutProfit': 'Total without profit (0%)',
+      'withProfit': 'With Profit',
+      'totalProfit': 'Total Profit',
     },
     'de': {
       'appTitle': 'TONI AL-PVC',
@@ -200,6 +220,26 @@ class AppLocalizations {
       'add': 'Hinzufügen',
       'delete': 'Löschen',
       'save': 'Speichern',
+      'addCustomerFirst': 'Bitte fügen Sie zuerst einen neuen Kunden hinzu!',
+      'createOffer': 'Angebot erstellen',
+      'searchCustomer': 'Kunden suchen',
+      'noResults': 'Keine Ergebnisse',
+      'profitPercent': 'Gewinn %',
+      'offerSearchHint': 'Suche nach Kundenname oder Angebotsnummer',
+      'deleteOffer': 'Angebot löschen',
+      'deleteOfferConfirm': 'Sind Sie sicher, dass Sie dieses Angebot löschen möchten?',
+      'chooseCustomer': 'Kunden wählen',
+      'profit': 'Gewinn',
+      'setProfitPercent': 'Gewinnprozentsatz festlegen',
+      'editDeleteWindowDoor': 'Fenster/Tür bearbeiten/löschen',
+      'confirmDeleteQuestion': 'Möchten Sie dies löschen?',
+      'edit': 'Bearbeiten',
+      'description': 'Beschreibung',
+      'amount': 'Betrag',
+      'addExtra': 'Extra hinzufügen',
+      'totalWithoutProfit': 'Summe ohne Gewinn (0%)',
+      'withProfit': 'Mit Gewinn',
+      'totalProfit': 'Gesamtgewinn',
     },
     'fr': {
       'appTitle': 'TONI AL-PVC',
@@ -265,6 +305,26 @@ class AppLocalizations {
       'add': 'Ajouter',
       'delete': 'Supprimer',
       'save': 'Enregistrer',
+      'addCustomerFirst': 'Veuillez d\'abord ajouter un nouveau client !',
+      'createOffer': 'Créer une offre',
+      'searchCustomer': 'Rechercher le client',
+      'noResults': 'Aucun résultat',
+      'profitPercent': 'Bénéfice %',
+      'offerSearchHint': 'Rechercher par nom du client ou numéro d\'offre',
+      'deleteOffer': 'Supprimer l\'offre',
+      'deleteOfferConfirm': 'Êtes-vous sûr de vouloir supprimer cette offre ?',
+      'chooseCustomer': 'Choisir le client',
+      'profit': 'Bénéfice',
+      'setProfitPercent': 'Définir le pourcentage de bénéfice',
+      'editDeleteWindowDoor': 'Modifier/Supprimer Fenêtre/Porte',
+      'confirmDeleteQuestion': 'Voulez-vous supprimer ceci ?',
+      'edit': 'Modifier',
+      'description': 'Description',
+      'amount': 'Montant',
+      'addExtra': 'Ajouter extra',
+      'totalWithoutProfit': 'Total sans bénéfice (0 %)',
+      'withProfit': 'Avec bénéfice',
+      'totalProfit': 'Bénéfice total',
     },
     'it': {
       'appTitle': 'TONI AL-PVC',
@@ -330,6 +390,26 @@ class AppLocalizations {
       'add': 'Aggiungi',
       'delete': 'Elimina',
       'save': 'Salva',
+      'addCustomerFirst': 'Aggiungi prima un nuovo cliente!',
+      'createOffer': 'Crea Offerta',
+      'searchCustomer': 'Cerca cliente',
+      'noResults': 'Nessun risultato',
+      'profitPercent': 'Profitto %',
+      'offerSearchHint': 'Cerca per nome cliente o numero offerta',
+      'deleteOffer': 'Elimina Offerta',
+      'deleteOfferConfirm': 'Sei sicuro di voler eliminare questa offerta?',
+      'chooseCustomer': 'Scegli Cliente',
+      'profit': 'Profitto',
+      'setProfitPercent': 'Imposta percentuale di profitto',
+      'editDeleteWindowDoor': 'Modifica/Elimina Finestra/Porta',
+      'confirmDeleteQuestion': 'Vuoi eliminare questo?',
+      'edit': 'Modifica',
+      'description': 'Descrizione',
+      'amount': 'Importo',
+      'addExtra': 'Aggiungi extra',
+      'totalWithoutProfit': 'Totale senza profitto (0%)',
+      'withProfit': 'Con profitto',
+      'totalProfit': 'Profitto totale',
     },
   };
 
@@ -398,6 +478,26 @@ class AppLocalizations {
   String get add => _t('add');
   String get delete => _t('delete');
   String get save => _t('save');
+  String get addCustomerFirst => _t('addCustomerFirst');
+  String get createOffer => _t('createOffer');
+  String get searchCustomer => _t('searchCustomer');
+  String get noResults => _t('noResults');
+  String get profitPercent => _t('profitPercent');
+  String get offerSearchHint => _t('offerSearchHint');
+  String get deleteOffer => _t('deleteOffer');
+  String get deleteOfferConfirm => _t('deleteOfferConfirm');
+  String get chooseCustomer => _t('chooseCustomer');
+  String get profit => _t('profit');
+  String get setProfitPercent => _t('setProfitPercent');
+  String get editDeleteWindowDoor => _t('editDeleteWindowDoor');
+  String get confirmDeleteQuestion => _t('confirmDeleteQuestion');
+  String get edit => _t('edit');
+  String get description => _t('description');
+  String get amount => _t('amount');
+  String get addExtra => _t('addExtra');
+  String get totalWithoutProfit => _t('totalWithoutProfit');
+  String get withProfit => _t('withProfit');
+  String get totalProfit => _t('totalProfit');
 
   String get localeName => locale.languageCode;
 
