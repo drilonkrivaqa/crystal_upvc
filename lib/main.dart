@@ -12,6 +12,8 @@ import 'pages/production_page.dart';
 import 'theme/app_theme.dart';
 import 'pages/welcome_page.dart';
 import 'data_migrations.dart';
+import 'l10n/app_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -49,8 +51,12 @@ void main() async {
   await openBoxSafe<Mechanism>('mechanisms');
   await openBoxSafe<Accessory>('accessories');
   await openBoxSafe<Offer>('offers');
+  await openBoxSafe('settings');
+
+  final settingsBox = Hive.box('settings');
 
   runApp(MyApp(
+    settingsBox: settingsBox,
     failedBoxes: failedBoxes,
     migrationFailures: migrationFailures,
   ));
@@ -59,24 +65,46 @@ void main() async {
 class MyApp extends StatelessWidget {
   final List<String> failedBoxes;
   final List<String> migrationFailures;
+  final Box settingsBox;
   const MyApp({
     super.key,
+    required this.settingsBox,
     required this.failedBoxes,
     required this.migrationFailures,
   });
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'TONI AL-PVC',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.light,
-      home: WelcomePage(
-        failedBoxes: failedBoxes,
-        migrationFailures: migrationFailures,
-      ),
-      routes: {
-        '/home': (_) => const HomePage(),
+    return ValueListenableBuilder(
+      valueListenable: settingsBox.listenable(keys: ['locale']),
+      builder: (context, Box box, _) {
+        final code = box.get('locale', defaultValue: 'sq') as String;
+        return MaterialApp(
+          onGenerateTitle: (ctx) => AppLocalizations.of(ctx)!.appTitle,
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.light,
+          locale: Locale(code),
+          supportedLocales: const [
+            Locale('sq'),
+            Locale('en'),
+            Locale('de'),
+            Locale('fr'),
+            Locale('it'),
+          ],
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          home: WelcomePage(
+            failedBoxes: failedBoxes,
+            migrationFailures: migrationFailures,
+          ),
+          routes: {
+            '/home': (_) => const HomePage(),
+          },
+        );
       },
     );
   }
@@ -87,12 +115,14 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final items = [
-      _NavItem(
-          Icons.auto_awesome_motion_outlined, 'Çmimore', const CatalogsPage()),
-      _NavItem(Icons.people_outline, 'Klientët', const CustomersPage()),
-      _NavItem(Icons.description_outlined, 'Ofertat', const OffersPage()),
-      _NavItem(Icons.precision_manufacturing, 'Prodhimi', const ProductionPage()),
+      _NavItem(Icons.auto_awesome_motion_outlined, l10n.homeCatalogs,
+          const CatalogsPage()),
+      _NavItem(Icons.people_outline, l10n.homeCustomers, const CustomersPage()),
+      _NavItem(Icons.description_outlined, l10n.homeOffers, const OffersPage()),
+      _NavItem(Icons.precision_manufacturing, l10n.homeProduction,
+          const ProductionPage()),
     ];
 
     return Scaffold(

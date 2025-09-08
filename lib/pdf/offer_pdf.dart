@@ -9,6 +9,7 @@ import 'dart:math' as math;
 import 'package:printing/printing.dart';
 import '../models.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import '../l10n/app_localizations.dart';
 
 Future<void> printOfferPdf({
   required Offer offer,
@@ -19,6 +20,7 @@ Future<void> printOfferPdf({
   required Box<Blind> blindBox,
   required Box<Mechanism> mechanismBox,
   required Box<Accessory> accessoryBox,
+  required AppLocalizations l10n,
 }) async {
   final fontData = await rootBundle.load('assets/fonts/Montserrat-Regular.ttf');
   final boldFontData =
@@ -43,7 +45,7 @@ Future<void> printOfferPdf({
       : null;
 
   // Determine PDF file name based on client and first item's profile
-  String pdfName = 'Document';
+  String pdfName = l10n.pdfDocument;
   if (customer != null) {
     pdfName = customer.name;
   }
@@ -74,7 +76,8 @@ Future<void> printOfferPdf({
     itemImages.add(img);
   }
 
-  final currency = NumberFormat.currency(locale: 'en_US', symbol: '€');
+  final currency =
+      NumberFormat.currency(locale: l10n.localeName, symbol: '€');
   double itemsFinal = 0;
   int totalPcs = 0;
   for (final item in offer.items) {
@@ -168,15 +171,14 @@ Future<void> printOfferPdf({
                       pw.Column(
                         crossAxisAlignment: pw.CrossAxisAlignment.start,
                         children: [
-                          pw.Text('Toni Al-Pvc',
+                          pw.Text(l10n.appTitle,
                               style: pw.TextStyle(
                                   fontSize: 16,
                                   fontWeight: pw.FontWeight.bold,
                                   color: PdfColors.blue800)),
-                          pw.Text(
-                              'Rr. Ilir Konushevci, Nr. 80, Kamenicë, Kosovë, 62000'),
-                          pw.Text('+38344357639 | +38344268300'),
-                          pw.Text('www.tonialpvc.com | tonialpvc@gmail.com'),
+                          pw.Text(l10n.welcomeAddress),
+                          pw.Text(l10n.welcomePhones),
+                          pw.Text(l10n.welcomeWebsite),
                         ],
                       ),
                     ],
@@ -185,7 +187,7 @@ Future<void> printOfferPdf({
                     pw.Column(
                       crossAxisAlignment: pw.CrossAxisAlignment.start,
                       children: [
-                        pw.Text('Klienti',
+                        pw.Text(l10n.pdfClient,
                             style:
                                 pw.TextStyle(fontWeight: pw.FontWeight.bold)),
                         pw.Text(customer.name),
@@ -201,7 +203,7 @@ Future<void> printOfferPdf({
       footer: (context) => pw.Align(
         alignment: pw.Alignment.centerRight,
         child: pw.Text(
-          'Faqja ${context.pageNumber} / ${context.pagesCount}',
+          '${l10n.pdfPage} ${context.pageNumber} / ${context.pagesCount}',
           style: pw.TextStyle(fontSize: 12),
         ),
       ),
@@ -211,11 +213,11 @@ Future<void> printOfferPdf({
         final widgets = <pw.Widget>[];
         widgets.add(pw.Header(
             level: 0,
-            child: pw.Text('Oferta $offerNumber',
+            child: pw.Text('${l10n.pdfOffer} $offerNumber',
                 style: pw.TextStyle(
                     fontSize: 18, fontWeight: pw.FontWeight.bold))));
-        widgets.add(pw.Text('Data: '
-            '${DateFormat('yyyy-MM-dd').format(offer.lastEdited)}'));
+        widgets.add(pw.Text('${l10n.pdfDate} '
+            '${DateFormat('yyyy-MM-dd', l10n.localeName).format(offer.lastEdited)}'));
         widgets.add(pw.SizedBox(height: 12));
 
         final rows = <pw.TableRow>[];
@@ -225,15 +227,15 @@ Future<void> printOfferPdf({
             children: [
               pw.Padding(
                 padding: pw.EdgeInsets.all(4),
-                child: pw.Text('Foto', style: headerStyle),
+                child: pw.Text(l10n.pdfPhoto, style: headerStyle),
               ),
               pw.Padding(
                 padding: pw.EdgeInsets.all(4),
-                child: pw.Text('Detajet', style: headerStyle),
+                child: pw.Text(l10n.pdfDetails, style: headerStyle),
               ),
               pw.Padding(
                 padding: pw.EdgeInsets.all(4),
-                child: pw.Text('Çmimi', style: headerStyle),
+                child: pw.Text(l10n.pdfPrice, style: headerStyle),
               ),
             ],
           ),
@@ -317,48 +319,53 @@ Future<void> printOfferPdf({
           }
           final pricePerPiece = finalPrice / item.quantity;
 
-          final vAdapters =
-              item.verticalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ');
+          final vAdapters = item.verticalAdapters
+              .map((a) => a ? l10n.pdfAdapter : 'T')
+              .join(', ');
           final hAdapters = item.horizontalAdapters
-              .map((a) => a ? 'Adapter' : 'T')
+              .map((a) => a ? l10n.pdfAdapter : 'T')
               .join(', ');
 
           final details = <pw.Widget>[
             pw.Text(item.name, style: headerStyle),
             pw.SizedBox(height: 2),
-            pw.Text('Dimenzionet: ${item.width} x ${item.height} mm'),
-            pw.Text('Pcs: ${item.quantity}'),
-            pw.Text('Profili (Lloji): ${profile.name}'),
-            pw.Text('Xhami: ${glass.name}'),
-            if (blind != null) pw.Text('Roleta: ${blind.name}'),
-            if (mechanism != null) pw.Text('Mekanizmi: ${mechanism.name}'),
-            if (accessory != null) pw.Text('Aksesori: ${accessory.name}'),
+            pw.Text('${l10n.pdfDimensions} ${item.width} x ${item.height} mm'),
+            pw.Text('${l10n.pdfPieces} ${item.quantity}'),
+            pw.Text('${l10n.pdfProfileType} ${profile.name}'),
+            pw.Text('${l10n.pdfGlass} ${glass.name}'),
+            if (blind != null) pw.Text('${l10n.pdfBlind} ${blind.name}'),
+            if (mechanism != null)
+              pw.Text('${l10n.pdfMechanism} ${mechanism.name}'),
+            if (accessory != null)
+              pw.Text('${l10n.pdfAccessory} ${accessory.name}'),
             if (item.extra1Price != null)
               pw.Text(
-                  '${item.extra1Desc ?? 'Ekstra 1'}: €${(item.extra1Price! * item.quantity).toStringAsFixed(2)}'),
+                  '${item.extra1Desc ?? l10n.pdfExtra1}: €${(item.extra1Price! * item.quantity).toStringAsFixed(2)}'),
             if (item.extra2Price != null)
               pw.Text(
-                  '${item.extra2Desc ?? 'Ekstra 2'}: €${(item.extra2Price! * item.quantity).toStringAsFixed(2)}'),
+                  '${item.extra2Desc ?? l10n.pdfExtra2}: €${(item.extra2Price! * item.quantity).toStringAsFixed(2)}'),
             if (item.notes != null && item.notes!.isNotEmpty)
-              pw.Text('Shënime: ${item.notes}'),
+              pw.Text('${l10n.pdfNotesItem} ${item.notes}'),
             pw.Text(
-                'Sektorët: ${item.horizontalSections}x${item.verticalSections}'),
-            pw.Text('Hapje: ${item.openings}'),
+                '${l10n.pdfSections} ${item.horizontalSections}x${item.verticalSections}'),
+            pw.Text('${l10n.pdfOpening} ${item.openings}'),
             pw.Text(
-                '${item.sectionWidths.length > 1 ? 'Gjerësitë' : 'Gjerësia'}: ${item.sectionWidths.join(', ')}'),
+                '${item.sectionWidths.length > 1 ? l10n.pdfWidths : l10n.pdfWidth} ${item.sectionWidths.join(', ')}'),
             pw.Text(
-                '${item.sectionHeights.length > 1 ? 'Lartësitë' : 'Lartësia'}: ${item.sectionHeights.join(', ')}'),
-            if (item.verticalSections != 1) pw.Text('V div: $vAdapters'),
-            if (item.horizontalSections != 1) pw.Text('H div: $hAdapters'),
-            pw.Text('Masa totale: ${totalMass.toStringAsFixed(2)} kg'),
+                '${item.sectionHeights.length > 1 ? l10n.pdfHeights : l10n.pdfHeight} ${item.sectionHeights.join(', ')}'),
+            if (item.verticalSections != 1)
+              pw.Text('${l10n.pdfVDiv} $vAdapters'),
+            if (item.horizontalSections != 1)
+              pw.Text('${l10n.pdfHDiv} $hAdapters'),
+            pw.Text('${l10n.pdfTotalMass} ${totalMass.toStringAsFixed(2)} kg'),
             if (profile.uf != null)
-              pw.Text('Uf: ${profile.uf!.toStringAsFixed(2)} W/m²K',
+              pw.Text('${l10n.pdfUf} ${profile.uf!.toStringAsFixed(2)} W/m²K',
                   style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
             if (glass.ug != null)
-              pw.Text('Ug: ${glass.ug!.toStringAsFixed(2)} W/m²K',
+              pw.Text('${l10n.pdfUg} ${glass.ug!.toStringAsFixed(2)} W/m²K',
                   style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
             if (uw != null)
-              pw.Text('Uw: ${uw.toStringAsFixed(2)} W/m²K',
+              pw.Text('${l10n.pdfUw} ${uw.toStringAsFixed(2)} W/m²K',
                   style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
           ];
 
@@ -485,7 +492,7 @@ Future<void> printOfferPdf({
           pw.TableRow(children: [
             pw.Padding(
                 padding: pw.EdgeInsets.all(4),
-                child: pw.Text('Numri total i artikujve (pcs)')),
+                child: pw.Text(l10n.pdfTotalItems)),
             pw.Padding(
                 padding: pw.EdgeInsets.all(4),
                 child: pw.Text('$totalPcs', textAlign: pw.TextAlign.right)),
@@ -495,7 +502,7 @@ Future<void> printOfferPdf({
           pw.TableRow(children: [
             pw.Padding(
                 padding: pw.EdgeInsets.all(4),
-                child: pw.Text('Çmimi i artikujve (€)')),
+                child: pw.Text(l10n.pdfItemsPrice)),
             pw.Padding(
                 padding: pw.EdgeInsets.all(4),
                 child: pw.Text(currency.format(itemsFinal),
@@ -509,7 +516,7 @@ Future<void> printOfferPdf({
                 pw.Padding(
                     padding: pw.EdgeInsets.all(4),
                     child: pw.Text(
-                        c.description.isNotEmpty ? c.description : 'Ekstra')),
+                        c.description.isNotEmpty ? c.description : l10n.pdfExtra)),
                 pw.Padding(
                     padding: pw.EdgeInsets.all(4),
                     child: pw.Text(currency.format(c.amount),
@@ -523,7 +530,7 @@ Future<void> printOfferPdf({
             pw.TableRow(children: [
               pw.Padding(
                   padding: pw.EdgeInsets.all(4),
-                  child: pw.Text('Shuma e zbritjes')),
+                  child: pw.Text(l10n.pdfDiscountAmount)),
               pw.Padding(
                   padding: pw.EdgeInsets.all(4),
                   child: pw.Text('-' + currency.format(offer.discountAmount),
@@ -535,7 +542,7 @@ Future<void> printOfferPdf({
           summaryRows.add(
             pw.TableRow(children: [
               pw.Padding(
-                  padding: pw.EdgeInsets.all(4), child: pw.Text('Zbritje %')),
+                  padding: pw.EdgeInsets.all(4), child: pw.Text(l10n.pdfDiscountPercent)),
               pw.Padding(
                   padding: pw.EdgeInsets.all(4),
                   child: pw.Text(
@@ -550,7 +557,7 @@ Future<void> printOfferPdf({
           pw.TableRow(children: [
             pw.Padding(
                 padding: pw.EdgeInsets.all(4),
-                child: pw.Text('Çmimi total (€)', style: headerStyle)),
+                child: pw.Text(l10n.pdfTotalPrice, style: headerStyle)),
             pw.Padding(
                 padding: pw.EdgeInsets.all(4),
                 child: pw.Text(formattedFinalTotal,
@@ -571,7 +578,7 @@ Future<void> printOfferPdf({
         );
         if (offer.notes.isNotEmpty) {
           widgets.add(pw.SizedBox(height: 8));
-          widgets.add(pw.Text('Vërejtje/Notes: ${offer.notes}'));
+          widgets.add(pw.Text('${l10n.pdfNotes} ${offer.notes}'));
         }
 
         widgets.add(pw.SizedBox(height: 8));

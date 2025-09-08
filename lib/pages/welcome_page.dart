@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../theme/app_background.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import '../l10n/app_localizations.dart';
 
 class WelcomePage extends StatefulWidget {
   final List<String> failedBoxes;
@@ -16,9 +18,13 @@ class WelcomePage extends StatefulWidget {
 }
 
 class _WelcomePageState extends State<WelcomePage> {
+  late Box settingsBox;
+  String localeCode = 'sq';
   @override
   void initState() {
     super.initState();
+    settingsBox = Hive.box('settings');
+    localeCode = settingsBox.get('locale', defaultValue: 'sq');
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.failedBoxes.isNotEmpty) {
         final names = widget.failedBoxes.join(', ');
@@ -40,6 +46,7 @@ class _WelcomePageState extends State<WelcomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       body: AppBackground(
         child: SafeArea(
@@ -54,23 +61,39 @@ class _WelcomePageState extends State<WelcomePage> {
                       .fadeIn(duration: 600.ms)
                       .slideY(begin: 0.2),
                   const SizedBox(height: 24),
-                  const Text(
-                    'Rr. Ilir Konushevci, Nr. 80, Kamenicë, Kosovë, 62000',
+                  DropdownButton<String>(
+                    value: localeCode,
+                    onChanged: (val) {
+                      if (val != null) {
+                        setState(() => localeCode = val);
+                        settingsBox.put('locale', val);
+                      }
+                    },
+                    items: const [
+                      DropdownMenuItem(value: 'sq', child: Text('Shqip')),
+                      DropdownMenuItem(value: 'en', child: Text('English')),
+                      DropdownMenuItem(value: 'de', child: Text('Deutsch')),
+                      DropdownMenuItem(value: 'fr', child: Text('Français')),
+                      DropdownMenuItem(value: 'it', child: Text('Italiano')),
+                    ],
+                  ),
+                  Text(
+                    l10n.welcomeAddress,
                     textAlign: TextAlign.center,
                   ),
-                  const Text(
-                    '+38344357639 | +38344268300',
+                  Text(
+                    l10n.welcomePhones,
                     textAlign: TextAlign.center,
                   ),
-                  const Text(
-                    'www.tonialpvc.com | tonialpvc@gmail.com',
+                  Text(
+                    l10n.welcomeWebsite,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 32),
                   ElevatedButton(
                     onPressed: () =>
                         Navigator.pushReplacementNamed(context, '/home'),
-                    child: const Text('Hyr'),
+                    child: Text(l10n.welcomeEnter),
                   ).animate().fadeIn(duration: 220.ms, delay: 100.ms),
                 ],
               ),
