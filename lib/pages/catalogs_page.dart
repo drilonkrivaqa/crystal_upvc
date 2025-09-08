@@ -3,20 +3,22 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'catalog_tab_page.dart';
 import '../theme/app_background.dart';
 import '../widgets/glass_card.dart';
+import '../l10n/app_localizations.dart';
 
 class CatalogsPage extends StatelessWidget {
   const CatalogsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: const Text("Çmimorja")),
+      appBar: AppBar(title: Text(l10n.catalogsTitle)),
       body: AppBackground(
         child: ListView(
           children: [
             const SizedBox(height: 20),
             _CatalogButton(
-              label: "Profili",
+              label: l10n.catalogProfile,
               onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -24,21 +26,21 @@ class CatalogsPage extends StatelessWidget {
                           CatalogTabPage(type: CatalogType.profileSet))),
             ),
             _CatalogButton(
-              label: "Xhami",
+              label: l10n.catalogGlass,
               onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(
                       builder: (_) => CatalogTabPage(type: CatalogType.glass))),
             ),
             _CatalogButton(
-              label: "Roleta",
+              label: l10n.catalogBlind,
               onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(
                       builder: (_) => CatalogTabPage(type: CatalogType.blind))),
             ),
             _CatalogButton(
-              label: "Mekanizma",
+              label: l10n.catalogMechanism,
               onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -46,7 +48,7 @@ class CatalogsPage extends StatelessWidget {
                           CatalogTabPage(type: CatalogType.mechanism))),
             ),
             _CatalogButton(
-              label: "Aksesorë",
+              label: l10n.catalogAccessory,
               onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(
