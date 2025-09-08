@@ -69,7 +69,7 @@ class AppLocalizations {
       'cancel': 'Anulo',
       'add': 'Shto',
       'delete': 'Fshij',
-      'save': 'Ruaj',
+            'save': 'Ruaj',
       'addWindowDoor': 'Shto Dritare/Derë',
       'editWindowDoor': 'Ndrysho Dritaren/Derën',
       'designWindowDoor': 'Dizajno dritare/derë',
@@ -83,6 +83,8 @@ class AppLocalizations {
       'priceWithProfitOptional': 'Çmimi me fitim (Opsional)',
       'verticalSections': 'Sektorë Vertikal',
       'horizontalSections': 'Sektorë Horizontal',
+      'verticalDivision': 'Ndarja Vertikale',
+      'horizontalDivision': 'Ndarja Horizontale',
       'extra1Name': 'Emri i shtesës 1',
       'extra1Price': 'Çmimi i shtesës 1',
       'extra2Name': 'Emri i shtesës 2',
@@ -213,6 +215,8 @@ class AppLocalizations {
       'priceWithProfitOptional': 'Price with profit (Optional)',
       'verticalSections': 'Vertical Sections',
       'horizontalSections': 'Horizontal Sections',
+      'verticalDivision': 'Vertical Division',
+      'horizontalDivision': 'Horizontal Division',
       'extra1Name': 'Extra 1 name',
       'extra1Price': 'Extra 1 price',
       'extra2Name': 'Extra 2 name',
@@ -342,6 +346,8 @@ class AppLocalizations {
       'priceWithProfitOptional': 'Preis mit Gewinn (Optional)',
       'verticalSections': 'Vertikale Sektionen',
       'horizontalSections': 'Horizontale Sektionen',
+      'verticalDivision': 'Vertikale Teilung',
+      'horizontalDivision': 'Horizontale Teilung',
       'extra1Name': 'Name Extra 1',
       'extra1Price': 'Preis Extra 1',
       'extra2Name': 'Name Extra 2',
@@ -472,6 +478,8 @@ class AppLocalizations {
       'priceWithProfitOptional': 'Prix avec profit (Optionnel)',
       'verticalSections': 'Sections verticales',
       'horizontalSections': 'Sections horizontales',
+      'verticalDivision': 'Division verticale',
+      'horizontalDivision': 'Division horizontale',
       'extra1Name': 'Nom Extra 1',
       'extra1Price': 'Prix Extra 1',
       'extra2Name': 'Nom Extra 2',
@@ -602,6 +610,8 @@ class AppLocalizations {
       'priceWithProfitOptional': 'Prezzo con profitto (Opzionale)',
       'verticalSections': 'Sezioni verticali',
       'horizontalSections': 'Sezioni orizzontali',
+      'verticalDivision': 'Divisione verticale',
+      'horizontalDivision': 'Divisione orizzontale',
       'extra1Name': 'Nome Extra 1',
       'extra1Price': 'Prezzo Extra 1',
       'extra2Name': 'Nome Extra 2',
@@ -733,8 +743,10 @@ class AppLocalizations {
   String get quantity => _t('quantity');
   String get basePriceOptional => _t('basePriceOptional');
   String get priceWithProfitOptional => _t('priceWithProfitOptional');
-  String get verticalSections => _t('verticalSections');
+   String get verticalSections => _t('verticalSections');
   String get horizontalSections => _t('horizontalSections');
+  String get verticalDivision => _t('verticalDivision');
+  String get horizontalDivision => _t('horizontalDivision');
   String get extra1Name => _t('extra1Name');
   String get extra1Price => _t('extra1Price');
   String get extra2Name => _t('extra2Name');
