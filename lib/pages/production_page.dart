@@ -6,43 +6,41 @@ import 'cutting_optimizer_page.dart';
 import 'xhami_page.dart';
 import 'roleta_page.dart';
 import 'hekri_page.dart';
-import '../l10n/app_localizations.dart';
 
 class ProductionPage extends StatelessWidget {
   const ProductionPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.homeProduction)),
+      appBar: AppBar(title: const Text('Prodhimi')),
       body: AppBackground(
         child: ListView(
           children: [
             const SizedBox(height: 20),
             _ProductionButton(
-              label: l10n.productionCuts,
+              label: 'Prerjet',
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const CuttingOptimizerPage()),
               ),
             ),
             _ProductionButton(
-              label: l10n.catalogGlass,
+              label: 'Xhami',
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const XhamiPage()),
               ),
             ),
             _ProductionButton(
-              label: l10n.catalogBlind,
+              label: 'Roleta',
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const RoletaPage()),
               ),
             ),
             _ProductionButton(
-              label: l10n.productionIron,
+              label: 'Hekri',
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const HekriPage()),
