@@ -354,7 +354,7 @@ class _AppLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) =>
-      _localizedValues.keys.contains(locale.languageCode);
+      AppLocalizations._localizedValues.keys.contains(locale.languageCode);
 
   @override
   Future<AppLocalizations> load(Locale locale) async =>
