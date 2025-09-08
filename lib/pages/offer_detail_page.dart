@@ -60,10 +60,11 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     Offer offer = offerBox.getAt(widget.offerIndex)!;
     return Scaffold(
       appBar: AppBar(
-        title: Text('Oferta ${widget.offerIndex + 1}'),
+        title: Text('${l10n.pdfOffer} ${widget.offerIndex + 1}'),
         actions: [
           IconButton(
             icon: const Icon(Icons.picture_as_pdf),
@@ -94,7 +95,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
               children: [
                 Expanded(
                   child: Text(
-                    'Customer: ${customerBox.getAt(offer.customerIndex)?.name ?? ''}',
+                    '${l10n.pdfClient}: ${customerBox.getAt(offer.customerIndex)?.name ?? ''}',
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -108,7 +109,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                       builder: (_) => StatefulBuilder(
                         builder: (context, setStateDialog) {
                           return AlertDialog(
-                            title: const Text('Zgjedh Klientin'),
+                            title: Text(l10n.chooseCustomer),
                             content: DropdownButton<int>(
                               value: selected,
                               items: List.generate(
@@ -124,7 +125,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.pop(context),
-                                child: const Text('Anulo'),
+                                child: Text(l10n.cancel),
                               ),
                               ElevatedButton(
                                 onPressed: () {
@@ -134,7 +135,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                                   setState(() {});
                                   Navigator.pop(context);
                                 },
-                                child: const Text('Ruaj'),
+                                child: Text(l10n.save),
                               ),
                             ],
                           );
@@ -153,7 +154,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
               children: [
                 Expanded(
                   child: Text(
-                    'Fitimi: ${offer.profitPercent.toStringAsFixed(2)}%',
+                    '${l10n.profit}: ${offer.profitPercent.toStringAsFixed(2)}%',
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -165,17 +166,17 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                     await showDialog(
                       context: context,
                       builder: (_) => AlertDialog(
-                        title: const Text('Vendos Përqindjen e Fitimit'),
+                        title: Text(l10n.setProfitPercent),
                         content: TextField(
                           controller: controller,
                           keyboardType: TextInputType.number,
                           decoration:
-                              const InputDecoration(labelText: 'Fitimi %'),
+                              InputDecoration(labelText: l10n.profitPercent),
                         ),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(context),
-                            child: const Text('Anulo'),
+                            child: Text(l10n.cancel),
                           ),
                           ElevatedButton(
                             onPressed: () {
@@ -187,7 +188,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                               setState(() {});
                               Navigator.pop(context);
                             },
-                            child: const Text('Ruaj'),
+                            child: Text(l10n.save),
                           ),
                         ],
                       ),
@@ -288,8 +289,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 await showDialog(
                   context: context,
                   builder: (_) => AlertDialog(
-                    title: const Text("Ndrysho/Fshij Dritaren/Derën"),
-                    content: const Text("A dëshironi ta fshini këtë?"),
+                    title: Text(l10n.editDeleteWindowDoor),
+                    content: Text(l10n.confirmDeleteQuestion),
                     actions: [
                       TextButton(
                         onPressed: () {
@@ -299,8 +300,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                           setState(() {});
                           Navigator.pop(context);
                         },
-                        child: const Text("Fshij",
-                            style: TextStyle(color: AppColors.delete)),
+                        child: Text(l10n.delete,
+                            style: const TextStyle(color: AppColors.delete)),
                       ),
                       TextButton(
                         onPressed: () async {
@@ -320,11 +321,11 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                             ),
                           );
                         },
-                        child: const Text("Ndrysho"),
+                        child: Text(l10n.edit),
                       ),
                       TextButton(
                         onPressed: () => Navigator.pop(context),
-                        child: const Text("Anulo"),
+                        child: Text(l10n.cancel),
                       ),
                     ],
                   ),
@@ -469,23 +470,23 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
               double percentAmount = subtotal * (offer.discountPercent / 100);
               double finalTotal = subtotal - percentAmount;
               double profitTotal = finalTotal - baseTotal;
-              String summary = 'Numri total i artikujve: $totalPcs pcs\n';
+              String summary = '${l10n.pdfTotalItems}: $totalPcs pcs\n';
               summary +=
-                  'Totali pa Fitim (0%): €${baseTotal.toStringAsFixed(2)}\n';
+                  '${l10n.totalWithoutProfit}: €${baseTotal.toStringAsFixed(2)}\n';
               for (var charge in offer.extraCharges) {
                 summary +=
-                    '${charge.description.isNotEmpty ? charge.description : 'Ekstra'}: €${charge.amount.toStringAsFixed(2)}\n';
+                    '${charge.description.isNotEmpty ? charge.description : l10n.pdfExtra}: €${charge.amount.toStringAsFixed(2)}\n';
               }
               if (offer.discountAmount != 0) {
                 summary +=
-                    'Zbritje: -€${offer.discountAmount.toStringAsFixed(2)}\n';
+                    '${l10n.pdfDiscountAmount}: -€${offer.discountAmount.toStringAsFixed(2)}\n';
               }
               if (offer.discountPercent != 0) {
                 summary +=
-                    'Zbritje me përqindje %: ${offer.discountPercent.toStringAsFixed(2)}% (-€${percentAmount.toStringAsFixed(2)})\n';
+                    '${l10n.pdfDiscountPercent}: ${offer.discountPercent.toStringAsFixed(2)}% (-€${percentAmount.toStringAsFixed(2)})\n';
               }
               summary +=
-                  'Me Fitim: €${finalTotal.toStringAsFixed(2)}\nFitimi Total: €${profitTotal.toStringAsFixed(2)}';
+                  '${l10n.withProfit}: €${finalTotal.toStringAsFixed(2)}\n${l10n.totalProfit}: €${profitTotal.toStringAsFixed(2)}';
               return Text(
                 summary,
                 textAlign: TextAlign.center,
@@ -516,7 +517,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                         child: TextField(
                           controller: descCtl,
                           decoration:
-                              const InputDecoration(labelText: 'Përshkrimi'),
+                              InputDecoration(labelText: l10n.description),
                           onChanged: (v) {
                             charge.description = v;
                             offer.lastEdited = DateTime.now();
@@ -530,7 +531,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                         child: TextField(
                           controller: amtCtl,
                           keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(labelText: 'Sasia'),
+                          decoration: InputDecoration(labelText: l10n.amount),
                           onChanged: (v) {
                             charge.amount = double.tryParse(v) ?? 0;
                             offer.lastEdited = DateTime.now();
@@ -569,13 +570,14 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                       setState(() {});
                     },
                     icon: const Icon(Icons.add),
-                    label: const Text('Shto ekstra'),
+                    label: Text(l10n.addExtra),
                   ),
                 ),
                 TextField(
                   controller: discountPercentController,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: 'Zbritja %'),
+                  decoration:
+                      InputDecoration(labelText: l10n.pdfDiscountPercent),
                   onChanged: (val) {
                     offer.discountPercent = double.tryParse(val) ?? 0;
                     offer.lastEdited = DateTime.now();
@@ -586,7 +588,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 TextField(
                   controller: discountAmountController,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: 'Zbritja'),
+                  decoration:
+                      InputDecoration(labelText: l10n.pdfDiscountAmount),
                   onChanged: (val) {
                     offer.discountAmount = double.tryParse(val) ?? 0;
                     offer.lastEdited = DateTime.now();
@@ -597,7 +600,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 TextField(
                   controller: notesController,
                   decoration:
-                      const InputDecoration(labelText: 'Vërejtje/Notes'),
+                      InputDecoration(labelText: l10n.pdfNotes),
                   minLines: 1,
                   maxLines: 3,
                   onChanged: (val) {
