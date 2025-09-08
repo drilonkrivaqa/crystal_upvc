@@ -60,6 +60,16 @@ class AppLocalizations {
       'pdfDiscountPercent': 'Zbritje %',
       'pdfTotalPrice': 'Çmimi total (€)',
       'pdfNotes': 'Vërejtje/Notes:',
+      'addCustomer': 'Shto Klientin',
+      'editCustomer': 'Ndrysho Klientin',
+      'nameSurname': 'Emri & Mbiemri',
+      'address': 'Adresa',
+      'phone': 'Nr. Tel.',
+      'email': 'Email',
+      'cancel': 'Anulo',
+      'add': 'Shto',
+      'delete': 'Fshij',
+      'save': 'Ruaj',
     },
     'en': {
       'appTitle': 'TONI AL-PVC',
@@ -115,6 +125,16 @@ class AppLocalizations {
       'pdfDiscountPercent': 'Discount %',
       'pdfTotalPrice': 'Total price (€)',
       'pdfNotes': 'Notes:',
+      'addCustomer': 'Add Customer',
+      'editCustomer': 'Edit Customer',
+      'nameSurname': 'Name & Surname',
+      'address': 'Address',
+      'phone': 'Phone',
+      'email': 'Email',
+      'cancel': 'Cancel',
+      'add': 'Add',
+      'delete': 'Delete',
+      'save': 'Save',
     },
     'de': {
       'appTitle': 'TONI AL-PVC',
@@ -170,6 +190,16 @@ class AppLocalizations {
       'pdfDiscountPercent': 'Rabatt %',
       'pdfTotalPrice': 'Gesamtpreis (€)',
       'pdfNotes': 'Notizen:',
+      'addCustomer': 'Kunden hinzufügen',
+      'editCustomer': 'Kunden bearbeiten',
+      'nameSurname': 'Name & Nachname',
+      'address': 'Adresse',
+      'phone': 'Telefon',
+      'email': 'E-Mail',
+      'cancel': 'Abbrechen',
+      'add': 'Hinzufügen',
+      'delete': 'Löschen',
+      'save': 'Speichern',
     },
     'fr': {
       'appTitle': 'TONI AL-PVC',
@@ -225,6 +255,16 @@ class AppLocalizations {
       'pdfDiscountPercent': 'Remise %',
       'pdfTotalPrice': 'Prix total (€)',
       'pdfNotes': 'Notes :',
+      'addCustomer': 'Ajouter un client',
+      'editCustomer': 'Modifier le client',
+      'nameSurname': 'Nom & Prénom',
+      'address': 'Adresse',
+      'phone': 'Téléphone',
+      'email': 'Email',
+      'cancel': 'Annuler',
+      'add': 'Ajouter',
+      'delete': 'Supprimer',
+      'save': 'Enregistrer',
     },
     'it': {
       'appTitle': 'TONI AL-PVC',
@@ -280,6 +320,16 @@ class AppLocalizations {
       'pdfDiscountPercent': 'Sconto %',
       'pdfTotalPrice': 'Prezzo totale (€)',
       'pdfNotes': 'Note:',
+      'addCustomer': 'Aggiungi cliente',
+      'editCustomer': 'Modifica cliente',
+      'nameSurname': 'Nome e Cognome',
+      'address': 'Indirizzo',
+      'phone': 'Telefono',
+      'email': 'Email',
+      'cancel': 'Annulla',
+      'add': 'Aggiungi',
+      'delete': 'Elimina',
+      'save': 'Salva',
     },
   };
 
@@ -338,6 +388,16 @@ class AppLocalizations {
   String get pdfDiscountPercent => _t('pdfDiscountPercent');
   String get pdfTotalPrice => _t('pdfTotalPrice');
   String get pdfNotes => _t('pdfNotes');
+  String get addCustomer => _t('addCustomer');
+  String get editCustomer => _t('editCustomer');
+  String get nameSurname => _t('nameSurname');
+  String get address => _t('address');
+  String get phone => _t('phone');
+  String get email => _t('email');
+  String get cancel => _t('cancel');
+  String get add => _t('add');
+  String get delete => _t('delete');
+  String get save => _t('save');
 
   String get localeName => locale.languageCode;
 
