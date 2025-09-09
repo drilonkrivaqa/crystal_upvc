@@ -6,6 +6,7 @@ import 'catalogs_page.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_background.dart';
 import '../widgets/glass_card.dart';
+import '../l10n/app_localizations.dart';
 
 class CatalogTabPage extends StatefulWidget {
   final CatalogType type;
@@ -42,6 +43,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
 
   void _editItem(int index) {
     final item = box.getAt(index);
+    final l10n = AppLocalizations.of(context)!;
     final nameController = TextEditingController(text: item.name);
     final priceLController = TextEditingController(
         text: item is ProfileSet ? item.priceL.toString() : "");
@@ -109,13 +111,13 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text("Ndrysho ${item.name}"),
+        title: Text("${l10n.edit} ${item.name}"),
         content: SingleChildScrollView(
           child: Column(
             children: [
               if (widget.type == CatalogType.profileSet) ...[
                 ExpansionTile(
-                  title: const Text('Përgjithshme'),
+                  title: Text(l10n.general),
                   children: [
                     TextField(
                         controller: nameController,
@@ -169,7 +171,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                   ],
                 ),
                 ExpansionTile(
-                  title: const Text('Prodhimi'),
+                  title: Text(l10n.production),
                   children: [
                     TextField(
                         controller: massLController,
@@ -275,12 +277,12 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
               Navigator.pop(context);
               setState(() {});
             },
-            child:
-                const Text('Delete', style: TextStyle(color: AppColors.delete)),
+            child: Text(l10n.delete,
+                style: const TextStyle(color: AppColors.delete)),
           ),
           TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Anulo')),
+              child: Text(l10n.cancel)),
           ElevatedButton(
             onPressed: () {
               if (nameController.text.isEmpty) return;
@@ -379,7 +381,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
               Navigator.pop(context);
               setState(() {});
             },
-            child: const Text('Ruaj'),
+            child: Text(l10n.save),
           ),
         ],
       ),
@@ -387,6 +389,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
   }
 
   void _addItem() {
+    final l10n = AppLocalizations.of(context)!;
     final nameController = TextEditingController();
     final priceLController = TextEditingController();
     final priceZController = TextEditingController();
@@ -421,13 +424,13 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text("Regjistro ${_typeLabel()}n"),
+        title: Text("${l10n.add} ${_typeLabel(l10n)}"),
         content: SingleChildScrollView(
           child: Column(
             children: [
               if (widget.type == CatalogType.profileSet) ...[
                 ExpansionTile(
-                  title: const Text('Përgjithshme'),
+                  title: Text(l10n.general),
                   children: [
                     TextField(
                         controller: nameController,
@@ -481,7 +484,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                   ],
                 ),
                 ExpansionTile(
-                  title: const Text('Prodhimi'),
+                  title: Text(l10n.production),
                   children: [
                     TextField(
                         controller: massLController,
@@ -583,7 +586,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Anulo')),
+              child: Text(l10n.cancel)),
           ElevatedButton(
             onPressed: () {
               if (nameController.text.isEmpty) return;
@@ -663,32 +666,33 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
               Navigator.pop(context);
               setState(() {});
             },
-            child: const Text('Regjistro'),
+            child: Text(l10n.add),
           ),
         ],
       ),
     );
   }
 
-  String _typeLabel() {
+  String _typeLabel(AppLocalizations l10n) {
     switch (widget.type) {
       case CatalogType.profileSet:
-        return "Profili";
+        return l10n.catalogProfile;
       case CatalogType.glass:
-        return "Xhami";
+        return l10n.catalogGlass;
       case CatalogType.blind:
-        return "Roleta";
+        return l10n.catalogBlind;
       case CatalogType.mechanism:
-        return "Mekanizma";
+        return l10n.catalogMechanism;
       case CatalogType.accessory:
-        return "Aksesorë";
+        return l10n.catalogAccessory;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: Text(_typeLabel())),
+      appBar: AppBar(title: Text(_typeLabel(l10n))),
       body: AppBackground(
         child: ValueListenableBuilder(
           valueListenable: box.listenable(),

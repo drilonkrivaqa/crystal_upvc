@@ -22,6 +22,10 @@ class AppLocalizations {
       'catalogBlind': 'Roleta',
       'catalogMechanism': 'Mekanizma',
       'catalogAccessory': 'Aksesorë',
+      'general': 'Përgjithshme',
+      'production': 'Prodhimi',
+      'calculate': 'Kalkulo',
+      'pcs': 'copë',
       'pdfDocument': 'Dokument',
       'pdfClient': 'Klienti',
       'pdfPage': 'Faqja',
@@ -153,6 +157,10 @@ class AppLocalizations {
       'catalogBlind': 'Roller Shutter',
       'catalogMechanism': 'Mechanisms',
       'catalogAccessory': 'Accessories',
+      'general': 'General',
+      'production': 'Production',
+      'calculate': 'Calculate',
+      'pcs': 'pcs',
       'pdfDocument': 'Document',
       'pdfClient': 'Client',
       'pdfPage': 'Page',
@@ -278,6 +286,10 @@ class AppLocalizations {
       'catalogBlind': 'Rollladen',
       'catalogMechanism': 'Mechanismen',
       'catalogAccessory': 'Zubehör',
+      'general': 'Allgemein',
+      'production': 'Produktion',
+      'calculate': 'Berechne',
+      'pcs': 'Stk.',
       'pdfDocument': 'Dokument',
       'pdfClient': 'Kunde',
       'pdfPage': 'Seite',
@@ -407,6 +419,10 @@ class AppLocalizations {
       'catalogBlind': 'Volet roulant',
       'catalogMechanism': 'Mécanismes',
       'catalogAccessory': 'Accessoires',
+      'general': 'Général',
+      'production': 'Production',
+      'calculate': 'Calculer',
+      'pcs': 'pcs',
       'pdfDocument': 'Document',
       'pdfClient': 'Client',
       'pdfPage': 'Page',
@@ -536,6 +552,10 @@ class AppLocalizations {
       'catalogBlind': 'Tapparella',
       'catalogMechanism': 'Meccanismi',
       'catalogAccessory': 'Accessori',
+      'general': 'Generale',
+      'production': 'Produzione',
+      'calculate': 'Calcola',
+      'pcs': 'pz',
       'pdfDocument': 'Documento',
       'pdfClient': 'Cliente',
       'pdfPage': 'Pagina',
@@ -668,6 +688,10 @@ class AppLocalizations {
   String get catalogBlind => _t('catalogBlind');
   String get catalogMechanism => _t('catalogMechanism');
   String get catalogAccessory => _t('catalogAccessory');
+  String get general => _t('general');
+  String get production => _t('production');
+  String get calculate => _t('calculate');
+  String get pcs => _t('pcs');
   String get pdfDocument => _t('pdfDocument');
   String get pdfClient => _t('pdfClient');
   String get pdfPage => _t('pdfPage');
