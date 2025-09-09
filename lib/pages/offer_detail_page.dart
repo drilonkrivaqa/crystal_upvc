@@ -342,62 +342,70 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 title: Text(item.name),
                 subtitle: Text(() {
                   final sb = StringBuffer();
-                  sb.writeln('Madhësia: ${item.width} x ${item.height} mm');
-                  sb.writeln('Pcs: ${item.quantity}');
-                  sb.writeln('Profili: ${profileSet.name}');
-                  sb.writeln('Xhami: ${glass.name}');
                   sb.writeln(
-                      'Sektorët: ${item.horizontalSections}x${item.verticalSections}');
-                  sb.writeln('Krahët: ${item.openings}');
+                      '${l10n.pdfDimensions} ${item.width} x ${item.height} mm');
+                  sb.writeln('${l10n.pdfPieces} ${item.quantity}');
+                  sb.writeln('${l10n.pdfProfileType} ${profileSet.name}');
+                  sb.writeln('${l10n.pdfGlass} ${glass.name}');
                   sb.writeln(
-                      '${item.sectionWidths.length > 1 ? 'Gjerësitë' : 'Gjerësia'}: ${item.sectionWidths.join(', ')}');
+                      '${l10n.pdfSections} ${item.horizontalSections}x${item.verticalSections}');
+                  sb.writeln('${l10n.pdfOpening} ${item.openings}');
                   sb.writeln(
-                      '${item.sectionHeights.length > 1 ? 'Lartësitë' : 'Lartësia'}: ${item.sectionHeights.join(', ')}');
+                      '${item.sectionWidths.length > 1 ? l10n.pdfWidths : l10n.pdfWidth} ${item.sectionWidths.join(', ')}');
                   sb.writeln(
-                      'V div: ${item.verticalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ')}');
+                      '${item.sectionHeights.length > 1 ? l10n.pdfHeights : l10n.pdfHeight} ${item.sectionHeights.join(', ')}');
                   sb.writeln(
-                      'H div: ${item.horizontalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ')}');
+                      '${l10n.pdfVDiv} ${item.verticalAdapters.map((a) => a ? l10n.pdfAdapter : 'T').join(', ')}');
                   sb.writeln(
-                      'Kostoja e profilit 1pcs: €${profileCostPer.toStringAsFixed(2)}, Totali i kostoja e profilit (${item.quantity}pcs): €${profileCost.toStringAsFixed(2)}');
-                  sb.writeln(
-                      'Kostoja e xhamit 1pcs: €${glassCostPer.toStringAsFixed(2)}, Totali i kostoja e xhamit (${item.quantity}pcs): €${glassCost.toStringAsFixed(2)}');
+                      '${l10n.pdfHDiv} ${item.horizontalAdapters.map((a) => a ? l10n.pdfAdapter : 'T').join(', ')}');
+                  sb.writeln(l10n.profileCostSummary(
+                      per: profileCostPer,
+                      count: item.quantity,
+                      total: profileCost));
+                  sb.writeln(l10n.glassCostSummary(
+                      per: glassCostPer, count: item.quantity, total: glassCost));
                   if (blind != null) {
-                    sb.writeln('Roleta: ${blind.name}, €${blindCost.toStringAsFixed(2)}');
+                    sb.writeln(
+                        '${l10n.pdfBlind} ${blind.name}, €${blindCost.toStringAsFixed(2)}');
                   }
                   if (mechanism != null) {
                     sb.writeln(
-                        'Mekanizmi: ${mechanism.name}, €${mechanismCost.toStringAsFixed(2)}');
+                        '${l10n.pdfMechanism} ${mechanism.name}, €${mechanismCost.toStringAsFixed(2)}');
                   }
                   if (accessory != null) {
                     sb.writeln(
-                        'Aksesori: ${accessory.name}, €${accessoryCost.toStringAsFixed(2)}');
+                        '${l10n.pdfAccessory} ${accessory.name}, €${accessoryCost.toStringAsFixed(2)}');
                   }
                   if (item.extra1Price != null) {
                     sb.writeln(
-                        '${item.extra1Desc ?? 'Shtesa 1'}: €${(item.extra1Price! * item.quantity).toStringAsFixed(2)}');
+                        '${item.extra1Desc ?? l10n.pdfExtra1}: €${(item.extra1Price! * item.quantity).toStringAsFixed(2)}');
                   }
                   if (item.extra2Price != null) {
                     sb.writeln(
-                        '${item.extra2Desc ?? 'Shtesa 2'}: €${(item.extra2Price! * item.quantity).toStringAsFixed(2)}');
+                        '${item.extra2Desc ?? l10n.pdfExtra2}: €${(item.extra2Price! * item.quantity).toStringAsFixed(2)}');
                   }
                   if (item.notes != null && item.notes!.isNotEmpty) {
-                    sb.writeln('Shënime: ${item.notes!}');
+                    sb.writeln('${l10n.pdfNotesItem} ${item.notes!}');
                   }
+                  sb.writeln(l10n.costZeroSummary(
+                      per: totalPer, count: item.quantity, total: total));
+                  sb.writeln(l10n.costProfitSummary(
+                      per: finalPer, count: item.quantity, total: finalPrice));
+                  sb.writeln(l10n.profitSummary(
+                      per: profitPer, count: item.quantity, total: profitAmount));
                   sb.writeln(
-                      'Kostoja 0% 1pcs: €${totalPer.toStringAsFixed(2)}, Totali i kostoja 0% (${item.quantity}pcs): €${total.toStringAsFixed(2)}');
-                  sb.writeln(
-                      'Kostoja me fitim 1pcs: €${finalPer.toStringAsFixed(2)}, Totali i kostoja me fitim (${item.quantity}pcs): €${finalPrice.toStringAsFixed(2)}');
-                  sb.writeln(
-                      'Fitimi 1pcs: €${profitPer.toStringAsFixed(2)}, Totali i fitimi (${item.quantity}pcs): €${profitAmount.toStringAsFixed(2)}');
-                  sb.writeln('Masa: ${totalMass.toStringAsFixed(2)} kg');
+                      '${l10n.pdfTotalMass} ${totalMass.toStringAsFixed(2)} kg');
                   if (profileSet.uf != null) {
-                    sb.writeln('Uf: ${profileSet.uf!.toStringAsFixed(2)} W/m²K');
+                    sb.writeln(
+                        '${l10n.pdfUf} ${profileSet.uf!.toStringAsFixed(2)} W/m²K');
                   }
                   if (glass.ug != null) {
-                    sb.writeln('Ug: ${glass.ug!.toStringAsFixed(2)} W/m²K');
+                    sb.writeln(
+                        '${l10n.pdfUg} ${glass.ug!.toStringAsFixed(2)} W/m²K');
                   }
                   if (uw != null) {
-                    sb.writeln('Uw: ${uw!.toStringAsFixed(2)} W/m²K');
+                    sb.writeln(
+                        '${l10n.pdfUw} ${uw!.toStringAsFixed(2)} W/m²K');
                   }
                   return sb.toString();
                 }()),
