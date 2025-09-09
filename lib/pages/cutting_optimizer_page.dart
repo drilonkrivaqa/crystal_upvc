@@ -14,11 +14,11 @@ class CuttingOptimizerPage extends StatefulWidget {
 enum PieceType { l, z, t, adapter, llajsne }
 
 const pieceLabels = {
-  PieceType.l: 'Rami (L)',
-  PieceType.z: 'Krahu (Z)',
+  PieceType.l: 'Frame (L)',
+  PieceType.z: 'Sash (Z)',
   PieceType.t: 'T',
   PieceType.adapter: 'Adapter',
-  PieceType.llajsne: 'Llajsne',
+  PieceType.llajsne: 'Bead',
 };
 
 class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
@@ -194,7 +194,7 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Prerjet')),
+      appBar: AppBar(title: const Text('Cutting')),
       body: AppBackground(
         child: ListView(
           padding: const EdgeInsets.all(16),
@@ -207,7 +207,7 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
                     items: [for (int i = 0; i < offerBox.length; i++) i]
                         .map((i) => DropdownMenuItem(
                               value: i,
-                              child: Text('Oferta ${i + 1}'),
+                              child: Text('Offer ${i + 1}'),
                             ))
                         .toList(),
                     onChanged: (val) => setState(() => selectedOffer = val),
@@ -216,7 +216,7 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
                 const SizedBox(width: 16),
                 ElevatedButton(
                   onPressed: _calculate,
-                  child: const Text('Kalkulo'),
+                  child: const Text('Calculate'),
                 ),
               ],
             ),
@@ -229,7 +229,7 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(profile?.name ?? 'Profili'),
+                      Text(profile?.name ?? 'Profile'),
                       const SizedBox(height: 8),
                       ...e.value.entries.map((typeEntry) {
                         final bars = typeEntry.value;
@@ -244,14 +244,14 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
                                 style: const TextStyle(
                                     fontWeight: FontWeight.bold)),
                             Text(
-                                'Nevojiten ${(needed / 1000).toStringAsFixed(2)} m, '
-                                'Pipa: ${bars.length}, '
-                                'Humbje ${(loss / 1000).toStringAsFixed(2)} m'),
+                                'Needed ${(needed / 1000).toStringAsFixed(2)} m, '
+                                'Pipes: ${bars.length}, '
+                                'Waste ${(loss / 1000).toStringAsFixed(2)} m'),
                             for (int i = 0; i < bars.length; i++)
                               Padding(
                                 padding:
                                     const EdgeInsets.symmetric(vertical: 2),
-                                child: Text('Lenda ${i + 1}: '
+                                child: Text('Bar ${i + 1}: '
                                     '${bars[i].join(' + ')} = '
                                     '${bars[i].fold<int>(0, (a, b) => a + b)}/$pipeLen'),
                               ),

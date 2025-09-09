@@ -109,38 +109,38 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text("Ndrysho ${item.name}"),
+        title: Text("Edit ${item.name}"),
         content: SingleChildScrollView(
           child: Column(
             children: [
               if (widget.type == CatalogType.profileSet) ...[
                 ExpansionTile(
-                  title: const Text('Përgjithshme'),
+                  title: const Text('General'),
                   children: [
                     TextField(
                         controller: nameController,
                         decoration:
-                            const InputDecoration(labelText: 'Emri')),
+                            const InputDecoration(labelText: 'Name')),
                     TextField(
                         controller: priceLController,
                         decoration:
-                            const InputDecoration(labelText: 'Rami (L) €/m')),
+                            const InputDecoration(labelText: 'Frame (L) €/m')),
                     TextField(
                         controller: priceZController,
                         decoration:
-                            const InputDecoration(labelText: 'Krahu (Z) €/m')),
+                            const InputDecoration(labelText: 'Sash (Z) €/m')),
                     TextField(
                         controller: priceTController,
                         decoration:
-                            const InputDecoration(labelText: 'T Profili €/m')),
+                            const InputDecoration(labelText: 'T Profile €/m')),
                     TextField(
                         controller: priceAdapterController,
                         decoration:
-                            const InputDecoration(labelText: 'Adapteri €/m')),
+                            const InputDecoration(labelText: 'Adapter €/m')),
                     TextField(
                         controller: priceLlajsneController,
                         decoration:
-                            const InputDecoration(labelText: 'Llajsne €/m')),
+                            const InputDecoration(labelText: 'Bead €/m')),
                   ],
                 ),
                 ExpansionTile(
@@ -149,19 +149,19 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                     TextField(
                         controller: lOuterController,
                         decoration: const InputDecoration(
-                            labelText: 'Trashësia e jashtme L (mm)')),
+                            labelText: 'Outer thickness L (mm)')),
                     TextField(
                         controller: zOuterController,
                         decoration: const InputDecoration(
-                            labelText: 'Trashësia e jashtme Z (mm)')),
+                            labelText: 'Outer thickness Z (mm)')),
                     TextField(
                         controller: tOuterController,
                         decoration: const InputDecoration(
-                            labelText: 'Trashësia e jashtme T (mm)')),
+                            labelText: 'Outer thickness T (mm)')),
                     TextField(
                         controller: adapterOuterController,
                         decoration: const InputDecoration(
-                            labelText: 'Trashësia e jashtme Adapter (mm)')),
+                            labelText: 'Outer thickness Adapter (mm)')),
                     TextField(
                         controller: ufController,
                         decoration:
@@ -169,74 +169,74 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                   ],
                 ),
                 ExpansionTile(
-                  title: const Text('Prodhimi'),
+                  title: const Text('Production'),
                   children: [
                     TextField(
                         controller: massLController,
                         decoration:
-                            const InputDecoration(labelText: 'Masa L kg/m')),
+                            const InputDecoration(labelText: 'Mass L kg/m')),
                     TextField(
                         controller: massZController,
                         decoration:
-                            const InputDecoration(labelText: 'Masa Z kg/m')),
+                            const InputDecoration(labelText: 'Mass Z kg/m')),
                     TextField(
                         controller: massTController,
                         decoration:
-                            const InputDecoration(labelText: 'Masa T kg/m')),
+                            const InputDecoration(labelText: 'Mass T kg/m')),
                     TextField(
                         controller: massAdapterController,
                         decoration:
-                            const InputDecoration(labelText: 'Masa Adapter kg/m')),
+                            const InputDecoration(labelText: 'Mass Adapter kg/m')),
                     TextField(
                         controller: massLlajsneController,
                         decoration:
-                            const InputDecoration(labelText: 'Masa Llajsne kg/m')),
+                            const InputDecoration(labelText: 'Mass Bead kg/m')),
                     TextField(
                         controller: lInnerController,
                         decoration: const InputDecoration(
-                            labelText: 'Trashësia e brendshme L (mm)')),
+                            labelText: 'Inner thickness L (mm)')),
                     TextField(
                         controller: zInnerController,
                         decoration: const InputDecoration(
-                            labelText: 'Trashësia e brendshme Z (mm)')),
+                            labelText: 'Inner thickness Z (mm)')),
                     TextField(
                         controller: tInnerController,
                         decoration: const InputDecoration(
-                            labelText: 'Trashësia e brendshme T (mm)')),
+                            labelText: 'Inner thickness T (mm)')),
                     TextField(
                         controller: fixedGlassController,
                         decoration: const InputDecoration(
-                            labelText: 'Humbja xhami fiks (mm)')),
+                            labelText: 'Fixed glass loss (mm)')),
                     TextField(
                         controller: sashGlassController,
                         decoration: const InputDecoration(
-                            labelText: 'Humbja xhami krah (mm)')),
+                            labelText: 'Sash glass loss (mm)')),
                     TextField(
                         controller: sashValueController,
                         decoration: const InputDecoration(
-                            labelText: 'Vlera krah (+mm)')),
+                            labelText: 'Sash value (+mm)')),
                     TextField(
                         controller: pipeLengthController,
                         decoration: const InputDecoration(
-                            labelText: 'Gjatësia e profilit (mm)')),
+                            labelText: 'Profile length (mm)')),
                   ],
                 ),
               ] else ...[
                 TextField(
                     controller: nameController,
-                    decoration: const InputDecoration(labelText: 'Emri')),
+                    decoration: const InputDecoration(labelText: 'Name')),
                 if (widget.type == CatalogType.glass ||
                     widget.type == CatalogType.blind)
                   TextField(
                       controller: pricePerM2Controller,
                       decoration:
-                          const InputDecoration(labelText: 'Çmimi €/m²')),
+                          const InputDecoration(labelText: 'Price €/m²')),
                 if (widget.type == CatalogType.glass ||
                     widget.type == CatalogType.blind)
                   TextField(
                       controller: massPerM2Controller,
                       decoration:
-                          const InputDecoration(labelText: 'Masa kg/m²')),
+                          const InputDecoration(labelText: 'Mass kg/m²')),
                 if (widget.type == CatalogType.glass)
                   TextField(
                       controller: ugController,
@@ -251,19 +251,19 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                   TextField(
                       controller: boxHeightController,
                       decoration: const InputDecoration(
-                          labelText: 'Lartësia e kutisë (mm)')),
+                          labelText: 'Box height (mm)')),
                 if (widget.type == CatalogType.mechanism ||
                     widget.type == CatalogType.accessory)
                   TextField(
                       controller: priceController,
                       decoration:
-                          const InputDecoration(labelText: 'Çmimi (€)')),
+                          const InputDecoration(labelText: 'Price (€)')),
                 if (widget.type == CatalogType.mechanism ||
                     widget.type == CatalogType.accessory)
                   TextField(
                       controller: massController,
                       decoration:
-                          const InputDecoration(labelText: 'Masa (kg)')),
+                          const InputDecoration(labelText: 'Mass (kg)')),
               ],
             ],
           ),
@@ -280,7 +280,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
           ),
           TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Anulo')),
+              child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () {
               if (nameController.text.isEmpty) return;
@@ -379,7 +379,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
               Navigator.pop(context);
               setState(() {});
             },
-            child: const Text('Ruaj'),
+            child: const Text('Save'),
           ),
         ],
       ),
@@ -421,38 +421,38 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text("Regjistro ${_typeLabel()}n"),
+        title: Text("Add ${_typeLabel()}n"),
         content: SingleChildScrollView(
           child: Column(
             children: [
               if (widget.type == CatalogType.profileSet) ...[
                 ExpansionTile(
-                  title: const Text('Përgjithshme'),
+                  title: const Text('General'),
                   children: [
                     TextField(
                         controller: nameController,
                         decoration:
-                            const InputDecoration(labelText: 'Emri')),
+                            const InputDecoration(labelText: 'Name')),
                     TextField(
                         controller: priceLController,
                         decoration:
-                            const InputDecoration(labelText: 'Rami (L) €/m')),
+                            const InputDecoration(labelText: 'Frame (L) €/m')),
                     TextField(
                         controller: priceZController,
                         decoration:
-                            const InputDecoration(labelText: 'Krahu (Z) €/m')),
+                            const InputDecoration(labelText: 'Sash (Z) €/m')),
                     TextField(
                         controller: priceTController,
                         decoration:
-                            const InputDecoration(labelText: 'T Profili €/m')),
+                            const InputDecoration(labelText: 'T Profile €/m')),
                     TextField(
                         controller: priceAdapterController,
                         decoration:
-                            const InputDecoration(labelText: 'Adapteri €/m')),
+                            const InputDecoration(labelText: 'Adapter €/m')),
                     TextField(
                         controller: priceLlajsneController,
                         decoration:
-                            const InputDecoration(labelText: 'Llajsne €/m')),
+                            const InputDecoration(labelText: 'Bead €/m')),
                   ],
                 ),
                 ExpansionTile(
@@ -461,19 +461,19 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                     TextField(
                         controller: lOuterController,
                         decoration: const InputDecoration(
-                            labelText: 'Trashësia e jashtme L (mm)')),
+                            labelText: 'Outer thickness L (mm)')),
                     TextField(
                         controller: zOuterController,
                         decoration: const InputDecoration(
-                            labelText: 'Trashësia e jashtme Z (mm)')),
+                            labelText: 'Outer thickness Z (mm)')),
                     TextField(
                         controller: tOuterController,
                         decoration: const InputDecoration(
-                            labelText: 'Trashësia e jashtme T (mm)')),
+                            labelText: 'Outer thickness T (mm)')),
                     TextField(
                         controller: adapterOuterController,
                         decoration: const InputDecoration(
-                            labelText: 'Trashësia e jashtme Adapter (mm)')),
+                            labelText: 'Outer thickness Adapter (mm)')),
                     TextField(
                         controller: ufController,
                         decoration:
@@ -481,74 +481,74 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                   ],
                 ),
                 ExpansionTile(
-                  title: const Text('Prodhimi'),
+                  title: const Text('Production'),
                   children: [
                     TextField(
                         controller: massLController,
                         decoration:
-                            const InputDecoration(labelText: 'Masa L kg/m')),
+                            const InputDecoration(labelText: 'Mass L kg/m')),
                     TextField(
                         controller: massZController,
                         decoration:
-                            const InputDecoration(labelText: 'Masa Z kg/m')),
+                            const InputDecoration(labelText: 'Mass Z kg/m')),
                     TextField(
                         controller: massTController,
                         decoration:
-                            const InputDecoration(labelText: 'Masa T kg/m')),
+                            const InputDecoration(labelText: 'Mass T kg/m')),
                     TextField(
                         controller: massAdapterController,
                         decoration:
-                            const InputDecoration(labelText: 'Masa Adapter kg/m')),
+                            const InputDecoration(labelText: 'Mass Adapter kg/m')),
                     TextField(
                         controller: massLlajsneController,
                         decoration:
-                            const InputDecoration(labelText: 'Masa Llajsne kg/m')),
+                            const InputDecoration(labelText: 'Mass Bead kg/m')),
                     TextField(
                         controller: lInnerController,
                         decoration: const InputDecoration(
-                            labelText: 'Trashësia e brendshme L (mm)')),
+                            labelText: 'Inner thickness L (mm)')),
                     TextField(
                         controller: zInnerController,
                         decoration: const InputDecoration(
-                            labelText: 'Trashësia e brendshme Z (mm)')),
+                            labelText: 'Inner thickness Z (mm)')),
                     TextField(
                         controller: tInnerController,
                         decoration: const InputDecoration(
-                            labelText: 'Trashësia e brendshme T (mm)')),
+                            labelText: 'Inner thickness T (mm)')),
                     TextField(
                         controller: fixedGlassController,
                         decoration: const InputDecoration(
-                            labelText: 'Humbja xhami fiks (mm)')),
+                            labelText: 'Fixed glass loss (mm)')),
                     TextField(
                         controller: sashGlassController,
                         decoration: const InputDecoration(
-                            labelText: 'Humbja xhami krah (mm)')),
+                            labelText: 'Sash glass loss (mm)')),
                     TextField(
                         controller: sashValueController,
                         decoration: const InputDecoration(
-                            labelText: 'Vlera krah (+mm)')),
+                            labelText: 'Sash value (+mm)')),
                     TextField(
                         controller: pipeLengthController,
                         decoration: const InputDecoration(
-                            labelText: 'Gjatësia e profilit (mm)')),
+                            labelText: 'Profile length (mm)')),
                   ],
                 ),
               ] else ...[
                 TextField(
                     controller: nameController,
-                    decoration: const InputDecoration(labelText: 'Emri')),
+                    decoration: const InputDecoration(labelText: 'Name')),
                 if (widget.type == CatalogType.glass ||
                     widget.type == CatalogType.blind)
                   TextField(
                       controller: pricePerM2Controller,
                       decoration:
-                          const InputDecoration(labelText: 'Çmimi €/m²')),
+                          const InputDecoration(labelText: 'Price €/m²')),
                 if (widget.type == CatalogType.glass ||
                     widget.type == CatalogType.blind)
                   TextField(
                       controller: massPerM2Controller,
                       decoration:
-                          const InputDecoration(labelText: 'Masa kg/m²')),
+                          const InputDecoration(labelText: 'Mass kg/m²')),
                 if (widget.type == CatalogType.glass)
                   TextField(
                       controller: ugController,
@@ -563,19 +563,19 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                   TextField(
                       controller: boxHeightController,
                       decoration: const InputDecoration(
-                          labelText: 'Lartësia e kutisë (mm)')),
+                          labelText: 'Box height (mm)')),
                 if (widget.type == CatalogType.mechanism ||
                     widget.type == CatalogType.accessory)
                   TextField(
                       controller: priceController,
                       decoration:
-                          const InputDecoration(labelText: 'Çmimi (€)')),
+                          const InputDecoration(labelText: 'Price (€)')),
                 if (widget.type == CatalogType.mechanism ||
                     widget.type == CatalogType.accessory)
                   TextField(
                       controller: massController,
                       decoration:
-                          const InputDecoration(labelText: 'Masa (kg)')),
+                          const InputDecoration(labelText: 'Mass (kg)')),
               ],
             ],
           ),
@@ -583,7 +583,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Anulo')),
+              child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () {
               if (nameController.text.isEmpty) return;
@@ -663,7 +663,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
               Navigator.pop(context);
               setState(() {});
             },
-            child: const Text('Regjistro'),
+            child: const Text('Add'),
           ),
         ],
       ),
@@ -673,15 +673,15 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
   String _typeLabel() {
     switch (widget.type) {
       case CatalogType.profileSet:
-        return "Profili";
+        return "Profile";
       case CatalogType.glass:
-        return "Xhami";
+        return "Glass";
       case CatalogType.blind:
-        return "Roleta";
+        return "Roller Shutter";
       case CatalogType.mechanism:
-        return "Mekanizma";
+        return "Mechanism";
       case CatalogType.accessory:
-        return "Aksesorë";
+        return "Accessory";
     }
   }
 
@@ -703,22 +703,22 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                     title: Text(item.name),
                     subtitle: widget.type == CatalogType.profileSet
                         ? Text(
-                            "Rami (L): €${item.priceL.toStringAsFixed(2)}/m, ${item.massL.toStringAsFixed(2)}kg/m\n"
-                            "Krahu (Z): €${item.priceZ.toStringAsFixed(2)}/m, ${item.massZ.toStringAsFixed(2)}kg/m\n"
-                            "T: €${item.priceT.toStringAsFixed(2)}/m, ${item.massT.toStringAsFixed(2)}kg/m\n"
+                            "Frame (L): €${item.priceL.toStringAsFixed(2)}/m, ${item.massL.toStringAsFixed(2)}kg/m\n"
+                            "Sash (Z): €${item.priceZ.toStringAsFixed(2)}/m, ${item.massZ.toStringAsFixed(2)}kg/m\n"
+                            "T Profile: €${item.priceT.toStringAsFixed(2)}/m, ${item.massT.toStringAsFixed(2)}kg/m\n"
                             "Adapter: €${item.priceAdapter.toStringAsFixed(2)}/m, ${item.massAdapter.toStringAsFixed(2)}kg/m\n"
-                            "Llajsne: €${item.priceLlajsne.toStringAsFixed(2)}/m, ${item.massLlajsne.toStringAsFixed(2)}kg/m\n"
-                            "Gjatësia: ${item.pipeLength}mm")
+                            "Bead: €${item.priceLlajsne.toStringAsFixed(2)}/m, ${item.massLlajsne.toStringAsFixed(2)}kg/m\n"
+                            "Length: ${item.pipeLength}mm")
                         : widget.type == CatalogType.glass
                             ? Text(
-                                "€${item.pricePerM2.toStringAsFixed(2)}/m², ${item.massPerM2.toStringAsFixed(2)}kg/m²")
+                                "Price: €${item.pricePerM2.toStringAsFixed(2)}/m², Mass: ${item.massPerM2.toStringAsFixed(2)}kg/m²")
                             : widget.type == CatalogType.blind
                                 ? Text(
-                                    "€${item.pricePerM2.toStringAsFixed(2)}/m², ${item.massPerM2.toStringAsFixed(2)}kg/m², Kuti: ${item.boxHeight}mm")
+                                    "Price: €${item.pricePerM2.toStringAsFixed(2)}/m², Mass: ${item.massPerM2.toStringAsFixed(2)}kg/m², Box: ${item.boxHeight}mm")
                                 : widget.type == CatalogType.mechanism ||
                                         widget.type == CatalogType.accessory
                                     ? Text(
-                                        "€${item.price.toStringAsFixed(2)}, ${item.mass.toStringAsFixed(2)}kg")
+                                        "Price: €${item.price.toStringAsFixed(2)}, Mass: ${item.mass.toStringAsFixed(2)}kg")
                                     : null,
                   ),
                 ).animate().fadeIn(duration: 200.ms).slideY(begin: 0.3);

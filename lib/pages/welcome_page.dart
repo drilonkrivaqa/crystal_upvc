@@ -29,7 +29,7 @@ class _WelcomePageState extends State<WelcomePage> {
       if (widget.failedBoxes.isNotEmpty) {
         final names = widget.failedBoxes.join(', ');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Disa të dhëna nuk u ngarkuan: $names')),
+          SnackBar(content: Text('Some data failed to load: $names')),
         );
       }
       if (widget.migrationFailures.isNotEmpty) {
@@ -37,7 +37,7 @@ class _WelcomePageState extends State<WelcomePage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-                'Disa të dhëna nuk u migruan: $names. Ju lutemi kontrolloni dhe rikuperoni manualisht nëse është e nevojshme.'),
+                'Some data failed to migrate: $names. Please check and recover manually if necessary.'),
           ),
         );
       }

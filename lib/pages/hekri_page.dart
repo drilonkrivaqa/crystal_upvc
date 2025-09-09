@@ -186,7 +186,7 @@ class _HekriPageState extends State<HekriPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Hekri'),
+        title: const Text('Iron'),
       ),
       body: AppBackground(
         child: ListView(
@@ -197,7 +197,7 @@ class _HekriPageState extends State<HekriPage> {
               child: ElevatedButton.icon(
                 onPressed: _openProfiles,
                 icon: const Icon(Icons.settings),
-                label: const Text('Profilat e Regjistruar'),
+                label: const Text('Registered Profiles'),
               ),
             ),
             const SizedBox(height: 16),
@@ -210,7 +210,7 @@ class _HekriPageState extends State<HekriPage> {
                       for (int i = 0; i < offerBox.length; i++)
                         DropdownMenuItem(
                           value: i,
-                          child: Text('Oferta ${i + 1}'),
+                          child: Text('Offer ${i + 1}'),
                         )
                     ],
                     onChanged: (val) => setState(() => selectedOffer = val),
@@ -219,7 +219,7 @@ class _HekriPageState extends State<HekriPage> {
                 const SizedBox(width: 16),
                 ElevatedButton(
                   onPressed: _calculate,
-                  child: const Text('Llogarit'),
+                  child: const Text('Calculate'),
                 ),
               ],
             ),
@@ -237,15 +237,15 @@ class _HekriPageState extends State<HekriPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(profile?.name ?? 'Profili'),
+                      Text(profile?.name ?? 'Profile'),
                       const SizedBox(height: 8),
-                      Text('Nevojiten ${(needed / 1000).toStringAsFixed(2)} m, '
-                          'Pipa: ${bars.length}, '
-                          'Humbje ${(loss / 1000).toStringAsFixed(2)} m'),
+                      Text('Needed ${(needed / 1000).toStringAsFixed(2)} m, '
+                          'Pipes: ${bars.length}, '
+                          'Waste ${(loss / 1000).toStringAsFixed(2)} m'),
                       for (int i = 0; i < bars.length; i++)
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 2),
-                          child: Text('Lenda ${i + 1}: '
+                          child: Text('Bar ${i + 1}: '
                               '${bars[i].join(' + ')} = '
                               '${bars[i].fold<int>(0, (a, b) => a + b)}/$pipeLen'),
                         ),
