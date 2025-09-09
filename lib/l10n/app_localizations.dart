@@ -70,7 +70,7 @@ class AppLocalizations {
       'add': 'Shto',
       'delete': 'Fshij',
       'save': 'Ruaj',
-      'addCustomerFirst': 'Ju lutem shtoni së pari një klient të ri!',
+      'addCustomerFirst': 'Ju lutem së pari shtoni një klient të ri!',
       'createOffer': 'Krijo Ofertë',
       'searchCustomer': 'Kërko klientin',
       'noResults': 'Nuk ka rezultate',
