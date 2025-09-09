@@ -136,6 +136,24 @@ class AppLocalizations {
       'auto': 'auto',
       'verticalDivision': 'Ndarja Vertikale',
       'horizontalDivision': 'Ndarja Horizontale',
+      'calculate': 'Llogarit',
+      'registeredProfiles': 'Profilat e Regjistruar',
+      'piecesUnit': 'copë',
+      'productionCuts': 'Prerjet',
+      'productionIron': 'Hekri',
+      'requiredPipesLoss':
+          'Nevojiten {needed} m, Pipa: {count}, Humbje {loss} m',
+      'barLabel': 'Lenda {index}: {values} = {sum}/{pipe}',
+      'profileCostSummary':
+          'Kostoja e profilit 1copë: €{per}, Totali i kostos së profilit ({count}copë): €{total}',
+      'glassCostSummary':
+          'Kostoja e xhamit 1copë: €{per}, Totali i kostos së xhamit ({count}copë): €{total}',
+      'costZeroSummary':
+          'Kostoja 0% 1copë: €{per}, Totali i kostos 0% ({count}copë): €{total}',
+      'costProfitSummary':
+          'Kostoja me fitim 1copë: €{per}, Totali i kostos me fitim ({count}copë): €{total}',
+      'profitSummary':
+          'Fitimi 1copë: €{per}, Totali i fitimit ({count}copë): €{total}',
     },
     'en': {
       'appTitle': 'TONI AL-PVC',
@@ -261,6 +279,24 @@ class AppLocalizations {
       'auto': 'auto',
       'verticalDivision': 'Vertical division',
       'horizontalDivision': 'Horizontal division',
+      'calculate': 'Calculate',
+      'registeredProfiles': 'Registered Profiles',
+      'piecesUnit': 'pcs',
+      'productionCuts': 'Cuts',
+      'productionIron': 'Iron',
+      'requiredPipesLoss':
+          'Required {needed} m, Pipes: {count}, Loss {loss} m',
+      'barLabel': 'Bar {index}: {values} = {sum}/{pipe}',
+      'profileCostSummary':
+          'Profile cost 1pcs: €{per}, Total profile cost ({count}pcs): €{total}',
+      'glassCostSummary':
+          'Glass cost 1pcs: €{per}, Total glass cost ({count}pcs): €{total}',
+      'costZeroSummary':
+          'Cost 0% 1pcs: €{per}, Total cost 0% ({count}pcs): €{total}',
+      'costProfitSummary':
+          'Cost with profit 1pcs: €{per}, Total cost with profit ({count}pcs): €{total}',
+      'profitSummary':
+          'Profit 1pcs: €{per}, Total profit ({count}pcs): €{total}',
     },
     'de': {
       'appTitle': 'TONI AL-PVC',
@@ -390,6 +426,24 @@ class AppLocalizations {
       'auto': 'auto',
       'verticalDivision': 'Vertikale Teilung',
       'horizontalDivision': 'Horizontale Teilung',
+      'calculate': 'Berechnen',
+      'registeredProfiles': 'Registrierte Profile',
+      'piecesUnit': 'Stk',
+      'productionCuts': 'Schnitte',
+      'productionIron': 'Eisen',
+      'requiredPipesLoss':
+          'Benötigt {needed} m, Stangen: {count}, Verlust {loss} m',
+      'barLabel': 'Stange {index}: {values} = {sum}/{pipe}',
+      'profileCostSummary':
+          'Profilkosten 1Stk: €{per}, Gesamte Profilkosten ({count}Stk): €{total}',
+      'glassCostSummary':
+          'Glaskosten 1Stk: €{per}, Gesamte Glaskosten ({count}Stk): €{total}',
+      'costZeroSummary':
+          'Kosten 0% 1Stk: €{per}, Gesamtkosten 0% ({count}Stk): €{total}',
+      'costProfitSummary':
+          'Kosten mit Gewinn 1Stk: €{per}, Gesamtkosten mit Gewinn ({count}Stk): €{total}',
+      'profitSummary':
+          'Gewinn 1Stk: €{per}, Gesamtgewinn ({count}Stk): €{total}',
     },
     'fr': {
       'appTitle': 'TONI AL-PVC',
@@ -519,6 +573,24 @@ class AppLocalizations {
       'auto': 'auto',
       'verticalDivision': 'Division verticale',
       'horizontalDivision': 'Division horizontale',
+      'calculate': 'Calculer',
+      'registeredProfiles': 'Profils enregistrés',
+      'piecesUnit': 'pcs',
+      'productionCuts': 'Découpes',
+      'productionIron': 'Fer',
+      'requiredPipesLoss':
+          'Nécessaire {needed} m, Barres: {count}, Perte {loss} m',
+      'barLabel': 'Barre {index}: {values} = {sum}/{pipe}',
+      'profileCostSummary':
+          'Coût du profil 1pc: €{per}, Coût total du profil ({count}pc): €{total}',
+      'glassCostSummary':
+          'Coût du verre 1pc: €{per}, Coût total du verre ({count}pc): €{total}',
+      'costZeroSummary':
+          'Coût 0% 1pc: €{per}, Coût total 0% ({count}pc): €{total}',
+      'costProfitSummary':
+          'Coût avec profit 1pc: €{per}, Coût total avec profit ({count}pc): €{total}',
+      'profitSummary':
+          'Profit 1pc: €{per}, Profit total ({count}pc): €{total}',
     },
     'it': {
       'appTitle': 'TONI AL-PVC',
@@ -648,6 +720,24 @@ class AppLocalizations {
       'auto': 'auto',
       'verticalDivision': 'Divisione verticale',
       'horizontalDivision': 'Divisione orizzontale',
+      'calculate': 'Calcola',
+      'registeredProfiles': 'Profili Registrati',
+      'piecesUnit': 'pz',
+      'productionCuts': 'Tagli',
+      'productionIron': 'Ferro',
+      'requiredPipesLoss':
+          'Necessari {needed} m, Barre: {count}, Scarto {loss} m',
+      'barLabel': 'Barra {index}: {values} = {sum}/{pipe}',
+      'profileCostSummary':
+          'Costo profilo 1pz: €{per}, Costo totale profilo ({count}pz): €{total}',
+      'glassCostSummary':
+          'Costo vetro 1pz: €{per}, Costo totale vetro ({count}pz): €{total}',
+      'costZeroSummary':
+          'Costo 0% 1pz: €{per}, Costo totale 0% ({count}pz): €{total}',
+      'costProfitSummary':
+          'Costo con profitto 1pz: €{per}, Costo totale con profitto ({count}pz): €{total}',
+      'profitSummary':
+          'Profitto 1pz: €{per}, Profitto totale ({count}pz): €{total}',
     },
   };
 
@@ -668,6 +758,47 @@ class AppLocalizations {
   String get catalogBlind => _t('catalogBlind');
   String get catalogMechanism => _t('catalogMechanism');
   String get catalogAccessory => _t('catalogAccessory');
+  String get calculate => _t('calculate');
+  String get registeredProfiles => _t('registeredProfiles');
+  String get piecesUnit => _t('piecesUnit');
+  String get productionCuts => _t('productionCuts');
+  String get productionIron => _t('productionIron');
+  String requiredPipesLoss({required double needed, required int count, required double loss}) =>
+      _t('requiredPipesLoss')
+          .replaceAll('{needed}', needed.toStringAsFixed(2))
+          .replaceAll('{count}', count.toString())
+          .replaceAll('{loss}', loss.toStringAsFixed(2));
+  String barLabel({required int index, required String values, required int sum, required int pipe}) =>
+      _t('barLabel')
+          .replaceAll('{index}', index.toString())
+          .replaceAll('{values}', values)
+          .replaceAll('{sum}', sum.toString())
+          .replaceAll('{pipe}', pipe.toString());
+  String profileCostSummary({required double per, required int count, required double total}) =>
+      _t('profileCostSummary')
+          .replaceAll('{per}', per.toStringAsFixed(2))
+          .replaceAll('{count}', count.toString())
+          .replaceAll('{total}', total.toStringAsFixed(2));
+  String glassCostSummary({required double per, required int count, required double total}) =>
+      _t('glassCostSummary')
+          .replaceAll('{per}', per.toStringAsFixed(2))
+          .replaceAll('{count}', count.toString())
+          .replaceAll('{total}', total.toStringAsFixed(2));
+  String costZeroSummary({required double per, required int count, required double total}) =>
+      _t('costZeroSummary')
+          .replaceAll('{per}', per.toStringAsFixed(2))
+          .replaceAll('{count}', count.toString())
+          .replaceAll('{total}', total.toStringAsFixed(2));
+  String costProfitSummary({required double per, required int count, required double total}) =>
+      _t('costProfitSummary')
+          .replaceAll('{per}', per.toStringAsFixed(2))
+          .replaceAll('{count}', count.toString())
+          .replaceAll('{total}', total.toStringAsFixed(2));
+  String profitSummary({required double per, required int count, required double total}) =>
+      _t('profitSummary')
+          .replaceAll('{per}', per.toStringAsFixed(2))
+          .replaceAll('{count}', count.toString())
+          .replaceAll('{total}', total.toStringAsFixed(2));
   String get pdfDocument => _t('pdfDocument');
   String get pdfClient => _t('pdfClient');
   String get pdfPage => _t('pdfPage');

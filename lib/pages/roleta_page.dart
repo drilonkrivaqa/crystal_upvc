@@ -4,6 +4,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import '../models.dart';
 import '../theme/app_background.dart';
 import '../widgets/glass_card.dart';
+import '../l10n/app_localizations.dart';
 
 class RoletaPage extends StatefulWidget {
   const RoletaPage({super.key});
@@ -45,8 +46,9 @@ class _RoletaPageState extends State<RoletaPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: const Text('Roleta')),
+      appBar: AppBar(title: Text(l10n.catalogBlind)),
       body: AppBackground(
         child: ListView(
           padding: const EdgeInsets.all(16),
@@ -59,7 +61,7 @@ class _RoletaPageState extends State<RoletaPage> {
                     items: [for (int i = 0; i < offerBox.length; i++) i]
                         .map((i) => DropdownMenuItem(
                               value: i,
-                              child: Text('Oferta ${i + 1}'),
+                              child: Text('${l10n.pdfOffer} ${i + 1}'),
                             ))
                         .toList(),
                     onChanged: (val) => setState(() => selectedOffer = val),
@@ -68,7 +70,7 @@ class _RoletaPageState extends State<RoletaPage> {
                 const SizedBox(width: 16),
                 ElevatedButton(
                   onPressed: _calculate,
-                  child: const Text('Kalkulo'),
+                  child: Text(l10n.calculate),
                 ),
               ],
             ),
@@ -80,10 +82,10 @@ class _RoletaPageState extends State<RoletaPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(blind?.name ?? 'Roleta'),
+                      Text(blind?.name ?? l10n.catalogBlind),
                       const SizedBox(height: 8),
-                      ...e.value.entries.map((entry) =>
-                          Text('${entry.key} mm - ${entry.value} copë')),
+                      ...e.value.entries.map((entry) => Text(
+                          '${entry.key} mm - ${entry.value} ${l10n.piecesUnit}')),
                     ],
                   ),
                 );
