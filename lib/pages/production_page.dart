@@ -13,34 +13,34 @@ class ProductionPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Prodhimi')),
+      appBar: AppBar(title: const Text('Production')),
       body: AppBackground(
         child: ListView(
           children: [
             const SizedBox(height: 20),
             _ProductionButton(
-              label: 'Prerjet',
+              label: 'Cutting',
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const CuttingOptimizerPage()),
               ),
             ),
             _ProductionButton(
-              label: 'Xhami',
+              label: 'Glass',
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const XhamiPage()),
               ),
             ),
             _ProductionButton(
-              label: 'Roleta',
+              label: 'Roller Shutter',
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const RoletaPage()),
               ),
             ),
             _ProductionButton(
-              label: 'Hekri',
+              label: 'Iron',
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const HekriPage()),

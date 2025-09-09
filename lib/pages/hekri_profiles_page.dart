@@ -41,26 +41,26 @@ class _HekriProfilesPageState extends State<HekriProfilesPage> {
               controller: offsetLController,
               keyboardType: TextInputType.number,
               decoration:
-                  const InputDecoration(labelText: 'Zbritje nga L (mm)'),
+                  const InputDecoration(labelText: 'Offset from L (mm)'),
             ),
             TextField(
               controller: offsetZController,
               keyboardType: TextInputType.number,
               decoration:
-                  const InputDecoration(labelText: 'Zbritje nga Z (mm)'),
+                  const InputDecoration(labelText: 'Offset from Z (mm)'),
             ),
             TextField(
               controller: offsetTController,
               keyboardType: TextInputType.number,
               decoration:
-                  const InputDecoration(labelText: 'Zbritje nga T (mm)'),
+                  const InputDecoration(labelText: 'Offset from T (mm)'),
             ),
           ],
         ),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Anulo')),
+              child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () {
               profileBox.putAt(
@@ -92,7 +92,7 @@ class _HekriProfilesPageState extends State<HekriProfilesPage> {
               Navigator.pop(context);
               setState(() {});
             },
-            child: const Text('Ruaj'),
+            child: const Text('Save'),
           ),
         ],
       ),
@@ -102,7 +102,7 @@ class _HekriProfilesPageState extends State<HekriProfilesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Profili të Regjistruar')),
+      appBar: AppBar(title: const Text('Registered Profiles')),
       body: AppBackground(
         child: ValueListenableBuilder(
           valueListenable: profileBox.listenable(),

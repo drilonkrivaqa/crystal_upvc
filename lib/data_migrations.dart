@@ -146,19 +146,19 @@ Future<bool> _migrateAccessories() async {
 Future<List<String>> runMigrations() async {
   final failures = <String>[];
   if (!await _migrateCustomers()) {
-    failures.add('klientët');
+    failures.add('customers');
   }
   if (!await _migrateProfileSets()) {
-    failures.add('profilet');
+    failures.add('profiles');
   }
   if (!await _migrateBlinds()) {
-    failures.add('roletat');
+    failures.add('blinds');
   }
   if (!await _migrateMechanisms()) {
-    failures.add('mekanizmat');
+    failures.add('mechanisms');
   }
   if (!await _migrateAccessories()) {
-    failures.add('aksesorët');
+    failures.add('accessories');
   }
   return failures;
 }

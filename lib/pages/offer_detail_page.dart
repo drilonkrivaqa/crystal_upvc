@@ -342,54 +342,54 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 title: Text(item.name),
                 subtitle: Text(() {
                   final sb = StringBuffer();
-                  sb.writeln('Madhësia: ${item.width} x ${item.height} mm');
+                  sb.writeln('Size: ${item.width} x ${item.height} mm');
                   sb.writeln('Pcs: ${item.quantity}');
-                  sb.writeln('Profili: ${profileSet.name}');
-                  sb.writeln('Xhami: ${glass.name}');
+                  sb.writeln('Profile: ${profileSet.name}');
+                  sb.writeln('Glass: ${glass.name}');
                   sb.writeln(
-                      'Sektorët: ${item.horizontalSections}x${item.verticalSections}');
-                  sb.writeln('Krahët: ${item.openings}');
+                      'Sections: ${item.horizontalSections}x${item.verticalSections}');
+                  sb.writeln('Openings: ${item.openings}');
                   sb.writeln(
-                      '${item.sectionWidths.length > 1 ? 'Gjerësitë' : 'Gjerësia'}: ${item.sectionWidths.join(', ')}');
+                      '${item.sectionWidths.length > 1 ? 'Widths' : 'Width'}: ${item.sectionWidths.join(', ')}');
                   sb.writeln(
-                      '${item.sectionHeights.length > 1 ? 'Lartësitë' : 'Lartësia'}: ${item.sectionHeights.join(', ')}');
+                      '${item.sectionHeights.length > 1 ? 'Heights' : 'Height'}: ${item.sectionHeights.join(', ')}');
                   sb.writeln(
                       'V div: ${item.verticalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ')}');
                   sb.writeln(
                       'H div: ${item.horizontalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ')}');
                   sb.writeln(
-                      'Kostoja e profilit 1pcs: €${profileCostPer.toStringAsFixed(2)}, Totali i kostoja e profilit (${item.quantity}pcs): €${profileCost.toStringAsFixed(2)}');
+                      'Profile cost per piece: €${profileCostPer.toStringAsFixed(2)}, Total profile cost (${item.quantity}pcs): €${profileCost.toStringAsFixed(2)}');
                   sb.writeln(
-                      'Kostoja e xhamit 1pcs: €${glassCostPer.toStringAsFixed(2)}, Totali i kostoja e xhamit (${item.quantity}pcs): €${glassCost.toStringAsFixed(2)}');
+                      'Glass cost per piece: €${glassCostPer.toStringAsFixed(2)}, Total glass cost (${item.quantity}pcs): €${glassCost.toStringAsFixed(2)}');
                   if (blind != null) {
-                    sb.writeln('Roleta: ${blind.name}, €${blindCost.toStringAsFixed(2)}');
+                    sb.writeln('Roller shutter: ${blind.name}, €${blindCost.toStringAsFixed(2)}');
                   }
                   if (mechanism != null) {
                     sb.writeln(
-                        'Mekanizmi: ${mechanism.name}, €${mechanismCost.toStringAsFixed(2)}');
+                        'Mechanism: ${mechanism.name}, €${mechanismCost.toStringAsFixed(2)}');
                   }
                   if (accessory != null) {
                     sb.writeln(
-                        'Aksesori: ${accessory.name}, €${accessoryCost.toStringAsFixed(2)}');
+                        'Accessory: ${accessory.name}, €${accessoryCost.toStringAsFixed(2)}');
                   }
                   if (item.extra1Price != null) {
                     sb.writeln(
-                        '${item.extra1Desc ?? 'Shtesa 1'}: €${(item.extra1Price! * item.quantity).toStringAsFixed(2)}');
+                        '${item.extra1Desc ?? 'Extra 1'}: €${(item.extra1Price! * item.quantity).toStringAsFixed(2)}');
                   }
                   if (item.extra2Price != null) {
                     sb.writeln(
-                        '${item.extra2Desc ?? 'Shtesa 2'}: €${(item.extra2Price! * item.quantity).toStringAsFixed(2)}');
+                        '${item.extra2Desc ?? 'Extra 2'}: €${(item.extra2Price! * item.quantity).toStringAsFixed(2)}');
                   }
                   if (item.notes != null && item.notes!.isNotEmpty) {
-                    sb.writeln('Shënime: ${item.notes!}');
+                    sb.writeln('Notes: ${item.notes!}');
                   }
                   sb.writeln(
-                      'Kostoja 0% 1pcs: €${totalPer.toStringAsFixed(2)}, Totali i kostoja 0% (${item.quantity}pcs): €${total.toStringAsFixed(2)}');
+                      'Cost 0% per piece: €${totalPer.toStringAsFixed(2)}, Total cost 0% (${item.quantity}pcs): €${total.toStringAsFixed(2)}');
                   sb.writeln(
-                      'Kostoja me fitim 1pcs: €${finalPer.toStringAsFixed(2)}, Totali i kostoja me fitim (${item.quantity}pcs): €${finalPrice.toStringAsFixed(2)}');
+                      'Cost with profit per piece: €${finalPer.toStringAsFixed(2)}, Total cost with profit (${item.quantity}pcs): €${finalPrice.toStringAsFixed(2)}');
                   sb.writeln(
-                      'Fitimi 1pcs: €${profitPer.toStringAsFixed(2)}, Totali i fitimi (${item.quantity}pcs): €${profitAmount.toStringAsFixed(2)}');
-                  sb.writeln('Masa: ${totalMass.toStringAsFixed(2)} kg');
+                      'Profit per piece: €${profitPer.toStringAsFixed(2)}, Total profit (${item.quantity}pcs): €${profitAmount.toStringAsFixed(2)}');
+                  sb.writeln('Mass: ${totalMass.toStringAsFixed(2)} kg');
                   if (profileSet.uf != null) {
                     sb.writeln('Uf: ${profileSet.uf!.toStringAsFixed(2)} W/m²K');
                   }
