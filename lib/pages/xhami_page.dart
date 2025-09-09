@@ -4,6 +4,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import '../models.dart';
 import '../theme/app_background.dart';
 import '../widgets/glass_card.dart';
+import '../l10n/app_localizations.dart';
 
 class XhamiPage extends StatefulWidget {
   const XhamiPage({super.key});
@@ -99,8 +100,9 @@ class _XhamiPageState extends State<XhamiPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: const Text('Xhami')),
+      appBar: AppBar(title: Text(l10n.catalogGlass)),
       body: AppBackground(
         child: ListView(
           padding: const EdgeInsets.all(16),
@@ -113,7 +115,7 @@ class _XhamiPageState extends State<XhamiPage> {
                     items: [for (int i = 0; i < offerBox.length; i++) i]
                         .map((i) => DropdownMenuItem(
                               value: i,
-                              child: Text('Oferta ${i + 1}'),
+                              child: Text('${l10n.pdfOffer} ${i + 1}'),
                             ))
                         .toList(),
                     onChanged: (val) => setState(() => selectedOffer = val),
@@ -122,7 +124,7 @@ class _XhamiPageState extends State<XhamiPage> {
                 const SizedBox(width: 16),
                 ElevatedButton(
                   onPressed: _calculate,
-                  child: const Text('Kalkulo'),
+                  child: Text(l10n.calculate),
                 ),
               ],
             ),
@@ -134,10 +136,10 @@ class _XhamiPageState extends State<XhamiPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(glass?.name ?? 'Xhami'),
+                      Text(glass?.name ?? l10n.catalogGlass),
                       const SizedBox(height: 8),
-                      ...e.value.entries.map((entry) =>
-                          Text('${entry.key} mm - ${entry.value} copë')),
+                      ...e.value.entries.map((entry) => Text(
+                          '${entry.key} mm - ${entry.value} ${l10n.piecesUnit}')),
                     ],
                   ),
                 );
