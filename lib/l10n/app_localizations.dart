@@ -22,6 +22,8 @@ class AppLocalizations {
       'catalogBlind': 'Roleta',
       'catalogMechanism': 'Mekanizma',
       'catalogAccessory': 'Aksesorë',
+      'calculate': 'Kalkulo',
+      'pcs': 'copë',
       'pdfDocument': 'Dokument',
       'pdfClient': 'Klienti',
       'pdfPage': 'Faqja',
@@ -153,6 +155,8 @@ class AppLocalizations {
       'catalogBlind': 'Roller Shutter',
       'catalogMechanism': 'Mechanisms',
       'catalogAccessory': 'Accessories',
+      'calculate': 'Calculate',
+      'pcs': 'pcs',
       'pdfDocument': 'Document',
       'pdfClient': 'Client',
       'pdfPage': 'Page',
@@ -278,6 +282,8 @@ class AppLocalizations {
       'catalogBlind': 'Rollladen',
       'catalogMechanism': 'Mechanismen',
       'catalogAccessory': 'Zubehör',
+      'calculate': 'Berechne',
+      'pcs': 'Stk.',
       'pdfDocument': 'Dokument',
       'pdfClient': 'Kunde',
       'pdfPage': 'Seite',
@@ -407,6 +413,8 @@ class AppLocalizations {
       'catalogBlind': 'Volet roulant',
       'catalogMechanism': 'Mécanismes',
       'catalogAccessory': 'Accessoires',
+      'calculate': 'Calculer',
+      'pcs': 'pcs',
       'pdfDocument': 'Document',
       'pdfClient': 'Client',
       'pdfPage': 'Page',
@@ -536,6 +544,8 @@ class AppLocalizations {
       'catalogBlind': 'Tapparella',
       'catalogMechanism': 'Meccanismi',
       'catalogAccessory': 'Accessori',
+      'calculate': 'Calcola',
+      'pcs': 'pz',
       'pdfDocument': 'Documento',
       'pdfClient': 'Cliente',
       'pdfPage': 'Pagina',
@@ -668,6 +678,8 @@ class AppLocalizations {
   String get catalogBlind => _t('catalogBlind');
   String get catalogMechanism => _t('catalogMechanism');
   String get catalogAccessory => _t('catalogAccessory');
+  String get calculate => _t('calculate');
+  String get pcs => _t('pcs');
   String get pdfDocument => _t('pdfDocument');
   String get pdfClient => _t('pdfClient');
   String get pdfPage => _t('pdfPage');
