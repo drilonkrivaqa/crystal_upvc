@@ -357,7 +357,8 @@ Future<void> printOfferPdf({
               pw.Text('${l10n.pdfVDiv} $vAdapters'),
             if (item.horizontalSections != 1)
               pw.Text('${l10n.pdfHDiv} $hAdapters'),
-            pw.Text('${l10n.pdfTotalMass} ${totalMass.toStringAsFixed(2)} kg'),
+            if(totalMass!=0)
+              pw.Text('${l10n.pdfTotalMass} ${totalMass.toStringAsFixed(2)} kg'),
             if (profile.uf != null)
               pw.Text('${l10n.pdfUf} ${profile.uf!.toStringAsFixed(2)} W/m²K',
                   style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
