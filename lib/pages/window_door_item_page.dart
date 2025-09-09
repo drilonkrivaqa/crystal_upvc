@@ -7,6 +7,7 @@ import 'dart:typed_data';
 import '../models.dart';
 import '../theme/app_colors.dart';
 import 'window_door_designer_page.dart';
+import '../l10n/app_localizations.dart';
 
 class WindowDoorItemPage extends StatefulWidget {
   final void Function(WindowDoorItem) onSave;
@@ -129,17 +130,18 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return WillPopScope(
         onWillPop: _onWillPop,
         child: Scaffold(
             backgroundColor: Colors.white,
             appBar: AppBar(
                 title: Text(widget.existingItem == null
-                    ? 'Shto Dritare/Derë'
-                    : 'Ndrysho Dritaren/Derën'),
+                    ? l10n.addWindowDoor
+                    : l10n.editWindowDoor),
                 actions: [
                   IconButton(
-                    tooltip: 'Design window/door',
+                    tooltip: l10n.designWindowDoor,
                     icon: const Icon(Icons.design_services),
                     onPressed: () async {
                       final bytes = await Navigator.push<Uint8List>(
@@ -150,8 +152,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                       if (bytes != null && mounted) {
                         setState(() => _designImageBytes = bytes);
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text('Design image attached')),
+                          SnackBar(
+                              content: Text(l10n.designImageAttached)),
                         );
                       }
                     },
@@ -205,9 +207,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                                             width: 120,
                                             height: 120,
                                             color: AppColors.grey300,
-                                            child: const Center(
-                                              child: Text(
-                                                  'Kliko për të \nvendosë foton'),
+                                            child: Center(
+                                              child: Text(l10n.clickAddPhoto),
                                             ),
                                           )),
                             if (_designImageBytes != null)
@@ -223,15 +224,15 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                             TextField(
                                 controller: nameController,
                                 decoration:
-                                    const InputDecoration(labelText: 'Emri')),
+                                    InputDecoration(labelText: l10n.name)),
                             const SizedBox(height: 12),
                             Row(
                               children: [
                                 Expanded(
                                   child: TextField(
                                     controller: widthController,
-                                    decoration: const InputDecoration(
-                                        labelText: 'Gjerësia (mm)'),
+                                    decoration: InputDecoration(
+                                        labelText: l10n.widthMm),
                                     keyboardType: TextInputType.number,
                                     onChanged: (_) => _recalculateWidths(),
                                   ),
@@ -240,8 +241,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                                 Expanded(
                                   child: TextField(
                                     controller: heightController,
-                                    decoration: const InputDecoration(
-                                        labelText: 'Lartësia (mm)'),
+                                    decoration: InputDecoration(
+                                        labelText: l10n.heightMm),
                                     keyboardType: TextInputType.number,
                                     onChanged: (_) => _recalculateHeights(),
                                   ),
@@ -254,16 +255,16 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                                 Expanded(
                                   child: TextField(
                                       controller: quantityController,
-                                      decoration: const InputDecoration(
-                                          labelText: 'Sasia'),
+                                      decoration: InputDecoration(
+                                          labelText: l10n.quantity),
                                       keyboardType: TextInputType.number),
                                 ),
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: TextField(
                                       controller: basePriceController,
-                                      decoration: const InputDecoration(
-                                          labelText: 'Çmimi 0% (Opsional)'),
+                                      decoration: InputDecoration(
+                                          labelText: l10n.basePriceOptional),
                                       keyboardType: TextInputType.number),
                                 ),
                               ],
@@ -271,15 +272,15 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                             const SizedBox(height: 12),
                             TextField(
                                 controller: priceController,
-                                decoration: const InputDecoration(
-                                    labelText: 'Çmimi me fitim (Opsional)'),
+                                decoration: InputDecoration(
+                                    labelText: l10n.priceOptional),
                                 keyboardType: TextInputType.number),
                             const SizedBox(height: 12),
                             DropdownButtonFormField<int>(
                               value: profileSetIndex,
                               isExpanded: true,
                               decoration:
-                                  const InputDecoration(labelText: 'Profili'),
+                                  InputDecoration(labelText: l10n.catalogProfile),
                               items: [
                                 for (int i = 0; i < profileSetBox.length; i++)
                                   DropdownMenuItem<int>(
@@ -298,7 +299,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                               value: glassIndex,
                               isExpanded: true,
                               decoration:
-                                  const InputDecoration(labelText: 'Xhami'),
+                                  InputDecoration(labelText: l10n.catalogGlass),
                               items: [
                                 for (int i = 0; i < glassBox.length; i++)
                                   DropdownMenuItem<int>(
@@ -327,8 +328,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                                 Expanded(
                                   child: TextField(
                                       controller: verticalController,
-                                      decoration: const InputDecoration(
-                                          labelText: 'Sektorë Vertikal'),
+                                      decoration: InputDecoration(
+                                          labelText: l10n.verticalSections),
                                       keyboardType: TextInputType.number,
                                       onChanged: (_) => _updateGrid()),
                                 ),
@@ -336,8 +337,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                                 Expanded(
                                   child: TextField(
                                       controller: horizontalController,
-                                      decoration: const InputDecoration(
-                                          labelText: 'Sektorë Horizontal'),
+                                      decoration: InputDecoration(
+                                          labelText: l10n.horizontalSections),
                                       keyboardType: TextInputType.number,
                                       onChanged: (_) => _updateGrid()),
                                 ),
@@ -362,15 +363,15 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                                 Expanded(
                                   child: TextField(
                                       controller: extra1DescController,
-                                      decoration: const InputDecoration(
-                                          labelText: 'Emri i shtesës 1')),
+                                      decoration: InputDecoration(
+                                          labelText: l10n.extra1Name)),
                                 ),
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: TextField(
                                       controller: extra1Controller,
-                                      decoration: const InputDecoration(
-                                          labelText: 'Çmimi i shtesës 1'),
+                                      decoration: InputDecoration(
+                                          labelText: l10n.extra1Price),
                                       keyboardType: TextInputType.number),
                                 ),
                               ],
@@ -381,15 +382,15 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                                 Expanded(
                                   child: TextField(
                                       controller: extra2DescController,
-                                      decoration: const InputDecoration(
-                                          labelText: 'Emri i shtesës 2')),
+                                      decoration: InputDecoration(
+                                          labelText: l10n.extra2Name)),
                                 ),
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: TextField(
                                       controller: extra2Controller,
-                                      decoration: const InputDecoration(
-                                          labelText: 'Çmimi i shtesës 2'),
+                                      decoration: InputDecoration(
+                                          labelText: l10n.extra2Price),
                                       keyboardType: TextInputType.number),
                                 ),
                               ],
@@ -398,20 +399,20 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                             TextField(
                               controller: notesController,
                               decoration:
-                                  const InputDecoration(labelText: 'Shënime'),
+                                  InputDecoration(labelText: l10n.notes),
                               maxLines: 2,
                             ),
                             const SizedBox(height: 12),
                             DropdownButtonFormField<int?>(
                               value: mechanismIndex,
                               isExpanded: true,
-                              decoration: const InputDecoration(
-                                  labelText: 'Mekanizmi (Opsional)'),
+                              decoration: InputDecoration(
+                                  labelText: l10n.mechanismOptional),
                               items: [
-                                const DropdownMenuItem<int?>(
+                                DropdownMenuItem<int?>(
                                     value: null,
                                     child: Text(
-                                      'Asnjë',
+                                      l10n.none,
                                       overflow: TextOverflow.ellipsis,
                                     )),
                                 for (int i = 0; i < mechanismBox.length; i++)
@@ -430,13 +431,13 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                             DropdownButtonFormField<int?>(
                               value: blindIndex,
                               isExpanded: true,
-                              decoration: const InputDecoration(
-                                  labelText: 'Roleta (Opsional)'),
+                              decoration: InputDecoration(
+                                  labelText: l10n.blindOptional),
                               items: [
-                                const DropdownMenuItem<int?>(
+                                DropdownMenuItem<int?>(
                                     value: null,
                                     child: Text(
-                                      'Asnjë',
+                                      l10n.none,
                                       overflow: TextOverflow.ellipsis,
                                     )),
                                 for (int i = 0; i < blindBox.length; i++)
@@ -455,13 +456,13 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                             DropdownButtonFormField<int?>(
                               value: accessoryIndex,
                               isExpanded: true,
-                              decoration: const InputDecoration(
-                                  labelText: 'Aksesor (Opsional)'),
+                              decoration: InputDecoration(
+                                  labelText: l10n.accessoryOptional),
                               items: [
-                                const DropdownMenuItem<int?>(
+                                DropdownMenuItem<int?>(
                                     value: null,
                                     child: Text(
-                                      'Asnjë',
+                                      l10n.none,
                                       overflow: TextOverflow.ellipsis,
                                     )),
                                 for (int i = 0; i < accessoryBox.length; i++)
@@ -487,8 +488,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                           Navigator.pop(context);
                         }
                       },
-                      child:
-                          Text(widget.existingItem == null ? 'Shto' : 'Ruaj'),
+                      child: Text(
+                          widget.existingItem == null ? l10n.add : l10n.save),
                     ),
                   ],
                 ),
@@ -497,6 +498,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   }
 
   bool _saveItem() {
+    final l10n = AppLocalizations.of(context)!;
     final name = nameController.text.trim();
     final width = int.tryParse(widthController.text) ?? 0;
     final height = int.tryParse(heightController.text) ?? 0;
@@ -507,9 +509,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
 
     if (name.isEmpty || width <= 0 || height <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content:
-                Text('Ju lutem plotësoni të gjitha të dhënat e kërkuara!')),
+        SnackBar(content: Text(l10n.fillAllRequired)),
       );
       return false;
     }
@@ -548,20 +548,20 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   }
 
   Future<bool> _onWillPop() async {
+    final l10n = AppLocalizations.of(context)!;
     final shouldSave = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Ruaj ndryshimet?'),
-        content:
-            const Text('Dëshironi t\'i ruani ndryshimet para se të dilni?'),
+        title: Text(l10n.saveChanges),
+        content: Text(l10n.saveChangesQuestion),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Jo'),
+            child: Text(l10n.no),
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Po'),
+            child: Text(l10n.yes),
           ),
         ],
       ),
@@ -675,6 +675,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   }
 
   void _recalculateWidths() {
+    final l10n = AppLocalizations.of(context)!;
     if (verticalSections == 0) return;
     int totalWidth = int.tryParse(widthController.text) ?? 0;
     int specifiedSum = 0;
@@ -690,8 +691,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     int remaining = totalWidth - specifiedSum;
     if (remaining < 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Gjerësia e sektorit e kalon gjerësinë totale!')),
+        SnackBar(content: Text(l10n.sectionWidthExceeds)),
       );
       remaining = 0;
     }
@@ -714,6 +714,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   }
 
   void _recalculateHeights() {
+    final l10n = AppLocalizations.of(context)!;
     if (horizontalSections == 0) return;
     int totalHeight = int.tryParse(heightController.text) ?? 0;
     int specifiedSum = 0;
@@ -729,8 +730,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     int remaining = totalHeight - specifiedSum;
     if (remaining < 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Lartësia e sektorit e kalon lartësinë totale!')),
+        SnackBar(content: Text(l10n.sectionHeightExceeds)),
       );
       remaining = 0;
     }
@@ -753,6 +753,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   }
 
   Widget _buildGrid() {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       children: [
         if (verticalSections > 0)
@@ -803,8 +804,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                         child: Center(
                           child: Text(
                             fixedSectors[r * verticalSections + c]
-                                ? 'Fikse'
-                                : 'Me hapje (Me krah)',
+                                ? l10n.fixed
+                                : l10n.openWithSash,
                           ),
                         ),
                       ),
@@ -818,20 +819,21 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   }
 
   Widget _buildDimensionInputs() {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (verticalSections > 0)
           Text(verticalSections > 1
-              ? 'Gjerësitë e sektorëve (mm)'
-              : 'Gjerësia e sektorit (mm)'),
+              ? l10n.sectorWidths
+              : l10n.sectorWidth),
         for (int i = 0; i < verticalSections; i++)
           TextField(
             controller: sectionWidthCtrls[i],
             decoration: InputDecoration(
               labelText: i == verticalSections - 1
-                  ? 'Gjerësia ${i + 1} (auto)'
-                  : 'Gjerësia ${i + 1}',
+                  ? l10n.widthAutoLabel(i + 1)
+                  : l10n.widthLabel(i + 1),
             ),
             keyboardType: TextInputType.number,
             enabled: i < verticalSections - 1,
@@ -841,15 +843,15 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
         if (horizontalSections > 0) const SizedBox(height: 8),
         if (horizontalSections > 0)
           Text(horizontalSections > 1
-              ? 'Lartësitë e sektorëve (mm)'
-              : 'Lartësia e sektorit (mm)'),
+              ? l10n.sectorHeights
+              : l10n.sectorHeight),
         for (int i = 0; i < horizontalSections; i++)
           TextField(
             controller: sectionHeightCtrls[i],
             decoration: InputDecoration(
               labelText: i == horizontalSections - 1
-                  ? 'Lartësia ${i + 1} (auto)'
-                  : 'Lartësia ${i + 1}',
+                  ? l10n.heightAutoLabel(i + 1)
+                  : l10n.heightLabel(i + 1),
             ),
             keyboardType: TextInputType.number,
             enabled: i < horizontalSections - 1,
@@ -858,25 +860,25 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                 : null,
           ),
         if (verticalSections > 1) const SizedBox(height: 8),
-        if (verticalSections > 1) const Text('Ndarja Vertikale'),
+        if (verticalSections > 1) Text(l10n.verticalDivision),
         for (int i = 0; i < verticalSections - 1; i++)
           DropdownButton<bool>(
             value: verticalAdapters[i],
-            items: const [
-              DropdownMenuItem(value: false, child: Text('T')),
-              DropdownMenuItem(value: true, child: Text('Adapter')),
+            items: [
+              const DropdownMenuItem(value: false, child: Text('T')),
+              DropdownMenuItem(value: true, child: Text(l10n.pdfAdapter)),
             ],
             onChanged: (val) =>
                 setState(() => verticalAdapters[i] = val ?? false),
           ),
         if (horizontalSections > 1) const SizedBox(height: 8),
-        if (horizontalSections > 1) const Text('Ndarja Horizontale'),
+        if (horizontalSections > 1) Text(l10n.horizontalDivision),
         for (int i = 0; i < horizontalSections - 1; i++)
           DropdownButton<bool>(
             value: horizontalAdapters[i],
-            items: const [
-              DropdownMenuItem(value: false, child: Text('T')),
-              DropdownMenuItem(value: true, child: Text('Adapter')),
+            items: [
+              const DropdownMenuItem(value: false, child: Text('T')),
+              DropdownMenuItem(value: true, child: Text(l10n.pdfAdapter)),
             ],
             onChanged: (val) =>
                 setState(() => horizontalAdapters[i] = val ?? false),
