@@ -70,6 +70,72 @@ class AppLocalizations {
       'add': 'Shto',
       'delete': 'Fshij',
       'save': 'Ruaj',
+      'addCustomerFirst': 'Ju lutem shtoni së pari një klient të ri!',
+      'createOffer': 'Krijo Ofertë',
+      'searchCustomer': 'Kërko klientin',
+      'noResults': 'Nuk ka rezultate',
+      'profitPercent': 'Fitimi %',
+      'offerSearchHint':
+          'Kërko sipas emrit të klientit ose numrit të ofertës',
+      'deleteOffer': 'Fshij Ofertën',
+      'deleteOfferConfirm':
+          'A jeni i sigurt që dëshironi ta fshini këtë ofertë?',
+      'chooseCustomer': 'Zgjidh Klientin',
+      'profit': 'Fitimi',
+      'setProfitPercent': 'Vendos përqindjen e fitimit',
+      'editDeleteWindowDoor': 'Ndrysho/Fshij Dritare/Derë',
+      'confirmDeleteQuestion': 'Dëshironi ta fshini këtë?',
+      'edit': 'Ndrysho',
+      'description': 'Përshkrimi',
+      'amount': 'Shuma',
+      'addExtra': 'Shto ekstra',
+      'totalWithoutProfit': 'Totali pa fitim (0%)',
+      'withProfit': 'Me fitim',
+      'totalProfit': 'Fitimi total',
+      'addWindowDoor': 'Shto Dritare/Derë',
+      'editWindowDoor': 'Ndrysho Dritaren/Derën',
+      'designWindowDoor': 'Dizajno dritare/derë',
+      'designImageAttached': 'Imazhi i dizajnit u bashkangjit',
+      'clickAddPhoto': 'Kliko për të \\nvendosë foton',
+      'name': 'Emri',
+      'widthMm': 'Gjerësia (mm)',
+      'heightMm': 'Lartësia (mm)',
+      'quantity': 'Sasia',
+      'basePriceOptional': 'Çmimi 0% (Opsional)',
+      'priceOptional': 'Çmimi me fitim (Opsional)',
+      'verticalSections': 'Sektorë Vertikal',
+      'horizontalSections': 'Sektorë Horizontal',
+      'extra1Name': 'Emri i shtesës 1',
+      'extra1Price': 'Çmimi i shtesës 1',
+      'extra2Name': 'Emri i shtesës 2',
+      'extra2Price': 'Çmimi i shtesës 2',
+      'notes': 'Shënime',
+      'mechanismOptional': 'Mekanizmi (Opsional)',
+      'none': 'Asnjë',
+      'blindOptional': 'Roleta (Opsional)',
+      'accessoryOptional': 'Aksesor (Opsional)',
+      'fillAllRequired':
+          'Ju lutem plotësoni të gjitha të dhënat e kërkuara!',
+      'saveChanges': 'Ruaj ndryshimet?',
+      'saveChangesQuestion':
+          'Dëshironi t\\'i ruani ndryshimet para se të dilni?',
+      'no': 'Jo',
+      'yes': 'Po',
+      'sectionWidthExceeds':
+          'Gjerësia e sektorit e kalon gjerësinë totale!',
+      'sectionHeightExceeds':
+          'Lartësia e sektorit e kalon lartësinë totale!',
+      'fixed': 'Fikse',
+      'openWithSash': 'Me hapje (Me krah)',
+      'sectorWidths': 'Gjerësitë e sektorëve (mm)',
+      'sectorWidth': 'Gjerësia e sektorit (mm)',
+      'sectorHeights': 'Lartësitë e sektorëve (mm)',
+      'sectorHeight': 'Lartësia e sektorit (mm)',
+      'width': 'Gjerësia',
+      'height': 'Lartësia',
+      'auto': 'auto',
+      'verticalDivision': 'Ndarja Vertikale',
+      'horizontalDivision': 'Ndarja Horizontale',
     },
     'en': {
       'appTitle': 'TONI AL-PVC',
@@ -155,6 +221,46 @@ class AppLocalizations {
       'totalWithoutProfit': 'Total without profit (0%)',
       'withProfit': 'With Profit',
       'totalProfit': 'Total Profit',
+      'addWindowDoor': 'Add Window/Door',
+      'editWindowDoor': 'Edit Window/Door',
+      'designWindowDoor': 'Design window/door',
+      'designImageAttached': 'Design image attached',
+      'clickAddPhoto': 'Click to \\nadd photo',
+      'name': 'Name',
+      'widthMm': 'Width (mm)',
+      'heightMm': 'Height (mm)',
+      'quantity': 'Quantity',
+      'basePriceOptional': 'Price 0% (Optional)',
+      'priceOptional': 'Price with profit (Optional)',
+      'verticalSections': 'Vertical Sections',
+      'horizontalSections': 'Horizontal Sections',
+      'extra1Name': 'Extra 1 name',
+      'extra1Price': 'Extra 1 price',
+      'extra2Name': 'Extra 2 name',
+      'extra2Price': 'Extra 2 price',
+      'notes': 'Notes',
+      'mechanismOptional': 'Mechanism (Optional)',
+      'none': 'None',
+      'blindOptional': 'Roller Shutter (Optional)',
+      'accessoryOptional': 'Accessory (Optional)',
+      'fillAllRequired': 'Please fill all required fields!',
+      'saveChanges': 'Save changes?',
+      'saveChangesQuestion': 'Do you want to save changes before exiting?',
+      'no': 'No',
+      'yes': 'Yes',
+      'sectionWidthExceeds': 'Section width exceeds total width!',
+      'sectionHeightExceeds': 'Section height exceeds total height!',
+      'fixed': 'Fixed',
+      'openWithSash': 'Openable (With sash)',
+      'sectorWidths': 'Sector widths (mm)',
+      'sectorWidth': 'Sector width (mm)',
+      'sectorHeights': 'Sector heights (mm)',
+      'sectorHeight': 'Sector height (mm)',
+      'width': 'Width',
+      'height': 'Height',
+      'auto': 'auto',
+      'verticalDivision': 'Vertical division',
+      'horizontalDivision': 'Horizontal division',
     },
     'de': {
       'appTitle': 'TONI AL-PVC',
@@ -240,6 +346,50 @@ class AppLocalizations {
       'totalWithoutProfit': 'Summe ohne Gewinn (0%)',
       'withProfit': 'Mit Gewinn',
       'totalProfit': 'Gesamtgewinn',
+      'addWindowDoor': 'Fenster/Tür hinzufügen',
+      'editWindowDoor': 'Fenster/Tür bearbeiten',
+      'designWindowDoor': 'Fenster/Tür entwerfen',
+      'designImageAttached': 'Designbild angehängt',
+      'clickAddPhoto': 'Klicken zum \\nFoto hinzufügen',
+      'name': 'Name',
+      'widthMm': 'Breite (mm)',
+      'heightMm': 'Höhe (mm)',
+      'quantity': 'Menge',
+      'basePriceOptional': 'Preis 0% (Optional)',
+      'priceOptional': 'Preis mit Gewinn (Optional)',
+      'verticalSections': 'Vertikale Sektoren',
+      'horizontalSections': 'Horizontale Sektoren',
+      'extra1Name': 'Name Zusatz 1',
+      'extra1Price': 'Preis Zusatz 1',
+      'extra2Name': 'Name Zusatz 2',
+      'extra2Price': 'Preis Zusatz 2',
+      'notes': 'Notizen',
+      'mechanismOptional': 'Mechanismus (Optional)',
+      'none': 'Keiner',
+      'blindOptional': 'Rollladen (Optional)',
+      'accessoryOptional': 'Zubehör (Optional)',
+      'fillAllRequired':
+          'Bitte füllen Sie alle erforderlichen Felder aus!',
+      'saveChanges': 'Änderungen speichern?',
+      'saveChangesQuestion':
+          'Möchten Sie die Änderungen vor dem Verlassen speichern?',
+      'no': 'Nein',
+      'yes': 'Ja',
+      'sectionWidthExceeds':
+          'Sektorbreite überschreitet Gesamtbreite!',
+      'sectionHeightExceeds':
+          'Sektorhöhe überschreitet Gesamthöhe!',
+      'fixed': 'Fest',
+      'openWithSash': 'Öffnend (mit Flügel)',
+      'sectorWidths': 'Sektorbreiten (mm)',
+      'sectorWidth': 'Sektorbreite (mm)',
+      'sectorHeights': 'Sektorhöhen (mm)',
+      'sectorHeight': 'Sektorhöhe (mm)',
+      'width': 'Breite',
+      'height': 'Höhe',
+      'auto': 'auto',
+      'verticalDivision': 'Vertikale Teilung',
+      'horizontalDivision': 'Horizontale Teilung',
     },
     'fr': {
       'appTitle': 'TONI AL-PVC',
@@ -325,6 +475,50 @@ class AppLocalizations {
       'totalWithoutProfit': 'Total sans bénéfice (0 %)',
       'withProfit': 'Avec bénéfice',
       'totalProfit': 'Bénéfice total',
+      'addWindowDoor': 'Ajouter Fenêtre/Porte',
+      'editWindowDoor': 'Modifier Fenêtre/Porte',
+      'designWindowDoor': 'Concevoir fenêtre/porte',
+      'designImageAttached': 'Image de conception ajoutée',
+      'clickAddPhoto': 'Cliquez pour \\najouter une photo',
+      'name': 'Nom',
+      'widthMm': 'Largeur (mm)',
+      'heightMm': 'Hauteur (mm)',
+      'quantity': 'Quantité',
+      'basePriceOptional': 'Prix 0 % (Optionnel)',
+      'priceOptional': 'Prix avec profit (Optionnel)',
+      'verticalSections': 'Sections verticales',
+      'horizontalSections': 'Sections horizontales',
+      'extra1Name': 'Nom supplément 1',
+      'extra1Price': 'Prix supplément 1',
+      'extra2Name': 'Nom supplément 2',
+      'extra2Price': 'Prix supplément 2',
+      'notes': 'Notes',
+      'mechanismOptional': 'Mécanisme (Optionnel)',
+      'none': 'Aucun',
+      'blindOptional': 'Volet roulant (Optionnel)',
+      'accessoryOptional': 'Accessoire (Optionnel)',
+      'fillAllRequired':
+          'Veuillez remplir tous les champs requis !',
+      'saveChanges': 'Enregistrer les modifications ?',
+      'saveChangesQuestion':
+          'Voulez-vous enregistrer les modifications avant de quitter ?',
+      'no': 'Non',
+      'yes': 'Oui',
+      'sectionWidthExceeds':
+          'La largeur de la section dépasse la largeur totale !',
+      'sectionHeightExceeds':
+          'La hauteur de la section dépasse la hauteur totale !',
+      'fixed': 'Fixe',
+      'openWithSash': 'Ouvrant (Avec battant)',
+      'sectorWidths': 'Largeurs des secteurs (mm)',
+      'sectorWidth': 'Largeur du secteur (mm)',
+      'sectorHeights': 'Hauteurs des secteurs (mm)',
+      'sectorHeight': 'Hauteur du secteur (mm)',
+      'width': 'Largeur',
+      'height': 'Hauteur',
+      'auto': 'auto',
+      'verticalDivision': 'Division verticale',
+      'horizontalDivision': 'Division horizontale',
     },
     'it': {
       'appTitle': 'TONI AL-PVC',
@@ -410,6 +604,50 @@ class AppLocalizations {
       'totalWithoutProfit': 'Totale senza profitto (0%)',
       'withProfit': 'Con profitto',
       'totalProfit': 'Profitto totale',
+      'addWindowDoor': 'Aggiungi Finestra/Porta',
+      'editWindowDoor': 'Modifica Finestra/Porta',
+      'designWindowDoor': 'Progetta finestra/porta',
+      'designImageAttached': 'Immagine del progetto allegata',
+      'clickAddPhoto': 'Clicca per \\naggiungere foto',
+      'name': 'Nome',
+      'widthMm': 'Larghezza (mm)',
+      'heightMm': 'Altezza (mm)',
+      'quantity': 'Quantità',
+      'basePriceOptional': 'Prezzo 0% (Opzionale)',
+      'priceOptional': 'Prezzo con profitto (Opzionale)',
+      'verticalSections': 'Sezioni verticali',
+      'horizontalSections': 'Sezioni orizzontali',
+      'extra1Name': 'Nome extra 1',
+      'extra1Price': 'Prezzo extra 1',
+      'extra2Name': 'Nome extra 2',
+      'extra2Price': 'Prezzo extra 2',
+      'notes': 'Note',
+      'mechanismOptional': 'Meccanismo (Opzionale)',
+      'none': 'Nessuno',
+      'blindOptional': 'Tapparella (Opzionale)',
+      'accessoryOptional': 'Accessorio (Opzionale)',
+      'fillAllRequired':
+          'Si prega di compilare tutti i campi richiesti!',
+      'saveChanges': 'Salvare le modifiche?',
+      'saveChangesQuestion':
+          'Vuoi salvare le modifiche prima di uscire?',
+      'no': 'No',
+      'yes': 'Sì',
+      'sectionWidthExceeds':
+          'La larghezza della sezione supera la larghezza totale!',
+      'sectionHeightExceeds':
+          'L\'altezza della sezione supera l\'altezza totale!',
+      'fixed': 'Fisso',
+      'openWithSash': 'Apribile (Con anta)',
+      'sectorWidths': 'Larghezze dei settori (mm)',
+      'sectorWidth': 'Larghezza del settore (mm)',
+      'sectorHeights': 'Altezze dei settori (mm)',
+      'sectorHeight': 'Altezza del settore (mm)',
+      'width': 'Larghezza',
+      'height': 'Altezza',
+      'auto': 'auto',
+      'verticalDivision': 'Divisione verticale',
+      'horizontalDivision': 'Divisione orizzontale',
     },
   };
 
@@ -498,6 +736,51 @@ class AppLocalizations {
   String get totalWithoutProfit => _t('totalWithoutProfit');
   String get withProfit => _t('withProfit');
   String get totalProfit => _t('totalProfit');
+  String get addWindowDoor => _t('addWindowDoor');
+  String get editWindowDoor => _t('editWindowDoor');
+  String get designWindowDoor => _t('designWindowDoor');
+  String get designImageAttached => _t('designImageAttached');
+  String get clickAddPhoto => _t('clickAddPhoto');
+  String get name => _t('name');
+  String get widthMm => _t('widthMm');
+  String get heightMm => _t('heightMm');
+  String get quantity => _t('quantity');
+  String get basePriceOptional => _t('basePriceOptional');
+  String get priceOptional => _t('priceOptional');
+  String get verticalSections => _t('verticalSections');
+  String get horizontalSections => _t('horizontalSections');
+  String get extra1Name => _t('extra1Name');
+  String get extra1Price => _t('extra1Price');
+  String get extra2Name => _t('extra2Name');
+  String get extra2Price => _t('extra2Price');
+  String get notes => _t('notes');
+  String get mechanismOptional => _t('mechanismOptional');
+  String get none => _t('none');
+  String get blindOptional => _t('blindOptional');
+  String get accessoryOptional => _t('accessoryOptional');
+  String get fillAllRequired => _t('fillAllRequired');
+  String get saveChanges => _t('saveChanges');
+  String get saveChangesQuestion => _t('saveChangesQuestion');
+  String get no => _t('no');
+  String get yes => _t('yes');
+  String get sectionWidthExceeds => _t('sectionWidthExceeds');
+  String get sectionHeightExceeds => _t('sectionHeightExceeds');
+  String get fixed => _t('fixed');
+  String get openWithSash => _t('openWithSash');
+  String get sectorWidths => _t('sectorWidths');
+  String get sectorWidth => _t('sectorWidth');
+  String get sectorHeights => _t('sectorHeights');
+  String get sectorHeight => _t('sectorHeight');
+  String get width => _t('width');
+  String get height => _t('height');
+  String get auto => _t('auto');
+  String get verticalDivision => _t('verticalDivision');
+  String get horizontalDivision => _t('horizontalDivision');
+
+  String widthAutoLabel(int index) => '${width} $index (${auto})';
+  String widthLabel(int index) => '${width} $index';
+  String heightAutoLabel(int index) => '${height} $index (${auto})';
+  String heightLabel(int index) => '${height} $index';
 
   String get localeName => locale.languageCode;
 
