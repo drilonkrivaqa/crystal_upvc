@@ -5,7 +5,6 @@ import '../models.dart';
 import '../theme/app_background.dart';
 import '../widgets/glass_card.dart';
 import 'hekri_profiles_page.dart';
-import '../l10n/app_localizations.dart';
 
 class HekriPage extends StatefulWidget {
   const HekriPage({super.key});
@@ -185,10 +184,9 @@ class _HekriPageState extends State<HekriPage> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.productionIron),
+        title: const Text('Hekri'),
       ),
       body: AppBackground(
         child: ListView(
@@ -199,7 +197,7 @@ class _HekriPageState extends State<HekriPage> {
               child: ElevatedButton.icon(
                 onPressed: _openProfiles,
                 icon: const Icon(Icons.settings),
-                label: Text(l10n.registeredProfiles),
+                label: const Text('Profilat e Regjistruar'),
               ),
             ),
             const SizedBox(height: 16),
@@ -212,7 +210,7 @@ class _HekriPageState extends State<HekriPage> {
                       for (int i = 0; i < offerBox.length; i++)
                         DropdownMenuItem(
                           value: i,
-                          child: Text('${l10n.pdfOffer} ${i + 1}'),
+                          child: Text('Oferta ${i + 1}'),
                         )
                     ],
                     onChanged: (val) => setState(() => selectedOffer = val),
@@ -221,7 +219,7 @@ class _HekriPageState extends State<HekriPage> {
                 const SizedBox(width: 16),
                 ElevatedButton(
                   onPressed: _calculate,
-                  child: Text(l10n.calculate),
+                  child: const Text('Llogarit'),
                 ),
               ],
             ),
@@ -239,20 +237,17 @@ class _HekriPageState extends State<HekriPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(profile?.name ?? l10n.catalogProfile),
+                      Text(profile?.name ?? 'Profili'),
                       const SizedBox(height: 8),
-                      Text(l10n.requiredPipesLoss(
-                          needed: needed / 1000,
-                          count: bars.length,
-                          loss: loss / 1000)),
+                      Text('Nevojiten ${(needed / 1000).toStringAsFixed(2)} m, '
+                          'Pipa: ${bars.length}, '
+                          'Humbje ${(loss / 1000).toStringAsFixed(2)} m'),
                       for (int i = 0; i < bars.length; i++)
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 2),
-                          child: Text(l10n.barLabel(
-                              index: i + 1,
-                              values: bars[i].join(' + '),
-                              sum: bars[i].fold<int>(0, (a, b) => a + b),
-                              pipe: pipeLen)),
+                          child: Text('Lenda ${i + 1}: '
+                              '${bars[i].join(' + ')} = '
+                              '${bars[i].fold<int>(0, (a, b) => a + b)}/$pipeLen'),
                         ),
                     ],
                   ),
