@@ -96,7 +96,7 @@ class AppLocalizations {
           'Ju lutem plotësoni të gjitha të dhënat e kërkuara!',
       'saveChanges': 'Ruaj ndryshimet?',
       'saveChangesQuestion':
-          'Dëshironi t\\'i ruani ndryshimet para se të dilni?',
+          'Dëshironi t\'i ruani ndryshimet para se të dilni?',
       'no': 'Jo',
       'yes': 'Po',
       'sectionWidthExceeds':
