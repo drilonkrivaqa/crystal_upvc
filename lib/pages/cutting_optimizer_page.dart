@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import '../l10n/app_localizations.dart';
 import '../models.dart';
 import '../theme/app_background.dart';
 import '../widgets/glass_card.dart';
@@ -12,14 +13,6 @@ class CuttingOptimizerPage extends StatefulWidget {
 }
 
 enum PieceType { l, z, t, adapter, llajsne }
-
-const pieceLabels = {
-  PieceType.l: 'Frame (L)',
-  PieceType.z: 'Sash (Z)',
-  PieceType.t: 'T',
-  PieceType.adapter: 'Adapter',
-  PieceType.llajsne: 'Bead',
-};
 
 class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
   late Box<Offer> offerBox;
@@ -193,8 +186,16 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final pieceLabels = {
+      PieceType.l: l10n.cuttingPieceFrame,
+      PieceType.z: l10n.cuttingPieceSash,
+      PieceType.t: l10n.cuttingPieceT,
+      PieceType.adapter: l10n.cuttingPieceAdapter,
+      PieceType.llajsne: l10n.cuttingPieceBead,
+    };
     return Scaffold(
-      appBar: AppBar(title: const Text('Cutting')),
+      appBar: AppBar(title: Text(l10n.productionCutting)),
       body: AppBackground(
         child: ListView(
           padding: const EdgeInsets.all(16),
@@ -207,7 +208,7 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
                     items: [for (int i = 0; i < offerBox.length; i++) i]
                         .map((i) => DropdownMenuItem(
                               value: i,
-                              child: Text('Offer ${i + 1}'),
+                              child: Text('${l10n.pdfOffer} ${i + 1}'),
                             ))
                         .toList(),
                     onChanged: (val) => setState(() => selectedOffer = val),
@@ -216,7 +217,7 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
                 const SizedBox(width: 16),
                 ElevatedButton(
                   onPressed: _calculate,
-                  child: const Text('Calculate'),
+                  child: Text(l10n.calculate),
                 ),
               ],
             ),
@@ -229,7 +230,7 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(profile?.name ?? 'Profile'),
+                      Text(profile?.name ?? l10n.catalogProfile),
                       const SizedBox(height: 8),
                       ...e.value.entries.map((typeEntry) {
                         final bars = typeEntry.value;
@@ -243,17 +244,18 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
                             Text(pieceLabels[typeEntry.key]!,
                                 style: const TextStyle(
                                     fontWeight: FontWeight.bold)),
-                            Text(
-                                'Needed ${(needed / 1000).toStringAsFixed(2)} m, '
-                                'Pipes: ${bars.length}, '
-                                'Waste ${(loss / 1000).toStringAsFixed(2)} m'),
+                            Text(l10n.productionCutSummary(
+                                needed / 1000, bars.length, loss / 1000)),
                             for (int i = 0; i < bars.length; i++)
                               Padding(
                                 padding:
                                     const EdgeInsets.symmetric(vertical: 2),
-                                child: Text('Bar ${i + 1}: '
-                                    '${bars[i].join(' + ')} = '
-                                    '${bars[i].fold<int>(0, (a, b) => a + b)}/$pipeLen'),
+                                child: Text(l10n.productionBarDetail(
+                                    i + 1,
+                                    bars[i].join(' + '),
+                                    bars[i]
+                                        .fold<int>(0, (a, b) => a + b),
+                                    pipeLen)),
                               ),
                             const SizedBox(height: 8),
                           ],
