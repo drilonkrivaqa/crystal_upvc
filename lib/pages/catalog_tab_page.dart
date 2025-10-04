@@ -6,6 +6,7 @@ import 'catalogs_page.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_background.dart';
 import '../widgets/glass_card.dart';
+import '../l10n/app_localizations.dart';
 
 class CatalogTabPage extends StatefulWidget {
   final CatalogType type;
@@ -387,6 +388,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
   }
 
   void _addItem() {
+    final l10n = AppLocalizations.of(context)!;
     final nameController = TextEditingController();
     final priceLController = TextEditingController();
     final priceZController = TextEditingController();
@@ -421,7 +423,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text("Add ${_typeLabel()}n"),
+        title: Text("Add ${_typeLabel(l10n)}n"),
         content: SingleChildScrollView(
           child: Column(
             children: [
@@ -670,25 +672,26 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
     );
   }
 
-  String _typeLabel() {
+  String _typeLabel(AppLocalizations l10n) {
     switch (widget.type) {
       case CatalogType.profileSet:
-        return "Profile";
+        return l10n.catalogProfile;
       case CatalogType.glass:
-        return "Glass";
+        return l10n.catalogGlass;
       case CatalogType.blind:
-        return "Roller Shutter";
+        return l10n.catalogBlind;
       case CatalogType.mechanism:
-        return "Mechanism";
+        return l10n.catalogMechanism;
       case CatalogType.accessory:
-        return "Accessory";
+        return l10n.catalogAccessory;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: Text(_typeLabel())),
+      appBar: AppBar(title: Text(_typeLabel(l10n))),
       body: AppBackground(
         child: ValueListenableBuilder(
           valueListenable: box.listenable(),
