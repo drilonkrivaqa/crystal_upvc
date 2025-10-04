@@ -6,7 +6,6 @@ import 'catalogs_page.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_background.dart';
 import '../widgets/glass_card.dart';
-import '../l10n/app_localizations.dart';
 
 class CatalogTabPage extends StatefulWidget {
   final CatalogType type;
@@ -671,26 +670,25 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
     );
   }
 
-  String _typeLabel(AppLocalizations l10n) {
+  String _typeLabel() {
     switch (widget.type) {
       case CatalogType.profileSet:
-        return l10n.catalogProfile;
+        return "Profile";
       case CatalogType.glass:
-        return l10n.catalogGlass;
+        return "Glass";
       case CatalogType.blind:
-        return l10n.catalogBlind;
+        return "Roller Shutter";
       case CatalogType.mechanism:
-        return l10n.catalogMechanism;
+        return "Mechanism";
       case CatalogType.accessory:
-        return l10n.catalogAccessory;
+        return "Accessory";
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: Text(_typeLabel(l10n))),
+      appBar: AppBar(title: Text(_typeLabel())),
       body: AppBackground(
         child: ValueListenableBuilder(
           valueListenable: box.listenable(),
