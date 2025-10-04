@@ -40,6 +40,41 @@ class AppLocalizations {
       'catalogBlind': 'Roleta',
       'catalogMechanism': 'Mekanizma',
       'catalogAccessory': 'Aksesorë',
+      'catalogAddTitle': 'Shto {type}',
+      'catalogEditTitle': 'Ndrysho {name}',
+      'catalogSectionGeneral': 'Të përgjithshme',
+      'catalogSectionUw': 'Uw',
+      'catalogSectionProduction': 'Prodhimi',
+      'catalogFieldPriceFrame': 'Korniza (L) €/m',
+      'catalogFieldPriceSash': 'Krahu (Z) €/m',
+      'catalogFieldPriceT': 'Profili T €/m',
+      'catalogFieldPriceAdapter': 'Adapter €/m',
+      'catalogFieldPriceBead': 'Llajsne €/m',
+      'catalogFieldOuterThicknessL': 'Trashësia e jashtme L (mm)',
+      'catalogFieldOuterThicknessZ': 'Trashësia e jashtme Z (mm)',
+      'catalogFieldOuterThicknessT': 'Trashësia e jashtme T (mm)',
+      'catalogFieldOuterThicknessAdapter':
+          'Trashësia e jashtme Adapter (mm)',
+      'catalogFieldUf': 'Uf (W/m²K)',
+      'catalogFieldMassL': 'Masa L kg/m',
+      'catalogFieldMassZ': 'Masa Z kg/m',
+      'catalogFieldMassT': 'Masa T kg/m',
+      'catalogFieldMassAdapter': 'Masa Adapter kg/m',
+      'catalogFieldMassBead': 'Masa Llajsne kg/m',
+      'catalogFieldInnerThicknessL': 'Trashësia e brendshme L (mm)',
+      'catalogFieldInnerThicknessZ': 'Trashësia e brendshme Z (mm)',
+      'catalogFieldInnerThicknessT': 'Trashësia e brendshme T (mm)',
+      'catalogFieldFixedGlassLoss': 'Humbja e xhamit fiks (mm)',
+      'catalogFieldSashGlassLoss': 'Humbja e xhamit të krahut (mm)',
+      'catalogFieldSashValue': 'Vlera e krahut (+mm)',
+      'catalogFieldProfileLength': 'Gjatësia e profilit (mm)',
+      'catalogFieldPricePerM2': 'Çmimi €/m²',
+      'catalogFieldMassPerM2': 'Masa kg/m²',
+      'catalogFieldUg': 'Ug (W/m²K)',
+      'catalogFieldPsi': 'Psi (W/mK)',
+      'catalogFieldBoxHeight': 'Lartësia e kutisë (mm)',
+      'catalogFieldPrice': 'Çmimi (€)',
+      'catalogFieldMass': 'Masa (kg)',
       'calculate': 'Kalkulo',
       'pcs': 'copë',
       'pdfDocument': 'Dokument',
@@ -191,6 +226,41 @@ class AppLocalizations {
       'catalogBlind': 'Roller Shutter',
       'catalogMechanism': 'Mechanisms',
       'catalogAccessory': 'Accessories',
+      'catalogAddTitle': 'Add {type}',
+      'catalogEditTitle': 'Edit {name}',
+      'catalogSectionGeneral': 'General',
+      'catalogSectionUw': 'Uw',
+      'catalogSectionProduction': 'Production',
+      'catalogFieldPriceFrame': 'Frame (L) €/m',
+      'catalogFieldPriceSash': 'Sash (Z) €/m',
+      'catalogFieldPriceT': 'T Profile €/m',
+      'catalogFieldPriceAdapter': 'Adapter €/m',
+      'catalogFieldPriceBead': 'Bead €/m',
+      'catalogFieldOuterThicknessL': 'Outer thickness L (mm)',
+      'catalogFieldOuterThicknessZ': 'Outer thickness Z (mm)',
+      'catalogFieldOuterThicknessT': 'Outer thickness T (mm)',
+      'catalogFieldOuterThicknessAdapter':
+          'Outer thickness Adapter (mm)',
+      'catalogFieldUf': 'Uf (W/m²K)',
+      'catalogFieldMassL': 'Mass L kg/m',
+      'catalogFieldMassZ': 'Mass Z kg/m',
+      'catalogFieldMassT': 'Mass T kg/m',
+      'catalogFieldMassAdapter': 'Mass Adapter kg/m',
+      'catalogFieldMassBead': 'Mass Bead kg/m',
+      'catalogFieldInnerThicknessL': 'Inner thickness L (mm)',
+      'catalogFieldInnerThicknessZ': 'Inner thickness Z (mm)',
+      'catalogFieldInnerThicknessT': 'Inner thickness T (mm)',
+      'catalogFieldFixedGlassLoss': 'Fixed glass loss (mm)',
+      'catalogFieldSashGlassLoss': 'Sash glass loss (mm)',
+      'catalogFieldSashValue': 'Sash value (+mm)',
+      'catalogFieldProfileLength': 'Profile length (mm)',
+      'catalogFieldPricePerM2': 'Price €/m²',
+      'catalogFieldMassPerM2': 'Mass kg/m²',
+      'catalogFieldUg': 'Ug (W/m²K)',
+      'catalogFieldPsi': 'Psi (W/mK)',
+      'catalogFieldBoxHeight': 'Box height (mm)',
+      'catalogFieldPrice': 'Price (€)',
+      'catalogFieldMass': 'Mass (kg)',
       'calculate': 'Calculate',
       'pcs': 'pcs',
       'pdfDocument': 'Document',
@@ -336,6 +406,41 @@ class AppLocalizations {
       'catalogBlind': 'Rollladen',
       'catalogMechanism': 'Mechanismen',
       'catalogAccessory': 'Zubehör',
+      'catalogAddTitle': '{type} hinzufügen',
+      'catalogEditTitle': '{name} bearbeiten',
+      'catalogSectionGeneral': 'Allgemein',
+      'catalogSectionUw': 'Uw',
+      'catalogSectionProduction': 'Produktion',
+      'catalogFieldPriceFrame': 'Rahmen (L) €/m',
+      'catalogFieldPriceSash': 'Flügel (Z) €/m',
+      'catalogFieldPriceT': 'T-Profil €/m',
+      'catalogFieldPriceAdapter': 'Adapter €/m',
+      'catalogFieldPriceBead': 'Glasleiste €/m',
+      'catalogFieldOuterThicknessL': 'Außenstärke L (mm)',
+      'catalogFieldOuterThicknessZ': 'Außenstärke Z (mm)',
+      'catalogFieldOuterThicknessT': 'Außenstärke T (mm)',
+      'catalogFieldOuterThicknessAdapter':
+          'Außenstärke Adapter (mm)',
+      'catalogFieldUf': 'Uf (W/m²K)',
+      'catalogFieldMassL': 'Masse L kg/m',
+      'catalogFieldMassZ': 'Masse Z kg/m',
+      'catalogFieldMassT': 'Masse T kg/m',
+      'catalogFieldMassAdapter': 'Masse Adapter kg/m',
+      'catalogFieldMassBead': 'Masse Glasleiste kg/m',
+      'catalogFieldInnerThicknessL': 'Innenstärke L (mm)',
+      'catalogFieldInnerThicknessZ': 'Innenstärke Z (mm)',
+      'catalogFieldInnerThicknessT': 'Innenstärke T (mm)',
+      'catalogFieldFixedGlassLoss': 'Verlust Fixglas (mm)',
+      'catalogFieldSashGlassLoss': 'Verlust Flügelglas (mm)',
+      'catalogFieldSashValue': 'Flügelzugabe (+mm)',
+      'catalogFieldProfileLength': 'Profillänge (mm)',
+      'catalogFieldPricePerM2': 'Preis €/m²',
+      'catalogFieldMassPerM2': 'Masse kg/m²',
+      'catalogFieldUg': 'Ug (W/m²K)',
+      'catalogFieldPsi': 'Psi (W/mK)',
+      'catalogFieldBoxHeight': 'Kastenhöhe (mm)',
+      'catalogFieldPrice': 'Preis (€)',
+      'catalogFieldMass': 'Masse (kg)',
       'calculate': 'Berechne',
       'pcs': 'Stk.',
       'pdfDocument': 'Dokument',
@@ -485,6 +590,41 @@ class AppLocalizations {
       'catalogBlind': 'Volet roulant',
       'catalogMechanism': 'Mécanismes',
       'catalogAccessory': 'Accessoires',
+      'catalogAddTitle': 'Ajouter {type}',
+      'catalogEditTitle': 'Modifier {name}',
+      'catalogSectionGeneral': 'Général',
+      'catalogSectionUw': 'Uw',
+      'catalogSectionProduction': 'Production',
+      'catalogFieldPriceFrame': 'Cadre (L) €/m',
+      'catalogFieldPriceSash': 'Ouvrant (Z) €/m',
+      'catalogFieldPriceT': 'Profilé T €/m',
+      'catalogFieldPriceAdapter': 'Adaptateur €/m',
+      'catalogFieldPriceBead': 'Parclose €/m',
+      'catalogFieldOuterThicknessL': 'Épaisseur extérieure L (mm)',
+      'catalogFieldOuterThicknessZ': 'Épaisseur extérieure Z (mm)',
+      'catalogFieldOuterThicknessT': 'Épaisseur extérieure T (mm)',
+      'catalogFieldOuterThicknessAdapter':
+          'Épaisseur extérieure Adaptateur (mm)',
+      'catalogFieldUf': 'Uf (W/m²K)',
+      'catalogFieldMassL': 'Masse L kg/m',
+      'catalogFieldMassZ': 'Masse Z kg/m',
+      'catalogFieldMassT': 'Masse T kg/m',
+      'catalogFieldMassAdapter': 'Masse Adaptateur kg/m',
+      'catalogFieldMassBead': 'Masse Parclose kg/m',
+      'catalogFieldInnerThicknessL': 'Épaisseur intérieure L (mm)',
+      'catalogFieldInnerThicknessZ': 'Épaisseur intérieure Z (mm)',
+      'catalogFieldInnerThicknessT': 'Épaisseur intérieure T (mm)',
+      'catalogFieldFixedGlassLoss': 'Perte vitrage fixe (mm)',
+      'catalogFieldSashGlassLoss': 'Perte vitrage ouvrant (mm)',
+      'catalogFieldSashValue': 'Valeur ouvrant (+mm)',
+      'catalogFieldProfileLength': 'Longueur profil (mm)',
+      'catalogFieldPricePerM2': 'Prix €/m²',
+      'catalogFieldMassPerM2': 'Masse kg/m²',
+      'catalogFieldUg': 'Ug (W/m²K)',
+      'catalogFieldPsi': 'Psi (W/mK)',
+      'catalogFieldBoxHeight': 'Hauteur caisson (mm)',
+      'catalogFieldPrice': 'Prix (€)',
+      'catalogFieldMass': 'Masse (kg)',
       'calculate': 'Calculer',
       'pcs': 'pcs',
       'pdfDocument': 'Document',
@@ -634,6 +774,41 @@ class AppLocalizations {
       'catalogBlind': 'Tapparella',
       'catalogMechanism': 'Meccanismi',
       'catalogAccessory': 'Accessori',
+      'catalogAddTitle': 'Aggiungi {type}',
+      'catalogEditTitle': 'Modifica {name}',
+      'catalogSectionGeneral': 'Generale',
+      'catalogSectionUw': 'Uw',
+      'catalogSectionProduction': 'Produzione',
+      'catalogFieldPriceFrame': 'Telaio (L) €/m',
+      'catalogFieldPriceSash': 'Anta (Z) €/m',
+      'catalogFieldPriceT': 'Profilo T €/m',
+      'catalogFieldPriceAdapter': 'Adattatore €/m',
+      'catalogFieldPriceBead': 'Fermavetro €/m',
+      'catalogFieldOuterThicknessL': 'Spessore esterno L (mm)',
+      'catalogFieldOuterThicknessZ': 'Spessore esterno Z (mm)',
+      'catalogFieldOuterThicknessT': 'Spessore esterno T (mm)',
+      'catalogFieldOuterThicknessAdapter':
+          'Spessore esterno Adattatore (mm)',
+      'catalogFieldUf': 'Uf (W/m²K)',
+      'catalogFieldMassL': 'Massa L kg/m',
+      'catalogFieldMassZ': 'Massa Z kg/m',
+      'catalogFieldMassT': 'Massa T kg/m',
+      'catalogFieldMassAdapter': 'Massa Adattatore kg/m',
+      'catalogFieldMassBead': 'Massa Fermavetro kg/m',
+      'catalogFieldInnerThicknessL': 'Spessore interno L (mm)',
+      'catalogFieldInnerThicknessZ': 'Spessore interno Z (mm)',
+      'catalogFieldInnerThicknessT': 'Spessore interno T (mm)',
+      'catalogFieldFixedGlassLoss': 'Perdita vetro fisso (mm)',
+      'catalogFieldSashGlassLoss': 'Perdita vetro anta (mm)',
+      'catalogFieldSashValue': 'Valore anta (+mm)',
+      'catalogFieldProfileLength': 'Lunghezza profilo (mm)',
+      'catalogFieldPricePerM2': 'Prezzo €/m²',
+      'catalogFieldMassPerM2': 'Massa kg/m²',
+      'catalogFieldUg': 'Ug (W/m²K)',
+      'catalogFieldPsi': 'Psi (W/mK)',
+      'catalogFieldBoxHeight': 'Altezza cassonetto (mm)',
+      'catalogFieldPrice': 'Prezzo (€)',
+      'catalogFieldMass': 'Massa (kg)',
       'calculate': 'Calcola',
       'pcs': 'pz',
       'pdfDocument': 'Documento',
@@ -810,6 +985,54 @@ class AppLocalizations {
   String get catalogBlind => _t('catalogBlind');
   String get catalogMechanism => _t('catalogMechanism');
   String get catalogAccessory => _t('catalogAccessory');
+  String catalogAddTitle(String type) =>
+      _t('catalogAddTitle').replaceAll('{type}', type);
+  String catalogEditTitle(String name) =>
+      _t('catalogEditTitle').replaceAll('{name}', name);
+  String get catalogSectionGeneral => _t('catalogSectionGeneral');
+  String get catalogSectionUw => _t('catalogSectionUw');
+  String get catalogSectionProduction => _t('catalogSectionProduction');
+  String get catalogFieldPriceFrame => _t('catalogFieldPriceFrame');
+  String get catalogFieldPriceSash => _t('catalogFieldPriceSash');
+  String get catalogFieldPriceT => _t('catalogFieldPriceT');
+  String get catalogFieldPriceAdapter =>
+      _t('catalogFieldPriceAdapter');
+  String get catalogFieldPriceBead => _t('catalogFieldPriceBead');
+  String get catalogFieldOuterThicknessL =>
+      _t('catalogFieldOuterThicknessL');
+  String get catalogFieldOuterThicknessZ =>
+      _t('catalogFieldOuterThicknessZ');
+  String get catalogFieldOuterThicknessT =>
+      _t('catalogFieldOuterThicknessT');
+  String get catalogFieldOuterThicknessAdapter =>
+      _t('catalogFieldOuterThicknessAdapter');
+  String get catalogFieldUf => _t('catalogFieldUf');
+  String get catalogFieldMassL => _t('catalogFieldMassL');
+  String get catalogFieldMassZ => _t('catalogFieldMassZ');
+  String get catalogFieldMassT => _t('catalogFieldMassT');
+  String get catalogFieldMassAdapter =>
+      _t('catalogFieldMassAdapter');
+  String get catalogFieldMassBead => _t('catalogFieldMassBead');
+  String get catalogFieldInnerThicknessL =>
+      _t('catalogFieldInnerThicknessL');
+  String get catalogFieldInnerThicknessZ =>
+      _t('catalogFieldInnerThicknessZ');
+  String get catalogFieldInnerThicknessT =>
+      _t('catalogFieldInnerThicknessT');
+  String get catalogFieldFixedGlassLoss =>
+      _t('catalogFieldFixedGlassLoss');
+  String get catalogFieldSashGlassLoss =>
+      _t('catalogFieldSashGlassLoss');
+  String get catalogFieldSashValue => _t('catalogFieldSashValue');
+  String get catalogFieldProfileLength =>
+      _t('catalogFieldProfileLength');
+  String get catalogFieldPricePerM2 => _t('catalogFieldPricePerM2');
+  String get catalogFieldMassPerM2 => _t('catalogFieldMassPerM2');
+  String get catalogFieldUg => _t('catalogFieldUg');
+  String get catalogFieldPsi => _t('catalogFieldPsi');
+  String get catalogFieldBoxHeight => _t('catalogFieldBoxHeight');
+  String get catalogFieldPrice => _t('catalogFieldPrice');
+  String get catalogFieldMass => _t('catalogFieldMass');
   String get calculate => _t('calculate');
   String get pcs => _t('pcs');
   String get pdfDocument => _t('pdfDocument');
