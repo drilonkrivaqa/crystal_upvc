@@ -17,6 +17,19 @@ class AppLocalizations {
       'productionGlass': 'Xhami',
       'productionRollerShutter': 'Roleta',
       'productionIron': 'Hekur',
+      'productionRegisteredProfiles': 'Profilet e regjistruara',
+      'productionCutSummary':
+          'Nevojiten {needed} m, Tuba: {pipes}, Humbje {waste} m',
+      'productionBarDetail':
+          'Shufra {index}: {combination} = {total}/{pipeLength}',
+      'productionOffsetFrom': 'Offset nga {type} (mm)',
+      'productionOffsetsSummary':
+          'L: {l}mm, Z: {z}mm, T: {t}mm',
+      'cuttingPieceFrame': 'Korniza (L)',
+      'cuttingPieceSash': 'Krah (Z)',
+      'cuttingPieceT': 'T',
+      'cuttingPieceAdapter': 'Adapter',
+      'cuttingPieceBead': 'Llajsne',
       'welcomeAddress': 'Rr. Ilir Konushevci, Nr. 80, Kamenicë, Kosovë, 62000',
       'welcomePhones': '+38344357639 | +38344268300',
       'welcomeWebsite': 'www.tonialpvc.com | tonialpvc@gmail.com',
@@ -155,6 +168,19 @@ class AppLocalizations {
       'productionGlass': 'Glass',
       'productionRollerShutter': 'Roller Shutter',
       'productionIron': 'Iron',
+      'productionRegisteredProfiles': 'Registered Profiles',
+      'productionCutSummary':
+          'Needed {needed} m, Pipes: {pipes}, Waste {waste} m',
+      'productionBarDetail':
+          'Bar {index}: {combination} = {total}/{pipeLength}',
+      'productionOffsetFrom': 'Offset from {type} (mm)',
+      'productionOffsetsSummary':
+          'L: {l}mm, Z: {z}mm, T: {t}mm',
+      'cuttingPieceFrame': 'Frame (L)',
+      'cuttingPieceSash': 'Sash (Z)',
+      'cuttingPieceT': 'T',
+      'cuttingPieceAdapter': 'Adapter',
+      'cuttingPieceBead': 'Bead',
       'welcomeAddress': 'Ilir Konushevci St., No. 80, Kamenica, Kosovo, 62000',
       'welcomePhones': '+38344357639 | +38344268300',
       'welcomeWebsite': 'www.tonialpvc.com | tonialpvc@gmail.com',
@@ -287,6 +313,19 @@ class AppLocalizations {
       'productionGlass': 'Glas',
       'productionRollerShutter': 'Rollladen',
       'productionIron': 'Eisen',
+      'productionRegisteredProfiles': 'Registrierte Profile',
+      'productionCutSummary':
+          'Benötigt {needed} m, Rohre: {pipes}, Verschnitt {waste} m',
+      'productionBarDetail':
+          'Stab {index}: {combination} = {total}/{pipeLength}',
+      'productionOffsetFrom': 'Versatz von {type} (mm)',
+      'productionOffsetsSummary':
+          'L: {l}mm, Z: {z}mm, T: {t}mm',
+      'cuttingPieceFrame': 'Rahmen (L)',
+      'cuttingPieceSash': 'Flügel (Z)',
+      'cuttingPieceT': 'T',
+      'cuttingPieceAdapter': 'Adapter',
+      'cuttingPieceBead': 'Glasleiste',
       'welcomeAddress': 'Ilir Konushevci Str., Nr. 80, Kamenica, Kosovo, 62000',
       'welcomePhones': '+38344357639 | +38344268300',
       'welcomeWebsite': 'www.tonialpvc.com | tonialpvc@gmail.com',
@@ -423,6 +462,19 @@ class AppLocalizations {
       'productionGlass': 'Verre',
       'productionRollerShutter': 'Volet roulant',
       'productionIron': 'Fer',
+      'productionRegisteredProfiles': 'Profils enregistrés',
+      'productionCutSummary':
+          'Nécessaire {needed} m, Tubes : {pipes}, Perte {waste} m',
+      'productionBarDetail':
+          'Barre {index} : {combination} = {total}/{pipeLength}',
+      'productionOffsetFrom': 'Décalage depuis {type} (mm)',
+      'productionOffsetsSummary':
+          'L : {l}mm, Z : {z}mm, T : {t}mm',
+      'cuttingPieceFrame': 'Cadre (L)',
+      'cuttingPieceSash': 'Ouvrant (Z)',
+      'cuttingPieceT': 'T',
+      'cuttingPieceAdapter': 'Adaptateur',
+      'cuttingPieceBead': 'Parclose',
       'welcomeAddress': 'Rue Ilir Konushevci, n° 80, Kamenica, Kosovo, 62000',
       'welcomePhones': '+38344357639 | +38344268300',
       'welcomeWebsite': 'www.tonialpvc.com | tonialpvc@gmail.com',
@@ -559,6 +611,19 @@ class AppLocalizations {
       'productionGlass': 'Vetro',
       'productionRollerShutter': 'Tapparella',
       'productionIron': 'Ferro',
+      'productionRegisteredProfiles': 'Profili registrati',
+      'productionCutSummary':
+          'Necessari {needed} m, Tubi: {pipes}, Scarto {waste} m',
+      'productionBarDetail':
+          'Barra {index}: {combination} = {total}/{pipeLength}',
+      'productionOffsetFrom': 'Offset da {type} (mm)',
+      'productionOffsetsSummary':
+          'L: {l}mm, Z: {z}mm, T: {t}mm',
+      'cuttingPieceFrame': 'Telaio (L)',
+      'cuttingPieceSash': 'Anta (Z)',
+      'cuttingPieceT': 'T',
+      'cuttingPieceAdapter': 'Adattatore',
+      'cuttingPieceBead': 'Fermavetro',
       'welcomeAddress': 'Via Ilir Konushevci, n. 80, Kamenica, Kosovo, 62000',
       'welcomePhones': '+38344357639 | +38344268300',
       'welcomeWebsite': 'www.tonialpvc.com | tonialpvc@gmail.com',
@@ -699,6 +764,42 @@ class AppLocalizations {
   String get productionRollerShutter =>
       _t('productionRollerShutter');
   String get productionIron => _t('productionIron');
+  String get productionRegisteredProfiles => _t('productionRegisteredProfiles');
+  String productionCutSummary(
+      double neededMeters, int pipes, double wasteMeters) {
+    final template = _t('productionCutSummary');
+    return template
+        .replaceAll('{needed}', neededMeters.toStringAsFixed(2))
+        .replaceAll('{pipes}', pipes.toString())
+        .replaceAll('{waste}', wasteMeters.toStringAsFixed(2));
+  }
+
+  String productionBarDetail(
+      int index, String combination, int total, int pipeLength) {
+    final template = _t('productionBarDetail');
+    return template
+        .replaceAll('{index}', index.toString())
+        .replaceAll('{combination}', combination)
+        .replaceAll('{total}', total.toString())
+        .replaceAll('{pipeLength}', pipeLength.toString());
+  }
+
+  String productionOffsetFrom(String type) =>
+      _t('productionOffsetFrom').replaceAll('{type}', type);
+
+  String productionOffsetsSummary(int l, int z, int t) {
+    final template = _t('productionOffsetsSummary');
+    return template
+        .replaceAll('{l}', l.toString())
+        .replaceAll('{z}', z.toString())
+        .replaceAll('{t}', t.toString());
+  }
+
+  String get cuttingPieceFrame => _t('cuttingPieceFrame');
+  String get cuttingPieceSash => _t('cuttingPieceSash');
+  String get cuttingPieceT => _t('cuttingPieceT');
+  String get cuttingPieceAdapter => _t('cuttingPieceAdapter');
+  String get cuttingPieceBead => _t('cuttingPieceBead');
   String get welcomeAddress => _t('welcomeAddress');
   String get welcomePhones => _t('welcomePhones');
   String get welcomeWebsite => _t('welcomeWebsite');

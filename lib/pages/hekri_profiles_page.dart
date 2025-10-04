@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import '../l10n/app_localizations.dart';
 import '../models.dart';
 import '../theme/app_background.dart';
 import '../widgets/glass_card.dart';
@@ -23,6 +24,7 @@ class _HekriProfilesPageState extends State<HekriProfilesPage> {
   void _editProfile(int index) {
     final profile = profileBox.getAt(index);
     if (profile == null) return;
+    final l10n = AppLocalizations.of(context)!;
     final offsetLController =
         TextEditingController(text: profile.hekriOffsetL.toString());
     final offsetZController =
@@ -40,27 +42,30 @@ class _HekriProfilesPageState extends State<HekriProfilesPage> {
             TextField(
               controller: offsetLController,
               keyboardType: TextInputType.number,
-              decoration:
-                  const InputDecoration(labelText: 'Offset from L (mm)'),
+              decoration: InputDecoration(
+                labelText: l10n.productionOffsetFrom('L'),
+              ),
             ),
             TextField(
               controller: offsetZController,
               keyboardType: TextInputType.number,
-              decoration:
-                  const InputDecoration(labelText: 'Offset from Z (mm)'),
+              decoration: InputDecoration(
+                labelText: l10n.productionOffsetFrom('Z'),
+              ),
             ),
             TextField(
               controller: offsetTController,
               keyboardType: TextInputType.number,
-              decoration:
-                  const InputDecoration(labelText: 'Offset from T (mm)'),
+              decoration: InputDecoration(
+                labelText: l10n.productionOffsetFrom('T'),
+              ),
             ),
           ],
         ),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel')),
+              child: Text(l10n.cancel)),
           ElevatedButton(
             onPressed: () {
               profileBox.putAt(
@@ -92,7 +97,7 @@ class _HekriProfilesPageState extends State<HekriProfilesPage> {
               Navigator.pop(context);
               setState(() {});
             },
-            child: const Text('Save'),
+            child: Text(l10n.save),
           ),
         ],
       ),
@@ -101,8 +106,9 @@ class _HekriProfilesPageState extends State<HekriProfilesPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: const Text('Registered Profiles')),
+      appBar: AppBar(title: Text(l10n.productionRegisteredProfiles)),
       body: AppBackground(
         child: ValueListenableBuilder(
           valueListenable: profileBox.listenable(),
@@ -120,8 +126,10 @@ class _HekriProfilesPageState extends State<HekriProfilesPage> {
                       Text(profile.name,
                           style: const TextStyle(fontWeight: FontWeight.bold)),
                       const SizedBox(height: 4),
-                      Text(
-                          'L: ${profile.hekriOffsetL}mm, Z: ${profile.hekriOffsetZ}mm, T: ${profile.hekriOffsetT}mm'),
+                      Text(l10n.productionOffsetsSummary(
+                          profile.hekriOffsetL,
+                          profile.hekriOffsetZ,
+                          profile.hekriOffsetT)),
                     ],
                   ),
                 );
