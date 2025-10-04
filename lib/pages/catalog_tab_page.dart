@@ -43,6 +43,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
 
   void _editItem(int index) {
     final item = box.getAt(index);
+    final l10n = AppLocalizations.of(context)!;
     final nameController = TextEditingController(text: item.name);
     final priceLController = TextEditingController(
         text: item is ProfileSet ? item.priceL.toString() : "");
@@ -110,161 +111,191 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text("Edit ${item.name}"),
+        title: Text(l10n.catalogEditTitle(item.name)),
         content: SingleChildScrollView(
           child: Column(
             children: [
               if (widget.type == CatalogType.profileSet) ...[
                 ExpansionTile(
-                  title: const Text('General'),
+                  title: Text(l10n.catalogSectionGeneral),
                   children: [
                     TextField(
-                        controller: nameController,
-                        decoration:
-                            const InputDecoration(labelText: 'Name')),
+                      controller: nameController,
+                      decoration: InputDecoration(labelText: l10n.name),
+                    ),
                     TextField(
-                        controller: priceLController,
-                        decoration:
-                            const InputDecoration(labelText: 'Frame (L) €/m')),
+                      controller: priceLController,
+                      decoration:
+                          InputDecoration(labelText: l10n.catalogFieldPriceFrame),
+                    ),
                     TextField(
-                        controller: priceZController,
-                        decoration:
-                            const InputDecoration(labelText: 'Sash (Z) €/m')),
+                      controller: priceZController,
+                      decoration:
+                          InputDecoration(labelText: l10n.catalogFieldPriceSash),
+                    ),
                     TextField(
-                        controller: priceTController,
-                        decoration:
-                            const InputDecoration(labelText: 'T Profile €/m')),
+                      controller: priceTController,
+                      decoration:
+                          InputDecoration(labelText: l10n.catalogFieldPriceT),
+                    ),
                     TextField(
-                        controller: priceAdapterController,
-                        decoration:
-                            const InputDecoration(labelText: 'Adapter €/m')),
+                      controller: priceAdapterController,
+                      decoration: InputDecoration(
+                          labelText: l10n.catalogFieldPriceAdapter),
+                    ),
                     TextField(
-                        controller: priceLlajsneController,
-                        decoration:
-                            const InputDecoration(labelText: 'Bead €/m')),
+                      controller: priceLlajsneController,
+                      decoration:
+                          InputDecoration(labelText: l10n.catalogFieldPriceBead),
+                    ),
                   ],
                 ),
                 ExpansionTile(
-                  title: const Text('Uw'),
+                  title: Text(l10n.catalogSectionUw),
                   children: [
                     TextField(
-                        controller: lOuterController,
-                        decoration: const InputDecoration(
-                            labelText: 'Outer thickness L (mm)')),
+                      controller: lOuterController,
+                      decoration: InputDecoration(
+                          labelText: l10n.catalogFieldOuterThicknessL),
+                    ),
                     TextField(
-                        controller: zOuterController,
-                        decoration: const InputDecoration(
-                            labelText: 'Outer thickness Z (mm)')),
+                      controller: zOuterController,
+                      decoration: InputDecoration(
+                          labelText: l10n.catalogFieldOuterThicknessZ),
+                    ),
                     TextField(
-                        controller: tOuterController,
-                        decoration: const InputDecoration(
-                            labelText: 'Outer thickness T (mm)')),
+                      controller: tOuterController,
+                      decoration: InputDecoration(
+                          labelText: l10n.catalogFieldOuterThicknessT),
+                    ),
                     TextField(
-                        controller: adapterOuterController,
-                        decoration: const InputDecoration(
-                            labelText: 'Outer thickness Adapter (mm)')),
+                      controller: adapterOuterController,
+                      decoration: InputDecoration(
+                          labelText: l10n.catalogFieldOuterThicknessAdapter),
+                    ),
                     TextField(
-                        controller: ufController,
-                        decoration:
-                            const InputDecoration(labelText: 'Uf (W/m²K)')),
+                      controller: ufController,
+                      decoration:
+                          InputDecoration(labelText: l10n.catalogFieldUf),
+                    ),
                   ],
                 ),
                 ExpansionTile(
-                  title: const Text('Production'),
+                  title: Text(l10n.catalogSectionProduction),
                   children: [
                     TextField(
-                        controller: massLController,
-                        decoration:
-                            const InputDecoration(labelText: 'Mass L kg/m')),
+                      controller: massLController,
+                      decoration:
+                          InputDecoration(labelText: l10n.catalogFieldMassL),
+                    ),
                     TextField(
-                        controller: massZController,
-                        decoration:
-                            const InputDecoration(labelText: 'Mass Z kg/m')),
+                      controller: massZController,
+                      decoration:
+                          InputDecoration(labelText: l10n.catalogFieldMassZ),
+                    ),
                     TextField(
-                        controller: massTController,
-                        decoration:
-                            const InputDecoration(labelText: 'Mass T kg/m')),
+                      controller: massTController,
+                      decoration:
+                          InputDecoration(labelText: l10n.catalogFieldMassT),
+                    ),
                     TextField(
-                        controller: massAdapterController,
-                        decoration:
-                            const InputDecoration(labelText: 'Mass Adapter kg/m')),
+                      controller: massAdapterController,
+                      decoration: InputDecoration(
+                          labelText: l10n.catalogFieldMassAdapter),
+                    ),
                     TextField(
-                        controller: massLlajsneController,
-                        decoration:
-                            const InputDecoration(labelText: 'Mass Bead kg/m')),
+                      controller: massLlajsneController,
+                      decoration:
+                          InputDecoration(labelText: l10n.catalogFieldMassBead),
+                    ),
                     TextField(
-                        controller: lInnerController,
-                        decoration: const InputDecoration(
-                            labelText: 'Inner thickness L (mm)')),
+                      controller: lInnerController,
+                      decoration: InputDecoration(
+                          labelText: l10n.catalogFieldInnerThicknessL),
+                    ),
                     TextField(
-                        controller: zInnerController,
-                        decoration: const InputDecoration(
-                            labelText: 'Inner thickness Z (mm)')),
+                      controller: zInnerController,
+                      decoration: InputDecoration(
+                          labelText: l10n.catalogFieldInnerThicknessZ),
+                    ),
                     TextField(
-                        controller: tInnerController,
-                        decoration: const InputDecoration(
-                            labelText: 'Inner thickness T (mm)')),
+                      controller: tInnerController,
+                      decoration: InputDecoration(
+                          labelText: l10n.catalogFieldInnerThicknessT),
+                    ),
                     TextField(
-                        controller: fixedGlassController,
-                        decoration: const InputDecoration(
-                            labelText: 'Fixed glass loss (mm)')),
+                      controller: fixedGlassController,
+                      decoration: InputDecoration(
+                          labelText: l10n.catalogFieldFixedGlassLoss),
+                    ),
                     TextField(
-                        controller: sashGlassController,
-                        decoration: const InputDecoration(
-                            labelText: 'Sash glass loss (mm)')),
+                      controller: sashGlassController,
+                      decoration: InputDecoration(
+                          labelText: l10n.catalogFieldSashGlassLoss),
+                    ),
                     TextField(
-                        controller: sashValueController,
-                        decoration: const InputDecoration(
-                            labelText: 'Sash value (+mm)')),
+                      controller: sashValueController,
+                      decoration:
+                          InputDecoration(labelText: l10n.catalogFieldSashValue),
+                    ),
                     TextField(
-                        controller: pipeLengthController,
-                        decoration: const InputDecoration(
-                            labelText: 'Profile length (mm)')),
+                      controller: pipeLengthController,
+                      decoration: InputDecoration(
+                          labelText: l10n.catalogFieldProfileLength),
+                    ),
                   ],
                 ),
               ] else ...[
                 TextField(
-                    controller: nameController,
-                    decoration: const InputDecoration(labelText: 'Name')),
+                  controller: nameController,
+                  decoration: InputDecoration(labelText: l10n.name),
+                ),
                 if (widget.type == CatalogType.glass ||
                     widget.type == CatalogType.blind)
                   TextField(
-                      controller: pricePerM2Controller,
-                      decoration:
-                          const InputDecoration(labelText: 'Price €/m²')),
+                    controller: pricePerM2Controller,
+                    decoration:
+                        InputDecoration(labelText: l10n.catalogFieldPricePerM2),
+                  ),
                 if (widget.type == CatalogType.glass ||
                     widget.type == CatalogType.blind)
                   TextField(
-                      controller: massPerM2Controller,
-                      decoration:
-                          const InputDecoration(labelText: 'Mass kg/m²')),
+                    controller: massPerM2Controller,
+                    decoration:
+                        InputDecoration(labelText: l10n.catalogFieldMassPerM2),
+                  ),
                 if (widget.type == CatalogType.glass)
                   TextField(
-                      controller: ugController,
-                      decoration: const InputDecoration(
-                          labelText: 'Ug (W/m²K)')),
+                    controller: ugController,
+                    decoration:
+                        InputDecoration(labelText: l10n.catalogFieldUg),
+                  ),
                 if (widget.type == CatalogType.glass)
                   TextField(
-                      controller: psiController,
-                      decoration:
-                          const InputDecoration(labelText: 'Psi (W/mK)')),
+                    controller: psiController,
+                    decoration:
+                        InputDecoration(labelText: l10n.catalogFieldPsi),
+                  ),
                 if (widget.type == CatalogType.blind)
                   TextField(
-                      controller: boxHeightController,
-                      decoration: const InputDecoration(
-                          labelText: 'Box height (mm)')),
+                    controller: boxHeightController,
+                    decoration:
+                        InputDecoration(labelText: l10n.catalogFieldBoxHeight),
+                  ),
                 if (widget.type == CatalogType.mechanism ||
                     widget.type == CatalogType.accessory)
                   TextField(
-                      controller: priceController,
-                      decoration:
-                          const InputDecoration(labelText: 'Price (€)')),
+                    controller: priceController,
+                    decoration:
+                        InputDecoration(labelText: l10n.catalogFieldPrice),
+                  ),
                 if (widget.type == CatalogType.mechanism ||
                     widget.type == CatalogType.accessory)
                   TextField(
-                      controller: massController,
-                      decoration:
-                          const InputDecoration(labelText: 'Mass (kg)')),
+                    controller: massController,
+                    decoration:
+                        InputDecoration(labelText: l10n.catalogFieldMass),
+                  ),
               ],
             ],
           ),
@@ -276,12 +307,15 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
               Navigator.pop(context);
               setState(() {});
             },
-            child:
-                const Text('Delete', style: TextStyle(color: AppColors.delete)),
+            child: Text(
+              l10n.delete,
+              style: const TextStyle(color: AppColors.delete),
+            ),
           ),
           TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel')),
+            onPressed: () => Navigator.pop(context),
+            child: Text(l10n.cancel),
+          ),
           ElevatedButton(
             onPressed: () {
               if (nameController.text.isEmpty) return;
@@ -380,13 +414,12 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
               Navigator.pop(context);
               setState(() {});
             },
-            child: const Text('Save'),
+            child: Text(l10n.save),
           ),
         ],
       ),
     );
   }
-
   void _addItem() {
     final l10n = AppLocalizations.of(context)!;
     final nameController = TextEditingController();
@@ -423,169 +456,200 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text("Add ${_typeLabel(l10n)}n"),
+        title: Text(l10n.catalogAddTitle(_typeLabel(l10n))),
         content: SingleChildScrollView(
           child: Column(
             children: [
               if (widget.type == CatalogType.profileSet) ...[
                 ExpansionTile(
-                  title: const Text('General'),
+                  title: Text(l10n.catalogSectionGeneral),
                   children: [
                     TextField(
-                        controller: nameController,
-                        decoration:
-                            const InputDecoration(labelText: 'Name')),
+                      controller: nameController,
+                      decoration: InputDecoration(labelText: l10n.name),
+                    ),
                     TextField(
-                        controller: priceLController,
-                        decoration:
-                            const InputDecoration(labelText: 'Frame (L) €/m')),
+                      controller: priceLController,
+                      decoration:
+                          InputDecoration(labelText: l10n.catalogFieldPriceFrame),
+                    ),
                     TextField(
-                        controller: priceZController,
-                        decoration:
-                            const InputDecoration(labelText: 'Sash (Z) €/m')),
+                      controller: priceZController,
+                      decoration:
+                          InputDecoration(labelText: l10n.catalogFieldPriceSash),
+                    ),
                     TextField(
-                        controller: priceTController,
-                        decoration:
-                            const InputDecoration(labelText: 'T Profile €/m')),
+                      controller: priceTController,
+                      decoration:
+                          InputDecoration(labelText: l10n.catalogFieldPriceT),
+                    ),
                     TextField(
-                        controller: priceAdapterController,
-                        decoration:
-                            const InputDecoration(labelText: 'Adapter €/m')),
+                      controller: priceAdapterController,
+                      decoration: InputDecoration(
+                          labelText: l10n.catalogFieldPriceAdapter),
+                    ),
                     TextField(
-                        controller: priceLlajsneController,
-                        decoration:
-                            const InputDecoration(labelText: 'Bead €/m')),
+                      controller: priceLlajsneController,
+                      decoration:
+                          InputDecoration(labelText: l10n.catalogFieldPriceBead),
+                    ),
                   ],
                 ),
                 ExpansionTile(
-                  title: const Text('Uw'),
+                  title: Text(l10n.catalogSectionUw),
                   children: [
                     TextField(
-                        controller: lOuterController,
-                        decoration: const InputDecoration(
-                            labelText: 'Outer thickness L (mm)')),
+                      controller: lOuterController,
+                      decoration: InputDecoration(
+                          labelText: l10n.catalogFieldOuterThicknessL),
+                    ),
                     TextField(
-                        controller: zOuterController,
-                        decoration: const InputDecoration(
-                            labelText: 'Outer thickness Z (mm)')),
+                      controller: zOuterController,
+                      decoration: InputDecoration(
+                          labelText: l10n.catalogFieldOuterThicknessZ),
+                    ),
                     TextField(
-                        controller: tOuterController,
-                        decoration: const InputDecoration(
-                            labelText: 'Outer thickness T (mm)')),
+                      controller: tOuterController,
+                      decoration: InputDecoration(
+                          labelText: l10n.catalogFieldOuterThicknessT),
+                    ),
                     TextField(
-                        controller: adapterOuterController,
-                        decoration: const InputDecoration(
-                            labelText: 'Outer thickness Adapter (mm)')),
+                      controller: adapterOuterController,
+                      decoration: InputDecoration(
+                          labelText: l10n.catalogFieldOuterThicknessAdapter),
+                    ),
                     TextField(
-                        controller: ufController,
-                        decoration:
-                            const InputDecoration(labelText: 'Uf (W/m²K)')),
+                      controller: ufController,
+                      decoration:
+                          InputDecoration(labelText: l10n.catalogFieldUf),
+                    ),
                   ],
                 ),
                 ExpansionTile(
-                  title: const Text('Production'),
+                  title: Text(l10n.catalogSectionProduction),
                   children: [
                     TextField(
-                        controller: massLController,
-                        decoration:
-                            const InputDecoration(labelText: 'Mass L kg/m')),
+                      controller: massLController,
+                      decoration:
+                          InputDecoration(labelText: l10n.catalogFieldMassL),
+                    ),
                     TextField(
-                        controller: massZController,
-                        decoration:
-                            const InputDecoration(labelText: 'Mass Z kg/m')),
+                      controller: massZController,
+                      decoration:
+                          InputDecoration(labelText: l10n.catalogFieldMassZ),
+                    ),
                     TextField(
-                        controller: massTController,
-                        decoration:
-                            const InputDecoration(labelText: 'Mass T kg/m')),
+                      controller: massTController,
+                      decoration:
+                          InputDecoration(labelText: l10n.catalogFieldMassT),
+                    ),
                     TextField(
-                        controller: massAdapterController,
-                        decoration:
-                            const InputDecoration(labelText: 'Mass Adapter kg/m')),
+                      controller: massAdapterController,
+                      decoration: InputDecoration(
+                          labelText: l10n.catalogFieldMassAdapter),
+                    ),
                     TextField(
-                        controller: massLlajsneController,
-                        decoration:
-                            const InputDecoration(labelText: 'Mass Bead kg/m')),
+                      controller: massLlajsneController,
+                      decoration:
+                          InputDecoration(labelText: l10n.catalogFieldMassBead),
+                    ),
                     TextField(
-                        controller: lInnerController,
-                        decoration: const InputDecoration(
-                            labelText: 'Inner thickness L (mm)')),
+                      controller: lInnerController,
+                      decoration: InputDecoration(
+                          labelText: l10n.catalogFieldInnerThicknessL),
+                    ),
                     TextField(
-                        controller: zInnerController,
-                        decoration: const InputDecoration(
-                            labelText: 'Inner thickness Z (mm)')),
+                      controller: zInnerController,
+                      decoration: InputDecoration(
+                          labelText: l10n.catalogFieldInnerThicknessZ),
+                    ),
                     TextField(
-                        controller: tInnerController,
-                        decoration: const InputDecoration(
-                            labelText: 'Inner thickness T (mm)')),
+                      controller: tInnerController,
+                      decoration: InputDecoration(
+                          labelText: l10n.catalogFieldInnerThicknessT),
+                    ),
                     TextField(
-                        controller: fixedGlassController,
-                        decoration: const InputDecoration(
-                            labelText: 'Fixed glass loss (mm)')),
+                      controller: fixedGlassController,
+                      decoration: InputDecoration(
+                          labelText: l10n.catalogFieldFixedGlassLoss),
+                    ),
                     TextField(
-                        controller: sashGlassController,
-                        decoration: const InputDecoration(
-                            labelText: 'Sash glass loss (mm)')),
+                      controller: sashGlassController,
+                      decoration: InputDecoration(
+                          labelText: l10n.catalogFieldSashGlassLoss),
+                    ),
                     TextField(
-                        controller: sashValueController,
-                        decoration: const InputDecoration(
-                            labelText: 'Sash value (+mm)')),
+                      controller: sashValueController,
+                      decoration:
+                          InputDecoration(labelText: l10n.catalogFieldSashValue),
+                    ),
                     TextField(
-                        controller: pipeLengthController,
-                        decoration: const InputDecoration(
-                            labelText: 'Profile length (mm)')),
+                      controller: pipeLengthController,
+                      decoration: InputDecoration(
+                          labelText: l10n.catalogFieldProfileLength),
+                    ),
                   ],
                 ),
               ] else ...[
                 TextField(
-                    controller: nameController,
-                    decoration: const InputDecoration(labelText: 'Name')),
+                  controller: nameController,
+                  decoration: InputDecoration(labelText: l10n.name),
+                ),
                 if (widget.type == CatalogType.glass ||
                     widget.type == CatalogType.blind)
                   TextField(
-                      controller: pricePerM2Controller,
-                      decoration:
-                          const InputDecoration(labelText: 'Price €/m²')),
+                    controller: pricePerM2Controller,
+                    decoration:
+                        InputDecoration(labelText: l10n.catalogFieldPricePerM2),
+                  ),
                 if (widget.type == CatalogType.glass ||
                     widget.type == CatalogType.blind)
                   TextField(
-                      controller: massPerM2Controller,
-                      decoration:
-                          const InputDecoration(labelText: 'Mass kg/m²')),
+                    controller: massPerM2Controller,
+                    decoration:
+                        InputDecoration(labelText: l10n.catalogFieldMassPerM2),
+                  ),
                 if (widget.type == CatalogType.glass)
                   TextField(
-                      controller: ugController,
-                      decoration: const InputDecoration(
-                          labelText: 'Ug (W/m²K)')),
+                    controller: ugController,
+                    decoration:
+                        InputDecoration(labelText: l10n.catalogFieldUg),
+                  ),
                 if (widget.type == CatalogType.glass)
                   TextField(
-                      controller: psiController,
-                      decoration:
-                          const InputDecoration(labelText: 'Psi (W/mK)')),
+                    controller: psiController,
+                    decoration:
+                        InputDecoration(labelText: l10n.catalogFieldPsi),
+                  ),
                 if (widget.type == CatalogType.blind)
                   TextField(
-                      controller: boxHeightController,
-                      decoration: const InputDecoration(
-                          labelText: 'Box height (mm)')),
+                    controller: boxHeightController,
+                    decoration:
+                        InputDecoration(labelText: l10n.catalogFieldBoxHeight),
+                  ),
                 if (widget.type == CatalogType.mechanism ||
                     widget.type == CatalogType.accessory)
                   TextField(
-                      controller: priceController,
-                      decoration:
-                          const InputDecoration(labelText: 'Price (€)')),
+                    controller: priceController,
+                    decoration:
+                        InputDecoration(labelText: l10n.catalogFieldPrice),
+                  ),
                 if (widget.type == CatalogType.mechanism ||
                     widget.type == CatalogType.accessory)
                   TextField(
-                      controller: massController,
-                      decoration:
-                          const InputDecoration(labelText: 'Mass (kg)')),
+                    controller: massController,
+                    decoration:
+                        InputDecoration(labelText: l10n.catalogFieldMass),
+                  ),
               ],
             ],
           ),
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel')),
+            onPressed: () => Navigator.pop(context),
+            child: Text(l10n.cancel),
+          ),
           ElevatedButton(
             onPressed: () {
               if (nameController.text.isEmpty) return;
@@ -626,8 +690,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                         int.tryParse(fixedGlassController.text) ?? 15,
                     sashGlassTakeoff:
                         int.tryParse(sashGlassController.text) ?? 10,
-                    sashValue:
-                        int.tryParse(sashValueController.text) ?? 22,
+                    sashValue: int.tryParse(sashValueController.text) ?? 22,
                   ));
                   break;
                 case CatalogType.glass:
@@ -665,13 +728,12 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
               Navigator.pop(context);
               setState(() {});
             },
-            child: const Text('Add'),
+            child: Text(l10n.add),
           ),
         ],
       ),
     );
   }
-
   String _typeLabel(AppLocalizations l10n) {
     switch (widget.type) {
       case CatalogType.profileSet:
