@@ -12,6 +12,11 @@ class AppLocalizations {
       'homeCustomers': 'Klientët',
       'homeOffers': 'Ofertat',
       'homeProduction': 'Prodhimi',
+      'productionTitle': 'Prodhimi',
+      'productionCutting': 'Prerja',
+      'productionGlass': 'Xhami',
+      'productionRollerShutter': 'Roleta',
+      'productionIron': 'Hekur',
       'welcomeAddress': 'Rr. Ilir Konushevci, Nr. 80, Kamenicë, Kosovë, 62000',
       'welcomePhones': '+38344357639 | +38344268300',
       'welcomeWebsite': 'www.tonialpvc.com | tonialpvc@gmail.com',
@@ -145,6 +150,11 @@ class AppLocalizations {
       'homeCustomers': 'Customers',
       'homeOffers': 'Offers',
       'homeProduction': 'Production',
+      'productionTitle': 'Production',
+      'productionCutting': 'Cutting',
+      'productionGlass': 'Glass',
+      'productionRollerShutter': 'Roller Shutter',
+      'productionIron': 'Iron',
       'welcomeAddress': 'Ilir Konushevci St., No. 80, Kamenica, Kosovo, 62000',
       'welcomePhones': '+38344357639 | +38344268300',
       'welcomeWebsite': 'www.tonialpvc.com | tonialpvc@gmail.com',
@@ -272,6 +282,11 @@ class AppLocalizations {
       'homeCustomers': 'Kunden',
       'homeOffers': 'Angebote',
       'homeProduction': 'Produktion',
+      'productionTitle': 'Produktion',
+      'productionCutting': 'Zuschnitt',
+      'productionGlass': 'Glas',
+      'productionRollerShutter': 'Rollladen',
+      'productionIron': 'Eisen',
       'welcomeAddress': 'Ilir Konushevci Str., Nr. 80, Kamenica, Kosovo, 62000',
       'welcomePhones': '+38344357639 | +38344268300',
       'welcomeWebsite': 'www.tonialpvc.com | tonialpvc@gmail.com',
@@ -403,6 +418,11 @@ class AppLocalizations {
       'homeCustomers': 'Clients',
       'homeOffers': 'Offres',
       'homeProduction': 'Production',
+      'productionTitle': 'Production',
+      'productionCutting': 'Découpe',
+      'productionGlass': 'Verre',
+      'productionRollerShutter': 'Volet roulant',
+      'productionIron': 'Fer',
       'welcomeAddress': 'Rue Ilir Konushevci, n° 80, Kamenica, Kosovo, 62000',
       'welcomePhones': '+38344357639 | +38344268300',
       'welcomeWebsite': 'www.tonialpvc.com | tonialpvc@gmail.com',
@@ -534,6 +554,11 @@ class AppLocalizations {
       'homeCustomers': 'Clienti',
       'homeOffers': 'Offerte',
       'homeProduction': 'Produzione',
+      'productionTitle': 'Produzione',
+      'productionCutting': 'Taglio',
+      'productionGlass': 'Vetro',
+      'productionRollerShutter': 'Tapparella',
+      'productionIron': 'Ferro',
       'welcomeAddress': 'Via Ilir Konushevci, n. 80, Kamenica, Kosovo, 62000',
       'welcomePhones': '+38344357639 | +38344268300',
       'welcomeWebsite': 'www.tonialpvc.com | tonialpvc@gmail.com',
@@ -668,6 +693,12 @@ class AppLocalizations {
   String get homeCustomers => _t('homeCustomers');
   String get homeOffers => _t('homeOffers');
   String get homeProduction => _t('homeProduction');
+  String get productionTitle => _t('productionTitle');
+  String get productionCutting => _t('productionCutting');
+  String get productionGlass => _t('productionGlass');
+  String get productionRollerShutter =>
+      _t('productionRollerShutter');
+  String get productionIron => _t('productionIron');
   String get welcomeAddress => _t('welcomeAddress');
   String get welcomePhones => _t('welcomePhones');
   String get welcomeWebsite => _t('welcomeWebsite');

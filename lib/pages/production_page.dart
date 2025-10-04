@@ -1,46 +1,49 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+
+import '../l10n/app_localizations.dart';
 import '../theme/app_background.dart';
 import '../widgets/glass_card.dart';
 import 'cutting_optimizer_page.dart';
-import 'xhami_page.dart';
-import 'roleta_page.dart';
 import 'hekri_page.dart';
+import 'roleta_page.dart';
+import 'xhami_page.dart';
 
 class ProductionPage extends StatelessWidget {
   const ProductionPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: const Text('Production')),
+      appBar: AppBar(title: Text(l10n.productionTitle)),
       body: AppBackground(
         child: ListView(
           children: [
             const SizedBox(height: 20),
             _ProductionButton(
-              label: 'Cutting',
+              label: l10n.productionCutting,
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const CuttingOptimizerPage()),
               ),
             ),
             _ProductionButton(
-              label: 'Glass',
+              label: l10n.productionGlass,
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const XhamiPage()),
               ),
             ),
             _ProductionButton(
-              label: 'Roller Shutter',
+              label: l10n.productionRollerShutter,
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const RoletaPage()),
               ),
             ),
             _ProductionButton(
-              label: 'Iron',
+              label: l10n.productionIron,
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const HekriPage()),
