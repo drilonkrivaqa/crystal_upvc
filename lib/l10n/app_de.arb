@@ -12,36 +12,9 @@
   "productionIron": "Eisen",
   "productionRegisteredProfiles": "Registrierte Profile",
   "productionCutSummary": "Benötigt {needed} m, Rohre: {pipes}, Verschnitt {waste} m",
-  "@productionCutSummary": {
-    "placeholders": {
-      "needed": {},
-      "pipes": {},
-      "waste": {}
-    }
-  },
   "productionBarDetail": "Stab {index}: {combination} = {total}/{pipeLength}",
-  "@productionBarDetail": {
-    "placeholders": {
-      "index": {},
-      "combination": {},
-      "total": {},
-      "pipeLength": {}
-    }
-  },
   "productionOffsetFrom": "Versatz von {type} (mm)",
-  "@productionOffsetFrom": {
-    "placeholders": {
-      "type": {}
-    }
-  },
   "productionOffsetsSummary": "L: {l}mm, Z: {z}mm, T: {t}mm",
-  "@productionOffsetsSummary": {
-    "placeholders": {
-      "l": {},
-      "z": {},
-      "t": {}
-    }
-  },
   "cuttingPieceFrame": "Rahmen (L)",
   "cuttingPieceSash": "Flügel (Z)",
   "cuttingPieceT": "T",
@@ -58,17 +31,7 @@
   "catalogMechanism": "Mechanismen",
   "catalogAccessory": "Zubehör",
   "catalogAddTitle": "{type} hinzufügen",
-  "@catalogAddTitle": {
-    "placeholders": {
-      "type": {}
-    }
-  },
   "catalogEditTitle": "{name} bearbeiten",
-  "@catalogEditTitle": {
-    "placeholders": {
-      "name": {}
-    }
-  },
   "catalogSectionGeneral": "Allgemein",
   "catalogSectionUw": "Uw",
   "catalogSectionProduction": "Produktion",

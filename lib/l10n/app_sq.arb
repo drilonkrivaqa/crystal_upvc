@@ -12,36 +12,9 @@
   "productionIron": "Hekur",
   "productionRegisteredProfiles": "Profilet e regjistruara",
   "productionCutSummary": "Nevojiten {needed} m, Tuba: {pipes}, Humbje {waste} m",
-  "@productionCutSummary": {
-    "placeholders": {
-      "needed": {},
-      "pipes": {},
-      "waste": {}
-    }
-  },
   "productionBarDetail": "Shufra {index}: {combination} = {total}/{pipeLength}",
-  "@productionBarDetail": {
-    "placeholders": {
-      "index": {},
-      "combination": {},
-      "total": {},
-      "pipeLength": {}
-    }
-  },
   "productionOffsetFrom": "Offset nga {type} (mm)",
-  "@productionOffsetFrom": {
-    "placeholders": {
-      "type": {}
-    }
-  },
   "productionOffsetsSummary": "L: {l}mm, Z: {z}mm, T: {t}mm",
-  "@productionOffsetsSummary": {
-    "placeholders": {
-      "l": {},
-      "z": {},
-      "t": {}
-    }
-  },
   "cuttingPieceFrame": "Korniza (L)",
   "cuttingPieceSash": "Krah (Z)",
   "cuttingPieceT": "T",
@@ -58,17 +31,7 @@
   "catalogMechanism": "Mekanizma",
   "catalogAccessory": "Aksesorë",
   "catalogAddTitle": "Shto {type}",
-  "@catalogAddTitle": {
-    "placeholders": {
-      "type": {}
-    }
-  },
   "catalogEditTitle": "Ndrysho {name}",
-  "@catalogEditTitle": {
-    "placeholders": {
-      "name": {}
-    }
-  },
   "catalogSectionGeneral": "Të përgjithshme",
   "catalogSectionUw": "Uw",
   "catalogSectionProduction": "Prodhimi",

@@ -12,7 +12,8 @@ import 'pages/production_page.dart';
 import 'theme/app_theme.dart';
 import 'pages/welcome_page.dart';
 import 'data_migrations.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'l10n/app_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -83,8 +84,19 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           theme: AppTheme.light,
           locale: Locale(code),
-          supportedLocales: AppLocalizations.supportedLocales,
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: const [
+            Locale('sq'),
+            Locale('en'),
+            Locale('de'),
+            Locale('fr'),
+            Locale('it'),
+          ],
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
           home: WelcomePage(
             failedBoxes: failedBoxes,
             migrationFailures: migrationFailures,
