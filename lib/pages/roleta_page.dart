@@ -4,7 +4,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import '../models.dart';
 import '../theme/app_background.dart';
 import '../widgets/glass_card.dart';
-import '../l10n/app_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class RoletaPage extends StatefulWidget {
   const RoletaPage({super.key});

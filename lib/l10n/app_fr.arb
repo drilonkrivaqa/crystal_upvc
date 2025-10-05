@@ -12,9 +12,36 @@
   "productionIron": "Fer",
   "productionRegisteredProfiles": "Profils enregistrés",
   "productionCutSummary": "Nécessaire {needed} m, Tubes : {pipes}, Perte {waste} m",
+  "@productionCutSummary": {
+    "placeholders": {
+      "needed": {},
+      "pipes": {},
+      "waste": {}
+    }
+  },
   "productionBarDetail": "Barre {index} : {combination} = {total}/{pipeLength}",
+  "@productionBarDetail": {
+    "placeholders": {
+      "index": {},
+      "combination": {},
+      "total": {},
+      "pipeLength": {}
+    }
+  },
   "productionOffsetFrom": "Décalage depuis {type} (mm)",
+  "@productionOffsetFrom": {
+    "placeholders": {
+      "type": {}
+    }
+  },
   "productionOffsetsSummary": "L : {l}mm, Z : {z}mm, T : {t}mm",
+  "@productionOffsetsSummary": {
+    "placeholders": {
+      "l": {},
+      "z": {},
+      "t": {}
+    }
+  },
   "cuttingPieceFrame": "Cadre (L)",
   "cuttingPieceSash": "Ouvrant (Z)",
   "cuttingPieceT": "T",
@@ -31,7 +58,17 @@
   "catalogMechanism": "Mécanismes",
   "catalogAccessory": "Accessoires",
   "catalogAddTitle": "Ajouter {type}",
+  "@catalogAddTitle": {
+    "placeholders": {
+      "type": {}
+    }
+  },
   "catalogEditTitle": "Modifier {name}",
+  "@catalogEditTitle": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "catalogSectionGeneral": "Général",
   "catalogSectionUw": "Uw",
   "catalogSectionProduction": "Production",
