@@ -7,7 +7,7 @@ import 'dart:typed_data';
 import '../models.dart';
 import '../theme/app_colors.dart';
 import 'window_door_designer_page.dart';
-import '../l10n/app_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class WindowDoorItemPage extends StatefulWidget {
   final void Function(WindowDoorItem) onSave;

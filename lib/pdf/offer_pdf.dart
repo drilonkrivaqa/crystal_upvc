@@ -9,7 +9,7 @@ import 'dart:math' as math;
 import 'package:printing/printing.dart';
 import '../models.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import '../l10n/app_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 Future<void> printOfferPdf({
   required Offer offer,

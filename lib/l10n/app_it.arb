@@ -12,9 +12,36 @@
   "productionIron": "Ferro",
   "productionRegisteredProfiles": "Profili registrati",
   "productionCutSummary": "Necessari {needed} m, Tubi: {pipes}, Scarto {waste} m",
+  "@productionCutSummary": {
+    "placeholders": {
+      "needed": {},
+      "pipes": {},
+      "waste": {}
+    }
+  },
   "productionBarDetail": "Barra {index}: {combination} = {total}/{pipeLength}",
+  "@productionBarDetail": {
+    "placeholders": {
+      "index": {},
+      "combination": {},
+      "total": {},
+      "pipeLength": {}
+    }
+  },
   "productionOffsetFrom": "Offset da {type} (mm)",
+  "@productionOffsetFrom": {
+    "placeholders": {
+      "type": {}
+    }
+  },
   "productionOffsetsSummary": "L: {l}mm, Z: {z}mm, T: {t}mm",
+  "@productionOffsetsSummary": {
+    "placeholders": {
+      "l": {},
+      "z": {},
+      "t": {}
+    }
+  },
   "cuttingPieceFrame": "Telaio (L)",
   "cuttingPieceSash": "Anta (Z)",
   "cuttingPieceT": "T",
@@ -71,7 +98,17 @@
   "pdfTotalPrice": "Prezzo totale (€)",
   "pdfNotes": "Note:",
   "catalogAddTitle": "Aggiungi {type}",
+  "@catalogAddTitle": {
+    "placeholders": {
+      "type": {}
+    }
+  },
   "catalogEditTitle": "Modifica {name}",
+  "@catalogEditTitle": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "catalogSectionGeneral": "Generale",
   "catalogSectionUw": "Uw",
   "catalogSectionProduction": "Produzione",
