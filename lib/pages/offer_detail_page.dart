@@ -8,7 +8,7 @@ import 'dart:io' show File;
 import 'package:flutter/foundation.dart';
 import '../pdf/offer_pdf.dart';
 import '../widgets/glass_card.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../l10n/app_localizations.dart';
 
 class OfferDetailPage extends StatefulWidget {
   final int offerIndex;

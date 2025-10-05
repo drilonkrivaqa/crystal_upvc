@@ -3,7 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'catalog_tab_page.dart';
 import '../theme/app_background.dart';
 import '../widgets/glass_card.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../l10n/app_localizations.dart';
 
 class CatalogsPage extends StatelessWidget {
   const CatalogsPage({super.key});
