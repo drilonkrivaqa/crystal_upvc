@@ -80,7 +80,7 @@ class MyApp extends StatelessWidget {
       builder: (context, Box box, _) {
         final code = box.get('locale', defaultValue: 'sq') as String;
         return MaterialApp(
-          onGenerateTitle: (ctx) => AppLocalizations.of(ctx)!.appTitle,
+          onGenerateTitle: (ctx) => AppLocalizations.of(ctx).appTitle,
           debugShowCheckedModeBanner: false,
           theme: AppTheme.light,
           locale: Locale(code),
@@ -115,7 +115,7 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final settingsBox = Hive.box('settings');
     final items = [
       _NavItem(Icons.auto_awesome_motion_outlined, l10n.homeCatalogs,

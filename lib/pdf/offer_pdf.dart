@@ -1,5 +1,4 @@
 import 'dart:io' show File;
-import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
@@ -166,7 +165,7 @@ Future<void> printOfferPdf({
                       if (logoImage != null)
                         pw.Padding(
                           padding: pw.EdgeInsets.only(right: 8),
-                          child: pw.Image(logoImage!, width: 48, height: 48),
+                          child: pw.Image(logoImage, width: 48, height: 48),
                         ),
                       pw.Column(
                         crossAxisAlignment: pw.CrossAxisAlignment.start,

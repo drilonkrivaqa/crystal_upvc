@@ -27,7 +27,7 @@ class _OffersPageState extends State<OffersPage> {
   }
 
   void _addOffer() {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     if (customerBox.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.addCustomerFirst)),
@@ -132,7 +132,7 @@ class _OffersPageState extends State<OffersPage> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(l10n.homeOffers)),
       body: AppBackground(

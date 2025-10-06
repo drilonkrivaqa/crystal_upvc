@@ -46,7 +46,7 @@ class _RoletaPageState extends State<RoletaPage> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(l10n.catalogBlind)),
       body: AppBackground(

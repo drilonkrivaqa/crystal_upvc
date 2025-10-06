@@ -186,7 +186,7 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final pieceLabels = {
       PieceType.l: l10n.cuttingPieceFrame,
       PieceType.z: l10n.cuttingPieceSash,

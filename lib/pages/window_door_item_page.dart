@@ -3,7 +3,6 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:io' show File;
-import 'dart:typed_data';
 import '../models.dart';
 import '../theme/app_colors.dart';
 import 'window_door_designer_page.dart';
@@ -130,7 +129,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return WillPopScope(
         onWillPop: _onWillPop,
         child: Scaffold(
@@ -277,7 +276,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                                 keyboardType: TextInputType.number),
                             const SizedBox(height: 12),
                             DropdownButtonFormField<int>(
-                              value: profileSetIndex,
+                              initialValue: profileSetIndex,
                               isExpanded: true,
                               decoration:
                                   InputDecoration(labelText: l10n.catalogProfile),
@@ -296,7 +295,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                             ),
                             const SizedBox(height: 12),
                             DropdownButtonFormField<int>(
-                              value: glassIndex,
+                              initialValue: glassIndex,
                               isExpanded: true,
                               decoration:
                                   InputDecoration(labelText: l10n.catalogGlass),
@@ -404,7 +403,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                             ),
                             const SizedBox(height: 12),
                             DropdownButtonFormField<int?>(
-                              value: mechanismIndex,
+                              initialValue: mechanismIndex,
                               isExpanded: true,
                               decoration: InputDecoration(
                                   labelText: l10n.mechanismOptional),
@@ -429,7 +428,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                             ),
                             const SizedBox(height: 12),
                             DropdownButtonFormField<int?>(
-                              value: blindIndex,
+                              initialValue: blindIndex,
                               isExpanded: true,
                               decoration: InputDecoration(
                                   labelText: l10n.blindOptional),
@@ -454,7 +453,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                             ),
                             const SizedBox(height: 12),
                             DropdownButtonFormField<int?>(
-                              value: accessoryIndex,
+                              initialValue: accessoryIndex,
                               isExpanded: true,
                               decoration: InputDecoration(
                                   labelText: l10n.accessoryOptional),
@@ -498,7 +497,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   }
 
   bool _saveItem() {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final name = nameController.text.trim();
     final width = int.tryParse(widthController.text) ?? 0;
     final height = int.tryParse(heightController.text) ?? 0;
@@ -548,7 +547,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   }
 
   Future<bool> _onWillPop() async {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final shouldSave = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -690,7 +689,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     int remaining = totalWidth - specifiedSum;
     if (remaining < 0) {
       if (showErrors && mounted) {
-        final l10n = AppLocalizations.of(context)!;
+        final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(l10n.sectionWidthExceeds)),
         );
@@ -731,7 +730,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     int remaining = totalHeight - specifiedSum;
     if (remaining < 0) {
       if (showErrors && mounted) {
-        final l10n = AppLocalizations.of(context)!;
+        final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(l10n.sectionHeightExceeds)),
         );
@@ -757,7 +756,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   }
 
   Widget _buildGrid() {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Column(
       children: [
         if (verticalSections > 0)
@@ -823,7 +822,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   }
 
   Widget _buildDimensionInputs() {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

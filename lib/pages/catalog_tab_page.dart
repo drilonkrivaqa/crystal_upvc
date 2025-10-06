@@ -43,7 +43,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
 
   void _editItem(int index) {
     final item = box.getAt(index);
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final nameController = TextEditingController(text: item.name);
     final priceLController = TextEditingController(
         text: item is ProfileSet ? item.priceL.toString() : "");
@@ -421,7 +421,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
     );
   }
   void _addItem() {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final nameController = TextEditingController();
     final priceLController = TextEditingController();
     final priceZController = TextEditingController();
@@ -751,7 +751,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(_typeLabel(l10n))),
       body: AppBackground(

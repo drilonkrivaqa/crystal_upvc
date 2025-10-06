@@ -24,7 +24,7 @@ class _HekriProfilesPageState extends State<HekriProfilesPage> {
   void _editProfile(int index) {
     final profile = profileBox.getAt(index);
     if (profile == null) return;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final offsetLController =
         TextEditingController(text: profile.hekriOffsetL.toString());
     final offsetZController =
@@ -106,7 +106,7 @@ class _HekriProfilesPageState extends State<HekriProfilesPage> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(l10n.productionRegisteredProfiles)),
       body: AppBackground(

@@ -60,7 +60,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     Offer offer = offerBox.getAt(widget.offerIndex)!;
     return Scaffold(
       appBar: AppBar(
@@ -79,7 +79,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 blindBox: blindBox,
                 mechanismBox: mechanismBox,
                 accessoryBox: accessoryBox,
-                l10n: AppLocalizations.of(context)!,
+                l10n: AppLocalizations.of(context),
               );
             },
           ),
@@ -397,7 +397,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                     sb.writeln('Ug: ${glass.ug!.toStringAsFixed(2)} W/m²K');
                   }
                   if (uw != null) {
-                    sb.writeln('Uw: ${uw!.toStringAsFixed(2)} W/m²K');
+                    sb.writeln('Uw: ${uw.toStringAsFixed(2)} W/m²K');
                   }
                   return sb.toString();
                 }()),

@@ -23,7 +23,7 @@ class _CustomersPageState extends State<CustomersPage> {
   }
 
   void _addCustomer() {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final nameController = TextEditingController();
     final addressController = TextEditingController();
     final phoneController = TextEditingController();
@@ -75,7 +75,7 @@ class _CustomersPageState extends State<CustomersPage> {
   }
 
   void _editCustomer(int index) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final customer = customerBox.getAt(index);
     final nameController = TextEditingController(text: customer?.name ?? "");
     final addressController =
@@ -141,7 +141,7 @@ class _CustomersPageState extends State<CustomersPage> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(l10n.homeCustomers)),
       body: AppBackground(
