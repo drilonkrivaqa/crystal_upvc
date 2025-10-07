@@ -195,30 +195,6 @@ abstract class AppLocalizations {
   /// **'L: {l}mm, Z: {z}mm, T: {t}mm'**
   String productionOffsetsSummary(Object l, Object t, Object z);
 
-  /// No description provided for @productionOfferLettersTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Offer letters'**
-  String get productionOfferLettersTitle;
-
-  /// No description provided for @productionOfferLettersSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'The letters show which offer each piece belongs to.'**
-  String get productionOfferLettersSubtitle;
-
-  /// No description provided for @productionOfferLettersLetterHeader.
-  ///
-  /// In en, this message translates to:
-  /// **'Letter'**
-  String get productionOfferLettersLetterHeader;
-
-  /// No description provided for @productionOfferLettersOfferHeader.
-  ///
-  /// In en, this message translates to:
-  /// **'Offer'**
-  String get productionOfferLettersOfferHeader;
-
   /// No description provided for @cuttingPieceFrame.
   ///
   /// In en, this message translates to:
