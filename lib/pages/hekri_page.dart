@@ -5,6 +5,7 @@ import '../l10n/app_localizations.dart';
 import '../models.dart';
 import '../theme/app_background.dart';
 import '../widgets/glass_card.dart';
+import '../widgets/offer_multi_select.dart';
 import 'hekri_profiles_page.dart';
 
 class HekriPage extends StatefulWidget {
@@ -214,36 +215,19 @@ class _HekriPageState extends State<HekriPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(l10n.homeOffers,
-                          style: Theme.of(context).textTheme.titleMedium),
-                      const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [
-                          for (int i = 0; i < offerBox.length; i++)
-                            FilterChip(
-                              label: Text('${l10n.pdfOffer} ${i + 1}'),
-                              selected: selectedOffers.contains(i),
-                              onSelected: (selected) {
-                                setState(() {
-                                  if (selected) {
-                                    selectedOffers.add(i);
-                                  } else {
-                                    selectedOffers.remove(i);
-                                  }
-                                  if (selectedOffers.isEmpty) {
-                                    results = null;
-                                  }
-                                });
-                              },
-                            ),
-                        ],
-                      ),
-                    ],
+                  child: OfferMultiSelectField(
+                    offerBox: offerBox,
+                    selectedOffers: selectedOffers,
+                    onSelectionChanged: (selection) {
+                      setState(() {
+                        selectedOffers
+                          ..clear()
+                          ..addAll(selection);
+                        if (selectedOffers.isEmpty) {
+                          results = null;
+                        }
+                      });
+                    },
                   ),
                 ),
                 const SizedBox(width: 16),
