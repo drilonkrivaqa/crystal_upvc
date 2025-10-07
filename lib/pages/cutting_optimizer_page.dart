@@ -17,7 +17,7 @@ enum PieceType { l, z, t, adapter, llajsne }
 class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
   late Box<Offer> offerBox;
   late Box<ProfileSet> profileBox;
-  int? selectedOffer;
+  final Set<int> selectedOffers = <int>{};
   Map<int, Map<PieceType, List<List<int>>>>?
       results; // profileSet -> type -> bars
 
@@ -26,34 +26,39 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
     super.initState();
     offerBox = Hive.box<Offer>('offers');
     profileBox = Hive.box<ProfileSet>('profileSets');
-    if (offerBox.isNotEmpty) selectedOffer = 0;
+    if (offerBox.isNotEmpty) selectedOffers.add(0);
   }
 
   void _calculate() {
-    if (selectedOffer == null) return;
-    final offer = offerBox.getAt(selectedOffer!);
-    if (offer == null) return;
-
     final piecesMap = <int, Map<PieceType, List<int>>>{};
+    if (selectedOffers.isEmpty) {
+      setState(() => results = null);
+      return;
+    }
 
-    for (final item in offer.items) {
-      final blind = item.blindIndex != null
-          ? Hive.box<Blind>('blinds').getAt(item.blindIndex!)
-          : null;
-      final profile = profileBox.getAt(item.profileSetIndex);
-      if (profile == null) continue;
-      final itemPieces =
-          _pieceLengths(item, profile, boxHeight: blind?.boxHeight ?? 0);
+    for (final offerIndex in selectedOffers) {
+      final offer = offerBox.getAt(offerIndex);
+      if (offer == null) continue;
 
-      for (int i = 0; i < item.quantity; i++) {
-        final target = piecesMap.putIfAbsent(
-            item.profileSetIndex,
-            () => {
-                  for (var t in PieceType.values) t: <int>[],
-                });
-        itemPieces.forEach((type, list) {
-          target[type]!.addAll(list);
-        });
+      for (final item in offer.items) {
+        final blind = item.blindIndex != null
+            ? Hive.box<Blind>('blinds').getAt(item.blindIndex!)
+            : null;
+        final profile = profileBox.getAt(item.profileSetIndex);
+        if (profile == null) continue;
+        final itemPieces =
+            _pieceLengths(item, profile, boxHeight: blind?.boxHeight ?? 0);
+
+        for (int i = 0; i < item.quantity; i++) {
+          final target = piecesMap.putIfAbsent(
+              item.profileSetIndex,
+              () => {
+                    for (var t in PieceType.values) t: <int>[],
+                  });
+          itemPieces.forEach((type, list) {
+            target[type]!.addAll(list);
+          });
+        }
       }
     }
 
@@ -201,17 +206,39 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
           padding: const EdgeInsets.all(16),
           children: [
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  child: DropdownButton<int?>(
-                    value: selectedOffer,
-                    items: [for (int i = 0; i < offerBox.length; i++) i]
-                        .map((i) => DropdownMenuItem(
-                              value: i,
-                              child: Text('${l10n.pdfOffer} ${i + 1}'),
-                            ))
-                        .toList(),
-                    onChanged: (val) => setState(() => selectedOffer = val),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(l10n.homeOffers,
+                          style: Theme.of(context).textTheme.titleMedium),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          for (int i = 0; i < offerBox.length; i++)
+                            FilterChip(
+                              label: Text('${l10n.pdfOffer} ${i + 1}'),
+                              selected: selectedOffers.contains(i),
+                              onSelected: (selected) {
+                                setState(() {
+                                  if (selected) {
+                                    selectedOffers.add(i);
+                                  } else {
+                                    selectedOffers.remove(i);
+                                  }
+                                  if (selectedOffers.isEmpty) {
+                                    results = null;
+                                  }
+                                });
+                              },
+                            ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(width: 16),

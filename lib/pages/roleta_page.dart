@@ -16,7 +16,7 @@ class RoletaPage extends StatefulWidget {
 class _RoletaPageState extends State<RoletaPage> {
   late Box<Offer> offerBox;
   late Box<Blind> blindBox;
-  int? selectedOffer;
+  final Set<int> selectedOffers = <int>{};
   Map<int, Map<String, int>>? results; // blindIndex -> size -> qty
 
   @override
@@ -24,21 +24,27 @@ class _RoletaPageState extends State<RoletaPage> {
     super.initState();
     offerBox = Hive.box<Offer>('offers');
     blindBox = Hive.box<Blind>('blinds');
-    if (offerBox.isNotEmpty) selectedOffer = 0;
+    if (offerBox.isNotEmpty) selectedOffers.add(0);
   }
 
   void _calculate() {
-    if (selectedOffer == null) return;
-    final offer = offerBox.getAt(selectedOffer!);
-    if (offer == null) return;
+    if (selectedOffers.isEmpty) {
+      setState(() => results = null);
+      return;
+    }
 
     final res = <int, Map<String, int>>{};
 
-    for (final item in offer.items) {
-      if (item.blindIndex == null) continue;
-      final target = res.putIfAbsent(item.blindIndex!, () => {});
-      final key = '${item.width} x ${item.height}';
-      target[key] = (target[key] ?? 0) + item.quantity;
+    for (final offerIndex in selectedOffers) {
+      final offer = offerBox.getAt(offerIndex);
+      if (offer == null) continue;
+
+      for (final item in offer.items) {
+        if (item.blindIndex == null) continue;
+        final target = res.putIfAbsent(item.blindIndex!, () => {});
+        final key = '${item.width} x ${item.height}';
+        target[key] = (target[key] ?? 0) + item.quantity;
+      }
     }
 
     setState(() => results = res);
@@ -54,17 +60,39 @@ class _RoletaPageState extends State<RoletaPage> {
           padding: const EdgeInsets.all(16),
           children: [
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  child: DropdownButton<int?>(
-                    value: selectedOffer,
-                    items: [for (int i = 0; i < offerBox.length; i++) i]
-                        .map((i) => DropdownMenuItem(
-                              value: i,
-                              child: Text('${l10n.pdfOffer} ${i + 1}'),
-                            ))
-                        .toList(),
-                    onChanged: (val) => setState(() => selectedOffer = val),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(l10n.homeOffers,
+                          style: Theme.of(context).textTheme.titleMedium),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          for (int i = 0; i < offerBox.length; i++)
+                            FilterChip(
+                              label: Text('${l10n.pdfOffer} ${i + 1}'),
+                              selected: selectedOffers.contains(i),
+                              onSelected: (selected) {
+                                setState(() {
+                                  if (selected) {
+                                    selectedOffers.add(i);
+                                  } else {
+                                    selectedOffers.remove(i);
+                                  }
+                                  if (selectedOffers.isEmpty) {
+                                    results = null;
+                                  }
+                                });
+                              },
+                            ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(width: 16),
