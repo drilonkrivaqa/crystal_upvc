@@ -20,7 +20,6 @@ class _XhamiPageState extends State<XhamiPage> {
   late Box<Glass> glassBox;
   late Box<Blind> blindBox;
   late Box<ProfileSet> profileBox;
-  late Box<Customer> customerBox;
   final Set<int> selectedOffers = <int>{};
   Map<int, Map<String, int>>? results; // glassIndex -> size -> qty
 
@@ -31,7 +30,6 @@ class _XhamiPageState extends State<XhamiPage> {
     glassBox = Hive.box<Glass>('glasses');
     blindBox = Hive.box<Blind>('blinds');
     profileBox = Hive.box<ProfileSet>('profileSets');
-    customerBox = Hive.box<Customer>('customers');
   }
 
   void _calculate() {
@@ -72,25 +70,7 @@ class _XhamiPageState extends State<XhamiPage> {
       results: data,
       glassBox: glassBox,
       l10n: l10n,
-      clients: _selectedClients(),
     );
-  }
-
-  List<Customer> _selectedClients() {
-    final clients = <Customer>[];
-    final seen = <int>{};
-    for (final offerIndex in selectedOffers) {
-      final offer = offerBox.getAt(offerIndex);
-      if (offer == null) continue;
-      final index = offer.customerIndex;
-      if (index < 0 || index >= customerBox.length) continue;
-      if (!seen.add(index)) continue;
-      final customer = customerBox.getAt(index);
-      if (customer != null) {
-        clients.add(customer);
-      }
-    }
-    return clients;
   }
 
   List<List<int>> _glassSizes(WindowDoorItem item, ProfileSet set,

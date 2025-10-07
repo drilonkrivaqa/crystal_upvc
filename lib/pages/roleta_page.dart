@@ -18,7 +18,6 @@ class RoletaPage extends StatefulWidget {
 class _RoletaPageState extends State<RoletaPage> {
   late Box<Offer> offerBox;
   late Box<Blind> blindBox;
-  late Box<Customer> customerBox;
   final Set<int> selectedOffers = <int>{};
   Map<int, Map<String, int>>? results; // blindIndex -> size -> qty
 
@@ -27,7 +26,6 @@ class _RoletaPageState extends State<RoletaPage> {
     super.initState();
     offerBox = Hive.box<Offer>('offers');
     blindBox = Hive.box<Blind>('blinds');
-    customerBox = Hive.box<Customer>('customers');
   }
 
   void _calculate() {
@@ -61,25 +59,7 @@ class _RoletaPageState extends State<RoletaPage> {
       results: data,
       blindBox: blindBox,
       l10n: l10n,
-      clients: _selectedClients(),
     );
-  }
-
-  List<Customer> _selectedClients() {
-    final clients = <Customer>[];
-    final seen = <int>{};
-    for (final offerIndex in selectedOffers) {
-      final offer = offerBox.getAt(offerIndex);
-      if (offer == null) continue;
-      final index = offer.customerIndex;
-      if (index < 0 || index >= customerBox.length) continue;
-      if (!seen.add(index)) continue;
-      final customer = customerBox.getAt(index);
-      if (customer != null) {
-        clients.add(customer);
-      }
-    }
-    return clients;
   }
 
   @override
