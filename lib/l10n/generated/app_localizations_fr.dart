@@ -63,19 +63,6 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get productionOfferLettersTitle => 'Lettres d\'offre';
-
-  @override
-  String get productionOfferLettersSubtitle =>
-      'Les lettres indiquent à quelle offre appartient chaque pièce.';
-
-  @override
-  String get productionOfferLettersLetterHeader => 'Lettre';
-
-  @override
-  String get productionOfferLettersOfferHeader => 'Offre';
-
-  @override
   String get cuttingPieceFrame => 'Cadre (L)';
 
   @override
