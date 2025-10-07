@@ -7,6 +7,7 @@ import 'package:printing/printing.dart';
 
 import '../l10n/app_localizations.dart';
 import '../models.dart';
+import '../utils/production_piece_detail.dart';
 
 Future<pw.ThemeData> _loadPdfTheme() async {
   final baseFontData = await rootBundle.load('assets/fonts/Montserrat-Regular.ttf');
@@ -343,11 +344,12 @@ Future<void> exportHekriResultsPdf({
 }
 
 Future<void> exportCuttingResultsPdf<T>({
-  required Map<int, Map<T, List<List<int>>>> results,
+  required Map<int, Map<T, List<List<ProductionPieceDetail>>>> results,
   required Map<T, String> pieceLabels,
   required List<T> typeOrder,
   required Box<ProfileSet> profileBox,
   required AppLocalizations l10n,
+  Map<String, String>? offerLegend,
 }) async {
   if (results.isEmpty) return;
   final theme = await _loadPdfTheme();
@@ -368,6 +370,52 @@ Future<void> exportCuttingResultsPdf<T>({
         final widgets = <pw.Widget>[
           _buildDocumentHeader(l10n, l10n.productionCutting),
         ];
+
+        final legend = offerLegend;
+        if (legend != null && legend.isNotEmpty) {
+          final legendEntries = legend.entries.toList()
+            ..sort((a, b) => a.key.compareTo(b.key));
+          widgets.add(
+            pw.Container(
+              margin: const pw.EdgeInsets.only(bottom: 16),
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  pw.Text(
+                    l10n.homeOffers,
+                    style: pw.TextStyle(
+                      fontWeight: pw.FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
+                  pw.SizedBox(height: 6),
+                  pw.Wrap(
+                    spacing: 8,
+                    runSpacing: 6,
+                    children: legendEntries
+                        .map(
+                          (entry) => pw.Container(
+                            padding: const pw.EdgeInsets.symmetric(
+                              vertical: 4,
+                              horizontal: 8,
+                            ),
+                            decoration: pw.BoxDecoration(
+                              border: pw.Border.all(
+                                color: PdfColors.blueGrey300,
+                                width: 0.8,
+                              ),
+                              borderRadius: pw.BorderRadius.circular(6),
+                            ),
+                            child: pw.Text('${entry.key} → ${entry.value}'),
+                          ),
+                        )
+                        .toList(),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
 
         for (final entry in entries) {
           final profile = profileBox.getAt(entry.key);
@@ -400,8 +448,9 @@ Future<void> exportCuttingResultsPdf<T>({
                           pw.SizedBox(height: 6),
                           () {
                             final bars = typeMap[type]!;
-                            final needed =
-                                bars.expand((bar) => bar).fold<int>(0, (a, b) => a + b);
+                            final needed = bars
+                                .expand((bar) => bar)
+                                .fold<int>(0, (a, b) => a + b.length);
                             final totalLen = bars.length * pipeLen;
                             final waste = totalLen - needed;
                             return pw.Column(
@@ -418,9 +467,12 @@ Future<void> exportCuttingResultsPdf<T>({
                                 pw.SizedBox(height: 6),
                                 ...List.generate(bars.length, (index) {
                                   final bar = bars[index];
-                                  final combination = bar.join(' + ');
-                                  final total =
-                                      bar.fold<int>(0, (a, b) => a + b);
+                                  final combination = bar
+                                      .map((piece) =>
+                                          '${piece.marker} (${piece.length})')
+                                      .join(' + ');
+                                  final total = bar.fold<int>(
+                                      0, (a, b) => a + b.length);
                                   return pw.Container(
                                     margin:
                                         const pw.EdgeInsets.symmetric(vertical: 3),

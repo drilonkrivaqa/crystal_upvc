@@ -4,6 +4,24 @@ import 'package:hive_flutter/hive_flutter.dart';
 import '../l10n/app_localizations.dart';
 import '../models.dart';
 
+String _buildOfferLabel(
+  AppLocalizations l10n,
+  Box<Customer> customerBox,
+  int offerIndex,
+  Offer? offer,
+) {
+  final hasCustomer = offer != null &&
+      offer.customerIndex >= 0 &&
+      offer.customerIndex < customerBox.length;
+  final customerName = hasCustomer
+      ? customerBox.getAt(offer.customerIndex)?.name.trim() ?? ''
+      : '';
+  if (customerName.isNotEmpty) {
+    return '${l10n.pdfOffer} ${offerIndex + 1} • $customerName';
+  }
+  return '${l10n.pdfOffer} ${offerIndex + 1}';
+}
+
 class OfferMultiSelectField extends StatelessWidget {
   const OfferMultiSelectField({
     super.key,
@@ -55,6 +73,7 @@ class _OfferSelectorContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
+    final customerBox = Hive.box<Customer>('customers');
     final sortedSelection = selectedOffers.toList()
       ..sort((a, b) {
         final offerA = offerBox.getAt(a);
@@ -81,7 +100,10 @@ class _OfferSelectorContent extends StatelessWidget {
     const maxVisible = 3;
 
     for (int i = 0; i < sortedSelection.length && i < maxVisible; i++) {
-      chips.add(Chip(label: Text('${l10n.pdfOffer} ${sortedSelection[i] + 1}')));
+      final offerIndex = sortedSelection[i];
+      final offer = offerBox.getAt(offerIndex);
+      final label = _buildOfferLabel(l10n, customerBox, offerIndex, offer);
+      chips.add(Chip(label: Text(label)));
     }
 
     if (sortedSelection.length > maxVisible) {
@@ -140,7 +162,7 @@ class _OfferSelectorContent extends StatelessWidget {
                         offer.customerIndex < customerBox.length)
                     ? customerBox.getAt(offer.customerIndex)?.name ?? ''
                     : '';
-                final label = '${l10n.pdfOffer} ${i + 1}';
+                final label = _buildOfferLabel(l10n, customerBox, i, offer);
                 final combinedText = '$label $customerName ${offer?.notes ?? ''}';
                 if (query.isEmpty ||
                     combinedText.toLowerCase().contains(query)) {
@@ -220,6 +242,8 @@ class _OfferSelectorContent extends StatelessWidget {
                                     ? customerBox.getAt(offer.customerIndex)
                                     : null;
 
+                                final label = _buildOfferLabel(
+                                    l10n, customerBox, offerIndex, offer);
                                 return CheckboxListTile(
                                   value: tempSelection.contains(offerIndex),
                                   onChanged: (selected) {
@@ -231,7 +255,7 @@ class _OfferSelectorContent extends StatelessWidget {
                                       }
                                     });
                                   },
-                                  title: Text('${l10n.pdfOffer} ${offerIndex + 1}'),
+                                  title: Text(label),
                                   subtitle: Column(
                                     mainAxisSize: MainAxisSize.min,
                                     crossAxisAlignment: CrossAxisAlignment.start,

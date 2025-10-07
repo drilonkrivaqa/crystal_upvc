@@ -4,6 +4,7 @@ import '../l10n/app_localizations.dart';
 import '../models.dart';
 import '../pdf/production_pdf.dart';
 import '../theme/app_background.dart';
+import '../utils/production_piece_detail.dart';
 import '../widgets/glass_card.dart';
 import '../widgets/offer_multi_select.dart';
 
@@ -20,8 +21,9 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
   late Box<Offer> offerBox;
   late Box<ProfileSet> profileBox;
   final Set<int> selectedOffers = <int>{};
-  Map<int, Map<PieceType, List<List<int>>>>?
+  Map<int, Map<PieceType, List<List<ProductionPieceDetail>>>>?
       results; // profileSet -> type -> bars
+  Map<String, String> offerLegend = const {};
 
   @override
   void initState() {
@@ -38,16 +40,40 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
         PieceType.llajsne: l10n.cuttingPieceBead,
       };
 
+  String _offerMarker(int index) {
+    const alphabetLength = 26;
+    var current = index;
+    final buffer = StringBuffer();
+    do {
+      final charCode = 'A'.codeUnitAt(0) + (current % alphabetLength);
+      buffer.writeCharCode(charCode);
+      current = current ~/ alphabetLength - 1;
+    } while (current >= 0);
+    final marker = buffer.toString();
+    return marker.split('').reversed.join();
+  }
+
   void _calculate() {
-    final piecesMap = <int, Map<PieceType, List<int>>>{};
+    final l10n = AppLocalizations.of(context);
+    final piecesMap = <int, Map<PieceType, List<ProductionPieceDetail>>>{};
     if (selectedOffers.isEmpty) {
-      setState(() => results = null);
+      setState(() {
+        results = null;
+        offerLegend = const {};
+      });
       return;
+    }
+
+    final markers = <int, String>{};
+    final sortedSelection = selectedOffers.toList()..sort();
+    for (var i = 0; i < sortedSelection.length; i++) {
+      markers[sortedSelection[i]] = _offerMarker(i);
     }
 
     for (final offerIndex in selectedOffers) {
       final offer = offerBox.getAt(offerIndex);
       if (offer == null) continue;
+      final marker = markers[offerIndex] ?? '';
 
       for (final item in offer.items) {
         final blind = item.blindIndex != null
@@ -62,20 +88,27 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
           final target = piecesMap.putIfAbsent(
               item.profileSetIndex,
               () => {
-                    for (var t in PieceType.values) t: <int>[],
+                    for (var t in PieceType.values) t: <ProductionPieceDetail>[],
                   });
           itemPieces.forEach((type, list) {
-            target[type]!.addAll(list);
+            for (final length in list) {
+              target[type]!.add(
+                ProductionPieceDetail(
+                  length: length,
+                  marker: marker,
+                ),
+              );
+            }
           });
         }
       }
     }
 
-    final res = <int, Map<PieceType, List<List<int>>>>{};
+    final res = <int, Map<PieceType, List<List<ProductionPieceDetail>>>>{};
 
     piecesMap.forEach((index, typeMap) {
       final pipeLength = profileBox.getAt(index)?.pipeLength ?? 6500;
-      final resultTypeMap = <PieceType, List<List<int>>>{};
+      final resultTypeMap = <PieceType, List<List<ProductionPieceDetail>>>{};
       typeMap.forEach((type, pieces) {
         if (pieces.isEmpty) return;
         final bars = _packPieces(pieces, pipeLength);
@@ -84,7 +117,16 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
       res[index] = resultTypeMap;
     });
 
-    setState(() => results = res);
+    final legend = <String, String>{};
+    markers.forEach((offerIndex, marker) {
+      if (marker.isEmpty) return;
+      legend[marker] = '${l10n.pdfOffer} ${offerIndex + 1}';
+    });
+
+    setState(() {
+      results = res;
+      offerLegend = legend;
+    });
   }
 
   Future<void> _exportPdf() async {
@@ -98,6 +140,7 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
       typeOrder: PieceType.values,
       profileBox: profileBox,
       l10n: l10n,
+      offerLegend: offerLegend,
     );
   }
 
@@ -161,16 +204,17 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
     return map;
   }
 
-  List<List<int>> _packPieces(List<int> pieces, int pipeLength) {
-    final remaining = List<int>.from(pieces);
-    final bars = <List<int>>[];
+  List<List<ProductionPieceDetail>> _packPieces(
+      List<ProductionPieceDetail> pieces, int pipeLength) {
+    final remaining = List<ProductionPieceDetail>.from(pieces);
+    final bars = <List<ProductionPieceDetail>>[];
     while (remaining.isNotEmpty) {
       final combo = _bestSubset(remaining, pipeLength);
       if (combo.isEmpty) {
         bars.add([remaining.removeAt(0)]);
         continue;
       }
-      final bar = <int>[];
+      final bar = <ProductionPieceDetail>[];
       combo.sort((a, b) => b.compareTo(a));
       for (final idx in combo) {
         bar.add(remaining[idx]);
@@ -184,13 +228,13 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
     return bars;
   }
 
-  List<int> _bestSubset(List<int> pieces, int capacity) {
+  List<int> _bestSubset(List<ProductionPieceDetail> pieces, int capacity) {
     final reachable = List<bool>.filled(capacity + 1, false);
     final parent = List<int?>.filled(capacity + 1, null);
     final used = List<int?>.filled(capacity + 1, null);
     reachable[0] = true;
     for (int i = 0; i < pieces.length; i++) {
-      final len = pieces[i];
+      final len = pieces[i].length;
       for (int j = capacity; j >= len; j--) {
         if (!reachable[j] && reachable[j - len]) {
           reachable[j] = true;
@@ -215,6 +259,7 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
     final pieceLabels = _pieceLabels(l10n);
     return Scaffold(
       appBar: AppBar(title: Text(l10n.productionCutting)),
@@ -236,6 +281,7 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
                           ..addAll(selection);
                         if (selectedOffers.isEmpty) {
                           results = null;
+                          offerLegend = const {};
                         }
                       });
                     },
@@ -250,6 +296,33 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
             ),
             const SizedBox(height: 20),
             if (results != null && results!.isNotEmpty) ...[
+              if (offerLegend.isNotEmpty)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: (offerLegend.entries.toList()
+                            ..sort((a, b) => a.key.compareTo(b.key)))
+                          .map(
+                            (entry) => Container(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 6,
+                                horizontal: 10,
+                              ),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: theme.dividerColor),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text('${entry.key} → ${entry.value}'),
+                            ),
+                          )
+                          .toList(),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                ),
               Align(
                 alignment: Alignment.centerRight,
                 child: ElevatedButton.icon(
@@ -271,7 +344,7 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
                       ...e.value.entries.map((typeEntry) {
                         final bars = typeEntry.value;
                         final needed =
-                            bars.expand((b) => b).fold<int>(0, (a, b) => a + b);
+                            bars.expand((b) => b).fold<int>(0, (a, b) => a + b.length);
                         final totalLen = bars.length * pipeLen;
                         final loss = totalLen - needed;
                         return Column(
@@ -286,12 +359,46 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
                               Padding(
                                 padding:
                                     const EdgeInsets.symmetric(vertical: 2),
-                                child: Text(l10n.productionBarDetail(
-                                    i + 1,
-                                    bars[i].join(' + '),
-                                    bars[i]
-                                        .fold<int>(0, (a, b) => a + b),
-                                    pipeLen)),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      l10n.productionBarDetail(
+                                        i + 1,
+                                        bars[i]
+                                            .map((piece) => piece.length)
+                                            .join(' + '),
+                                        bars[i].fold<int>(
+                                            0, (a, b) => a + b.length),
+                                        pipeLen,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Wrap(
+                                      spacing: 6,
+                                      runSpacing: 6,
+                                      children: [
+                                        for (final piece in bars[i])
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 4,
+                                              horizontal: 8,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: theme
+                                                  .colorScheme
+                                                  .surfaceVariant,
+                                              borderRadius:
+                                                  BorderRadius.circular(6),
+                                            ),
+                                            child: Text(
+                                              '${piece.marker} (${piece.length})',
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
                             const SizedBox(height: 8),
                           ],
