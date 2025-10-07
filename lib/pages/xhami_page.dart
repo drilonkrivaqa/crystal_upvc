@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '../models.dart';
+import '../pdf/production_pdf.dart';
 import '../theme/app_background.dart';
 import '../widgets/glass_card.dart';
 import '../widgets/offer_multi_select.dart';
@@ -59,6 +60,17 @@ class _XhamiPageState extends State<XhamiPage> {
     }
 
     setState(() => results = res);
+  }
+
+  Future<void> _exportPdf() async {
+    final data = results;
+    if (data == null || data.isEmpty) return;
+    final l10n = AppLocalizations.of(context);
+    await exportGlassResultsPdf(
+      results: data,
+      glassBox: glassBox,
+      l10n: l10n,
+    );
   }
 
   List<List<int>> _glassSizes(WindowDoorItem item, ProfileSet set,
@@ -140,7 +152,16 @@ class _XhamiPageState extends State<XhamiPage> {
               ],
             ),
             const SizedBox(height: 20),
-            if (results != null)
+            if (results != null && results!.isNotEmpty) ...[
+              Align(
+                alignment: Alignment.centerRight,
+                child: ElevatedButton.icon(
+                  onPressed: _exportPdf,
+                  icon: const Icon(Icons.picture_as_pdf),
+                  label: Text(l10n.savePdf),
+                ),
+              ),
+              const SizedBox(height: 12),
               ...results!.entries.map((e) {
                 final glass = glassBox.getAt(e.key);
                 return GlassCard(
@@ -155,6 +176,7 @@ class _XhamiPageState extends State<XhamiPage> {
                   ),
                 );
               }),
+            ],
           ],
         ),
       ),

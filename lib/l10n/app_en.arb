@@ -66,6 +66,7 @@
   "catalogFieldMass": "Mass (kg)",
   "calculate": "Calculate",
   "pcs": "pcs",
+  "savePdf": "Save PDF",
   "pdfDocument": "Document",
   "pdfClient": "Client",
   "pdfPage": "Page",

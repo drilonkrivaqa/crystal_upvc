@@ -77,6 +77,7 @@ class AppLocalizations {
       'catalogFieldMass': 'Masa (kg)',
       'calculate': 'Kalkulo',
       'pcs': 'copë',
+      'savePdf': 'Ruaj PDF',
       'pdfDocument': 'Dokument',
       'pdfClient': 'Klienti',
       'pdfPage': 'Faqja',
@@ -263,6 +264,7 @@ class AppLocalizations {
       'catalogFieldMass': 'Mass (kg)',
       'calculate': 'Calculate',
       'pcs': 'pcs',
+      'savePdf': 'Save PDF',
       'pdfDocument': 'Document',
       'pdfClient': 'Client',
       'pdfPage': 'Page',
@@ -443,6 +445,7 @@ class AppLocalizations {
       'catalogFieldMass': 'Masse (kg)',
       'calculate': 'Berechne',
       'pcs': 'Stk.',
+      'savePdf': 'PDF speichern',
       'pdfDocument': 'Dokument',
       'pdfClient': 'Kunde',
       'pdfPage': 'Seite',
@@ -627,6 +630,7 @@ class AppLocalizations {
       'catalogFieldMass': 'Masse (kg)',
       'calculate': 'Calculer',
       'pcs': 'pcs',
+      'savePdf': 'Enregistrer le PDF',
       'pdfDocument': 'Document',
       'pdfClient': 'Client',
       'pdfPage': 'Page',
@@ -811,6 +815,7 @@ class AppLocalizations {
       'catalogFieldMass': 'Massa (kg)',
       'calculate': 'Calcola',
       'pcs': 'pz',
+      'savePdf': 'Salva PDF',
       'pdfDocument': 'Documento',
       'pdfClient': 'Cliente',
       'pdfPage': 'Pagina',
@@ -1035,6 +1040,7 @@ class AppLocalizations {
   String get catalogFieldMass => _t('catalogFieldMass');
   String get calculate => _t('calculate');
   String get pcs => _t('pcs');
+  String get savePdf => _t('savePdf');
   String get pdfDocument => _t('pdfDocument');
   String get pdfClient => _t('pdfClient');
   String get pdfPage => _t('pdfPage');
