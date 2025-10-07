@@ -17,30 +17,154 @@ Future<pw.ThemeData> _loadPdfTheme() async {
   return pw.ThemeData.withFont(base: baseFont, bold: boldFont);
 }
 
-pw.Widget _buildDocumentHeader(AppLocalizations l10n, String title) {
+List<pw.Widget> _buildClientDetails(List<Customer> clients) {
+  final details = <pw.Widget>[];
+  for (int i = 0; i < clients.length; i++) {
+    final client = clients[i];
+    final email = (client.email ?? '').trim();
+    details.add(
+      pw.Text(
+        client.name,
+        style: pw.TextStyle(
+          fontWeight: pw.FontWeight.bold,
+          color: PdfColors.blueGrey900,
+        ),
+      ),
+    );
+    if (client.address.trim().isNotEmpty) {
+      details.add(
+        pw.Text(
+          client.address,
+          style: pw.TextStyle(color: PdfColors.blueGrey700),
+        ),
+      );
+    }
+    if (client.phone.trim().isNotEmpty) {
+      details.add(
+        pw.Text(
+          client.phone,
+          style: pw.TextStyle(color: PdfColors.blueGrey700),
+        ),
+      );
+    }
+    if (email.isNotEmpty) {
+      details.add(
+        pw.Text(
+          email,
+          style: pw.TextStyle(color: PdfColors.blueGrey700),
+        ),
+      );
+    }
+    if (i < clients.length - 1) {
+      details.add(const pw.SizedBox(height: 8));
+      details.add(
+        pw.Divider(color: PdfColors.blueGrey100, thickness: 0.5),
+      );
+      details.add(const pw.SizedBox(height: 8));
+    }
+  }
+  return details;
+}
+
+pw.Widget _buildDocumentHeader(
+  AppLocalizations l10n,
+  String title, {
+  List<Customer> clients = const [],
+}) {
   final dateFormatter = DateFormat.yMMMMd(l10n.localeName).add_Hm();
   final now = DateTime.now();
+  final clientWidgets = _buildClientDetails(clients);
+
   return pw.Column(
     crossAxisAlignment: pw.CrossAxisAlignment.start,
     children: [
-      pw.Text(
-        title,
-        style: pw.TextStyle(
-          fontSize: 22,
-          fontWeight: pw.FontWeight.bold,
-          color: PdfColors.blue800,
+      pw.Container(
+        padding: const pw.EdgeInsets.all(16),
+        decoration: pw.BoxDecoration(
+          color: PdfColors.blue50,
+          borderRadius: pw.BorderRadius.circular(12),
+          border: pw.Border.all(color: PdfColors.blueGrey200, width: 0.8),
+        ),
+        child: pw.Row(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+          children: [
+            pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Text(
+                  l10n.appTitle,
+                  style: pw.TextStyle(
+                    fontSize: 16,
+                    fontWeight: pw.FontWeight.bold,
+                    color: PdfColors.blueGrey900,
+                  ),
+                ),
+                const pw.SizedBox(height: 4),
+                pw.Text(
+                  l10n.welcomeAddress,
+                  style: pw.TextStyle(color: PdfColors.blueGrey700),
+                ),
+                pw.Text(
+                  l10n.welcomePhones,
+                  style: pw.TextStyle(color: PdfColors.blueGrey700),
+                ),
+                pw.Text(
+                  l10n.welcomeWebsite,
+                  style: pw.TextStyle(color: PdfColors.blueGrey700),
+                ),
+              ],
+            ),
+            pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.end,
+              children: [
+                pw.Text(
+                  title,
+                  style: pw.TextStyle(
+                    fontSize: 20,
+                    fontWeight: pw.FontWeight.bold,
+                    color: PdfColors.blue800,
+                  ),
+                ),
+                const pw.SizedBox(height: 6),
+                pw.Text(
+                  '${l10n.pdfDate} ${dateFormatter.format(now)}',
+                  style: pw.TextStyle(color: PdfColors.blueGrey600),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
-      pw.SizedBox(height: 4),
-      pw.Text(
-        dateFormatter.format(now),
-        style: pw.TextStyle(
-          color: PdfColors.blueGrey600,
+      if (clientWidgets.isNotEmpty) ...[
+        const pw.SizedBox(height: 12),
+        pw.Container(
+          width: double.infinity,
+          padding: const pw.EdgeInsets.all(14),
+          decoration: pw.BoxDecoration(
+            color: PdfColors.white,
+            borderRadius: pw.BorderRadius.circular(12),
+            border: pw.Border.all(color: PdfColors.blueGrey200, width: 0.8),
+          ),
+          child: pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Text(
+                l10n.pdfClient,
+                style: pw.TextStyle(
+                  fontWeight: pw.FontWeight.bold,
+                  color: PdfColors.blueGrey900,
+                ),
+              ),
+              const pw.SizedBox(height: 8),
+              ...clientWidgets,
+            ],
+          ),
         ),
-      ),
-      pw.SizedBox(height: 12),
+      ],
+      const pw.SizedBox(height: 16),
       pw.Divider(color: PdfColors.blueGrey300, thickness: 1),
-      pw.SizedBox(height: 12),
+      const pw.SizedBox(height: 12),
     ],
   );
 }
@@ -111,6 +235,7 @@ Future<void> exportGlassResultsPdf({
   required Map<int, Map<String, int>> results,
   required Box<Glass> glassBox,
   required AppLocalizations l10n,
+  List<Customer> clients = const [],
 }) async {
   if (results.isEmpty) return;
   final theme = await _loadPdfTheme();
@@ -129,7 +254,11 @@ Future<void> exportGlassResultsPdf({
       margin: const pw.EdgeInsets.all(24),
       build: (context) {
         final widgets = <pw.Widget>[
-          _buildDocumentHeader(l10n, l10n.productionGlass),
+          _buildDocumentHeader(
+            l10n,
+            l10n.productionGlass,
+            clients: clients,
+          ),
         ];
 
         for (final entry in entries) {
@@ -187,6 +316,7 @@ Future<void> exportBlindResultsPdf({
   required Map<int, Map<String, int>> results,
   required Box<Blind> blindBox,
   required AppLocalizations l10n,
+  List<Customer> clients = const [],
 }) async {
   if (results.isEmpty) return;
   final theme = await _loadPdfTheme();
@@ -205,7 +335,11 @@ Future<void> exportBlindResultsPdf({
       margin: const pw.EdgeInsets.all(24),
       build: (context) {
         final widgets = <pw.Widget>[
-          _buildDocumentHeader(l10n, l10n.productionRollerShutter),
+          _buildDocumentHeader(
+            l10n,
+            l10n.productionRollerShutter,
+            clients: clients,
+          ),
         ];
 
         for (final entry in entries) {
@@ -263,6 +397,7 @@ Future<void> exportHekriResultsPdf({
   required Map<int, List<List<int>>> results,
   required Box<ProfileSet> profileBox,
   required AppLocalizations l10n,
+  List<Customer> clients = const [],
 }) async {
   if (results.isEmpty) return;
   final theme = await _loadPdfTheme();
@@ -281,7 +416,11 @@ Future<void> exportHekriResultsPdf({
       margin: const pw.EdgeInsets.all(24),
       build: (context) {
         final widgets = <pw.Widget>[
-          _buildDocumentHeader(l10n, l10n.productionIron),
+          _buildDocumentHeader(
+            l10n,
+            l10n.productionIron,
+            clients: clients,
+          ),
         ];
 
         for (final entry in entries) {
@@ -349,6 +488,7 @@ Future<void> exportCuttingResultsPdf<T>({
   required List<T> typeOrder,
   required Box<ProfileSet> profileBox,
   required AppLocalizations l10n,
+  List<Customer> clients = const [],
 }) async {
   if (results.isEmpty) return;
   final theme = await _loadPdfTheme();
@@ -367,7 +507,11 @@ Future<void> exportCuttingResultsPdf<T>({
       margin: const pw.EdgeInsets.all(24),
       build: (context) {
         final widgets = <pw.Widget>[
-          _buildDocumentHeader(l10n, l10n.productionCutting),
+          _buildDocumentHeader(
+            l10n,
+            l10n.productionCutting,
+            clients: clients,
+          ),
         ];
 
         for (final entry in entries) {
