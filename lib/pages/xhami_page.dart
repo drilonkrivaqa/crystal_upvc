@@ -29,7 +29,6 @@ class _XhamiPageState extends State<XhamiPage> {
     glassBox = Hive.box<Glass>('glasses');
     blindBox = Hive.box<Blind>('blinds');
     profileBox = Hive.box<ProfileSet>('profileSets');
-    if (offerBox.isNotEmpty) selectedOffers.add(0);
   }
 
   void _calculate() {

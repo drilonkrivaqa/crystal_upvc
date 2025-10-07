@@ -28,7 +28,6 @@ class _HekriPageState extends State<HekriPage> {
     super.initState();
     offerBox = Hive.box<Offer>('offers');
     profileBox = Hive.box<ProfileSet>('profileSets');
-    if (offerBox.isNotEmpty) selectedOffers.add(0);
   }
 
   void _openProfiles() {

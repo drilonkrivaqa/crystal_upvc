@@ -27,7 +27,6 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
     super.initState();
     offerBox = Hive.box<Offer>('offers');
     profileBox = Hive.box<ProfileSet>('profileSets');
-    if (offerBox.isNotEmpty) selectedOffers.add(0);
   }
 
   void _calculate() {
