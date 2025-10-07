@@ -18,7 +18,7 @@ class _XhamiPageState extends State<XhamiPage> {
   late Box<Glass> glassBox;
   late Box<Blind> blindBox;
   late Box<ProfileSet> profileBox;
-  int? selectedOffer;
+  final Set<int> selectedOffers = <int>{};
   Map<int, Map<String, int>>? results; // glassIndex -> size -> qty
 
   @override
@@ -28,27 +28,33 @@ class _XhamiPageState extends State<XhamiPage> {
     glassBox = Hive.box<Glass>('glasses');
     blindBox = Hive.box<Blind>('blinds');
     profileBox = Hive.box<ProfileSet>('profileSets');
-    if (offerBox.isNotEmpty) selectedOffer = 0;
+    if (offerBox.isNotEmpty) selectedOffers.add(0);
   }
 
   void _calculate() {
-    if (selectedOffer == null) return;
-    final offer = offerBox.getAt(selectedOffer!);
-    if (offer == null) return;
+    if (selectedOffers.isEmpty) {
+      setState(() => results = null);
+      return;
+    }
 
     final res = <int, Map<String, int>>{};
 
-    for (final item in offer.items) {
-      final blind =
-          item.blindIndex != null ? blindBox.getAt(item.blindIndex!) : null;
-      final profile = profileBox.getAt(item.profileSetIndex);
-      if (profile == null) continue;
-      final sizes =
-          _glassSizes(item, profile, boxHeight: blind?.boxHeight ?? 0);
-      final target = res.putIfAbsent(item.glassIndex, () => {});
-      for (final size in sizes) {
-        final key = '${size[0]} x ${size[1]}';
-        target[key] = (target[key] ?? 0) + item.quantity;
+    for (final offerIndex in selectedOffers) {
+      final offer = offerBox.getAt(offerIndex);
+      if (offer == null) continue;
+
+      for (final item in offer.items) {
+        final blind =
+            item.blindIndex != null ? blindBox.getAt(item.blindIndex!) : null;
+        final profile = profileBox.getAt(item.profileSetIndex);
+        if (profile == null) continue;
+        final sizes =
+            _glassSizes(item, profile, boxHeight: blind?.boxHeight ?? 0);
+        final target = res.putIfAbsent(item.glassIndex, () => {});
+        for (final size in sizes) {
+          final key = '${size[0]} x ${size[1]}';
+          target[key] = (target[key] ?? 0) + item.quantity;
+        }
       }
     }
 
@@ -108,17 +114,39 @@ class _XhamiPageState extends State<XhamiPage> {
           padding: const EdgeInsets.all(16),
           children: [
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  child: DropdownButton<int?>(
-                    value: selectedOffer,
-                    items: [for (int i = 0; i < offerBox.length; i++) i]
-                        .map((i) => DropdownMenuItem(
-                              value: i,
-                              child: Text('${l10n.pdfOffer} ${i + 1}'),
-                            ))
-                        .toList(),
-                    onChanged: (val) => setState(() => selectedOffer = val),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(l10n.homeOffers,
+                          style: Theme.of(context).textTheme.titleMedium),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          for (int i = 0; i < offerBox.length; i++)
+                            FilterChip(
+                              label: Text('${l10n.pdfOffer} ${i + 1}'),
+                              selected: selectedOffers.contains(i),
+                              onSelected: (selected) {
+                                setState(() {
+                                  if (selected) {
+                                    selectedOffers.add(i);
+                                  } else {
+                                    selectedOffers.remove(i);
+                                  }
+                                  if (selectedOffers.isEmpty) {
+                                    results = null;
+                                  }
+                                });
+                              },
+                            ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(width: 16),

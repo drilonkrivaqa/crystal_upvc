@@ -19,7 +19,7 @@ enum PieceType { l, z, t }
 class _HekriPageState extends State<HekriPage> {
   late Box<Offer> offerBox;
   late Box<ProfileSet> profileBox;
-  int? selectedOffer;
+  final Set<int> selectedOffers = <int>{};
   Map<int, List<List<int>>>? results;
 
   @override
@@ -27,7 +27,7 @@ class _HekriPageState extends State<HekriPage> {
     super.initState();
     offerBox = Hive.box<Offer>('offers');
     profileBox = Hive.box<ProfileSet>('profileSets');
-    if (offerBox.isNotEmpty) selectedOffer = 0;
+    if (offerBox.isNotEmpty) selectedOffers.add(0);
   }
 
   void _openProfiles() {
@@ -38,34 +38,41 @@ class _HekriPageState extends State<HekriPage> {
   }
 
   void _calculate() {
-    if (selectedOffer == null) return;
-    final offer = offerBox.getAt(selectedOffer!);
-    if (offer == null) return;
+    if (selectedOffers.isEmpty) {
+      setState(() => results = null);
+      return;
+    }
 
     final piecesMap = <int, List<int>>{};
 
-    for (final item in offer.items) {
-      final profile = profileBox.getAt(item.profileSetIndex);
-      if (profile == null) continue;
-      final blind = item.blindIndex != null
-          ? Hive.box<Blind>('blinds').getAt(item.blindIndex!)
-          : null;
-      final itemPieces =
-          _pieceLengths(item, profile, boxHeight: blind?.boxHeight ?? 0);
+    for (final offerIndex in selectedOffers) {
+      final offer = offerBox.getAt(offerIndex);
+      if (offer == null) continue;
 
-      for (int q = 0; q < item.quantity; q++) {
-        final list = piecesMap.putIfAbsent(item.profileSetIndex, () => <int>[]);
-        for (final len in itemPieces[PieceType.l]!) {
-          final hLen = max(0, len - profile.hekriOffsetL);
-          if (hLen > 0) list.add(hLen);
-        }
-        for (final len in itemPieces[PieceType.z]!) {
-          final hLen = max(0, len - profile.hekriOffsetZ);
-          if (hLen > 0) list.add(hLen);
-        }
-        for (final len in itemPieces[PieceType.t]!) {
-          final hLen = max(0, len - profile.hekriOffsetT);
-          if (hLen > 0) list.add(hLen);
+      for (final item in offer.items) {
+        final profile = profileBox.getAt(item.profileSetIndex);
+        if (profile == null) continue;
+        final blind = item.blindIndex != null
+            ? Hive.box<Blind>('blinds').getAt(item.blindIndex!)
+            : null;
+        final itemPieces =
+            _pieceLengths(item, profile, boxHeight: blind?.boxHeight ?? 0);
+
+        for (int q = 0; q < item.quantity; q++) {
+          final list =
+              piecesMap.putIfAbsent(item.profileSetIndex, () => <int>[]);
+          for (final len in itemPieces[PieceType.l]!) {
+            final hLen = max(0, len - profile.hekriOffsetL);
+            if (hLen > 0) list.add(hLen);
+          }
+          for (final len in itemPieces[PieceType.z]!) {
+            final hLen = max(0, len - profile.hekriOffsetZ);
+            if (hLen > 0) list.add(hLen);
+          }
+          for (final len in itemPieces[PieceType.t]!) {
+            final hLen = max(0, len - profile.hekriOffsetT);
+            if (hLen > 0) list.add(hLen);
+          }
         }
       }
     }
@@ -204,18 +211,39 @@ class _HekriPageState extends State<HekriPage> {
             ),
             const SizedBox(height: 16),
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  child: DropdownButton<int?>(
-                    value: selectedOffer,
-                    items: [
-                      for (int i = 0; i < offerBox.length; i++)
-                        DropdownMenuItem(
-                          value: i,
-                          child: Text('${l10n.pdfOffer} ${i + 1}'),
-                        )
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(l10n.homeOffers,
+                          style: Theme.of(context).textTheme.titleMedium),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          for (int i = 0; i < offerBox.length; i++)
+                            FilterChip(
+                              label: Text('${l10n.pdfOffer} ${i + 1}'),
+                              selected: selectedOffers.contains(i),
+                              onSelected: (selected) {
+                                setState(() {
+                                  if (selected) {
+                                    selectedOffers.add(i);
+                                  } else {
+                                    selectedOffers.remove(i);
+                                  }
+                                  if (selectedOffers.isEmpty) {
+                                    results = null;
+                                  }
+                                });
+                              },
+                            ),
+                        ],
+                      ),
                     ],
-                    onChanged: (val) => setState(() => selectedOffer = val),
                   ),
                 ),
                 const SizedBox(width: 16),
