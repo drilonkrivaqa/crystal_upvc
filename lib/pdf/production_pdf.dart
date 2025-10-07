@@ -17,29 +17,141 @@ Future<pw.ThemeData> _loadPdfTheme() async {
   return pw.ThemeData.withFont(base: baseFont, bold: boldFont);
 }
 
-pw.Widget _buildDocumentHeader(AppLocalizations l10n, String title) {
+Future<pw.MemoryImage?> _loadCompanyLogo() async {
+  try {
+    final data = await rootBundle.load('assets/logo.png');
+    return pw.MemoryImage(data.buffer.asUint8List());
+  } catch (_) {
+    return null;
+  }
+}
+
+pw.Widget _buildDocumentHeader(
+  AppLocalizations l10n,
+  String title, {
+  required pw.MemoryImage? logoImage,
+  required List<Customer> customers,
+}) {
   final dateFormatter = DateFormat.yMMMMd(l10n.localeName).add_Hm();
   final now = DateTime.now();
+  final customerWidgets = customers.isNotEmpty
+      ? customers
+          .map(
+            (customer) => pw.Padding(
+              padding: const pw.EdgeInsets.only(top: 6),
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  pw.Text(
+                    customer.name,
+                    style: pw.TextStyle(
+                      fontWeight: pw.FontWeight.bold,
+                      color: PdfColors.blueGrey900,
+                    ),
+                  ),
+                  if (customer.address.isNotEmpty)
+                    pw.Text(
+                      customer.address,
+                      style: pw.TextStyle(color: PdfColors.blueGrey600),
+                    ),
+                  if (customer.phone.isNotEmpty)
+                    pw.Text(
+                      customer.phone,
+                      style: pw.TextStyle(color: PdfColors.blueGrey600),
+                    ),
+                  if ((customer.email ?? '').isNotEmpty)
+                    pw.Text(
+                      customer.email!,
+                      style: pw.TextStyle(color: PdfColors.blueGrey600),
+                    ),
+                ],
+              ),
+            ),
+          )
+          .toList()
+      : <pw.Widget>[];
+
   return pw.Column(
     crossAxisAlignment: pw.CrossAxisAlignment.start,
     children: [
-      pw.Text(
-        title,
-        style: pw.TextStyle(
-          fontSize: 22,
-          fontWeight: pw.FontWeight.bold,
-          color: PdfColors.blue800,
-        ),
-      ),
-      pw.SizedBox(height: 4),
-      pw.Text(
-        dateFormatter.format(now),
-        style: pw.TextStyle(
-          color: PdfColors.blueGrey600,
-        ),
+      pw.Row(
+        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Row(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              if (logoImage != null)
+                pw.Padding(
+                  padding: const pw.EdgeInsets.only(right: 12),
+                  child: pw.Image(logoImage, width: 48, height: 48),
+                ),
+              pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  pw.Text(
+                    l10n.appTitle,
+                    style: pw.TextStyle(
+                      fontSize: 16,
+                      fontWeight: pw.FontWeight.bold,
+                      color: PdfColors.blue800,
+                    ),
+                  ),
+                  pw.Text(l10n.welcomeAddress),
+                  pw.Text(l10n.welcomePhones),
+                  pw.Text(l10n.welcomeWebsite),
+                ],
+              ),
+            ],
+          ),
+          if (customerWidgets.isNotEmpty)
+            pw.Container(
+              constraints: const pw.BoxConstraints(maxWidth: 260),
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  pw.Text(
+                    customers.length > 1
+                        ? '${l10n.pdfClient} (${customers.length})'
+                        : l10n.pdfClient,
+                    style: pw.TextStyle(
+                      fontWeight: pw.FontWeight.bold,
+                      color: PdfColors.blueGrey900,
+                    ),
+                  ),
+                  ...customerWidgets,
+                ],
+              ),
+            ),
+        ],
       ),
       pw.SizedBox(height: 12),
-      pw.Divider(color: PdfColors.blueGrey300, thickness: 1),
+      pw.Container(
+        width: double.infinity,
+        padding: const pw.EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        decoration: pw.BoxDecoration(
+          color: PdfColors.blue50,
+          borderRadius: pw.BorderRadius.circular(12),
+          border: pw.Border.all(color: PdfColors.blueGrey200, width: 1),
+        ),
+        child: pw.Row(
+          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+          children: [
+            pw.Text(
+              title,
+              style: pw.TextStyle(
+                fontSize: 20,
+                fontWeight: pw.FontWeight.bold,
+                color: PdfColors.blueGrey900,
+              ),
+            ),
+            pw.Text(
+              dateFormatter.format(now),
+              style: pw.TextStyle(color: PdfColors.blueGrey700),
+            ),
+          ],
+        ),
+      ),
       pw.SizedBox(height: 12),
     ],
   );
@@ -111,9 +223,11 @@ Future<void> exportGlassResultsPdf({
   required Map<int, Map<String, int>> results,
   required Box<Glass> glassBox,
   required AppLocalizations l10n,
+  required List<Customer> customers,
 }) async {
   if (results.isEmpty) return;
   final theme = await _loadPdfTheme();
+  final logoImage = await _loadCompanyLogo();
   final doc = pw.Document(theme: theme);
 
   final entries = results.entries.toList()
@@ -129,7 +243,12 @@ Future<void> exportGlassResultsPdf({
       margin: const pw.EdgeInsets.all(24),
       build: (context) {
         final widgets = <pw.Widget>[
-          _buildDocumentHeader(l10n, l10n.productionGlass),
+          _buildDocumentHeader(
+            l10n,
+            l10n.productionGlass,
+            logoImage: logoImage,
+            customers: customers,
+          ),
         ];
 
         for (final entry in entries) {
@@ -187,9 +306,11 @@ Future<void> exportBlindResultsPdf({
   required Map<int, Map<String, int>> results,
   required Box<Blind> blindBox,
   required AppLocalizations l10n,
+  required List<Customer> customers,
 }) async {
   if (results.isEmpty) return;
   final theme = await _loadPdfTheme();
+  final logoImage = await _loadCompanyLogo();
   final doc = pw.Document(theme: theme);
 
   final entries = results.entries.toList()
@@ -205,7 +326,12 @@ Future<void> exportBlindResultsPdf({
       margin: const pw.EdgeInsets.all(24),
       build: (context) {
         final widgets = <pw.Widget>[
-          _buildDocumentHeader(l10n, l10n.productionRollerShutter),
+          _buildDocumentHeader(
+            l10n,
+            l10n.productionRollerShutter,
+            logoImage: logoImage,
+            customers: customers,
+          ),
         ];
 
         for (final entry in entries) {
@@ -263,9 +389,11 @@ Future<void> exportHekriResultsPdf({
   required Map<int, List<List<int>>> results,
   required Box<ProfileSet> profileBox,
   required AppLocalizations l10n,
+  required List<Customer> customers,
 }) async {
   if (results.isEmpty) return;
   final theme = await _loadPdfTheme();
+  final logoImage = await _loadCompanyLogo();
   final doc = pw.Document(theme: theme);
 
   final entries = results.entries.toList()
@@ -281,7 +409,12 @@ Future<void> exportHekriResultsPdf({
       margin: const pw.EdgeInsets.all(24),
       build: (context) {
         final widgets = <pw.Widget>[
-          _buildDocumentHeader(l10n, l10n.productionIron),
+          _buildDocumentHeader(
+            l10n,
+            l10n.productionIron,
+            logoImage: logoImage,
+            customers: customers,
+          ),
         ];
 
         for (final entry in entries) {
@@ -349,9 +482,11 @@ Future<void> exportCuttingResultsPdf<T>({
   required List<T> typeOrder,
   required Box<ProfileSet> profileBox,
   required AppLocalizations l10n,
+  required List<Customer> customers,
 }) async {
   if (results.isEmpty) return;
   final theme = await _loadPdfTheme();
+  final logoImage = await _loadCompanyLogo();
   final doc = pw.Document(theme: theme);
 
   final entries = results.entries.toList()
@@ -367,7 +502,12 @@ Future<void> exportCuttingResultsPdf<T>({
       margin: const pw.EdgeInsets.all(24),
       build: (context) {
         final widgets = <pw.Widget>[
-          _buildDocumentHeader(l10n, l10n.productionCutting),
+          _buildDocumentHeader(
+            l10n,
+            l10n.productionCutting,
+            logoImage: logoImage,
+            customers: customers,
+          ),
         ];
 
         for (final entry in entries) {
