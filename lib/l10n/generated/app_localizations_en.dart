@@ -63,6 +63,19 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get productionOfferLettersTitle => 'Offer letters';
+
+  @override
+  String get productionOfferLettersSubtitle =>
+      'The letters show which offer each piece belongs to.';
+
+  @override
+  String get productionOfferLettersLetterHeader => 'Letter';
+
+  @override
+  String get productionOfferLettersOfferHeader => 'Offer';
+
+  @override
   String get cuttingPieceFrame => 'Frame (L)';
 
   @override
