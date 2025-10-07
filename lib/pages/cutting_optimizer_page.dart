@@ -23,6 +23,7 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
   late Box<ProfileSet> profileBox;
   late Box<Customer> customerBox;
   final Set<int> selectedOffers = <int>{};
+  Map<int, String> offerLetters = <int, String>{};
   Map<int, Map<PieceType, List<List<ProductionPieceDetail>>>>?
       results; // profileSet -> type -> bars
 
@@ -46,10 +47,14 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
     final l10n = AppLocalizations.of(context);
     final piecesMap = <int, Map<PieceType, List<ProductionPieceDetail>>>{};
     if (selectedOffers.isEmpty) {
-      setState(() => results = null);
+      setState(() {
+        offerLetters = <int, String>{};
+        results = null;
+      });
       return;
     }
 
+    final offerLetterMap = _buildOfferLetterMap();
     for (final offerIndex in selectedOffers) {
       final offer = offerBox.getAt(offerIndex);
       if (offer == null) continue;
@@ -77,6 +82,7 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
                   length: length,
                   offerIndex: offerIndex,
                   offerLabel: offerLabel,
+                  offerLetter: offerLetterMap[offerIndex] ?? '',
                 ),
               );
             }
@@ -98,7 +104,30 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
       res[index] = resultTypeMap;
     });
 
-    setState(() => results = res);
+    setState(() {
+      offerLetters = offerLetterMap;
+      results = res;
+    });
+  }
+
+  Map<int, String> _buildOfferLetterMap() {
+    final sorted = selectedOffers.toList()..sort();
+    final map = <int, String>{};
+    for (var i = 0; i < sorted.length; i++) {
+      map[sorted[i]] = _letterForIndex(i);
+    }
+    return map;
+  }
+
+  String _letterForIndex(int position) {
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    var index = position;
+    var result = '';
+    while (index >= 0) {
+      result = letters[index % 26] + result;
+      index = (index ~/ 26) - 1;
+    }
+    return result;
   }
 
   Future<void> _exportPdf() async {
@@ -249,6 +278,7 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
                         selectedOffers
                           ..clear()
                           ..addAll(selection);
+                        offerLetters = _buildOfferLetterMap();
                         if (selectedOffers.isEmpty) {
                           results = null;
                         }
@@ -264,6 +294,48 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
               ],
             ),
             const SizedBox(height: 20),
+            if (offerLetters.isNotEmpty)
+              GlassCard(
+                child: Table(
+                  columnWidths: const {
+                    0: IntrinsicColumnWidth(),
+                    1: FixedColumnWidth(12),
+                    2: FlexColumnWidth(),
+                  },
+                  defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                  children: [
+                    for (final entry in offerLetters.entries.toList()
+                      ..sort((a, b) => a.value.compareTo(b.value)))
+                      TableRow(
+                        children: [
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(vertical: 4),
+                            child: Text(
+                              entry.value,
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          const SizedBox(),
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(vertical: 4),
+                            child: Text(
+                              buildOfferLabel(
+                                l10n,
+                                customerBox,
+                                entry.key,
+                                offerBox.getAt(entry.key),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                  ],
+                ),
+              ),
+            if (offerLetters.isNotEmpty) const SizedBox(height: 20),
             if (results != null && results!.isNotEmpty) ...[
               Align(
                 alignment: Alignment.centerRight,
@@ -321,9 +393,12 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
                                       runSpacing: 6,
                                       children: [
                                         for (final piece in bars[i])
-                                          Chip(
-                                            label: Text(
-                                              '${piece.offerLabel} (${piece.length})',
+                                          Tooltip(
+                                            message: piece.offerLabel,
+                                            child: Chip(
+                                              label: Text(
+                                                '${piece.offerLetter} (${piece.length})',
+                                              ),
                                             ),
                                           ),
                                       ],
