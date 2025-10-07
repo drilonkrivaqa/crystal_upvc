@@ -222,6 +222,9 @@ class AppLocalizationsSq extends AppLocalizations {
   String get pcs => 'copë';
 
   @override
+  String get savePdf => 'Ruaj PDF';
+
+  @override
   String get pdfDocument => 'Dokument';
 
   @override

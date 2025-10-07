@@ -222,6 +222,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get pcs => 'pcs';
 
   @override
+  String get savePdf => 'Enregistrer le PDF';
+
+  @override
   String get pdfDocument => 'Document';
 
   @override

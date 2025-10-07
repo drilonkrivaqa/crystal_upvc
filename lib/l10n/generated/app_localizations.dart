@@ -501,6 +501,12 @@ abstract class AppLocalizations {
   /// **'pcs'**
   String get pcs;
 
+  /// No description provided for @savePdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Save PDF'**
+  String get savePdf;
+
   /// No description provided for @pdfDocument.
   ///
   /// In en, this message translates to:
