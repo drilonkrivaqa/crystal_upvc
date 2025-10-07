@@ -79,7 +79,7 @@ class _OfferSelectorContent extends StatelessWidget {
             decoration: InputDecoration(
               border: const OutlineInputBorder(),
               suffixIcon: const Icon(Icons.keyboard_arrow_down),
-              labelText: l10n.homeOffers,
+              hintText: sortedSelection.isEmpty ? l10n.homeOffers : null,
             ),
             child: sortedSelection.isEmpty
                 ? Text(

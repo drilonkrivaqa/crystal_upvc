@@ -25,7 +25,6 @@ class _RoletaPageState extends State<RoletaPage> {
     super.initState();
     offerBox = Hive.box<Offer>('offers');
     blindBox = Hive.box<Blind>('blinds');
-    if (offerBox.isNotEmpty) selectedOffers.add(0);
   }
 
   void _calculate() {
