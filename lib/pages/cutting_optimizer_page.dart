@@ -4,6 +4,8 @@ import '../l10n/app_localizations.dart';
 import '../models.dart';
 import '../pdf/production_pdf.dart';
 import '../theme/app_background.dart';
+import '../utils/offer_label.dart';
+import '../utils/production_piece_detail.dart';
 import '../widgets/glass_card.dart';
 import '../widgets/offer_multi_select.dart';
 
@@ -19,8 +21,9 @@ enum PieceType { l, z, t, adapter, llajsne }
 class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
   late Box<Offer> offerBox;
   late Box<ProfileSet> profileBox;
+  late Box<Customer> customerBox;
   final Set<int> selectedOffers = <int>{};
-  Map<int, Map<PieceType, List<List<int>>>>?
+  Map<int, Map<PieceType, List<List<ProductionPieceDetail>>>>?
       results; // profileSet -> type -> bars
 
   @override
@@ -28,6 +31,7 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
     super.initState();
     offerBox = Hive.box<Offer>('offers');
     profileBox = Hive.box<ProfileSet>('profileSets');
+    customerBox = Hive.box<Customer>('customers');
   }
 
   Map<PieceType, String> _pieceLabels(AppLocalizations l10n) => {
@@ -39,7 +43,8 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
       };
 
   void _calculate() {
-    final piecesMap = <int, Map<PieceType, List<int>>>{};
+    final l10n = AppLocalizations.of(context);
+    final piecesMap = <int, Map<PieceType, List<ProductionPieceDetail>>>{};
     if (selectedOffers.isEmpty) {
       setState(() => results = null);
       return;
@@ -48,6 +53,7 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
     for (final offerIndex in selectedOffers) {
       final offer = offerBox.getAt(offerIndex);
       if (offer == null) continue;
+      final offerLabel = buildOfferLabel(l10n, customerBox, offerIndex, offer);
 
       for (final item in offer.items) {
         final blind = item.blindIndex != null
@@ -62,20 +68,28 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
           final target = piecesMap.putIfAbsent(
               item.profileSetIndex,
               () => {
-                    for (var t in PieceType.values) t: <int>[],
+                    for (var t in PieceType.values) t: <ProductionPieceDetail>[],
                   });
           itemPieces.forEach((type, list) {
-            target[type]!.addAll(list);
+            for (final length in list) {
+              target[type]!.add(
+                ProductionPieceDetail(
+                  length: length,
+                  offerIndex: offerIndex,
+                  offerLabel: offerLabel,
+                ),
+              );
+            }
           });
         }
       }
     }
 
-    final res = <int, Map<PieceType, List<List<int>>>>{};
+    final res = <int, Map<PieceType, List<List<ProductionPieceDetail>>>>{};
 
     piecesMap.forEach((index, typeMap) {
       final pipeLength = profileBox.getAt(index)?.pipeLength ?? 6500;
-      final resultTypeMap = <PieceType, List<List<int>>>{};
+      final resultTypeMap = <PieceType, List<List<ProductionPieceDetail>>>{};
       typeMap.forEach((type, pieces) {
         if (pieces.isEmpty) return;
         final bars = _packPieces(pieces, pipeLength);
@@ -161,16 +175,17 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
     return map;
   }
 
-  List<List<int>> _packPieces(List<int> pieces, int pipeLength) {
-    final remaining = List<int>.from(pieces);
-    final bars = <List<int>>[];
+  List<List<ProductionPieceDetail>> _packPieces(
+      List<ProductionPieceDetail> pieces, int pipeLength) {
+    final remaining = List<ProductionPieceDetail>.from(pieces);
+    final bars = <List<ProductionPieceDetail>>[];
     while (remaining.isNotEmpty) {
       final combo = _bestSubset(remaining, pipeLength);
       if (combo.isEmpty) {
         bars.add([remaining.removeAt(0)]);
         continue;
       }
-      final bar = <int>[];
+      final bar = <ProductionPieceDetail>[];
       combo.sort((a, b) => b.compareTo(a));
       for (final idx in combo) {
         bar.add(remaining[idx]);
@@ -184,13 +199,13 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
     return bars;
   }
 
-  List<int> _bestSubset(List<int> pieces, int capacity) {
+  List<int> _bestSubset(List<ProductionPieceDetail> pieces, int capacity) {
     final reachable = List<bool>.filled(capacity + 1, false);
     final parent = List<int?>.filled(capacity + 1, null);
     final used = List<int?>.filled(capacity + 1, null);
     reachable[0] = true;
     for (int i = 0; i < pieces.length; i++) {
-      final len = pieces[i];
+      final len = pieces[i].length;
       for (int j = capacity; j >= len; j--) {
         if (!reachable[j] && reachable[j - len]) {
           reachable[j] = true;
@@ -271,7 +286,7 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
                       ...e.value.entries.map((typeEntry) {
                         final bars = typeEntry.value;
                         final needed =
-                            bars.expand((b) => b).fold<int>(0, (a, b) => a + b);
+                            bars.expand((b) => b).fold<int>(0, (a, b) => a + b.length);
                         final totalLen = bars.length * pipeLen;
                         final loss = totalLen - needed;
                         return Column(
@@ -286,12 +301,35 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
                               Padding(
                                 padding:
                                     const EdgeInsets.symmetric(vertical: 2),
-                                child: Text(l10n.productionBarDetail(
-                                    i + 1,
-                                    bars[i].join(' + '),
-                                    bars[i]
-                                        .fold<int>(0, (a, b) => a + b),
-                                    pipeLen)),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      l10n.productionBarDetail(
+                                        i + 1,
+                                        bars[i]
+                                            .map((piece) => piece.length)
+                                            .join(' + '),
+                                        bars[i].fold<int>(
+                                            0, (a, b) => a + b.length),
+                                        pipeLen,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Wrap(
+                                      spacing: 6,
+                                      runSpacing: 6,
+                                      children: [
+                                        for (final piece in bars[i])
+                                          Chip(
+                                            label: Text(
+                                              '${piece.offerLabel} (${piece.length})',
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
                             const SizedBox(height: 8),
                           ],

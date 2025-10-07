@@ -7,6 +7,7 @@ import 'package:printing/printing.dart';
 
 import '../l10n/app_localizations.dart';
 import '../models.dart';
+import '../utils/production_piece_detail.dart';
 
 Future<pw.ThemeData> _loadPdfTheme() async {
   final baseFontData = await rootBundle.load('assets/fonts/Montserrat-Regular.ttf');
@@ -343,7 +344,7 @@ Future<void> exportHekriResultsPdf({
 }
 
 Future<void> exportCuttingResultsPdf<T>({
-  required Map<int, Map<T, List<List<int>>>> results,
+  required Map<int, Map<T, List<List<ProductionPieceDetail>>>> results,
   required Map<T, String> pieceLabels,
   required List<T> typeOrder,
   required Box<ProfileSet> profileBox,
@@ -400,8 +401,9 @@ Future<void> exportCuttingResultsPdf<T>({
                           pw.SizedBox(height: 6),
                           () {
                             final bars = typeMap[type]!;
-                            final needed =
-                                bars.expand((bar) => bar).fold<int>(0, (a, b) => a + b);
+                            final needed = bars
+                                .expand((bar) => bar)
+                                .fold<int>(0, (a, b) => a + b.length);
                             final totalLen = bars.length * pipeLen;
                             final waste = totalLen - needed;
                             return pw.Column(
@@ -418,9 +420,12 @@ Future<void> exportCuttingResultsPdf<T>({
                                 pw.SizedBox(height: 6),
                                 ...List.generate(bars.length, (index) {
                                   final bar = bars[index];
-                                  final combination = bar.join(' + ');
-                                  final total =
-                                      bar.fold<int>(0, (a, b) => a + b);
+                                  final combination = bar
+                                      .map((piece) =>
+                                          '${piece.length} (${piece.offerLabel})')
+                                      .join(' + ');
+                                  final total = bar.fold<int>(
+                                      0, (a, b) => a + b.length);
                                   return pw.Container(
                                     margin:
                                         const pw.EdgeInsets.symmetric(vertical: 3),
