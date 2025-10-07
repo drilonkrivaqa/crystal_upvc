@@ -21,6 +21,7 @@ enum PieceType { l, z, t }
 class _HekriPageState extends State<HekriPage> {
   late Box<Offer> offerBox;
   late Box<ProfileSet> profileBox;
+  late Box<Customer> customerBox;
   final Set<int> selectedOffers = <int>{};
   Map<int, List<List<int>>>? results;
 
@@ -29,6 +30,7 @@ class _HekriPageState extends State<HekriPage> {
     super.initState();
     offerBox = Hive.box<Offer>('offers');
     profileBox = Hive.box<ProfileSet>('profileSets');
+    customerBox = Hive.box<Customer>('customers');
   }
 
   void _openProfiles() {
@@ -97,7 +99,24 @@ class _HekriPageState extends State<HekriPage> {
       results: data,
       profileBox: profileBox,
       l10n: l10n,
+      customers: _selectedCustomers(),
     );
+  }
+
+  List<Customer> _selectedCustomers() {
+    final seen = <int>{};
+    final customers = <Customer>[];
+    for (final offerIndex in selectedOffers) {
+      final offer = offerBox.getAt(offerIndex);
+      if (offer == null) continue;
+      if (!seen.add(offer.customerIndex)) continue;
+      final customer = customerBox.getAt(offer.customerIndex);
+      if (customer != null) {
+        customers.add(customer);
+      }
+    }
+    customers.sort((a, b) => a.name.compareTo(b.name));
+    return customers;
   }
 
   Map<PieceType, List<int>> _pieceLengths(WindowDoorItem item, ProfileSet set,
