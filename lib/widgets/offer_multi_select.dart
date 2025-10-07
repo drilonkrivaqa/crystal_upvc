@@ -76,10 +76,9 @@ class _OfferSelectorContent extends StatelessWidget {
           onTap: () => _openSelectionSheet(context),
           child: InputDecorator(
             isEmpty: sortedSelection.isEmpty,
-            decoration: InputDecoration(
-              border: const OutlineInputBorder(),
-              suffixIcon: const Icon(Icons.keyboard_arrow_down),
-              hintText: sortedSelection.isEmpty ? l10n.homeOffers : null,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              suffixIcon: Icon(Icons.keyboard_arrow_down),
             ),
             child: sortedSelection.isEmpty
                 ? Text(
