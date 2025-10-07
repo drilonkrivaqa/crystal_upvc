@@ -63,19 +63,6 @@ class AppLocalizationsSq extends AppLocalizations {
   }
 
   @override
-  String get productionOfferLettersTitle => 'Shkronjat e ofertës';
-
-  @override
-  String get productionOfferLettersSubtitle =>
-      'Shkronjat tregojnë se cilës ofertë i përket çdo pjesë.';
-
-  @override
-  String get productionOfferLettersLetterHeader => 'Shkronja';
-
-  @override
-  String get productionOfferLettersOfferHeader => 'Oferta';
-
-  @override
   String get cuttingPieceFrame => 'Korniza (L)';
 
   @override
