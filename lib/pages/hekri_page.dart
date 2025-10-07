@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../l10n/app_localizations.dart';
 import '../models.dart';
+import '../pdf/production_pdf.dart';
 import '../theme/app_background.dart';
 import '../widgets/glass_card.dart';
 import '../widgets/offer_multi_select.dart';
@@ -86,6 +87,17 @@ class _HekriPageState extends State<HekriPage> {
     });
 
     setState(() => results = res);
+  }
+
+  Future<void> _exportPdf() async {
+    final data = results;
+    if (data == null || data.isEmpty) return;
+    final l10n = AppLocalizations.of(context);
+    await exportHekriResultsPdf(
+      results: data,
+      profileBox: profileBox,
+      l10n: l10n,
+    );
   }
 
   Map<PieceType, List<int>> _pieceLengths(WindowDoorItem item, ProfileSet set,
@@ -237,7 +249,16 @@ class _HekriPageState extends State<HekriPage> {
               ],
             ),
             const SizedBox(height: 16),
-            if (results != null)
+            if (results != null && results!.isNotEmpty) ...[
+              Align(
+                alignment: Alignment.centerRight,
+                child: ElevatedButton.icon(
+                  onPressed: _exportPdf,
+                  icon: const Icon(Icons.picture_as_pdf),
+                  label: Text(l10n.savePdf),
+                ),
+              ),
+              const SizedBox(height: 16),
               ...results!.entries.map((e) {
                 final profile = profileBox.getAt(e.key);
                 final pipeLen = profile?.pipeLength ?? 6500;
@@ -268,6 +289,7 @@ class _HekriPageState extends State<HekriPage> {
                   ),
                 );
               }),
+            ],
           ],
         ),
       ),

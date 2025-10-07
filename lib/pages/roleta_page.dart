@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '../models.dart';
+import '../pdf/production_pdf.dart';
 import '../theme/app_background.dart';
 import '../widgets/glass_card.dart';
 import '../widgets/offer_multi_select.dart';
@@ -50,6 +51,17 @@ class _RoletaPageState extends State<RoletaPage> {
     setState(() => results = res);
   }
 
+  Future<void> _exportPdf() async {
+    final data = results;
+    if (data == null || data.isEmpty) return;
+    final l10n = AppLocalizations.of(context);
+    await exportBlindResultsPdf(
+      results: data,
+      blindBox: blindBox,
+      l10n: l10n,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -86,7 +98,16 @@ class _RoletaPageState extends State<RoletaPage> {
               ],
             ),
             const SizedBox(height: 20),
-            if (results != null)
+            if (results != null && results!.isNotEmpty) ...[
+              Align(
+                alignment: Alignment.centerRight,
+                child: ElevatedButton.icon(
+                  onPressed: _exportPdf,
+                  icon: const Icon(Icons.picture_as_pdf),
+                  label: Text(l10n.savePdf),
+                ),
+              ),
+              const SizedBox(height: 12),
               ...results!.entries.map((e) {
                 final blind = blindBox.getAt(e.key);
                 return GlassCard(
@@ -101,6 +122,7 @@ class _RoletaPageState extends State<RoletaPage> {
                   ),
                 );
               }),
+            ],
           ],
         ),
       ),
