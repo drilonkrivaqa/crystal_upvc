@@ -373,37 +373,17 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
                               Padding(
                                 padding:
                                     const EdgeInsets.symmetric(vertical: 2),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      l10n.productionBarDetail(
-                                        i + 1,
-                                        bars[i]
-                                            .map((piece) => piece.length)
-                                            .join(' + '),
-                                        bars[i].fold<int>(
-                                            0, (a, b) => a + b.length),
-                                        pipeLen,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Wrap(
-                                      spacing: 6,
-                                      runSpacing: 6,
-                                      children: [
-                                        for (final piece in bars[i])
-                                          Tooltip(
-                                            message: piece.offerLabel,
-                                            child: Chip(
-                                              label: Text(
-                                                '${piece.offerLetter} (${piece.length})',
-                                              ),
-                                            ),
-                                          ),
-                                      ],
-                                    ),
-                                  ],
+                                child: Text(
+                                  l10n.productionBarDetail(
+                                    i + 1,
+                                    bars[i]
+                                        .map((piece) =>
+                                            '${piece.length} (${piece.offerLetter})')
+                                        .join(' + '),
+                                    bars[i].fold<int>(
+                                        0, (a, b) => a + b.length),
+                                    pipeLen,
+                                  ),
                                 ),
                               ),
                             const SizedBox(height: 8),

@@ -422,7 +422,7 @@ Future<void> exportCuttingResultsPdf<T>({
                                   final bar = bars[index];
                                   final combination = bar
                                       .map((piece) =>
-                                          '${piece.length} (${piece.offerLabel})')
+                                          '${piece.length} (${piece.offerLetter})')
                                       .join(' + ');
                                   final total = bar.fold<int>(
                                       0, (a, b) => a + b.length);
