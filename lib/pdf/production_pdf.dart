@@ -198,6 +198,80 @@ pw.Widget _sectionCard({
   );
 }
 
+pw.Widget _offerLegendCard({
+  required AppLocalizations l10n,
+  required List<MapEntry<String, String>> entries,
+}) {
+  return pw.Container(
+    margin: const pw.EdgeInsets.only(bottom: 16),
+    padding: const pw.EdgeInsets.all(16),
+    decoration: pw.BoxDecoration(
+      color: PdfColors.blue50,
+      borderRadius: pw.BorderRadius.circular(12),
+      border: pw.Border.all(color: PdfColors.blueGrey200, width: 1),
+      boxShadow: [
+        pw.BoxShadow(
+          blurRadius: 6,
+          color: PdfColors.blueGrey100,
+          offset: const PdfPoint(1, -1),
+        ),
+      ],
+    ),
+    child: pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        pw.Text(
+          l10n.productionOfferLettersTitle,
+          style: pw.TextStyle(
+            fontSize: 16,
+            fontWeight: pw.FontWeight.bold,
+            color: PdfColors.blueGrey900,
+          ),
+        ),
+        pw.SizedBox(height: 6),
+        pw.Text(
+          l10n.productionOfferLettersSubtitle,
+          style: pw.TextStyle(color: PdfColors.blueGrey700),
+        ),
+        pw.SizedBox(height: 12),
+        pw.Table(
+          border: pw.TableBorder.all(
+            color: PdfColors.blueGrey200,
+            width: 0.8,
+          ),
+          columnWidths: const {
+            0: pw.FixedColumnWidth(44),
+            1: pw.FlexColumnWidth(),
+          },
+          children: [
+            pw.TableRow(
+              children: [
+                _tableHeaderCell(
+                  l10n.productionOfferLettersLetterHeader,
+                ),
+                _tableHeaderCell(
+                  l10n.productionOfferLettersOfferHeader,
+                ),
+              ],
+            ),
+            ...entries.map(
+              (entry) => pw.TableRow(
+                children: [
+                  _tableCell(
+                    entry.key,
+                    alignment: pw.TextAlign.center,
+                  ),
+                  _tableCell(entry.value),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+}
+
 pw.Widget _tableHeaderCell(String text) {
   return pw.Container(
     padding: const pw.EdgeInsets.symmetric(vertical: 6, horizontal: 8),
@@ -489,6 +563,21 @@ Future<void> exportCuttingResultsPdf<T>({
   final logoImage = await _loadCompanyLogo();
   final doc = pw.Document(theme: theme);
 
+  final legendEntries = <String, String>{};
+  results.forEach((_, typeMap) {
+    for (final bars in typeMap.values) {
+      for (final bar in bars) {
+        for (final piece in bar) {
+          final letter = piece.offerLetter.trim();
+          if (letter.isEmpty) continue;
+          legendEntries.putIfAbsent(letter, () => piece.offerLabel);
+        }
+      }
+    }
+  });
+  final sortedLegendEntries = legendEntries.entries.toList()
+    ..sort((a, b) => a.key.compareTo(b.key));
+
   final entries = results.entries.toList()
     ..sort((a, b) {
       final profileA = profileBox.getAt(a.key);
@@ -509,6 +598,15 @@ Future<void> exportCuttingResultsPdf<T>({
             customers: customers,
           ),
         ];
+
+        if (sortedLegendEntries.isNotEmpty) {
+          widgets.add(
+            _offerLegendCard(
+              l10n: l10n,
+              entries: sortedLegendEntries,
+            ),
+          );
+        }
 
         for (final entry in entries) {
           final profile = profileBox.getAt(entry.key);
@@ -577,6 +675,13 @@ Future<void> exportCuttingResultsPdf<T>({
                                         color: PdfColors.blueGrey200,
                                         width: 0.6,
                                       ),
+                                      boxShadow: [
+                                        pw.BoxShadow(
+                                          blurRadius: 4,
+                                          color: PdfColors.blueGrey100,
+                                          offset: const PdfPoint(1, -1),
+                                        ),
+                                      ],
                                     ),
                                     child: pw.Text(
                                       l10n.productionBarDetail(
