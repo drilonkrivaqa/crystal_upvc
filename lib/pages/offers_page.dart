@@ -168,11 +168,13 @@ class _OffersPageState extends State<OffersPage> {
                       results.add(i);
                     }
                   }
-                  // Order results so the most recent offers appear first
+                  // Order results so the most recently updated offers appear first
                   results.sort((a, b) {
-                    final dateA = box.getAt(a)?.date ??
+                    final offerA = box.getAt(a);
+                    final offerB = box.getAt(b);
+                    final dateA = offerA?.lastEdited ?? offerA?.date ??
                         DateTime.fromMillisecondsSinceEpoch(0);
-                    final dateB = box.getAt(b)?.date ??
+                    final dateB = offerB?.lastEdited ?? offerB?.date ??
                         DateTime.fromMillisecondsSinceEpoch(0);
                     return dateB.compareTo(dateA);
                   });
