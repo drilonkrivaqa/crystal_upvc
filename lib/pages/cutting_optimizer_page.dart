@@ -141,7 +141,25 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
       typeOrder: PieceType.values,
       profileBox: profileBox,
       l10n: l10n,
+      clients: _selectedClients(),
     );
+  }
+
+  List<Customer> _selectedClients() {
+    final clients = <Customer>[];
+    final seen = <int>{};
+    for (final offerIndex in selectedOffers) {
+      final offer = offerBox.getAt(offerIndex);
+      if (offer == null) continue;
+      final index = offer.customerIndex;
+      if (index < 0 || index >= customerBox.length) continue;
+      if (!seen.add(index)) continue;
+      final customer = customerBox.getAt(index);
+      if (customer != null) {
+        clients.add(customer);
+      }
+    }
+    return clients;
   }
 
   Map<PieceType, List<int>> _pieceLengths(WindowDoorItem item, ProfileSet set,
