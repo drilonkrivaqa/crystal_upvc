@@ -55,7 +55,28 @@ class _OfferSelectorContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    final sortedSelection = selectedOffers.toList()..sort();
+    final sortedSelection = selectedOffers.toList()
+      ..sort((a, b) {
+        final offerA = offerBox.getAt(a);
+        final offerB = offerBox.getAt(b);
+        final dateA = offerA?.lastEdited ?? offerA?.date;
+        final dateB = offerB?.lastEdited ?? offerB?.date;
+
+        if (dateA == null && dateB == null) {
+          return b.compareTo(a);
+        } else if (dateA == null) {
+          return 1;
+        } else if (dateB == null) {
+          return -1;
+        }
+
+        final comparison = dateB.compareTo(dateA);
+        if (comparison != 0) {
+          return comparison;
+        }
+
+        return b.compareTo(a);
+      });
     final chips = <Widget>[];
     const maxVisible = 3;
 
@@ -126,6 +147,23 @@ class _OfferSelectorContent extends StatelessWidget {
                   filteredIndices.add(i);
                 }
               }
+
+              filteredIndices.sort((a, b) {
+                final offerA = offerBox.getAt(a);
+                final offerB = offerBox.getAt(b);
+                final dateA = offerA?.lastEdited ?? offerA?.date;
+                final dateB = offerB?.lastEdited ?? offerB?.date;
+
+                if (dateA == null && dateB == null) {
+                  return b.compareTo(a);
+                } else if (dateA == null) {
+                  return 1;
+                } else if (dateB == null) {
+                  return -1;
+                }
+
+                return dateB.compareTo(dateA);
+              });
 
               return SafeArea(
                 child: Column(
