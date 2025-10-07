@@ -63,6 +63,19 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get productionOfferLettersTitle => 'Angebotsbuchstaben';
+
+  @override
+  String get productionOfferLettersSubtitle =>
+      'Die Buchstaben zeigen, zu welchem Angebot jedes Teil gehört.';
+
+  @override
+  String get productionOfferLettersLetterHeader => 'Buchstabe';
+
+  @override
+  String get productionOfferLettersOfferHeader => 'Angebot';
+
+  @override
   String get cuttingPieceFrame => 'Rahmen (L)';
 
   @override
