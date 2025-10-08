@@ -14,7 +14,6 @@
   "productionCutSummary": "Benötigt {needed} m, Rohre: {pipes}, Verschnitt {waste} m",
   "productionBarDetail": "Stab {index}: {combination} = {total}/{pipeLength}",
   "productionOffsetFrom": "Versatz von {type} (mm)",
-  "productionProfileLength": "Profillänge (mm)",
   "productionOffsetsSummary": "L: {l}mm, Z: {z}mm, T: {t}mm",
   "cuttingPieceFrame": "Rahmen (L)",
   "cuttingPieceSash": "Flügel (Z)",

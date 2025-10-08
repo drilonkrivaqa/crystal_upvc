@@ -25,10 +25,6 @@ class _HekriProfilesPageState extends State<HekriProfilesPage> {
     final profile = profileBox.getAt(index);
     if (profile == null) return;
     final l10n = AppLocalizations.of(context);
-    final pipeLengthController = TextEditingController(
-        text: profile.pipeLength == 0
-            ? '6000'
-            : profile.pipeLength.toString());
     final offsetLController =
         TextEditingController(text: profile.hekriOffsetL.toString());
     final offsetZController =
@@ -43,13 +39,6 @@ class _HekriProfilesPageState extends State<HekriProfilesPage> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(
-              controller: pipeLengthController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText: l10n.productionProfileLength,
-              ),
-            ),
             TextField(
               controller: offsetLController,
               keyboardType: TextInputType.number,
@@ -88,8 +77,7 @@ class _HekriProfilesPageState extends State<HekriProfilesPage> {
                   priceT: profile.priceT,
                   priceAdapter: profile.priceAdapter,
                   priceLlajsne: profile.priceLlajsne,
-                  pipeLength:
-                      int.tryParse(pipeLengthController.text) ?? 6000,
+                  pipeLength: profile.pipeLength,
                   hekriOffsetL: int.tryParse(offsetLController.text) ?? 0,
                   hekriOffsetZ: int.tryParse(offsetZController.text) ?? 0,
                   hekriOffsetT: int.tryParse(offsetTController.text) ?? 0,
@@ -137,9 +125,6 @@ class _HekriProfilesPageState extends State<HekriProfilesPage> {
                     children: [
                       Text(profile.name,
                           style: const TextStyle(fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 4),
-                      Text(
-                          '${l10n.productionProfileLength}: ${profile.pipeLength == 0 ? 6000 : profile.pipeLength}'),
                       const SizedBox(height: 4),
                       Text(l10n.productionOffsetsSummary(
                           profile.hekriOffsetL,

@@ -23,7 +23,6 @@ class AppLocalizations {
       'productionBarDetail':
           'Shufra {index}: {combination} = {total}/{pipeLength}',
       'productionOffsetFrom': 'Offset nga {type} (mm)',
-      'productionProfileLength': 'Gjatësia e profilit (mm)',
       'productionOffsetsSummary':
           'L: {l}mm, Z: {z}mm, T: {t}mm',
       'cuttingPieceFrame': 'Korniza (L)',
@@ -211,7 +210,6 @@ class AppLocalizations {
       'productionBarDetail':
           'Bar {index}: {combination} = {total}/{pipeLength}',
       'productionOffsetFrom': 'Offset from {type} (mm)',
-      'productionProfileLength': 'Profile length (mm)',
       'productionOffsetsSummary':
           'L: {l}mm, Z: {z}mm, T: {t}mm',
       'cuttingPieceFrame': 'Frame (L)',
@@ -393,7 +391,6 @@ class AppLocalizations {
       'productionBarDetail':
           'Stab {index}: {combination} = {total}/{pipeLength}',
       'productionOffsetFrom': 'Versatz von {type} (mm)',
-      'productionProfileLength': 'Profillänge (mm)',
       'productionOffsetsSummary':
           'L: {l}mm, Z: {z}mm, T: {t}mm',
       'cuttingPieceFrame': 'Rahmen (L)',
@@ -579,7 +576,6 @@ class AppLocalizations {
       'productionBarDetail':
           'Barre {index} : {combination} = {total}/{pipeLength}',
       'productionOffsetFrom': 'Décalage depuis {type} (mm)',
-      'productionProfileLength': 'Longueur du profil (mm)',
       'productionOffsetsSummary':
           'L : {l}mm, Z : {z}mm, T : {t}mm',
       'cuttingPieceFrame': 'Cadre (L)',
@@ -765,7 +761,6 @@ class AppLocalizations {
       'productionBarDetail':
           'Barra {index}: {combination} = {total}/{pipeLength}',
       'productionOffsetFrom': 'Offset da {type} (mm)',
-      'productionProfileLength': 'Lunghezza del profilo (mm)',
       'productionOffsetsSummary':
           'L: {l}mm, Z: {z}mm, T: {t}mm',
       'cuttingPieceFrame': 'Telaio (L)',
@@ -971,8 +966,6 @@ class AppLocalizations {
 
   String productionOffsetFrom(String type) =>
       _t('productionOffsetFrom').replaceAll('{type}', type);
-
-  String get productionProfileLength => _t('productionProfileLength');
 
   String productionOffsetsSummary(int l, int z, int t) {
     final template = _t('productionOffsetsSummary');

@@ -419,10 +419,7 @@ Future<void> exportHekriResultsPdf({
 
         for (final entry in entries) {
           final profile = profileBox.getAt(entry.key);
-          final pipeLen =
-              profile == null || profile.pipeLength <= 0
-                  ? 6000
-                  : profile.pipeLength;
+          final pipeLen = profile?.pipeLength ?? 6500;
           final bars = entry.value;
           final needed = bars.expand((bar) => bar).fold<int>(0, (a, b) => a + b);
           final totalLen = bars.length * pipeLen;
@@ -515,10 +512,7 @@ Future<void> exportCuttingResultsPdf<T>({
 
         for (final entry in entries) {
           final profile = profileBox.getAt(entry.key);
-          final pipeLen =
-              profile == null || profile.pipeLength <= 0
-                  ? 6000
-                  : profile.pipeLength;
+          final pipeLen = profile?.pipeLength ?? 6500;
           final typeMap = entry.value;
 
           widgets.add(

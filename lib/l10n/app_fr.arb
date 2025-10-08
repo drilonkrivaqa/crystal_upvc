@@ -14,7 +14,6 @@
   "productionCutSummary": "Nécessaire {needed} m, Tubes : {pipes}, Perte {waste} m",
   "productionBarDetail": "Barre {index} : {combination} = {total}/{pipeLength}",
   "productionOffsetFrom": "Décalage depuis {type} (mm)",
-  "productionProfileLength": "Longueur du profil (mm)",
   "productionOffsetsSummary": "L : {l}mm, Z : {z}mm, T : {t}mm",
   "cuttingPieceFrame": "Cadre (L)",
   "cuttingPieceSash": "Ouvrant (Z)",

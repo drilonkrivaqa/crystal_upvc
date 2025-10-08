@@ -14,7 +14,6 @@
   "productionCutSummary": "Needed {needed} m, Pipes: {pipes}, Waste {waste} m",
   "productionBarDetail": "Bar {index}: {combination} = {total}/{pipeLength}",
   "productionOffsetFrom": "Offset from {type} (mm)",
-  "productionProfileLength": "Profile length (mm)",
   "productionOffsetsSummary": "L: {l}mm, Z: {z}mm, T: {t}mm",
   "cuttingPieceFrame": "Frame (L)",
   "cuttingPieceSash": "Sash (Z)",
