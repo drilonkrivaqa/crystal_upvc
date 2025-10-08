@@ -189,6 +189,12 @@ abstract class AppLocalizations {
   /// **'Offset from {type} (mm)'**
   String productionOffsetFrom(Object type);
 
+  /// No description provided for @productionProfileLength.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile length (mm)'**
+  String get productionProfileLength;
+
   /// No description provided for @productionOffsetsSummary.
   ///
   /// In en, this message translates to:

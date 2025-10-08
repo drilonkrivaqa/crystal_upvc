@@ -58,6 +58,9 @@ class AppLocalizationsSq extends AppLocalizations {
   }
 
   @override
+  String get productionProfileLength => 'Gjatësia e profilit (mm)';
+
+  @override
   String productionOffsetsSummary(Object l, Object t, Object z) {
     return 'L: ${l}mm, Z: ${z}mm, T: ${t}mm';
   }

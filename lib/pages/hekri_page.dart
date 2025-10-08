@@ -82,7 +82,9 @@ class _HekriPageState extends State<HekriPage> {
 
     final res = <int, List<List<int>>>{};
     piecesMap.forEach((index, pieces) {
-      final pipeLength = profileBox.getAt(index)?.pipeLength ?? 6500;
+      final profile = profileBox.getAt(index);
+      final pipeLength =
+          profile == null || profile.pipeLength <= 0 ? 6000 : profile.pipeLength;
       if (pieces.isEmpty) return;
       final bars = _packPieces(pieces, pipeLength);
       res[index] = bars;
@@ -280,7 +282,10 @@ class _HekriPageState extends State<HekriPage> {
               const SizedBox(height: 16),
               ...results!.entries.map((e) {
                 final profile = profileBox.getAt(e.key);
-                final pipeLen = profile?.pipeLength ?? 6500;
+                final pipeLen =
+                    profile == null || profile.pipeLength <= 0
+                        ? 6000
+                        : profile.pipeLength;
                 final bars = e.value;
                 final needed =
                     bars.expand((b) => b).fold<int>(0, (a, b) => a + b);
