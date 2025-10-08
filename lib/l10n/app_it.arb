@@ -14,7 +14,6 @@
   "productionCutSummary": "Necessari {needed} m, Tubi: {pipes}, Scarto {waste} m",
   "productionBarDetail": "Barra {index}: {combination} = {total}/{pipeLength}",
   "productionOffsetFrom": "Offset da {type} (mm)",
-  "productionProfileLength": "Lunghezza del profilo (mm)",
   "productionOffsetsSummary": "L: {l}mm, Z: {z}mm, T: {t}mm",
   "cuttingPieceFrame": "Telaio (L)",
   "cuttingPieceSash": "Anta (Z)",

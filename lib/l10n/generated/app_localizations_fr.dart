@@ -58,9 +58,6 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get productionProfileLength => 'Longueur du profil (mm)';
-
-  @override
   String productionOffsetsSummary(Object l, Object t, Object z) {
     return 'L : ${l}mm, Z : ${z}mm, T : ${t}mm';
   }

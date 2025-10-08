@@ -94,9 +94,7 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
     final res = <int, Map<PieceType, List<List<ProductionPieceDetail>>>>{};
 
     piecesMap.forEach((index, typeMap) {
-      final profile = profileBox.getAt(index);
-      final pipeLength =
-          profile == null || profile.pipeLength <= 0 ? 6000 : profile.pipeLength;
+      final pipeLength = profileBox.getAt(index)?.pipeLength ?? 6500;
       final resultTypeMap = <PieceType, List<List<ProductionPieceDetail>>>{};
       typeMap.forEach((type, pieces) {
         if (pieces.isEmpty) return;
@@ -367,10 +365,7 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
               const SizedBox(height: 12),
               ...results!.entries.map((e) {
                 final profile = profileBox.getAt(e.key);
-                final pipeLen =
-                    profile == null || profile.pipeLength <= 0
-                        ? 6000
-                        : profile.pipeLength;
+                final pipeLen = profile?.pipeLength ?? 6500;
                 return GlassCard(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
