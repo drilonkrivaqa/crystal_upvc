@@ -333,7 +333,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                         priceLlajsne:
                             double.tryParse(priceLlajsneController.text) ?? 0,
                         pipeLength:
-                            int.tryParse(pipeLengthController.text) ?? 6500,
+                            int.tryParse(pipeLengthController.text) ?? 6000,
                         hekriOffsetL: item.hekriOffsetL,
                         hekriOffsetZ: item.hekriOffsetZ,
                         hekriOffsetT: item.hekriOffsetT,
@@ -428,7 +428,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
     final priceTController = TextEditingController();
     final priceAdapterController = TextEditingController();
     final priceLlajsneController = TextEditingController();
-    final pipeLengthController = TextEditingController(text: '6500');
+    final pipeLengthController = TextEditingController(text: '6000');
     final massLController = TextEditingController();
     final massZController = TextEditingController();
     final massTController = TextEditingController();
@@ -664,7 +664,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                         double.tryParse(priceAdapterController.text) ?? 0,
                     priceLlajsne:
                         double.tryParse(priceLlajsneController.text) ?? 0,
-                    pipeLength: int.tryParse(pipeLengthController.text) ?? 6500,
+                    pipeLength: int.tryParse(pipeLengthController.text) ?? 6000,
                     massL: double.tryParse(massLController.text) ?? 0,
                     massZ: double.tryParse(massZController.text) ?? 0,
                     massT: double.tryParse(massTController.text) ?? 0,
