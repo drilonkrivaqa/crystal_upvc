@@ -419,7 +419,7 @@ Future<void> exportHekriResultsPdf({
 
         for (final entry in entries) {
           final profile = profileBox.getAt(entry.key);
-          final pipeLen = profile?.pipeLength ?? 6500;
+          final pipeLen = profile?.hekriPipeLength ?? 6000;
           final bars = entry.value;
           final needed = bars.expand((bar) => bar).fold<int>(0, (a, b) => a + b);
           final totalLen = bars.length * pipeLen;

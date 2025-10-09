@@ -31,6 +31,8 @@ class _HekriProfilesPageState extends State<HekriProfilesPage> {
         TextEditingController(text: profile.hekriOffsetZ.toString());
     final offsetTController =
         TextEditingController(text: profile.hekriOffsetT.toString());
+    final hekriLengthController =
+        TextEditingController(text: profile.hekriPipeLength.toString());
 
     showDialog(
       context: context,
@@ -60,6 +62,14 @@ class _HekriProfilesPageState extends State<HekriProfilesPage> {
                 labelText: l10n.productionOffsetFrom('T'),
               ),
             ),
+            TextField(
+              controller: hekriLengthController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                labelText:
+                    '${l10n.productionIron} - ${l10n.catalogFieldProfileLength}',
+              ),
+            ),
           ],
         ),
         actions: [
@@ -78,6 +88,8 @@ class _HekriProfilesPageState extends State<HekriProfilesPage> {
                   priceAdapter: profile.priceAdapter,
                   priceLlajsne: profile.priceLlajsne,
                   pipeLength: profile.pipeLength,
+                  hekriPipeLength:
+                      int.tryParse(hekriLengthController.text) ?? 6000,
                   hekriOffsetL: int.tryParse(offsetLController.text) ?? 0,
                   hekriOffsetZ: int.tryParse(offsetZController.text) ?? 0,
                   hekriOffsetT: int.tryParse(offsetTController.text) ?? 0,

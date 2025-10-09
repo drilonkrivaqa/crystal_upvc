@@ -38,6 +38,8 @@ class ProfileSet extends HiveObject {
   double priceLlajsne; // Glazing bead
   @HiveField(6, defaultValue: 0)
   int pipeLength; // Standard pipe length in mm
+  @HiveField(26, defaultValue: 6000)
+  int hekriPipeLength; // Standard hekri pipe length in mm
   @HiveField(7, defaultValue: 0)
   int hekriOffsetL; // Hekri length difference for L profile
   @HiveField(8, defaultValue: 0)
@@ -85,6 +87,7 @@ class ProfileSet extends HiveObject {
     required this.priceAdapter,
     required this.priceLlajsne,
     this.pipeLength = 6500,
+    this.hekriPipeLength = 6000,
     this.hekriOffsetL = 0,
     this.hekriOffsetZ = 0,
     this.hekriOffsetT = 0,

@@ -67,6 +67,7 @@ class ProfileSetAdapter extends TypeAdapter<ProfileSet> {
       priceAdapter: fields[4] as double,
       priceLlajsne: fields[5] as double,
       pipeLength: fields[6] == null ? 0 : fields[6] as int,
+      hekriPipeLength: fields[26] == null ? 6000 : fields[26] as int,
       hekriOffsetL: fields[7] == null ? 0 : fields[7] as int,
       hekriOffsetZ: fields[8] == null ? 0 : fields[8] as int,
       hekriOffsetT: fields[9] == null ? 0 : fields[9] as int,
@@ -92,7 +93,7 @@ class ProfileSetAdapter extends TypeAdapter<ProfileSet> {
   @override
   void write(BinaryWriter writer, ProfileSet obj) {
     writer
-      ..writeByte(26)
+      ..writeByte(27)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -144,7 +145,9 @@ class ProfileSetAdapter extends TypeAdapter<ProfileSet> {
       ..writeByte(24)
       ..write(obj.tOuterThickness)
       ..writeByte(25)
-      ..write(obj.adapterOuterThickness);
+      ..write(obj.adapterOuterThickness)
+      ..writeByte(26)
+      ..write(obj.hekriPipeLength);
   }
 
   @override
