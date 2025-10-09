@@ -32,6 +32,19 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
   late List<TextEditingController> extraDescControllers;
   late List<TextEditingController> extraAmountControllers;
 
+  int _normalizeIndex(int index, int length) {
+    if (length <= 0) {
+      return 0;
+    }
+    if (index < 0) {
+      return 0;
+    }
+    if (index >= length) {
+      return length - 1;
+    }
+    return index;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -62,6 +75,18 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     Offer offer = offerBox.getAt(widget.offerIndex)!;
+    final normalizedProfileIndex =
+        _normalizeIndex(offer.defaultProfileSetIndex, profileSetBox.length);
+    final normalizedGlassIndex =
+        _normalizeIndex(offer.defaultGlassIndex, glassBox.length);
+    if (normalizedProfileIndex != offer.defaultProfileSetIndex ||
+        normalizedGlassIndex != offer.defaultGlassIndex) {
+      offer
+        ..defaultProfileSetIndex = normalizedProfileIndex
+        ..defaultGlassIndex = normalizedGlassIndex
+        ..lastEdited = DateTime.now()
+        ..save();
+    }
     return Scaffold(
       appBar: AppBar(
         title: Text('${l10n.pdfOffer} ${widget.offerIndex + 1}'),
@@ -198,6 +223,85 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
               ],
             ),
           ),
+          if (profileSetBox.isNotEmpty || glassBox.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.defaultCharacteristics,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 12),
+                      DropdownButtonFormField<int>(
+                        value: profileSetBox.isEmpty
+                            ? null
+                            : offer.defaultProfileSetIndex,
+                        decoration:
+                            InputDecoration(labelText: l10n.defaultProfile),
+                        items: [
+                          for (int i = 0; i < profileSetBox.length; i++)
+                            DropdownMenuItem<int>(
+                              value: i,
+                              child: Text(
+                                profileSetBox.getAt(i)?.name ?? '',
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                        ],
+                        onChanged: profileSetBox.isEmpty
+                            ? null
+                            : (val) {
+                                if (val == null) {
+                                  return;
+                                }
+                                setState(() {
+                                  offer.defaultProfileSetIndex = val;
+                                  offer.lastEdited = DateTime.now();
+                                });
+                                offer.save();
+                              },
+                      ),
+                      const SizedBox(height: 12),
+                      DropdownButtonFormField<int>(
+                        value:
+                            glassBox.isEmpty ? null : offer.defaultGlassIndex,
+                        decoration:
+                            InputDecoration(labelText: l10n.defaultGlass),
+                        items: [
+                          for (int i = 0; i < glassBox.length; i++)
+                            DropdownMenuItem<int>(
+                              value: i,
+                              child: Text(
+                                glassBox.getAt(i)?.name ?? '',
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                        ],
+                        onChanged: glassBox.isEmpty
+                            ? null
+                            : (val) {
+                                if (val == null) {
+                                  return;
+                                }
+                                setState(() {
+                                  offer.defaultGlassIndex = val;
+                                  offer.lastEdited = DateTime.now();
+                                });
+                                offer.save();
+                              },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
           const SizedBox(height: 8),
           ...List.generate(offer.items.length, (i) {
             final item = offer.items[i];
@@ -317,6 +421,9 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                                   offer.save();
                                   setState(() {});
                                 },
+                                defaultProfileSetIndex:
+                                    offer.defaultProfileSetIndex,
+                                defaultGlassIndex: offer.defaultGlassIndex,
                               ),
                             ),
                           );
@@ -627,6 +734,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                   offer.save();
                   setState(() {});
                 },
+                defaultProfileSetIndex: offer.defaultProfileSetIndex,
+                defaultGlassIndex: offer.defaultGlassIndex,
               ),
             ),
           );

@@ -104,5 +104,8 @@
   "pdfDiscountAmount": "Rabattbetrag",
   "pdfDiscountPercent": "Rabatt %",
   "pdfTotalPrice": "Gesamtpreis (€)",
-  "pdfNotes": "Notizen:"
+  "pdfNotes": "Notizen:",
+  "defaultCharacteristics": "Standardmerkmale",
+  "defaultProfile": "Standardprofil",
+  "defaultGlass": "Standardglas"
 }

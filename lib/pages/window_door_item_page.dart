@@ -11,8 +11,14 @@ import '../l10n/app_localizations.dart';
 class WindowDoorItemPage extends StatefulWidget {
   final void Function(WindowDoorItem) onSave;
   final WindowDoorItem? existingItem;
+  final int? defaultProfileSetIndex;
+  final int? defaultGlassIndex;
   const WindowDoorItemPage(
-      {super.key, required this.onSave, this.existingItem});
+      {super.key,
+      required this.onSave,
+      this.existingItem,
+      this.defaultProfileSetIndex,
+      this.defaultGlassIndex});
 
   @override
   State<WindowDoorItemPage> createState() => _WindowDoorItemPageState();
@@ -64,6 +70,20 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   List<TextEditingController> sectionWidthCtrls = [];
   List<TextEditingController> sectionHeightCtrls = [];
 
+  int _normalizeIndex(int? index, int length) {
+    if (length <= 0) {
+      return 0;
+    }
+    final value = index ?? 0;
+    if (value < 0) {
+      return 0;
+    }
+    if (value >= length) {
+      return length - 1;
+    }
+    return value;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -100,8 +120,13 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     notesController =
         TextEditingController(text: widget.existingItem?.notes ?? '');
 
-    profileSetIndex = widget.existingItem?.profileSetIndex ?? 0;
-    glassIndex = widget.existingItem?.glassIndex ?? 0;
+    profileSetIndex = _normalizeIndex(
+        widget.existingItem?.profileSetIndex ??
+            widget.defaultProfileSetIndex,
+        profileSetBox.length);
+    glassIndex = _normalizeIndex(
+        widget.existingItem?.glassIndex ?? widget.defaultGlassIndex,
+        glassBox.length);
     blindIndex = widget.existingItem?.blindIndex;
     mechanismIndex = widget.existingItem?.mechanismIndex;
     accessoryIndex = widget.existingItem?.accessoryIndex;

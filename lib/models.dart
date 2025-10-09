@@ -645,6 +645,10 @@ class Offer extends HiveObject {
   String notes;
   @HiveField(9)
   DateTime lastEdited;
+  @HiveField(10, defaultValue: 0)
+  int defaultProfileSetIndex;
+  @HiveField(11, defaultValue: 0)
+  int defaultGlassIndex;
   Offer({
     required this.id,
     required this.customerIndex,
@@ -655,6 +659,8 @@ class Offer extends HiveObject {
     this.discountPercent = 0,
     this.discountAmount = 0,
     this.notes = '',
+    this.defaultProfileSetIndex = 0,
+    this.defaultGlassIndex = 0,
     DateTime? lastEdited,
   })  : lastEdited = lastEdited ?? DateTime.now(),
         extraCharges = extraCharges ?? [];
