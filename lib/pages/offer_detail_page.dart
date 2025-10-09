@@ -5,6 +5,7 @@ import '../models.dart';
 import 'window_door_item_page.dart';
 import '../theme/app_colors.dart';
 import 'dart:io' show File;
+import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import '../pdf/offer_pdf.dart';
 import '../widgets/glass_card.dart';
@@ -31,6 +32,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
   late TextEditingController notesController;
   late List<TextEditingController> extraDescControllers;
   late List<TextEditingController> extraAmountControllers;
+  int? _selectedDefaultProfileSetIndex;
+  int? _selectedDefaultGlassIndex;
 
   int _normalizeIndex(int index, int length) {
     if (length <= 0) {
@@ -43,6 +46,178 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
       return length - 1;
     }
     return index;
+  }
+
+  int? _effectiveSelectedProfileIndex(Offer offer, int length) {
+    if (length <= 0) {
+      return null;
+    }
+    final index = _selectedDefaultProfileSetIndex ?? offer.defaultProfileSetIndex;
+    return _normalizeIndex(index, length);
+  }
+
+  int? _effectiveSelectedGlassIndex(Offer offer, int length) {
+    if (length <= 0) {
+      return null;
+    }
+    final index = _selectedDefaultGlassIndex ?? offer.defaultGlassIndex;
+    return _normalizeIndex(index, length);
+  }
+
+  bool _hasPendingDefaultChange(
+      Offer offer, int? profileIndex, int? glassIndex) {
+    final profileChanged =
+        profileIndex != null && profileIndex != offer.defaultProfileSetIndex;
+    final glassChanged =
+        glassIndex != null && glassIndex != offer.defaultGlassIndex;
+    return profileChanged || glassChanged;
+  }
+
+  Future<void> _saveDefaultCharacteristics(
+    Offer offer,
+    int? profileIndex,
+    int? glassIndex,
+  ) async {
+    final l10n = AppLocalizations.of(context);
+    final profileChanged =
+        profileIndex != null && profileIndex != offer.defaultProfileSetIndex;
+    final glassChanged =
+        glassIndex != null && glassIndex != offer.defaultGlassIndex;
+
+    if (!profileChanged && !glassChanged) {
+      return;
+    }
+
+    List<bool>? selection;
+    if (offer.items.isNotEmpty) {
+      selection = await _showApplyDefaultsDialog(
+        offer,
+      );
+      if (selection == null) {
+        return;
+      }
+    }
+
+    if (selection != null) {
+      for (int i = 0; i < offer.items.length; i++) {
+        if (!selection[i]) continue;
+        final item = offer.items[i];
+        if (profileChanged) {
+          item.profileSetIndex = profileIndex!;
+        }
+        if (glassChanged) {
+          item.glassIndex = glassIndex!;
+        }
+        offer.items[i] = item;
+      }
+    }
+
+    if (profileChanged) {
+      offer.defaultProfileSetIndex = profileIndex!;
+    }
+    if (glassChanged) {
+      offer.defaultGlassIndex = glassIndex!;
+    }
+    offer.lastEdited = DateTime.now();
+    await offer.save();
+    if (!mounted) return;
+    setState(() {
+      if (profileChanged) {
+        _selectedDefaultProfileSetIndex = profileIndex;
+      }
+      if (glassChanged) {
+        _selectedDefaultGlassIndex = glassIndex;
+      }
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.defaultsUpdated)),
+    );
+  }
+
+  Future<List<bool>?> _showApplyDefaultsDialog(
+    Offer offer,
+  ) {
+    final l10n = AppLocalizations.of(context);
+    return showDialog<List<bool>>(
+      context: context,
+      builder: (ctx) {
+        List<bool> selection = List<bool>.filled(offer.items.length, true);
+        return StatefulBuilder(
+          builder: (ctx, setStateDialog) {
+            return AlertDialog(
+              title: Text(l10n.applyDefaultsTitle),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l10n.applyDefaultsMessage),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          setStateDialog(() {
+                            selection =
+                                List<bool>.filled(offer.items.length, true);
+                          });
+                        },
+                        child: Text(l10n.selectAll),
+                      ),
+                      const SizedBox(width: 8),
+                      TextButton(
+                        onPressed: () {
+                          setStateDialog(() {
+                            selection =
+                                List<bool>.filled(offer.items.length, false);
+                          });
+                        },
+                        child: Text(l10n.selectNone),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    width: double.maxFinite,
+                    height: math.min(offer.items.length * 68.0 + 24.0, 320.0),
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: offer.items.length,
+                      itemBuilder: (ctx, index) {
+                        final item = offer.items[index];
+                        return CheckboxListTile(
+                          value: selection[index],
+                          onChanged: (value) {
+                            setStateDialog(() {
+                              selection[index] = value ?? false;
+                            });
+                          },
+                          title: Text(item.name),
+                          subtitle: Text(
+                              '${item.width} x ${item.height} mm • ${item.quantity} ${l10n.pcs}'),
+                          controlAffinity: ListTileControlAffinity.leading,
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(),
+                  child: Text(l10n.cancel),
+                ),
+                ElevatedButton(
+                  onPressed: selection.any((selected) => selected)
+                      ? () => Navigator.of(ctx).pop(selection)
+                      : null,
+                  child: Text(l10n.applyToSelected),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -69,6 +244,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
       for (var c in offer.extraCharges)
         TextEditingController(text: c.amount.toString())
     ];
+    _selectedDefaultProfileSetIndex = offer.defaultProfileSetIndex;
+    _selectedDefaultGlassIndex = offer.defaultGlassIndex;
   }
 
   @override
@@ -87,6 +264,12 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
         ..lastEdited = DateTime.now()
         ..save();
     }
+    final selectedProfileIndex =
+        _effectiveSelectedProfileIndex(offer, profileSetBox.length);
+    final selectedGlassIndex =
+        _effectiveSelectedGlassIndex(offer, glassBox.length);
+    final hasPendingDefaultChange =
+        _hasPendingDefaultChange(offer, selectedProfileIndex, selectedGlassIndex);
     return Scaffold(
       appBar: AppBar(
         title: Text('${l10n.pdfOffer} ${widget.offerIndex + 1}'),
@@ -241,7 +424,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                       DropdownButtonFormField<int>(
                         value: profileSetBox.isEmpty
                             ? null
-                            : offer.defaultProfileSetIndex,
+                            : selectedProfileIndex,
                         decoration:
                             InputDecoration(labelText: l10n.defaultProfile),
                         items: [
@@ -261,16 +444,13 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                                   return;
                                 }
                                 setState(() {
-                                  offer.defaultProfileSetIndex = val;
-                                  offer.lastEdited = DateTime.now();
+                                  _selectedDefaultProfileSetIndex = val;
                                 });
-                                offer.save();
                               },
                       ),
                       const SizedBox(height: 12),
                       DropdownButtonFormField<int>(
-                        value:
-                            glassBox.isEmpty ? null : offer.defaultGlassIndex,
+                        value: glassBox.isEmpty ? null : selectedGlassIndex,
                         decoration:
                             InputDecoration(labelText: l10n.defaultGlass),
                         items: [
@@ -290,12 +470,23 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                                   return;
                                 }
                                 setState(() {
-                                  offer.defaultGlassIndex = val;
-                                  offer.lastEdited = DateTime.now();
+                                  _selectedDefaultGlassIndex = val;
                                 });
-                                offer.save();
                               },
                       ),
+                      if (hasPendingDefaultChange) ...[
+                        const SizedBox(height: 12),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: ElevatedButton.icon(
+                            onPressed: () =>
+                                _saveDefaultCharacteristics(offer,
+                                    selectedProfileIndex, selectedGlassIndex),
+                            icon: const Icon(Icons.save),
+                            label: Text(l10n.save),
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
