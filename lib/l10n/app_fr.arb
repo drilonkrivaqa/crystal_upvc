@@ -104,5 +104,8 @@
   "pdfDiscountAmount": "Montant de la remise",
   "pdfDiscountPercent": "Remise %",
   "pdfTotalPrice": "Prix total (€)",
-  "pdfNotes": "Notes :"
+  "pdfNotes": "Notes :",
+  "defaultCharacteristics": "Caractéristiques par défaut",
+  "defaultProfile": "Profil par défaut",
+  "defaultGlass": "Vitrage par défaut"
 }

@@ -499,13 +499,16 @@ class OfferAdapter extends TypeAdapter<Offer> {
       discountAmount: fields[7] == null ? 0 : fields[7] as double,
       notes: fields[8] == null ? '' : fields[8] as String,
       lastEdited: fields[9] as DateTime?,
+      defaultProfileSetIndex:
+          fields[10] == null ? 0 : fields[10] as int,
+      defaultGlassIndex: fields[11] == null ? 0 : fields[11] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, Offer obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(12)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -525,7 +528,11 @@ class OfferAdapter extends TypeAdapter<Offer> {
       ..writeByte(8)
       ..write(obj.notes)
       ..writeByte(9)
-      ..write(obj.lastEdited);
+      ..write(obj.lastEdited)
+      ..writeByte(10)
+      ..write(obj.defaultProfileSetIndex)
+      ..writeByte(11)
+      ..write(obj.defaultGlassIndex);
   }
 
   @override

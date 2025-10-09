@@ -104,5 +104,8 @@
   "pdfDiscountAmount": "Shuma e zbritjes",
   "pdfDiscountPercent": "Zbritje %",
   "pdfTotalPrice": "Çmimi total (€)",
-  "pdfNotes": "Vërejtje/Notes:"
+  "pdfNotes": "Vërejtje/Notes:",
+  "defaultCharacteristics": "Karakteristikat e paracaktuara",
+  "defaultProfile": "Profili i paracaktuar",
+  "defaultGlass": "Xhami i paracaktuar"
 }

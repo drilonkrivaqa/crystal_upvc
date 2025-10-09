@@ -138,6 +138,9 @@ class AppLocalizations {
           'A jeni i sigurt që dëshironi ta fshini këtë ofertë?',
       'chooseCustomer': 'Zgjidh Klientin',
       'profit': 'Fitimi',
+      'defaultCharacteristics': 'Karakteristikat e paracaktuara',
+      'defaultProfile': 'Profili i paracaktuar',
+      'defaultGlass': 'Xhami i paracaktuar',
       'setProfitPercent': 'Vendos përqindjen e fitimit',
       'editDeleteWindowDoor': 'Ndrysho/Fshij Dritare/Derë',
       'confirmDeleteQuestion': 'Dëshironi ta fshini këtë?',
@@ -323,6 +326,9 @@ class AppLocalizations {
       'deleteOfferConfirm': 'Are you sure you want to delete this offer?',
       'chooseCustomer': 'Choose Customer',
       'profit': 'Profit',
+      'defaultCharacteristics': 'Default characteristics',
+      'defaultProfile': 'Default profile',
+      'defaultGlass': 'Default glass',
       'setProfitPercent': 'Set Profit Percentage',
       'editDeleteWindowDoor': 'Edit/Delete Window/Door',
       'confirmDeleteQuestion': 'Do you want to delete this?',
@@ -501,9 +507,13 @@ class AppLocalizations {
       'profitPercent': 'Gewinn %',
       'offerSearchHint': 'Suche nach Kundenname oder Angebotsnummer',
       'deleteOffer': 'Angebot löschen',
-      'deleteOfferConfirm': 'Sind Sie sicher, dass Sie dieses Angebot löschen möchten?',
+      'deleteOfferConfirm':
+          'Sind Sie sicher, dass Sie dieses Angebot löschen möchten?',
       'chooseCustomer': 'Kunden wählen',
       'profit': 'Gewinn',
+      'defaultCharacteristics': 'Standardmerkmale',
+      'defaultProfile': 'Standardprofil',
+      'defaultGlass': 'Standardglas',
       'setProfitPercent': 'Gewinnprozentsatz festlegen',
       'editDeleteWindowDoor': 'Fenster/Tür bearbeiten/löschen',
       'confirmDeleteQuestion': 'Möchten Sie dies löschen?',
@@ -689,6 +699,9 @@ class AppLocalizations {
       'deleteOfferConfirm': 'Êtes-vous sûr de vouloir supprimer cette offre ?',
       'chooseCustomer': 'Choisir le client',
       'profit': 'Bénéfice',
+      'defaultCharacteristics': 'Caractéristiques par défaut',
+      'defaultProfile': 'Profil par défaut',
+      'defaultGlass': 'Vitrage par défaut',
       'setProfitPercent': 'Définir le pourcentage de bénéfice',
       'editDeleteWindowDoor': 'Modifier/Supprimer Fenêtre/Porte',
       'confirmDeleteQuestion': 'Voulez-vous supprimer ceci ?',
@@ -874,6 +887,9 @@ class AppLocalizations {
       'deleteOfferConfirm': 'Sei sicuro di voler eliminare questa offerta?',
       'chooseCustomer': 'Scegli Cliente',
       'profit': 'Profitto',
+      'defaultCharacteristics': 'Caratteristiche predefinite',
+      'defaultProfile': 'Profilo predefinito',
+      'defaultGlass': 'Vetro predefinito',
       'setProfitPercent': 'Imposta percentuale di profitto',
       'editDeleteWindowDoor': 'Modifica/Elimina Finestra/Porta',
       'confirmDeleteQuestion': 'Vuoi eliminare questo?',
@@ -1099,6 +1115,9 @@ class AppLocalizations {
   String get deleteOfferConfirm => _t('deleteOfferConfirm');
   String get chooseCustomer => _t('chooseCustomer');
   String get profit => _t('profit');
+  String get defaultCharacteristics => _t('defaultCharacteristics');
+  String get defaultProfile => _t('defaultProfile');
+  String get defaultGlass => _t('defaultGlass');
   String get setProfitPercent => _t('setProfitPercent');
   String get editDeleteWindowDoor => _t('editDeleteWindowDoor');
   String get confirmDeleteQuestion => _t('confirmDeleteQuestion');
