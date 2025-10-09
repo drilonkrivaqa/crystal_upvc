@@ -337,4 +337,13 @@ class AppLocalizationsSq extends AppLocalizations {
 
   @override
   String get pdfNotes => 'Vërejtje/Notes:';
+
+  @override
+  String get defaultCharacteristics => 'Karakteristikat e paracaktuara';
+
+  @override
+  String get defaultProfile => 'Profili i paracaktuar';
+
+  @override
+  String get defaultGlass => 'Xhami i paracaktuar';
 }

@@ -337,4 +337,13 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get pdfNotes => 'Note:';
+
+  @override
+  String get defaultCharacteristics => 'Caratteristiche predefinite';
+
+  @override
+  String get defaultProfile => 'Profilo predefinito';
+
+  @override
+  String get defaultGlass => 'Vetro predefinito';
 }

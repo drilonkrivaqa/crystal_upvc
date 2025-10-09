@@ -734,6 +734,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Notes:'**
   String get pdfNotes;
+
+  /// No description provided for @defaultCharacteristics.
+  ///
+  /// In en, this message translates to:
+  /// **'Default characteristics'**
+  String get defaultCharacteristics;
+
+  /// No description provided for @defaultProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Default profile'**
+  String get defaultProfile;
+
+  /// No description provided for @defaultGlass.
+  ///
+  /// In en, this message translates to:
+  /// **'Default glass'**
+  String get defaultGlass;
 }
 
 class _AppLocalizationsDelegate
