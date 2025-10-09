@@ -502,13 +502,15 @@ class OfferAdapter extends TypeAdapter<Offer> {
       defaultProfileSetIndex:
           fields[10] == null ? 0 : fields[10] as int,
       defaultGlassIndex: fields[11] == null ? 0 : fields[11] as int,
+      versions:
+          fields[12] == null ? [] : (fields[12] as List).cast<OfferVersion>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, Offer obj) {
     writer
-      ..writeByte(12)
+      ..writeByte(13)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -532,7 +534,9 @@ class OfferAdapter extends TypeAdapter<Offer> {
       ..writeByte(10)
       ..write(obj.defaultProfileSetIndex)
       ..writeByte(11)
-      ..write(obj.defaultGlassIndex);
+      ..write(obj.defaultGlassIndex)
+      ..writeByte(12)
+      ..write(obj.versions);
   }
 
   @override
@@ -542,6 +546,73 @@ class OfferAdapter extends TypeAdapter<Offer> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is OfferAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class OfferVersionAdapter extends TypeAdapter<OfferVersion> {
+  @override
+  final int typeId = 9;
+
+  @override
+  OfferVersion read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return OfferVersion(
+      name: fields[0] as String,
+      createdAt: fields[1] as DateTime?,
+      items:
+          fields[2] == null ? [] : (fields[2] as List).cast<WindowDoorItem>(),
+      profitPercent: fields[3] == null ? 0 : fields[3] as double,
+      extraCharges:
+          fields[4] == null ? [] : (fields[4] as List).cast<ExtraCharge>(),
+      discountPercent: fields[5] == null ? 0 : fields[5] as double,
+      discountAmount: fields[6] == null ? 0 : fields[6] as double,
+      notes: fields[7] == null ? '' : fields[7] as String,
+      defaultProfileSetIndex:
+          fields[8] == null ? 0 : fields[8] as int,
+      defaultGlassIndex: fields[9] == null ? 0 : fields[9] as int,
+      customerIndex: fields[10] == null ? 0 : fields[10] as int,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, OfferVersion obj) {
+    writer
+      ..writeByte(11)
+      ..writeByte(0)
+      ..write(obj.name)
+      ..writeByte(1)
+      ..write(obj.createdAt)
+      ..writeByte(2)
+      ..write(obj.items)
+      ..writeByte(3)
+      ..write(obj.profitPercent)
+      ..writeByte(4)
+      ..write(obj.extraCharges)
+      ..writeByte(5)
+      ..write(obj.discountPercent)
+      ..writeByte(6)
+      ..write(obj.discountAmount)
+      ..writeByte(7)
+      ..write(obj.notes)
+      ..writeByte(8)
+      ..write(obj.defaultProfileSetIndex)
+      ..writeByte(9)
+      ..write(obj.defaultGlassIndex)
+      ..writeByte(10)
+      ..write(obj.customerIndex);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is OfferVersionAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

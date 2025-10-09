@@ -177,7 +177,10 @@ class ExtraCharge extends HiveObject {
   String description;
   @HiveField(1)
   double amount;
-ExtraCharge({this.description = '', this.amount = 0});
+  ExtraCharge({this.description = '', this.amount = 0});
+
+  ExtraCharge copy() =>
+      ExtraCharge(description: description, amount: amount);
 }
 
 class SectionInsets {
@@ -287,6 +290,39 @@ class WindowDoorItem extends HiveObject {
         horizontalAdapters = horizontalAdapters ??
             List<bool>.filled(
                 horizontalSections > 0 ? horizontalSections - 1 : 0, false);
+
+  WindowDoorItem copy() {
+    return WindowDoorItem(
+      name: name,
+      width: width,
+      height: height,
+      quantity: quantity,
+      profileSetIndex: profileSetIndex,
+      glassIndex: glassIndex,
+      blindIndex: blindIndex,
+      mechanismIndex: mechanismIndex,
+      accessoryIndex: accessoryIndex,
+      openings: openings,
+      photoPath: photoPath,
+      photoBytes: photoBytes != null
+          ? Uint8List.fromList(photoBytes!)
+          : null,
+      manualPrice: manualPrice,
+      manualBasePrice: manualBasePrice,
+      extra1Price: extra1Price,
+      extra2Price: extra2Price,
+      extra1Desc: extra1Desc,
+      extra2Desc: extra2Desc,
+      notes: notes,
+      verticalSections: verticalSections,
+      horizontalSections: horizontalSections,
+      fixedSectors: List<bool>.from(fixedSectors),
+      sectionWidths: List<int>.from(sectionWidths),
+      sectionHeights: List<int>.from(sectionHeights),
+      verticalAdapters: List<bool>.from(verticalAdapters),
+      horizontalAdapters: List<bool>.from(horizontalAdapters),
+    );
+  }
 
   SectionInsets sectionInsets(ProfileSet set, int row, int col) {
     final halfT = set.tInnerThickness.toDouble() / 2;
@@ -649,6 +685,8 @@ class Offer extends HiveObject {
   int defaultProfileSetIndex;
   @HiveField(11, defaultValue: 0)
   int defaultGlassIndex;
+  @HiveField(12, defaultValue: const [])
+  List<OfferVersion> versions;
   Offer({
     required this.id,
     required this.customerIndex,
@@ -661,7 +699,84 @@ class Offer extends HiveObject {
     this.notes = '',
     this.defaultProfileSetIndex = 0,
     this.defaultGlassIndex = 0,
+    List<OfferVersion>? versions,
     DateTime? lastEdited,
   })  : lastEdited = lastEdited ?? DateTime.now(),
-        extraCharges = extraCharges ?? [];
+        extraCharges = extraCharges ?? [],
+        versions = versions ?? [];
+
+  OfferVersion createVersion({required String name}) {
+    return OfferVersion(
+      name: name,
+      createdAt: DateTime.now(),
+      items: items,
+      profitPercent: profitPercent,
+      extraCharges: extraCharges,
+      discountPercent: discountPercent,
+      discountAmount: discountAmount,
+      notes: notes,
+      defaultProfileSetIndex: defaultProfileSetIndex,
+      defaultGlassIndex: defaultGlassIndex,
+      customerIndex: customerIndex,
+    );
+  }
+
+  void applyVersion(OfferVersion version) {
+    customerIndex = version.customerIndex;
+    items = [for (final item in version.items) item.copy()];
+    profitPercent = version.profitPercent;
+    extraCharges =
+        [for (final charge in version.extraCharges) charge.copy()];
+    discountPercent = version.discountPercent;
+    discountAmount = version.discountAmount;
+    notes = version.notes;
+    defaultProfileSetIndex = version.defaultProfileSetIndex;
+    defaultGlassIndex = version.defaultGlassIndex;
+  }
+}
+
+@HiveType(typeId: 9)
+class OfferVersion extends HiveObject {
+  @HiveField(0)
+  String name;
+  @HiveField(1)
+  DateTime createdAt;
+  @HiveField(2)
+  List<WindowDoorItem> items;
+  @HiveField(3)
+  double profitPercent;
+  @HiveField(4)
+  List<ExtraCharge> extraCharges;
+  @HiveField(5)
+  double discountPercent;
+  @HiveField(6)
+  double discountAmount;
+  @HiveField(7)
+  String notes;
+  @HiveField(8)
+  int defaultProfileSetIndex;
+  @HiveField(9)
+  int defaultGlassIndex;
+  @HiveField(10)
+  int customerIndex;
+
+  OfferVersion({
+    required this.name,
+    DateTime? createdAt,
+    List<WindowDoorItem>? items,
+    this.profitPercent = 0,
+    List<ExtraCharge>? extraCharges,
+    this.discountPercent = 0,
+    this.discountAmount = 0,
+    this.notes = '',
+    this.defaultProfileSetIndex = 0,
+    this.defaultGlassIndex = 0,
+    this.customerIndex = 0,
+  })  : createdAt = createdAt ?? DateTime.now(),
+        items = items != null
+            ? items.map((item) => item.copy()).toList()
+            : <WindowDoorItem>[],
+        extraCharges = extraCharges != null
+            ? extraCharges.map((charge) => charge.copy()).toList()
+            : <ExtraCharge>[];
 }

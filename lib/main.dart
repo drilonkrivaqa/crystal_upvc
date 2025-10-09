@@ -26,6 +26,7 @@ void main() async {
   Hive.registerAdapter(MechanismAdapter());
   Hive.registerAdapter(AccessoryAdapter());
   Hive.registerAdapter(WindowDoorItemAdapter());
+  Hive.registerAdapter(OfferVersionAdapter());
   Hive.registerAdapter(OfferAdapter());
   Hive.registerAdapter(ExtraChargeAdapter());
 
