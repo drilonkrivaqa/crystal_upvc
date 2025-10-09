@@ -1,4 +1,5 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.tonialpvc.crystal_upvc">
     <application
         android:label="Toni Al-Pvc"
         android:name="${applicationName}"
