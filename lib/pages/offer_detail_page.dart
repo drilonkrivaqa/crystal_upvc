@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:intl/intl.dart';
 import '../models.dart';
 import 'window_door_item_page.dart';
 import '../theme/app_colors.dart';
@@ -220,6 +221,242 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
     );
   }
 
+  void _replaceExtraControllers(Offer offer) {
+    final newDescControllers = [
+      for (var c in offer.extraCharges)
+        TextEditingController(text: c.description)
+    ];
+    final newAmountControllers = [
+      for (var c in offer.extraCharges)
+        TextEditingController(text: c.amount.toString())
+    ];
+    for (final controller in extraDescControllers) {
+      controller.dispose();
+    }
+    for (final controller in extraAmountControllers) {
+      controller.dispose();
+    }
+    extraDescControllers = newDescControllers;
+    extraAmountControllers = newAmountControllers;
+  }
+
+  void _syncControllersFromOffer(Offer offer) {
+    discountPercentController.text = offer.discountPercent.toString();
+    discountAmountController.text = offer.discountAmount.toString();
+    notesController.text = offer.notes;
+    _replaceExtraControllers(offer);
+  }
+
+  Future<void> _showSaveVersionDialog(Offer offer) async {
+    final l10n = AppLocalizations.of(context);
+    final defaultName = l10n.versionDefaultName
+        .replaceAll('{number}', '${offer.versions.length + 1}');
+    final controller = TextEditingController(text: defaultName);
+    final result = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.saveVersionTitle),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration: InputDecoration(labelText: l10n.saveVersionNameLabel),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(l10n.cancel),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final name = controller.text.trim().isEmpty
+                  ? defaultName
+                  : controller.text.trim();
+              Navigator.of(ctx).pop(name);
+            },
+            child: Text(l10n.save),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (result == null) {
+      return;
+    }
+    final version = offer.createVersion(name: result);
+    setState(() {
+      offer.versions.add(version);
+      offer.lastEdited = DateTime.now();
+    });
+    await offer.save();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.versionSaved)),
+    );
+  }
+
+  Future<void> _applyVersion(Offer offer, OfferVersion version) async {
+    final l10n = AppLocalizations.of(context);
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.useVersion),
+        content: Text(l10n.applyVersionConfirmation),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n.cancel),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(l10n.useVersion),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true) {
+      return;
+    }
+    setState(() {
+      offer.applyVersion(version);
+      offer.lastEdited = DateTime.now();
+      _syncControllersFromOffer(offer);
+      _selectedDefaultProfileSetIndex = offer.defaultProfileSetIndex;
+      _selectedDefaultGlassIndex = offer.defaultGlassIndex;
+    });
+    await offer.save();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.versionApplied)),
+    );
+  }
+
+  Future<void> _confirmDeleteVersion(Offer offer, int index) async {
+    final l10n = AppLocalizations.of(context);
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.delete),
+        content: Text(l10n.deleteVersionConfirmation),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n.cancel),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(l10n.delete),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true) {
+      return;
+    }
+    setState(() {
+      offer.versions.removeAt(index);
+      offer.lastEdited = DateTime.now();
+    });
+    await offer.save();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.versionDeleted)),
+    );
+  }
+
+  Widget _buildVersionsCard(Offer offer) {
+    final l10n = AppLocalizations.of(context);
+    final versions = offer.versions;
+    final localeCode = l10n.locale.countryCode == null
+        ? l10n.locale.languageCode
+        : '${l10n.locale.languageCode}_${l10n.locale.countryCode}';
+    final formatter = DateFormat.yMMMd(localeCode).add_Hm();
+    final versionIndices = List<int>.generate(versions.length, (i) => i)
+      ..sort((a, b) => versions[b]
+          .createdAt
+          .compareTo(versions[a].createdAt));
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    l10n.versionsSectionTitle,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ),
+                TextButton.icon(
+                  onPressed: () => _showSaveVersionDialog(offer),
+                  icon: const Icon(Icons.save),
+                  label: Text(l10n.saveVersionAction),
+                ),
+              ],
+            ),
+            if (versionIndices.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Text(
+                  l10n.versionsEmpty,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              )
+            else
+              ...versionIndices.map((index) {
+                final version = versions[index];
+                final createdText = formatter.format(version.createdAt);
+                final subtitle = l10n.versionCreatedOn
+                    .replaceAll('{date}', createdText);
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              version.name,
+                              style: Theme.of(context).textTheme.titleSmall,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              subtitle,
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ],
+                        ),
+                      ),
+                      Wrap(
+                        spacing: 8,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          TextButton(
+                            onPressed: () => _applyVersion(offer, version),
+                            child: Text(l10n.useVersion),
+                          ),
+                          IconButton(
+                            tooltip: l10n.delete,
+                            onPressed: () =>
+                                _confirmDeleteVersion(offer, index),
+                            icon: const Icon(Icons.delete),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              }),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -274,6 +511,11 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
       appBar: AppBar(
         title: Text('${l10n.pdfOffer} ${widget.offerIndex + 1}'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.save_as),
+            tooltip: l10n.saveVersionAction,
+            onPressed: () => _showSaveVersionDialog(offer),
+          ),
           IconButton(
             icon: const Icon(Icons.picture_as_pdf),
             onPressed: () async {
@@ -405,6 +647,11 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 ),
               ],
             ),
+          ),
+          const SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: _buildVersionsCard(offer),
           ),
           if (profileSetBox.isNotEmpty || glassBox.isNotEmpty) ...[
             const SizedBox(height: 16),

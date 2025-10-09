@@ -148,6 +148,20 @@ class AppLocalizations {
       'selectNone': 'Hiq përzgjedhjet',
       'applyToSelected': 'Apliko tek të zgjedhurat',
       'defaultsUpdated': 'Karakteristikat e paracaktuara u përditësuan.',
+      'versionsSectionTitle': 'Versionet e ruajtura',
+      'saveVersionAction': 'Ruaj versionin',
+      'saveVersionTitle': 'Ruaj ofertën aktuale si version',
+      'saveVersionNameLabel': 'Emri i versionit',
+      'versionSaved': 'Versioni u ruajt.',
+      'versionsEmpty': 'Ende nuk ka versione.',
+      'useVersion': 'Ngarko versionin',
+      'applyVersionConfirmation':
+          'Të zëvendësohet oferta aktuale me këtë version? Ky veprim nuk mund të zhbëhet.',
+      'versionApplied': 'Versioni u aplikua.',
+      'deleteVersionConfirmation': 'Të fshihet ky version?',
+      'versionDeleted': 'Versioni u fshi.',
+      'versionDefaultName': 'Versioni {number}',
+      'versionCreatedOn': 'Krijuar më {date}',
       'setProfitPercent': 'Vendos përqindjen e fitimit',
       'editDeleteWindowDoor': 'Ndrysho/Fshij Dritare/Derë',
       'confirmDeleteQuestion': 'Dëshironi ta fshini këtë?',
@@ -343,6 +357,20 @@ class AppLocalizations {
       'selectNone': 'Select none',
       'applyToSelected': 'Apply to selected',
       'defaultsUpdated': 'Default characteristics updated.',
+      'versionsSectionTitle': 'Saved versions',
+      'saveVersionAction': 'Save version',
+      'saveVersionTitle': 'Save current offer as version',
+      'saveVersionNameLabel': 'Version name',
+      'versionSaved': 'Version saved.',
+      'versionsEmpty': 'No versions yet.',
+      'useVersion': 'Load version',
+      'applyVersionConfirmation':
+          'Replace the current offer with this version? This action cannot be undone.',
+      'versionApplied': 'Version applied.',
+      'deleteVersionConfirmation': 'Delete this version?',
+      'versionDeleted': 'Version deleted.',
+      'versionDefaultName': 'Version {number}',
+      'versionCreatedOn': 'Created {date}',
       'setProfitPercent': 'Set Profit Percentage',
       'editDeleteWindowDoor': 'Edit/Delete Window/Door',
       'confirmDeleteQuestion': 'Do you want to delete this?',
@@ -535,6 +563,20 @@ class AppLocalizations {
       'selectNone': 'Keine auswählen',
       'applyToSelected': 'Auf Auswahl anwenden',
       'defaultsUpdated': 'Standardmerkmale aktualisiert.',
+      'versionsSectionTitle': 'Gespeicherte Versionen',
+      'saveVersionAction': 'Version speichern',
+      'saveVersionTitle': 'Aktuelles Angebot als Version speichern',
+      'saveVersionNameLabel': 'Versionsname',
+      'versionSaved': 'Version gespeichert.',
+      'versionsEmpty': 'Noch keine Versionen.',
+      'useVersion': 'Version laden',
+      'applyVersionConfirmation':
+          'Aktuelles Angebot durch diese Version ersetzen? Dies kann nicht rückgängig gemacht werden.',
+      'versionApplied': 'Version übernommen.',
+      'deleteVersionConfirmation': 'Diese Version löschen?',
+      'versionDeleted': 'Version gelöscht.',
+      'versionDefaultName': 'Version {number}',
+      'versionCreatedOn': 'Erstellt am {date}',
       'setProfitPercent': 'Gewinnprozentsatz festlegen',
       'editDeleteWindowDoor': 'Fenster/Tür bearbeiten/löschen',
       'confirmDeleteQuestion': 'Möchten Sie dies löschen?',
@@ -730,6 +772,20 @@ class AppLocalizations {
       'selectNone': 'Ne rien sélectionner',
       'applyToSelected': 'Appliquer à la sélection',
       'defaultsUpdated': 'Caractéristiques par défaut mises à jour.',
+      'versionsSectionTitle': 'Versions enregistrées',
+      'saveVersionAction': 'Enregistrer la version',
+      'saveVersionTitle': 'Enregistrer l\'offre actuelle comme version',
+      'saveVersionNameLabel': 'Nom de la version',
+      'versionSaved': 'Version enregistrée.',
+      'versionsEmpty': 'Aucune version pour le moment.',
+      'useVersion': 'Charger la version',
+      'applyVersionConfirmation':
+          'Remplacer l\'offre actuelle par cette version ? Cette action est irréversible.',
+      'versionApplied': 'Version appliquée.',
+      'deleteVersionConfirmation': 'Supprimer cette version ?',
+      'versionDeleted': 'Version supprimée.',
+      'versionDefaultName': 'Version {number}',
+      'versionCreatedOn': 'Créé le {date}',
       'setProfitPercent': 'Définir le pourcentage de bénéfice',
       'editDeleteWindowDoor': 'Modifier/Supprimer Fenêtre/Porte',
       'confirmDeleteQuestion': 'Voulez-vous supprimer ceci ?',
@@ -925,6 +981,20 @@ class AppLocalizations {
       'selectNone': 'Deseleziona tutto',
       'applyToSelected': 'Applica alla selezione',
       'defaultsUpdated': 'Caratteristiche predefinite aggiornate.',
+      'versionsSectionTitle': 'Versioni salvate',
+      'saveVersionAction': 'Salva versione',
+      'saveVersionTitle': 'Salva l\'offerta attuale come versione',
+      'saveVersionNameLabel': 'Nome versione',
+      'versionSaved': 'Versione salvata.',
+      'versionsEmpty': 'Nessuna versione disponibile.',
+      'useVersion': 'Carica versione',
+      'applyVersionConfirmation':
+          'Sostituire l\'offerta attuale con questa versione? Questa azione non può essere annullata.',
+      'versionApplied': 'Versione applicata.',
+      'deleteVersionConfirmation': 'Eliminare questa versione?',
+      'versionDeleted': 'Versione eliminata.',
+      'versionDefaultName': 'Versione {number}',
+      'versionCreatedOn': 'Creata il {date}',
       'setProfitPercent': 'Imposta percentuale di profitto',
       'editDeleteWindowDoor': 'Modifica/Elimina Finestra/Porta',
       'confirmDeleteQuestion': 'Vuoi eliminare questo?',
@@ -1159,6 +1229,21 @@ class AppLocalizations {
   String get selectNone => _t('selectNone');
   String get applyToSelected => _t('applyToSelected');
   String get defaultsUpdated => _t('defaultsUpdated');
+  String get versionsSectionTitle => _t('versionsSectionTitle');
+  String get saveVersionAction => _t('saveVersionAction');
+  String get saveVersionTitle => _t('saveVersionTitle');
+  String get saveVersionNameLabel => _t('saveVersionNameLabel');
+  String get versionSaved => _t('versionSaved');
+  String get versionsEmpty => _t('versionsEmpty');
+  String get useVersion => _t('useVersion');
+  String get applyVersionConfirmation =>
+      _t('applyVersionConfirmation');
+  String get versionApplied => _t('versionApplied');
+  String get deleteVersionConfirmation =>
+      _t('deleteVersionConfirmation');
+  String get versionDeleted => _t('versionDeleted');
+  String get versionDefaultName => _t('versionDefaultName');
+  String get versionCreatedOn => _t('versionCreatedOn');
   String get setProfitPercent => _t('setProfitPercent');
   String get editDeleteWindowDoor => _t('editDeleteWindowDoor');
   String get confirmDeleteQuestion => _t('confirmDeleteQuestion');
