@@ -141,6 +141,13 @@ class AppLocalizations {
       'defaultCharacteristics': 'Karakteristikat e paracaktuara',
       'defaultProfile': 'Profili i paracaktuar',
       'defaultGlass': 'Xhami i paracaktuar',
+      'applyDefaultsTitle': 'Aplikoni ndryshimet',
+      'applyDefaultsMessage':
+          'Zgjidhni cilat dritare/dyer duhet të përdorin profilin/xhamin e ri të paracaktuar. Hiqni shenjën nga ato që dëshironi t\'i përjashtoni.',
+      'selectAll': 'Zgjidh të gjitha',
+      'selectNone': 'Hiq përzgjedhjet',
+      'applyToSelected': 'Apliko tek të zgjedhurat',
+      'defaultsUpdated': 'Karakteristikat e paracaktuara u përditësuan.',
       'setProfitPercent': 'Vendos përqindjen e fitimit',
       'editDeleteWindowDoor': 'Ndrysho/Fshij Dritare/Derë',
       'confirmDeleteQuestion': 'Dëshironi ta fshini këtë?',
@@ -329,6 +336,13 @@ class AppLocalizations {
       'defaultCharacteristics': 'Default characteristics',
       'defaultProfile': 'Default profile',
       'defaultGlass': 'Default glass',
+      'applyDefaultsTitle': 'Apply changes',
+      'applyDefaultsMessage':
+          'Choose which windows/doors should use the updated default profile and glass. Uncheck the items you want to exclude.',
+      'selectAll': 'Select all',
+      'selectNone': 'Select none',
+      'applyToSelected': 'Apply to selected',
+      'defaultsUpdated': 'Default characteristics updated.',
       'setProfitPercent': 'Set Profit Percentage',
       'editDeleteWindowDoor': 'Edit/Delete Window/Door',
       'confirmDeleteQuestion': 'Do you want to delete this?',
@@ -514,6 +528,13 @@ class AppLocalizations {
       'defaultCharacteristics': 'Standardmerkmale',
       'defaultProfile': 'Standardprofil',
       'defaultGlass': 'Standardglas',
+      'applyDefaultsTitle': 'Änderungen anwenden',
+      'applyDefaultsMessage':
+          'Wählen Sie, welche Fenster/Türen das aktualisierte Standardprofil und Glas verwenden sollen. Entfernen Sie die Auswahl bei den Elementen, die ausgeschlossen werden sollen.',
+      'selectAll': 'Alle auswählen',
+      'selectNone': 'Keine auswählen',
+      'applyToSelected': 'Auf Auswahl anwenden',
+      'defaultsUpdated': 'Standardmerkmale aktualisiert.',
       'setProfitPercent': 'Gewinnprozentsatz festlegen',
       'editDeleteWindowDoor': 'Fenster/Tür bearbeiten/löschen',
       'confirmDeleteQuestion': 'Möchten Sie dies löschen?',
@@ -702,6 +723,13 @@ class AppLocalizations {
       'defaultCharacteristics': 'Caractéristiques par défaut',
       'defaultProfile': 'Profil par défaut',
       'defaultGlass': 'Vitrage par défaut',
+      'applyDefaultsTitle': 'Appliquer les modifications',
+      'applyDefaultsMessage':
+          'Choisissez quelles fenêtres/portes doivent utiliser le profil et le vitrage par défaut mis à jour. Décochez les éléments à exclure.',
+      'selectAll': 'Tout sélectionner',
+      'selectNone': 'Ne rien sélectionner',
+      'applyToSelected': 'Appliquer à la sélection',
+      'defaultsUpdated': 'Caractéristiques par défaut mises à jour.',
       'setProfitPercent': 'Définir le pourcentage de bénéfice',
       'editDeleteWindowDoor': 'Modifier/Supprimer Fenêtre/Porte',
       'confirmDeleteQuestion': 'Voulez-vous supprimer ceci ?',
@@ -890,6 +918,13 @@ class AppLocalizations {
       'defaultCharacteristics': 'Caratteristiche predefinite',
       'defaultProfile': 'Profilo predefinito',
       'defaultGlass': 'Vetro predefinito',
+      'applyDefaultsTitle': 'Applica le modifiche',
+      'applyDefaultsMessage':
+          'Scegli quali finestre/porte devono usare il profilo e il vetro predefiniti aggiornati. Deseleziona gli elementi da escludere.',
+      'selectAll': 'Seleziona tutto',
+      'selectNone': 'Deseleziona tutto',
+      'applyToSelected': 'Applica alla selezione',
+      'defaultsUpdated': 'Caratteristiche predefinite aggiornate.',
       'setProfitPercent': 'Imposta percentuale di profitto',
       'editDeleteWindowDoor': 'Modifica/Elimina Finestra/Porta',
       'confirmDeleteQuestion': 'Vuoi eliminare questo?',
@@ -1118,6 +1153,12 @@ class AppLocalizations {
   String get defaultCharacteristics => _t('defaultCharacteristics');
   String get defaultProfile => _t('defaultProfile');
   String get defaultGlass => _t('defaultGlass');
+  String get applyDefaultsTitle => _t('applyDefaultsTitle');
+  String get applyDefaultsMessage => _t('applyDefaultsMessage');
+  String get selectAll => _t('selectAll');
+  String get selectNone => _t('selectNone');
+  String get applyToSelected => _t('applyToSelected');
+  String get defaultsUpdated => _t('defaultsUpdated');
   String get setProfitPercent => _t('setProfitPercent');
   String get editDeleteWindowDoor => _t('editDeleteWindowDoor');
   String get confirmDeleteQuestion => _t('confirmDeleteQuestion');
