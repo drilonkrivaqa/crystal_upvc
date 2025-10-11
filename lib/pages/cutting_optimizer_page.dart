@@ -5,8 +5,10 @@ import '../models.dart';
 import '../pdf/production_pdf.dart';
 import '../theme/app_background.dart';
 import '../utils/offer_label.dart';
+import '../utils/offer_letters.dart';
 import '../utils/production_piece_detail.dart';
 import '../widgets/glass_card.dart';
+import '../widgets/offer_letters_table.dart';
 import '../widgets/offer_multi_select.dart';
 
 class CuttingOptimizerPage extends StatefulWidget {
@@ -54,7 +56,7 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
       return;
     }
 
-    final offerLetterMap = _buildOfferLetterMap();
+    final offerLetterMap = buildOfferLetterMap(selectedOffers);
     for (final offerIndex in selectedOffers) {
       final offer = offerBox.getAt(offerIndex);
       if (offer == null) continue;
@@ -108,26 +110,6 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
       offerLetters = offerLetterMap;
       results = res;
     });
-  }
-
-  Map<int, String> _buildOfferLetterMap() {
-    final sorted = selectedOffers.toList()..sort();
-    final map = <int, String>{};
-    for (var i = 0; i < sorted.length; i++) {
-      map[sorted[i]] = _letterForIndex(i);
-    }
-    return map;
-  }
-
-  String _letterForIndex(int position) {
-    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    var index = position;
-    var result = '';
-    while (index >= 0) {
-      result = letters[index % 26] + result;
-      index = (index ~/ 26) - 1;
-    }
-    return result;
   }
 
   Future<void> _exportPdf() async {
@@ -295,7 +277,7 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
                         selectedOffers
                           ..clear()
                           ..addAll(selection);
-                        offerLetters = _buildOfferLetterMap();
+                        offerLetters = buildOfferLetterMap(selectedOffers);
                         if (selectedOffers.isEmpty) {
                           results = null;
                         }
@@ -311,48 +293,15 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
               ],
             ),
             const SizedBox(height: 20),
-            if (offerLetters.isNotEmpty)
-              GlassCard(
-                child: Table(
-                  columnWidths: const {
-                    0: IntrinsicColumnWidth(),
-                    1: FixedColumnWidth(12),
-                    2: FlexColumnWidth(),
-                  },
-                  defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                  children: [
-                    for (final entry in offerLetters.entries.toList()
-                      ..sort((a, b) => a.value.compareTo(b.value)))
-                      TableRow(
-                        children: [
-                          Padding(
-                            padding:
-                                const EdgeInsets.symmetric(vertical: 4),
-                            child: Text(
-                              entry.value,
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          const SizedBox(),
-                          Padding(
-                            padding:
-                                const EdgeInsets.symmetric(vertical: 4),
-                            child: Text(
-                              buildOfferLabel(
-                                l10n,
-                                customerBox,
-                                entry.key,
-                                offerBox.getAt(entry.key),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                  ],
-                ),
+            if (offerLetters.isNotEmpty) ...[
+              OfferLettersTable(
+                offerLetters: offerLetters,
+                customerBox: customerBox,
+                offerBox: offerBox,
+                l10n: l10n,
               ),
-            if (offerLetters.isNotEmpty) const SizedBox(height: 20),
+              const SizedBox(height: 20),
+            ],
             if (results != null && results!.isNotEmpty) ...[
               Align(
                 alignment: Alignment.centerRight,

@@ -4,7 +4,9 @@ import 'package:hive_flutter/hive_flutter.dart';
 import '../models.dart';
 import '../pdf/production_pdf.dart';
 import '../theme/app_background.dart';
+import '../utils/offer_letters.dart';
 import '../widgets/glass_card.dart';
+import '../widgets/offer_letters_table.dart';
 import '../widgets/offer_multi_select.dart';
 import '../l10n/app_localizations.dart';
 
@@ -22,6 +24,7 @@ class _XhamiPageState extends State<XhamiPage> {
   late Box<ProfileSet> profileBox;
   late Box<Customer> customerBox;
   final Set<int> selectedOffers = <int>{};
+  Map<int, String> offerLetters = <int, String>{};
   Map<int, Map<String, int>>? results; // glassIndex -> size -> qty
 
   @override
@@ -36,10 +39,14 @@ class _XhamiPageState extends State<XhamiPage> {
 
   void _calculate() {
     if (selectedOffers.isEmpty) {
-      setState(() => results = null);
+      setState(() {
+        offerLetters = <int, String>{};
+        results = null;
+      });
       return;
     }
 
+    final letters = buildOfferLetterMap(selectedOffers);
     final res = <int, Map<String, int>>{};
 
     for (final offerIndex in selectedOffers) {
@@ -61,7 +68,10 @@ class _XhamiPageState extends State<XhamiPage> {
       }
     }
 
-    setState(() => results = res);
+    setState(() {
+      offerLetters = letters;
+      results = res;
+    });
   }
 
   Future<void> _exportPdf() async {
@@ -156,6 +166,7 @@ class _XhamiPageState extends State<XhamiPage> {
                         selectedOffers
                           ..clear()
                           ..addAll(selection);
+                        offerLetters = buildOfferLetterMap(selectedOffers);
                         if (selectedOffers.isEmpty) {
                           results = null;
                         }
@@ -171,6 +182,15 @@ class _XhamiPageState extends State<XhamiPage> {
               ],
             ),
             const SizedBox(height: 20),
+            if (offerLetters.isNotEmpty) ...[
+              OfferLettersTable(
+                offerLetters: offerLetters,
+                customerBox: customerBox,
+                offerBox: offerBox,
+                l10n: l10n,
+              ),
+              const SizedBox(height: 20),
+            ],
             if (results != null && results!.isNotEmpty) ...[
               Align(
                 alignment: Alignment.centerRight,
