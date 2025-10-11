@@ -26,6 +26,16 @@ class _OffersPageState extends State<OffersPage> {
     customerBox = Hive.box<Customer>('customers');
   }
 
+  int _nextOfferNumber() {
+    var maxNumber = 0;
+    for (final offer in offerBox.values) {
+      if (offer.offerNumber > maxNumber) {
+        maxNumber = offer.offerNumber;
+      }
+    }
+    return maxNumber + 1;
+  }
+
   void _addOffer() {
     final l10n = AppLocalizations.of(context);
     if (customerBox.isEmpty) {
@@ -109,6 +119,7 @@ class _OffersPageState extends State<OffersPage> {
                 child: Text(l10n.cancel)),
             ElevatedButton(
               onPressed: () {
+                final newOfferNumber = _nextOfferNumber();
                 offerBox.add(
                   Offer(
                     id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -117,6 +128,7 @@ class _OffersPageState extends State<OffersPage> {
                     lastEdited: DateTime.now(),
                     items: [],
                     profitPercent: double.tryParse(profitController.text) ?? 0,
+                    offerNumber: newOfferNumber,
                   ),
                 );
                 Navigator.pop(context);
@@ -160,7 +172,8 @@ class _OffersPageState extends State<OffersPage> {
                             offer.customerIndex < customerBox.length
                         ? customerBox.getAt(offer.customerIndex)
                         : null;
-                    final numStr = (i + 1).toString();
+                    final offerNumber = offer?.offerNumber ?? i + 1;
+                    final numStr = offerNumber.toString();
                     if (query.isEmpty ||
                         numStr.contains(query) ||
                         (customer != null &&
@@ -223,7 +236,7 @@ class _OffersPageState extends State<OffersPage> {
                         },
                         child: ListTile(
                           title: Text(
-                            '${l10n.pdfOffer} ${i + 1}',
+                            '${l10n.pdfOffer} ${offer?.offerNumber ?? i + 1}',
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                           subtitle: Text(

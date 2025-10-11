@@ -9,6 +9,7 @@ String buildOfferLabel(
   int offerIndex,
   Offer? offer,
 ) {
+  final offerNumber = offer?.offerNumber ?? offerIndex + 1;
   final customerName = (offer != null &&
           offer.customerIndex >= 0 &&
           offer.customerIndex < customerBox.length)
@@ -16,8 +17,8 @@ String buildOfferLabel(
       : '';
 
   if (customerName.isNotEmpty) {
-    return '${l10n.pdfOffer} ${offerIndex + 1} • $customerName';
+    return '${l10n.pdfOffer} $offerNumber • $customerName';
   }
 
-  return '${l10n.pdfOffer} ${offerIndex + 1}';
+  return '${l10n.pdfOffer} $offerNumber';
 }

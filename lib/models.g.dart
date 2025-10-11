@@ -504,13 +504,14 @@ class OfferAdapter extends TypeAdapter<Offer> {
       defaultGlassIndex: fields[11] == null ? 0 : fields[11] as int,
       versions:
           fields[12] == null ? [] : (fields[12] as List).cast<OfferVersion>(),
+      offerNumber: fields[13] == null ? 0 : fields[13] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, Offer obj) {
     writer
-      ..writeByte(13)
+      ..writeByte(14)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -536,7 +537,9 @@ class OfferAdapter extends TypeAdapter<Offer> {
       ..writeByte(11)
       ..write(obj.defaultGlassIndex)
       ..writeByte(12)
-      ..write(obj.versions);
+      ..write(obj.versions)
+      ..writeByte(13)
+      ..write(obj.offerNumber);
   }
 
   @override
