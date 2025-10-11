@@ -220,7 +220,7 @@ pw.Widget _tableCell(String text, {pw.TextAlign alignment = pw.TextAlign.left}) 
 }
 
 Future<void> exportGlassResultsPdf({
-  required Map<int, Map<String, int>> results,
+  required Map<int, Map<String, Map<String, int>>> results,
   required Box<Glass> glassBox,
   required AppLocalizations l10n,
   required List<Customer> customers,
@@ -275,15 +275,29 @@ Future<void> exportGlassResultsPdf({
                         _tableHeaderCell(l10n.pcs),
                       ],
                     ),
-                    ...rows.map(
-                      (row) => pw.TableRow(
+                    ...rows.map((row) {
+                      final letterEntries = row.value.entries.toList()
+                        ..sort((a, b) => a.key.compareTo(b.key));
+                      final total = letterEntries
+                          .fold<int>(0, (sum, value) => sum + value.value);
+                      final breakdown = letterEntries.isEmpty
+                          ? ''
+                          : letterEntries
+                              .map((entry) => entry.key.isEmpty
+                                  ? '${entry.value}'
+                                  : '${entry.key}: ${entry.value}')
+                              .join(', ');
+                      final dimensionText = breakdown.isEmpty
+                          ? row.key
+                          : '${row.key} ($breakdown)';
+                      return pw.TableRow(
                         children: [
-                          _tableCell(row.key),
-                          _tableCell(row.value.toString(),
+                          _tableCell(dimensionText),
+                          _tableCell(total.toString(),
                               alignment: pw.TextAlign.right),
                         ],
-                      ),
-                    ),
+                      );
+                    }),
                   ],
                 ),
               ],
@@ -303,7 +317,7 @@ Future<void> exportGlassResultsPdf({
 }
 
 Future<void> exportBlindResultsPdf({
-  required Map<int, Map<String, int>> results,
+  required Map<int, Map<String, Map<String, int>>> results,
   required Box<Blind> blindBox,
   required AppLocalizations l10n,
   required List<Customer> customers,
@@ -358,15 +372,29 @@ Future<void> exportBlindResultsPdf({
                         _tableHeaderCell(l10n.pcs),
                       ],
                     ),
-                    ...rows.map(
-                      (row) => pw.TableRow(
+                    ...rows.map((row) {
+                      final letterEntries = row.value.entries.toList()
+                        ..sort((a, b) => a.key.compareTo(b.key));
+                      final total = letterEntries
+                          .fold<int>(0, (sum, value) => sum + value.value);
+                      final breakdown = letterEntries.isEmpty
+                          ? ''
+                          : letterEntries
+                              .map((entry) => entry.key.isEmpty
+                                  ? '${entry.value}'
+                                  : '${entry.key}: ${entry.value}')
+                              .join(', ');
+                      final dimensionText = breakdown.isEmpty
+                          ? row.key
+                          : '${row.key} ($breakdown)';
+                      return pw.TableRow(
                         children: [
-                          _tableCell(row.key),
-                          _tableCell(row.value.toString(),
+                          _tableCell(dimensionText),
+                          _tableCell(total.toString(),
                               alignment: pw.TextAlign.right),
                         ],
-                      ),
-                    ),
+                      );
+                    }),
                   ],
                 ),
               ],
@@ -386,7 +414,7 @@ Future<void> exportBlindResultsPdf({
 }
 
 Future<void> exportHekriResultsPdf({
-  required Map<int, List<List<int>>> results,
+  required Map<int, List<List<ProductionPieceDetail>>> results,
   required Box<ProfileSet> profileBox,
   required AppLocalizations l10n,
   required List<Customer> customers,
@@ -421,7 +449,9 @@ Future<void> exportHekriResultsPdf({
           final profile = profileBox.getAt(entry.key);
           final pipeLen = profile?.hekriPipeLength ?? 6000;
           final bars = entry.value;
-          final needed = bars.expand((bar) => bar).fold<int>(0, (a, b) => a + b);
+          final needed = bars
+              .expand((bar) => bar)
+              .fold<int>(0, (a, b) => a + b.length);
           final totalLen = bars.length * pipeLen;
           final waste = totalLen - needed;
 
@@ -440,8 +470,13 @@ Future<void> exportHekriResultsPdf({
                 pw.SizedBox(height: 8),
                 ...List.generate(bars.length, (index) {
                   final bar = bars[index];
-                  final combination = bar.join(' + ');
-                  final total = bar.fold<int>(0, (a, b) => a + b);
+                  final combination = bar
+                      .map((piece) => piece.offerLetter.isEmpty
+                          ? '${piece.length}'
+                          : '${piece.length} (${piece.offerLetter})')
+                      .join(' + ');
+                  final total =
+                      bar.fold<int>(0, (a, b) => a + b.length);
                   return pw.Container(
                     margin: const pw.EdgeInsets.symmetric(vertical: 4),
                     padding: const pw.EdgeInsets.all(10),

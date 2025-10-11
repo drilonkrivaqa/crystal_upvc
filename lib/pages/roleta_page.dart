@@ -23,7 +23,8 @@ class _RoletaPageState extends State<RoletaPage> {
   late Box<Customer> customerBox;
   final Set<int> selectedOffers = <int>{};
   Map<int, String> offerLetters = <int, String>{};
-  Map<int, Map<String, int>>? results; // blindIndex -> size -> qty
+  Map<int, Map<String, Map<String, int>>>?
+      results; // blindIndex -> size -> offerLetter -> qty
 
   @override
   void initState() {
@@ -43,7 +44,7 @@ class _RoletaPageState extends State<RoletaPage> {
     }
 
     final letters = buildOfferLetterMap(selectedOffers);
-    final res = <int, Map<String, int>>{};
+    final res = <int, Map<String, Map<String, int>>>{};
 
     for (final offerIndex in selectedOffers) {
       final offer = offerBox.getAt(offerIndex);
@@ -52,8 +53,10 @@ class _RoletaPageState extends State<RoletaPage> {
       for (final item in offer.items) {
         if (item.blindIndex == null) continue;
         final target = res.putIfAbsent(item.blindIndex!, () => {});
+        final offerLetter = letters[offerIndex] ?? '';
         final key = '${item.width} x ${item.height}';
-        target[key] = (target[key] ?? 0) + item.quantity;
+        final sizeMap = target.putIfAbsent(key, () => {});
+        sizeMap[offerLetter] = (sizeMap[offerLetter] ?? 0) + item.quantity;
       }
     }
 
@@ -155,8 +158,22 @@ class _RoletaPageState extends State<RoletaPage> {
                     children: [
                       Text(blind?.name ?? l10n.catalogBlind),
                       const SizedBox(height: 8),
-                      ...e.value.entries
-                          .map((entry) => Text('${entry.key} mm - ${entry.value} ${l10n.pcs}')),
+                      ...e.value.entries.map((entry) {
+                        final letterEntries = entry.value.entries.toList()
+                          ..sort((a, b) => a.key.compareTo(b.key));
+                        final breakdown = letterEntries
+                            .map((letter) => letter.key.isEmpty
+                                ? '${letter.value}'
+                                : '${letter.key}: ${letter.value}')
+                            .join(', ');
+                        final total = letterEntries
+                            .fold<int>(0, (sum, value) => sum + value.value);
+                        final dimensionText = breakdown.isEmpty
+                            ? '${entry.key} mm'
+                            : '${entry.key} mm ($breakdown)';
+                        return Text(
+                            '$dimensionText - $total ${l10n.pcs}');
+                      }),
                     ],
                   ),
                 );
