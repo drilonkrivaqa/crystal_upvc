@@ -160,6 +160,20 @@ class _OffersPageState extends State<OffersPage> {
                 onChanged: (val) => setState(() => _searchQuery = val.trim()),
               ),
             ),
+            ValueListenableBuilder(
+              valueListenable: offerBox.listenable(),
+              builder: (context, Box<Offer> box, _) => Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    '${l10n.homeOffers}: ${box.length}',
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
+                ),
+              ),
+            ),
             Expanded(
               child: ValueListenableBuilder(
                 valueListenable: offerBox.listenable(),
