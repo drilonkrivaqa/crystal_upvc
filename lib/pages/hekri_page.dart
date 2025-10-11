@@ -5,7 +5,9 @@ import '../l10n/app_localizations.dart';
 import '../models.dart';
 import '../pdf/production_pdf.dart';
 import '../theme/app_background.dart';
+import '../utils/offer_letters.dart';
 import '../widgets/glass_card.dart';
+import '../widgets/offer_letters_table.dart';
 import '../widgets/offer_multi_select.dart';
 import 'hekri_profiles_page.dart';
 
@@ -23,6 +25,7 @@ class _HekriPageState extends State<HekriPage> {
   late Box<ProfileSet> profileBox;
   late Box<Customer> customerBox;
   final Set<int> selectedOffers = <int>{};
+  Map<int, String> offerLetters = <int, String>{};
   Map<int, List<List<int>>>? results;
 
   @override
@@ -42,10 +45,14 @@ class _HekriPageState extends State<HekriPage> {
 
   void _calculate() {
     if (selectedOffers.isEmpty) {
-      setState(() => results = null);
+      setState(() {
+        offerLetters = <int, String>{};
+        results = null;
+      });
       return;
     }
 
+    final letters = buildOfferLetterMap(selectedOffers);
     final piecesMap = <int, List<int>>{};
 
     for (final offerIndex in selectedOffers) {
@@ -88,7 +95,10 @@ class _HekriPageState extends State<HekriPage> {
       res[index] = bars;
     });
 
-    setState(() => results = res);
+    setState(() {
+      offerLetters = letters;
+      results = res;
+    });
   }
 
   Future<void> _exportPdf() async {
@@ -253,6 +263,7 @@ class _HekriPageState extends State<HekriPage> {
                         selectedOffers
                           ..clear()
                           ..addAll(selection);
+                        offerLetters = buildOfferLetterMap(selectedOffers);
                         if (selectedOffers.isEmpty) {
                           results = null;
                         }
@@ -268,6 +279,15 @@ class _HekriPageState extends State<HekriPage> {
               ],
             ),
             const SizedBox(height: 16),
+            if (offerLetters.isNotEmpty) ...[
+              OfferLettersTable(
+                offerLetters: offerLetters,
+                customerBox: customerBox,
+                offerBox: offerBox,
+                l10n: l10n,
+              ),
+              const SizedBox(height: 16),
+            ],
             if (results != null && results!.isNotEmpty) ...[
               Align(
                 alignment: Alignment.centerRight,
