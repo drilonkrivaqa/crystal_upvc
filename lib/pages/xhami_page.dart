@@ -218,7 +218,7 @@ class _XhamiPageState extends State<XhamiPage> {
                         final breakdown = letterEntries
                             .map((letter) => letter.key.isEmpty
                                 ? '${letter.value}'
-                                : '${letter.key}: ${letter.value}')
+                                : '${letter.key} = ${letter.value}')
                             .join(', ');
                         final total = letterEntries
                             .fold<int>(0, (sum, value) => sum + value.value);
