@@ -18,6 +18,11 @@ class AppLocalizations {
       'productionRollerShutter': 'Roleta',
       'productionIron': 'Hekur',
       'productionRegisteredProfiles': 'Profilet e regjistruara',
+      'productionSawSettings': 'Cilësimet e sharrës',
+      'productionProfileSawWidth':
+          'Gjerësia e sharrës së profilit (mm)',
+      'productionHekriSawWidth':
+          'Gjerësia e sharrës së hekurit (mm)',
       'productionCutSummary':
           'Nevojiten {needed} m, Tuba: {pipes}, Humbje {waste} m',
       'productionBarDetail':
@@ -229,6 +234,9 @@ class AppLocalizations {
       'productionRollerShutter': 'Roller Shutter',
       'productionIron': 'Iron',
       'productionRegisteredProfiles': 'Registered Profiles',
+      'productionSawSettings': 'Saw settings',
+      'productionProfileSawWidth': 'Profile saw width (mm)',
+      'productionHekriSawWidth': 'Iron saw width (mm)',
       'productionCutSummary':
           'Needed {needed} m, Pipes: {pipes}, Waste {waste} m',
       'productionBarDetail':
@@ -434,6 +442,9 @@ class AppLocalizations {
       'productionRollerShutter': 'Rollladen',
       'productionIron': 'Eisen',
       'productionRegisteredProfiles': 'Registrierte Profile',
+      'productionSawSettings': 'Sägeeinstellungen',
+      'productionProfileSawWidth': 'Sägebreite Profil (mm)',
+      'productionHekriSawWidth': 'Sägebreite Eisen (mm)',
       'productionCutSummary':
           'Benötigt {needed} m, Rohre: {pipes}, Verschnitt {waste} m',
       'productionBarDetail':
@@ -644,6 +655,10 @@ class AppLocalizations {
       'productionRollerShutter': 'Volet roulant',
       'productionIron': 'Fer',
       'productionRegisteredProfiles': 'Profils enregistrés',
+      'productionSawSettings': 'Réglages de scie',
+      'productionProfileSawWidth':
+          'Largeur de scie pour profilés (mm)',
+      'productionHekriSawWidth': 'Largeur de scie pour fer (mm)',
       'productionCutSummary':
           'Nécessaire {needed} m, Tubes : {pipes}, Perte {waste} m',
       'productionBarDetail':
@@ -853,6 +868,9 @@ class AppLocalizations {
       'productionRollerShutter': 'Tapparella',
       'productionIron': 'Ferro',
       'productionRegisteredProfiles': 'Profili registrati',
+      'productionSawSettings': 'Impostazioni sega',
+      'productionProfileSawWidth': 'Larghezza sega profili (mm)',
+      'productionHekriSawWidth': 'Larghezza sega ferro (mm)',
       'productionCutSummary':
           'Necessari {needed} m, Tubi: {pipes}, Scarto {waste} m',
       'productionBarDetail':
@@ -1066,6 +1084,9 @@ class AppLocalizations {
       _t('productionRollerShutter');
   String get productionIron => _t('productionIron');
   String get productionRegisteredProfiles => _t('productionRegisteredProfiles');
+  String get productionSawSettings => _t('productionSawSettings');
+  String get productionProfileSawWidth => _t('productionProfileSawWidth');
+  String get productionHekriSawWidth => _t('productionHekriSawWidth');
   String productionCutSummary(
       double neededMeters, int pipes, double wasteMeters) {
     final template = _t('productionCutSummary');

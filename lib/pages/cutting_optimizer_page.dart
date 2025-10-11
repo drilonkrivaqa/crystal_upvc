@@ -10,6 +10,7 @@ import '../utils/production_piece_detail.dart';
 import '../widgets/glass_card.dart';
 import '../widgets/offer_letters_table.dart';
 import '../widgets/offer_multi_select.dart';
+import '../widgets/saw_width_dialog.dart';
 
 class CuttingOptimizerPage extends StatefulWidget {
   const CuttingOptimizerPage({super.key});
@@ -24,6 +25,7 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
   late Box<Offer> offerBox;
   late Box<ProfileSet> profileBox;
   late Box<Customer> customerBox;
+  late Box settingsBox;
   final Set<int> selectedOffers = <int>{};
   Map<int, String> offerLetters = <int, String>{};
   Map<int, Map<PieceType, List<List<ProductionPieceDetail>>>>?
@@ -35,6 +37,29 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
     offerBox = Hive.box<Offer>('offers');
     profileBox = Hive.box<ProfileSet>('profileSets');
     customerBox = Hive.box<Customer>('customers');
+    settingsBox = Hive.box('settings');
+  }
+
+  int _sanitizeSawWidth(num value) {
+    final intValue = value.toInt();
+    if (intValue < 0) return 0;
+    if (intValue > 1000) return 1000;
+    return intValue;
+  }
+
+  int get _profileSawWidth {
+    final value = settingsBox.get('profileSawWidth', defaultValue: 0);
+    if (value is int) {
+      return _sanitizeSawWidth(value);
+    }
+    if (value is num) {
+      return _sanitizeSawWidth(value);
+    }
+    final parsed = int.tryParse(value.toString());
+    if (parsed == null) {
+      return 0;
+    }
+    return _sanitizeSawWidth(parsed);
   }
 
   Map<PieceType, String> _pieceLabels(AppLocalizations l10n) => {
@@ -57,6 +82,7 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
     }
 
     final offerLetterMap = buildOfferLetterMap(selectedOffers);
+    final sawWidth = _profileSawWidth;
     for (final offerIndex in selectedOffers) {
       final offer = offerBox.getAt(offerIndex);
       if (offer == null) continue;
@@ -100,7 +126,7 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
       final resultTypeMap = <PieceType, List<List<ProductionPieceDetail>>>{};
       typeMap.forEach((type, pieces) {
         if (pieces.isEmpty) return;
-        final bars = _packPieces(pieces, pipeLength);
+        final bars = _packPieces(pieces, pipeLength, sawWidth);
         resultTypeMap[type] = bars;
       });
       res[index] = resultTypeMap;
@@ -124,7 +150,24 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
       profileBox: profileBox,
       l10n: l10n,
       customers: _selectedCustomers(),
+      sawWidth: _profileSawWidth,
     );
+  }
+
+  Future<void> _openSawSettings() async {
+    final l10n = AppLocalizations.of(context);
+    final changed = await showSawWidthDialog(
+      context,
+      settingsBox: settingsBox,
+      l10n: l10n,
+    );
+    if (changed == true) {
+      if (selectedOffers.isNotEmpty) {
+        _calculate();
+      } else {
+        setState(() {});
+      }
+    }
   }
 
   List<Customer> _selectedCustomers() {
@@ -204,11 +247,11 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
   }
 
   List<List<ProductionPieceDetail>> _packPieces(
-      List<ProductionPieceDetail> pieces, int pipeLength) {
+      List<ProductionPieceDetail> pieces, int pipeLength, int sawWidth) {
     final remaining = List<ProductionPieceDetail>.from(pieces);
     final bars = <List<ProductionPieceDetail>>[];
     while (remaining.isNotEmpty) {
-      final combo = _bestSubset(remaining, pipeLength);
+      final combo = _bestSubset(remaining, pipeLength, sawWidth);
       if (combo.isEmpty) {
         bars.add([remaining.removeAt(0)]);
         continue;
@@ -227,14 +270,19 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
     return bars;
   }
 
-  List<int> _bestSubset(List<ProductionPieceDetail> pieces, int capacity) {
-    final reachable = List<bool>.filled(capacity + 1, false);
-    final parent = List<int?>.filled(capacity + 1, null);
-    final used = List<int?>.filled(capacity + 1, null);
+  List<int> _bestSubset(
+      List<ProductionPieceDetail> pieces, int capacity, int sawWidth) {
+    final kerf = sawWidth <= 0
+        ? 0
+        : (sawWidth > capacity ? capacity : sawWidth);
+    final capacityWithKerf = kerf > 0 ? capacity + kerf : capacity;
+    final reachable = List<bool>.filled(capacityWithKerf + 1, false);
+    final parent = List<int?>.filled(capacityWithKerf + 1, null);
+    final used = List<int?>.filled(capacityWithKerf + 1, null);
     reachable[0] = true;
     for (int i = 0; i < pieces.length; i++) {
-      final len = pieces[i].length;
-      for (int j = capacity; j >= len; j--) {
+      final len = pieces[i].length + (kerf > 0 ? kerf : 0);
+      for (int j = capacityWithKerf; j >= len; j--) {
         if (!reachable[j] && reachable[j - len]) {
           reachable[j] = true;
           parent[j] = j - len;
@@ -242,7 +290,7 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
         }
       }
     }
-    int best = capacity;
+    int best = capacityWithKerf;
     while (best > 0 && !reachable[best]) best--;
     final result = <int>[];
     int cur = best;
@@ -255,10 +303,34 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
     return result;
   }
 
+  int _barTotalLength(List<ProductionPieceDetail> bar, int sawWidth) {
+    if (bar.isEmpty) return 0;
+    final base = bar.fold<int>(0, (a, b) => a + b.length);
+    if (sawWidth <= 0) return base;
+    final cuts = bar.length - 1;
+    if (cuts <= 0) return base;
+    return base + cuts * sawWidth;
+  }
+
+  String _barCombination(
+      List<ProductionPieceDetail> bar, int sawWidth, bool includeLetters) {
+    final combination = bar
+        .map((piece) => includeLetters && piece.offerLetter.isNotEmpty
+            ? '${piece.length} (${piece.offerLetter})'
+            : '${piece.length}')
+        .join(' + ');
+    if (sawWidth > 0 && bar.length > 1) {
+      final cuts = bar.length - 1;
+      return '$combination + ${cuts}×${sawWidth}mm';
+    }
+    return combination;
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final pieceLabels = _pieceLabels(l10n);
+    final sawWidth = _profileSawWidth;
     return Scaffold(
       appBar: AppBar(title: Text(l10n.productionCutting)),
       body: AppBackground(
@@ -286,6 +358,12 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
                   ),
                 ),
                 const SizedBox(width: 16),
+                IconButton(
+                  tooltip: l10n.productionSawSettings,
+                  onPressed: _openSawSettings,
+                  icon: const Icon(Icons.settings),
+                ),
+                const SizedBox(width: 8),
                 ElevatedButton(
                   onPressed: _calculate,
                   child: Text(l10n.calculate),
@@ -323,8 +401,9 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
                       const SizedBox(height: 8),
                       ...e.value.entries.map((typeEntry) {
                         final bars = typeEntry.value;
-                        final needed =
-                            bars.expand((b) => b).fold<int>(0, (a, b) => a + b.length);
+                        final needed = bars
+                            .map((bar) => _barTotalLength(bar, sawWidth))
+                            .fold<int>(0, (a, b) => a + b);
                         final totalLen = bars.length * pipeLen;
                         final loss = totalLen - needed;
                         return Column(
@@ -342,12 +421,8 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
                                 child: Text(
                                   l10n.productionBarDetail(
                                     i + 1,
-                                    bars[i]
-                                        .map((piece) =>
-                                            '${piece.length} (${piece.offerLetter})')
-                                        .join(' + '),
-                                    bars[i].fold<int>(
-                                        0, (a, b) => a + b.length),
+                                    _barCombination(bars[i], sawWidth, true),
+                                    _barTotalLength(bars[i], sawWidth),
                                     pipeLen,
                                   ),
                                 ),
