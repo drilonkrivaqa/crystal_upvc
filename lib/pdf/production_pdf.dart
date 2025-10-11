@@ -9,6 +9,38 @@ import '../l10n/app_localizations.dart';
 import '../models.dart';
 import '../utils/production_piece_detail.dart';
 
+int _barTotalWithSaw(List<ProductionPieceDetail> bar, int sawWidth) {
+  if (bar.isEmpty) {
+    return 0;
+  }
+  final base = bar.fold<int>(0, (a, b) => a + b.length);
+  if (sawWidth <= 0) {
+    return base;
+  }
+  final cuts = bar.length - 1;
+  if (cuts <= 0) {
+    return base;
+  }
+  return base + cuts * sawWidth;
+}
+
+String _barCombinationWithSaw(
+  List<ProductionPieceDetail> bar,
+  int sawWidth, {
+  required bool includeLetters,
+}) {
+  final combination = bar
+      .map((piece) => !includeLetters || piece.offerLetter.isEmpty
+          ? '${piece.length}'
+          : '${piece.length} (${piece.offerLetter})')
+      .join(' + ');
+  if (sawWidth > 0 && bar.length > 1) {
+    final cuts = bar.length - 1;
+    return '$combination + ${cuts}×${sawWidth}mm';
+  }
+  return combination;
+}
+
 Future<pw.ThemeData> _loadPdfTheme() async {
   final baseFontData = await rootBundle.load('assets/fonts/Montserrat-Regular.ttf');
   final boldFontData = await rootBundle.load('assets/fonts/Montserrat-Bold.ttf');
@@ -418,6 +450,7 @@ Future<void> exportHekriResultsPdf({
   required Box<ProfileSet> profileBox,
   required AppLocalizations l10n,
   required List<Customer> customers,
+  required int sawWidth,
 }) async {
   if (results.isEmpty) return;
   final theme = await _loadPdfTheme();
@@ -450,8 +483,8 @@ Future<void> exportHekriResultsPdf({
           final pipeLen = profile?.hekriPipeLength ?? 6000;
           final bars = entry.value;
           final needed = bars
-              .expand((bar) => bar)
-              .fold<int>(0, (a, b) => a + b.length);
+              .map((bar) => _barTotalWithSaw(bar, sawWidth))
+              .fold<int>(0, (a, b) => a + b);
           final totalLen = bars.length * pipeLen;
           final waste = totalLen - needed;
 
@@ -470,13 +503,12 @@ Future<void> exportHekriResultsPdf({
                 pw.SizedBox(height: 8),
                 ...List.generate(bars.length, (index) {
                   final bar = bars[index];
-                  final combination = bar
-                      .map((piece) => piece.offerLetter.isEmpty
-                          ? '${piece.length}'
-                          : '${piece.length} (${piece.offerLetter})')
-                      .join(' + ');
-                  final total =
-                      bar.fold<int>(0, (a, b) => a + b.length);
+                  final combination = _barCombinationWithSaw(
+                    bar,
+                    sawWidth,
+                    includeLetters: true,
+                  );
+                  final total = _barTotalWithSaw(bar, sawWidth);
                   return pw.Container(
                     margin: const pw.EdgeInsets.symmetric(vertical: 4),
                     padding: const pw.EdgeInsets.all(10),
@@ -518,6 +550,7 @@ Future<void> exportCuttingResultsPdf<T>({
   required Box<ProfileSet> profileBox,
   required AppLocalizations l10n,
   required List<Customer> customers,
+  required int sawWidth,
 }) async {
   if (results.isEmpty) return;
   final theme = await _loadPdfTheme();
@@ -577,8 +610,8 @@ Future<void> exportCuttingResultsPdf<T>({
                           () {
                             final bars = typeMap[type]!;
                             final needed = bars
-                                .expand((bar) => bar)
-                                .fold<int>(0, (a, b) => a + b.length);
+                                .map((bar) => _barTotalWithSaw(bar, sawWidth))
+                                .fold<int>(0, (a, b) => a + b);
                             final totalLen = bars.length * pipeLen;
                             final waste = totalLen - needed;
                             return pw.Column(
@@ -595,12 +628,13 @@ Future<void> exportCuttingResultsPdf<T>({
                                 pw.SizedBox(height: 6),
                                 ...List.generate(bars.length, (index) {
                                   final bar = bars[index];
-                                  final combination = bar
-                                      .map((piece) =>
-                                          '${piece.length} (${piece.offerLetter})')
-                                      .join(' + ');
-                                  final total = bar.fold<int>(
-                                      0, (a, b) => a + b.length);
+                                  final combination = _barCombinationWithSaw(
+                                    bar,
+                                    sawWidth,
+                                    includeLetters: true,
+                                  );
+                                  final total =
+                                      _barTotalWithSaw(bar, sawWidth);
                                   return pw.Container(
                                     margin:
                                         const pw.EdgeInsets.symmetric(vertical: 3),
