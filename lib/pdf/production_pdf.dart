@@ -285,7 +285,7 @@ Future<void> exportGlassResultsPdf({
                           : letterEntries
                               .map((entry) => entry.key.isEmpty
                                   ? '${entry.value}'
-                                  : '${entry.key}: ${entry.value}')
+                                  : '${entry.key} = ${entry.value}')
                               .join(', ');
                       final dimensionText = breakdown.isEmpty
                           ? row.key
@@ -382,7 +382,7 @@ Future<void> exportBlindResultsPdf({
                           : letterEntries
                               .map((entry) => entry.key.isEmpty
                                   ? '${entry.value}'
-                                  : '${entry.key}: ${entry.value}')
+                                  : '${entry.key} = ${entry.value}')
                               .join(', ');
                       final dimensionText = breakdown.isEmpty
                           ? row.key
