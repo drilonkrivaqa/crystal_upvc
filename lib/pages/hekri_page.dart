@@ -5,7 +5,9 @@ import '../l10n/app_localizations.dart';
 import '../models.dart';
 import '../pdf/production_pdf.dart';
 import '../theme/app_background.dart';
+import '../utils/offer_label.dart';
 import '../utils/offer_letters.dart';
+import '../utils/production_piece_detail.dart';
 import '../widgets/glass_card.dart';
 import '../widgets/offer_letters_table.dart';
 import '../widgets/offer_multi_select.dart';
@@ -26,7 +28,8 @@ class _HekriPageState extends State<HekriPage> {
   late Box<Customer> customerBox;
   final Set<int> selectedOffers = <int>{};
   Map<int, String> offerLetters = <int, String>{};
-  Map<int, List<List<int>>>? results;
+  Map<int, List<List<ProductionPieceDetail>>>?
+      results; // profileSet -> bars -> piece details
 
   @override
   void initState() {
@@ -52,12 +55,15 @@ class _HekriPageState extends State<HekriPage> {
       return;
     }
 
+    final l10n = AppLocalizations.of(context);
     final letters = buildOfferLetterMap(selectedOffers);
-    final piecesMap = <int, List<int>>{};
+    final piecesMap = <int, List<ProductionPieceDetail>>{};
 
     for (final offerIndex in selectedOffers) {
       final offer = offerBox.getAt(offerIndex);
       if (offer == null) continue;
+      final offerLabel =
+          buildOfferLabel(l10n, customerBox, offerIndex, offer);
 
       for (final item in offer.items) {
         final profile = profileBox.getAt(item.profileSetIndex);
@@ -69,25 +75,52 @@ class _HekriPageState extends State<HekriPage> {
             _pieceLengths(item, profile, boxHeight: blind?.boxHeight ?? 0);
 
         for (int q = 0; q < item.quantity; q++) {
-          final list =
-              piecesMap.putIfAbsent(item.profileSetIndex, () => <int>[]);
+          final list = piecesMap.putIfAbsent(
+              item.profileSetIndex, () => <ProductionPieceDetail>[]);
           for (final len in itemPieces[PieceType.l]!) {
             final hLen = max(0, len - profile.hekriOffsetL);
-            if (hLen > 0) list.add(hLen);
+            if (hLen > 0) {
+              list.add(
+                ProductionPieceDetail(
+                  length: hLen,
+                  offerIndex: offerIndex,
+                  offerLabel: offerLabel,
+                  offerLetter: letters[offerIndex] ?? '',
+                ),
+              );
+            }
           }
           for (final len in itemPieces[PieceType.z]!) {
             final hLen = max(0, len - profile.hekriOffsetZ);
-            if (hLen > 0) list.add(hLen);
+            if (hLen > 0) {
+              list.add(
+                ProductionPieceDetail(
+                  length: hLen,
+                  offerIndex: offerIndex,
+                  offerLabel: offerLabel,
+                  offerLetter: letters[offerIndex] ?? '',
+                ),
+              );
+            }
           }
           for (final len in itemPieces[PieceType.t]!) {
             final hLen = max(0, len - profile.hekriOffsetT);
-            if (hLen > 0) list.add(hLen);
+            if (hLen > 0) {
+              list.add(
+                ProductionPieceDetail(
+                  length: hLen,
+                  offerIndex: offerIndex,
+                  offerLabel: offerLabel,
+                  offerLetter: letters[offerIndex] ?? '',
+                ),
+              );
+            }
           }
         }
       }
     }
 
-    final res = <int, List<List<int>>>{};
+    final res = <int, List<List<ProductionPieceDetail>>>{};
     piecesMap.forEach((index, pieces) {
       final pipeLength = profileBox.getAt(index)?.hekriPipeLength ?? 6000;
       if (pieces.isEmpty) return;
@@ -180,16 +213,17 @@ class _HekriPageState extends State<HekriPage> {
     return map;
   }
 
-  List<List<int>> _packPieces(List<int> pieces, int pipeLength) {
-    final remaining = List<int>.from(pieces);
-    final bars = <List<int>>[];
+  List<List<ProductionPieceDetail>> _packPieces(
+      List<ProductionPieceDetail> pieces, int pipeLength) {
+    final remaining = List<ProductionPieceDetail>.from(pieces);
+    final bars = <List<ProductionPieceDetail>>[];
     while (remaining.isNotEmpty) {
       final combo = _bestSubset(remaining, pipeLength);
       if (combo.isEmpty) {
         bars.add([remaining.removeAt(0)]);
         continue;
       }
-      final bar = <int>[];
+      final bar = <ProductionPieceDetail>[];
       combo.sort((a, b) => b.compareTo(a));
       for (final idx in combo) {
         bar.add(remaining[idx]);
@@ -203,13 +237,14 @@ class _HekriPageState extends State<HekriPage> {
     return bars;
   }
 
-  List<int> _bestSubset(List<int> pieces, int capacity) {
+  List<int> _bestSubset(
+      List<ProductionPieceDetail> pieces, int capacity) {
     final reachable = List<bool>.filled(capacity + 1, false);
     final parent = List<int?>.filled(capacity + 1, null);
     final used = List<int?>.filled(capacity + 1, null);
     reachable[0] = true;
     for (int i = 0; i < pieces.length; i++) {
-      final len = pieces[i];
+      final len = pieces[i].length;
       for (int j = capacity; j >= len; j--) {
         if (!reachable[j] && reachable[j - len]) {
           reachable[j] = true;
@@ -302,8 +337,9 @@ class _HekriPageState extends State<HekriPage> {
                 final profile = profileBox.getAt(e.key);
                 final pipeLen = profile?.hekriPipeLength ?? 6000;
                 final bars = e.value;
-                final needed =
-                    bars.expand((b) => b).fold<int>(0, (a, b) => a + b);
+                final needed = bars
+                    .expand((b) => b)
+                    .fold<int>(0, (a, b) => a + b.length);
                 final totalLen = bars.length * pipeLen;
                 final loss = totalLen - needed;
                 return GlassCard(
@@ -318,11 +354,16 @@ class _HekriPageState extends State<HekriPage> {
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 2),
                           child: Text(l10n.productionBarDetail(
-                              i + 1,
-                              bars[i].join(' + '),
-                              bars[i]
-                                  .fold<int>(0, (a, b) => a + b),
-                              pipeLen)),
+                            i + 1,
+                            bars[i]
+                                .map((piece) => piece.offerLetter.isEmpty
+                                    ? '${piece.length}'
+                                    : '${piece.length} (${piece.offerLetter})')
+                                .join(' + '),
+                            bars[i]
+                                .fold<int>(0, (a, b) => a + b.length),
+                            pipeLen,
+                          )),
                         ),
                     ],
                   ),
