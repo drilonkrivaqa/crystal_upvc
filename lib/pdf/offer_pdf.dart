@@ -75,8 +75,11 @@ Future<void> printOfferPdf({
     itemImages.add(img);
   }
 
-  final currency =
-      NumberFormat.currency(locale: l10n.localeName, symbol: '€');
+  final currency = NumberFormat.currency(
+    locale: 'en_US',
+    symbol: '€',
+    decimalDigits: 2,
+  );
   double itemsFinal = 0;
   int totalPcs = 0;
   for (final item in offer.items) {
