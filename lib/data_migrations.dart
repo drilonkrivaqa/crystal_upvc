@@ -143,6 +143,35 @@ Future<bool> _migrateAccessories() async {
   }
 }
 
+Future<bool> _migrateOffers() async {
+  try {
+    final box = await Hive.openBox<Offer>('offers');
+    var maxNumber = 0;
+    for (final key in box.keys) {
+      final offer = box.get(key);
+      if (offer == null) continue;
+      if (offer.offerNumber > maxNumber) {
+        maxNumber = offer.offerNumber;
+      }
+    }
+    var nextNumber = maxNumber;
+    for (final key in box.keys) {
+      final offer = box.get(key);
+      if (offer == null) continue;
+      if (offer.offerNumber <= 0) {
+        nextNumber += 1;
+        offer
+          ..offerNumber = nextNumber
+          ..save();
+      }
+    }
+    return true;
+  } catch (e) {
+    debugPrint('Failed to migrate offers: $e');
+    return false;
+  }
+}
+
 Future<List<String>> runMigrations() async {
   final failures = <String>[];
   if (!await _migrateCustomers()) {
@@ -159,6 +188,9 @@ Future<List<String>> runMigrations() async {
   }
   if (!await _migrateAccessories()) {
     failures.add('accessories');
+  }
+  if (!await _migrateOffers()) {
+    failures.add('offers');
   }
   return failures;
 }

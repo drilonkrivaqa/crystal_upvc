@@ -509,7 +509,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
         _hasPendingDefaultChange(offer, selectedProfileIndex, selectedGlassIndex);
     return Scaffold(
       appBar: AppBar(
-        title: Text('${l10n.pdfOffer} ${widget.offerIndex + 1}'),
+        title: Text('${l10n.pdfOffer} ${offer.offerNumber}'),
         actions: [
           IconButton(
             icon: const Icon(Icons.save_as),
@@ -522,7 +522,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
               final offer = offerBox.getAt(widget.offerIndex)!;
               await printOfferPdf(
                 offer: offer,
-                offerNumber: widget.offerIndex + 1,
+                offerNumber: offer.offerNumber,
                 customerBox: customerBox,
                 profileSetBox: profileSetBox,
                 glassBox: glassBox,

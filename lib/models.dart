@@ -687,6 +687,8 @@ class Offer extends HiveObject {
   int defaultGlassIndex;
   @HiveField(12, defaultValue: const [])
   List<OfferVersion> versions;
+  @HiveField(13, defaultValue: 0)
+  int offerNumber;
   Offer({
     required this.id,
     required this.customerIndex,
@@ -701,6 +703,7 @@ class Offer extends HiveObject {
     this.defaultGlassIndex = 0,
     List<OfferVersion>? versions,
     DateTime? lastEdited,
+    this.offerNumber = 0,
   })  : lastEdited = lastEdited ?? DateTime.now(),
         extraCharges = extraCharges ?? [],
         versions = versions ?? [];
