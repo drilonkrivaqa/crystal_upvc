@@ -160,6 +160,7 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
       context,
       settingsBox: settingsBox,
       l10n: l10n,
+      showHekriSawWidth: false,
     );
     if (changed == true) {
       if (selectedOffers.isNotEmpty) {

@@ -179,6 +179,7 @@ class _HekriPageState extends State<HekriPage> {
       context,
       settingsBox: settingsBox,
       l10n: l10n,
+      showProfileSawWidth: false,
     );
     if (changed == true) {
       if (selectedOffers.isNotEmpty) {
