@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
@@ -41,17 +39,6 @@ String _barCombinationWithSaw(
     return '$combination + ${cuts}×${sawWidth}mm';
   }
   return combination;
-}
-
-List<List<List<ProductionPieceDetail>>> _groupBarsForCuts(
-    List<List<ProductionPieceDetail>> bars, int pipesPerCut) {
-  final groups = <List<List<ProductionPieceDetail>>>[];
-  final count = pipesPerCut <= 0 ? 1 : pipesPerCut;
-  for (int i = 0; i < bars.length; i += count) {
-    final end = math.min(i + count, bars.length);
-    groups.add(bars.sublist(i, end));
-  }
-  return groups;
 }
 
 Future<pw.ThemeData> _loadPdfTheme() async {
@@ -464,7 +451,6 @@ Future<void> exportHekriResultsPdf({
   required AppLocalizations l10n,
   required List<Customer> customers,
   required int sawWidth,
-  required int pipesPerCut,
 }) async {
   if (results.isEmpty) return;
   final theme = await _loadPdfTheme();
@@ -501,9 +487,6 @@ Future<void> exportHekriResultsPdf({
               .fold<int>(0, (a, b) => a + b);
           final totalLen = bars.length * pipeLen;
           final waste = totalLen - needed;
-          final groups = _groupBarsForCuts(bars, pipesPerCut);
-          final totalCuts = groups.isEmpty ? 0 : groups.length;
-          int barIndex = 0;
 
           widgets.add(
             _sectionCard(
@@ -517,57 +500,30 @@ Future<void> exportHekriResultsPdf({
                   ),
                   style: pw.TextStyle(color: PdfColors.blueGrey800),
                 ),
-                pw.SizedBox(height: 4),
-                pw.Text(
-                  l10n.productionPipeCuttingSummary(
-                    pipesPerCut,
-                    totalCuts,
-                  ),
-                  style: pw.TextStyle(color: PdfColors.blueGrey700),
-                ),
                 pw.SizedBox(height: 8),
-                ...groups.asMap().entries.map((entry) {
-                  final groupIndex = entry.key;
-                  final group = entry.value;
+                ...List.generate(bars.length, (index) {
+                  final bar = bars[index];
+                  final combination = _barCombinationWithSaw(
+                    bar,
+                    sawWidth,
+                    includeLetters: true,
+                  );
+                  final total = _barTotalWithSaw(bar, sawWidth);
                   return pw.Container(
                     margin: const pw.EdgeInsets.symmetric(vertical: 4),
-                    child: pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.start,
-                      children: [
-                        pw.Text(
-                          l10n.productionCutGroup(groupIndex + 1),
-                          style: pw.TextStyle(
-                            color: PdfColors.blueGrey800,
-                            fontWeight: pw.FontWeight.bold,
-                          ),
-                        ),
-                        pw.SizedBox(height: 4),
-                        ...group.map((bar) {
-                          final combination = _barCombinationWithSaw(
-                            bar,
-                            sawWidth,
-                            includeLetters: true,
-                          );
-                          final total = _barTotalWithSaw(bar, sawWidth);
-                          return pw.Container(
-                            margin: const pw.EdgeInsets.symmetric(vertical: 2),
-                            padding: const pw.EdgeInsets.all(10),
-                            decoration: pw.BoxDecoration(
-                              color: PdfColors.blue50,
-                              borderRadius: pw.BorderRadius.circular(8),
-                            ),
-                            child: pw.Text(
-                              l10n.productionBarDetail(
-                                ++barIndex,
-                                combination,
-                                total,
-                                pipeLen,
-                              ),
-                              style: pw.TextStyle(color: PdfColors.blueGrey900),
-                            ),
-                          );
-                        }),
-                      ],
+                    padding: const pw.EdgeInsets.all(10),
+                    decoration: pw.BoxDecoration(
+                      color: PdfColors.blue50,
+                      borderRadius: pw.BorderRadius.circular(8),
+                    ),
+                    child: pw.Text(
+                      l10n.productionBarDetail(
+                        index + 1,
+                        combination,
+                        total,
+                        pipeLen,
+                      ),
+                      style: pw.TextStyle(color: PdfColors.blueGrey900),
                     ),
                   );
                 }),

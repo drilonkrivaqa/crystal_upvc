@@ -64,34 +64,6 @@ class _HekriPageState extends State<HekriPage> {
     return _sanitizeSawWidth(parsed);
   }
 
-  int _sanitizePipesPerCut(num value) {
-    final intValue = value.toInt();
-    if (intValue < 1) return 1;
-    if (intValue > 10) return 10;
-    return intValue;
-  }
-
-  int get _hekriPipesPerCut {
-    final value = settingsBox.get('hekriPipesPerCut', defaultValue: 2);
-    if (value is int) {
-      return _sanitizePipesPerCut(value);
-    }
-    if (value is num) {
-      return _sanitizePipesPerCut(value);
-    }
-    final parsed = int.tryParse(value.toString());
-    if (parsed == null) {
-      return 2;
-    }
-    return _sanitizePipesPerCut(parsed);
-  }
-
-  void _updateHekriPipesPerCut(int value) {
-    final sanitized = _sanitizePipesPerCut(value);
-    settingsBox.put('hekriPipesPerCut', sanitized);
-    setState(() {});
-  }
-
   void _openProfiles() {
     Navigator.push(
       context,
@@ -198,7 +170,6 @@ class _HekriPageState extends State<HekriPage> {
       l10n: l10n,
       customers: _selectedCustomers(),
       sawWidth: _hekriSawWidth,
-      pipesPerCut: _hekriPipesPerCut,
     );
   }
 
@@ -310,17 +281,6 @@ class _HekriPageState extends State<HekriPage> {
     return bars;
   }
 
-  List<List<List<ProductionPieceDetail>>> _groupBarsForCuts(
-      List<List<ProductionPieceDetail>> bars, int pipesPerCut) {
-    final groups = <List<List<ProductionPieceDetail>>>[];
-    final count = pipesPerCut <= 0 ? 1 : pipesPerCut;
-    for (int i = 0; i < bars.length; i += count) {
-      final end = min(i + count, bars.length);
-      groups.add(bars.sublist(i, end));
-    }
-    return groups;
-  }
-
   List<int> _bestSubset(
       List<ProductionPieceDetail> pieces, int capacity, int sawWidth) {
     final kerf = sawWidth <= 0
@@ -382,40 +342,10 @@ class _HekriPageState extends State<HekriPage> {
     return combination;
   }
 
-  Widget _buildPipesPerCutSelector(AppLocalizations l10n) {
-    final currentValue = _hekriPipesPerCut;
-    final options = <int>{1, 2, 3, 4, currentValue}.toList()..sort();
-    return InputDecorator(
-      decoration: InputDecoration(
-        labelText: l10n.productionPipesPerCutLabel,
-        border: const OutlineInputBorder(),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<int>(
-          value: currentValue,
-          isExpanded: true,
-          onChanged: (value) {
-            if (value != null) {
-              _updateHekriPipesPerCut(value);
-            }
-          },
-          items: options
-              .map((option) => DropdownMenuItem<int>(
-                    value: option,
-                    child: Text(option.toString()),
-                  ))
-              .toList(),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final sawWidth = _hekriSawWidth;
-    final pipesPerCut = _hekriPipesPerCut;
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.productionIron),
@@ -452,11 +382,6 @@ class _HekriPageState extends State<HekriPage> {
                       });
                     },
                   ),
-                ),
-                const SizedBox(width: 16),
-                SizedBox(
-                  width: 220,
-                  child: _buildPipesPerCutSelector(l10n),
                 ),
                 const SizedBox(width: 16),
                 IconButton(
@@ -500,9 +425,6 @@ class _HekriPageState extends State<HekriPage> {
                     .fold<int>(0, (a, b) => a + b);
                 final totalLen = bars.length * pipeLen;
                 final loss = totalLen - needed;
-                final groups = _groupBarsForCuts(bars, pipesPerCut);
-                final totalCuts = groups.isEmpty ? 0 : groups.length;
-                int barIndex = 0;
                 return GlassCard(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -511,40 +433,16 @@ class _HekriPageState extends State<HekriPage> {
                       const SizedBox(height: 8),
                       Text(l10n.productionCutSummary(
                           needed / 1000, bars.length, loss / 1000)),
-                      const SizedBox(height: 4),
-                      Text(
-                        l10n.productionPipeCuttingSummary(
-                          pipesPerCut,
-                          totalCuts,
+                      for (int i = 0; i < bars.length; i++)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 2),
+                          child: Text(l10n.productionBarDetail(
+                            i + 1,
+                            _barCombination(bars[i], sawWidth),
+                            _barTotalLength(bars[i], sawWidth),
+                            pipeLen,
+                          )),
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      for (int groupIndex = 0;
-                          groupIndex < groups.length;
-                          groupIndex++) ...[
-                        Text(
-                          l10n.productionCutGroup(groupIndex + 1),
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium
-                              ?.copyWith(fontWeight: FontWeight.w600),
-                        ),
-                        const SizedBox(height: 4),
-                        for (final bar in groups[groupIndex])
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 2),
-                            child: Text(
-                              l10n.productionBarDetail(
-                                ++barIndex,
-                                _barCombination(bar, sawWidth),
-                                _barTotalLength(bar, sawWidth),
-                                pipeLen,
-                              ),
-                            ),
-                          ),
-                        if (groupIndex != groups.length - 1)
-                          const SizedBox(height: 8),
-                      ],
                     ],
                   ),
                 );
