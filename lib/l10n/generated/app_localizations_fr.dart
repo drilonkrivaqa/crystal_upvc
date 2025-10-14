@@ -53,6 +53,82 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get productionPipesPerCut => 'Tubes par coupe';
+
+  @override
+  String productionHekriPipeCount(int count) {
+    return intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      zero: '0 tubes',
+      one: '$count tube',
+      other: '$count tubes',
+    );
+  }
+
+  @override
+  String productionHekriCoupleCount(int count) {
+    return intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      one: '$count paire',
+      other: '$count paires',
+    );
+  }
+
+  @override
+  String productionHekriGroupCount(int count, Object pipesPerGroup) {
+    return intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      one: '$count groupe de $pipesPerGroup tubes',
+      other: '$count groupes de $pipesPerGroup tubes',
+    );
+  }
+
+  @override
+  String productionHekriPipeTitle(Object index) {
+    return 'Tube $index';
+  }
+
+  @override
+  String productionHekriCoupleTitle(Object index) {
+    return 'Paire $index';
+  }
+
+  @override
+  String productionHekriPartialCoupleTitle(
+      Object index, Object pipesCount, Object pipesPerGroup) {
+    return 'Paire $index ($pipesCount sur $pipesPerGroup tubes)';
+  }
+
+  @override
+  String productionHekriGroupTitle(Object index) {
+    return 'Groupe $index';
+  }
+
+  @override
+  String productionHekriPartialGroupTitle(
+      Object index, Object pipesCount, Object pipesPerGroup) {
+    return 'Groupe $index ($pipesCount sur $pipesPerGroup tubes)';
+  }
+
+  @override
+  String productionHekriCutPlan(Object segments) {
+    return 'Couper en $segments.';
+  }
+
+  @override
+  String productionHekriCutSegment(int count, Object length) {
+    return intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      one: '$count coupe à ${length}mm',
+      other: '$count coupes à ${length}mm',
+    );
+  }
+
+  @override
   String productionOffsetFrom(Object type) {
     return 'Décalage depuis $type (mm)';
   }

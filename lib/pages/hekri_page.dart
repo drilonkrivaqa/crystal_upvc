@@ -5,6 +5,7 @@ import '../l10n/app_localizations.dart';
 import '../models.dart';
 import '../pdf/production_pdf.dart';
 import '../theme/app_background.dart';
+import '../utils/hekri_cutting.dart';
 import '../utils/offer_label.dart';
 import '../utils/offer_letters.dart';
 import '../utils/production_piece_detail.dart';
@@ -32,6 +33,8 @@ class _HekriPageState extends State<HekriPage> {
   Map<int, String> offerLetters = <int, String>{};
   Map<int, List<List<ProductionPieceDetail>>>?
       results; // profileSet -> bars -> piece details
+
+  static const List<int> _pipesPerCutOptions = [1, 2, 3, 4, 5, 6];
 
   @override
   void initState() {
@@ -62,6 +65,33 @@ class _HekriPageState extends State<HekriPage> {
       return 0;
     }
     return _sanitizeSawWidth(parsed);
+  }
+
+  int get _hekriPipesPerCut {
+    final value = settingsBox.get('hekriPipesPerCut', defaultValue: 2);
+    if (value is int) {
+      return _sanitizePipesPerCut(value);
+    }
+    if (value is num) {
+      return _sanitizePipesPerCut(value.toInt());
+    }
+    final parsed = int.tryParse(value.toString());
+    if (parsed == null) {
+      return 2;
+    }
+    return _sanitizePipesPerCut(parsed);
+  }
+
+  int _sanitizePipesPerCut(int value) {
+    if (value < 1) return 1;
+    if (value > _pipesPerCutOptions.last) return _pipesPerCutOptions.last;
+    if (_pipesPerCutOptions.contains(value)) return value;
+    for (final option in _pipesPerCutOptions.reversed) {
+      if (value >= option) {
+        return option;
+      }
+    }
+    return 1;
   }
 
   void _openProfiles() {
@@ -170,6 +200,7 @@ class _HekriPageState extends State<HekriPage> {
       l10n: l10n,
       customers: _selectedCustomers(),
       sawWidth: _hekriSawWidth,
+      pipesPerCut: _hekriPipesPerCut,
     );
   }
 
@@ -384,6 +415,33 @@ class _HekriPageState extends State<HekriPage> {
                   ),
                 ),
                 const SizedBox(width: 16),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(l10n.productionPipesPerCut),
+                    DropdownButton<int>(
+                      value: _hekriPipesPerCut,
+                      items: _pipesPerCutOptions
+                          .map(
+                            (value) => DropdownMenuItem<int>(
+                              value: value,
+                              child: Text(value.toString()),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (value) {
+                        if (value == null) return;
+                        settingsBox.put('hekriPipesPerCut', value);
+                        if (selectedOffers.isNotEmpty) {
+                          _calculate();
+                        } else {
+                          setState(() {});
+                        }
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 16),
                 IconButton(
                   tooltip: l10n.productionSawSettings,
                   onPressed: _openSawSettings,
@@ -420,11 +478,16 @@ class _HekriPageState extends State<HekriPage> {
                 final profile = profileBox.getAt(e.key);
                 final pipeLen = profile?.hekriPipeLength ?? 6000;
                 final bars = e.value;
+                final pipesPerCut = _hekriPipesPerCut;
                 final needed = bars
                     .map((bar) => _barTotalLength(bar, sawWidth))
                     .fold<int>(0, (a, b) => a + b);
                 final totalLen = bars.length * pipeLen;
                 final loss = totalLen - needed;
+                final pipesSummary =
+                    buildHekriPipesSummary(l10n, bars.length, pipesPerCut);
+                final groups = buildHekriCutGroups(bars, pipesPerCut);
+                int pipeIndex = 0;
                 return GlassCard(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -432,17 +495,51 @@ class _HekriPageState extends State<HekriPage> {
                       Text(profile?.name ?? l10n.catalogProfile),
                       const SizedBox(height: 8),
                       Text(l10n.productionCutSummary(
-                          needed / 1000, bars.length, loss / 1000)),
-                      for (int i = 0; i < bars.length; i++)
+                          needed / 1000, pipesSummary, loss / 1000)),
+                      const SizedBox(height: 4),
+                      for (final group in groups) ...[
                         Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 2),
-                          child: Text(l10n.productionBarDetail(
-                            i + 1,
-                            _barCombination(bars[i], sawWidth),
-                            _barTotalLength(bars[i], sawWidth),
-                            pipeLen,
-                          )),
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: Text(
+                            buildHekriGroupTitle(l10n, group),
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(fontWeight: FontWeight.w600),
+                          ),
                         ),
+                        () {
+                          final description =
+                              buildHekriCutPlanDescription(l10n, group);
+                          if (description == null) {
+                            return const SizedBox.shrink();
+                          }
+                          return Padding(
+                            padding: const EdgeInsets.only(
+                                left: 16, bottom: 4, right: 8),
+                            child: Text(
+                              description,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(fontStyle: FontStyle.italic),
+                            ),
+                          );
+                        }(),
+                        for (final bar in group.bars)
+                          Padding(
+                            padding: const EdgeInsets.only(
+                                left: 16, top: 2, bottom: 2, right: 8),
+                            child: Text(
+                              l10n.productionBarDetail(
+                                ++pipeIndex,
+                                _barCombination(bar, sawWidth),
+                                _barTotalLength(bar, sawWidth),
+                                pipeLen,
+                              ),
+                            ),
+                          ),
+                      ],
                     ],
                   ),
                 );

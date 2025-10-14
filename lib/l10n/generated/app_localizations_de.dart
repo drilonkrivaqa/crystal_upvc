@@ -53,6 +53,82 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get productionPipesPerCut => 'Rohre pro Schnitt';
+
+  @override
+  String productionHekriPipeCount(int count) {
+    return intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      zero: '0 Rohre',
+      one: '$count Rohr',
+      other: '$count Rohre',
+    );
+  }
+
+  @override
+  String productionHekriCoupleCount(int count) {
+    return intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      one: '$count Paar',
+      other: '$count Paare',
+    );
+  }
+
+  @override
+  String productionHekriGroupCount(int count, Object pipesPerGroup) {
+    return intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      one: '$count Gruppe mit $pipesPerGroup Rohren',
+      other: '$count Gruppen mit $pipesPerGroup Rohren',
+    );
+  }
+
+  @override
+  String productionHekriPipeTitle(Object index) {
+    return 'Rohr $index';
+  }
+
+  @override
+  String productionHekriCoupleTitle(Object index) {
+    return 'Paar $index';
+  }
+
+  @override
+  String productionHekriPartialCoupleTitle(
+      Object index, Object pipesCount, Object pipesPerGroup) {
+    return 'Paar $index ($pipesCount von $pipesPerGroup Rohren)';
+  }
+
+  @override
+  String productionHekriGroupTitle(Object index) {
+    return 'Gruppe $index';
+  }
+
+  @override
+  String productionHekriPartialGroupTitle(
+      Object index, Object pipesCount, Object pipesPerGroup) {
+    return 'Gruppe $index ($pipesCount von $pipesPerGroup Rohren)';
+  }
+
+  @override
+  String productionHekriCutPlan(Object segments) {
+    return 'Schneide in $segments.';
+  }
+
+  @override
+  String productionHekriCutSegment(int count, Object length) {
+    return intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      one: '$count Schnitt bei ${length}mm',
+      other: '$count Schnitte bei ${length}mm',
+    );
+  }
+
+  @override
   String productionOffsetFrom(Object type) {
     return 'Versatz von $type (mm)';
   }
