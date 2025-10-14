@@ -27,10 +27,6 @@ class AppLocalizations {
           'Nevojiten {needed} m, Tuba: {pipes}, Humbje {waste} m',
       'productionBarDetail':
           'Shufra {index}: {combination} = {total}/{pipeLength}',
-      'productionPipesPerCutLabel': 'Tuba që priten njëkohësisht',
-      'productionPipeCuttingSummary':
-          'Prerje me {count} tuba njëherësh · Prerje gjithsej: {cuts}',
-      'productionCutGroup': 'Prerja #{index}',
       'productionOffsetFrom': 'Offset nga {type} (mm)',
       'productionOffsetsSummary':
           'L: {l}mm, Z: {z}mm, T: {t}mm',
@@ -245,10 +241,6 @@ class AppLocalizations {
           'Needed {needed} m, Pipes: {pipes}, Waste {waste} m',
       'productionBarDetail':
           'Bar {index}: {combination} = {total}/{pipeLength}',
-      'productionPipesPerCutLabel': 'Pipes cut at once',
-      'productionPipeCuttingSummary':
-          'Cutting {count} pipe(s) at once · Total cuts: {cuts}',
-      'productionCutGroup': 'Cut #{index}',
       'productionOffsetFrom': 'Offset from {type} (mm)',
       'productionOffsetsSummary':
           'L: {l}mm, Z: {z}mm, T: {t}mm',
@@ -457,10 +449,6 @@ class AppLocalizations {
           'Benötigt {needed} m, Rohre: {pipes}, Verschnitt {waste} m',
       'productionBarDetail':
           'Stab {index}: {combination} = {total}/{pipeLength}',
-      'productionPipesPerCutLabel': 'Rohre gleichzeitig geschnitten',
-      'productionPipeCuttingSummary':
-          '{count} Rohr/Rohre gleichzeitig · Gesamtschnitte: {cuts}',
-      'productionCutGroup': 'Schnitt Nr. {index}',
       'productionOffsetFrom': 'Versatz von {type} (mm)',
       'productionOffsetsSummary':
           'L: {l}mm, Z: {z}mm, T: {t}mm',
@@ -675,10 +663,6 @@ class AppLocalizations {
           'Nécessaire {needed} m, Tubes : {pipes}, Perte {waste} m',
       'productionBarDetail':
           'Barre {index} : {combination} = {total}/{pipeLength}',
-      'productionPipesPerCutLabel': 'Tubes coupés à la fois',
-      'productionPipeCuttingSummary':
-          'Découpe de {count} tube(s) à la fois · Coupes totales : {cuts}',
-      'productionCutGroup': 'Coupe n°{index}',
       'productionOffsetFrom': 'Décalage depuis {type} (mm)',
       'productionOffsetsSummary':
           'L : {l}mm, Z : {z}mm, T : {t}mm',
@@ -891,10 +875,6 @@ class AppLocalizations {
           'Necessari {needed} m, Tubi: {pipes}, Scarto {waste} m',
       'productionBarDetail':
           'Barra {index}: {combination} = {total}/{pipeLength}',
-      'productionPipesPerCutLabel': 'Tubi tagliati insieme',
-      'productionPipeCuttingSummary':
-          'Taglio di {count} tubo/i alla volta · Tagli totali: {cuts}',
-      'productionCutGroup': 'Taglio n°{index}',
       'productionOffsetFrom': 'Offset da {type} (mm)',
       'productionOffsetsSummary':
           'L: {l}mm, Z: {z}mm, T: {t}mm',
@@ -1115,18 +1095,6 @@ class AppLocalizations {
         .replaceAll('{pipes}', pipes.toString())
         .replaceAll('{waste}', wasteMeters.toStringAsFixed(2));
   }
-
-  String get productionPipesPerCutLabel => _t('productionPipesPerCutLabel');
-
-  String productionPipeCuttingSummary(int count, int cuts) {
-    final template = _t('productionPipeCuttingSummary');
-    return template
-        .replaceAll('{count}', count.toString())
-        .replaceAll('{cuts}', cuts.toString());
-  }
-
-  String productionCutGroup(int index) =>
-      _t('productionCutGroup').replaceAll('{index}', index.toString());
 
   String productionBarDetail(
       int index, String combination, int total, int pipeLength) {
