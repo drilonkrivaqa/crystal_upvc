@@ -541,9 +541,10 @@ class _DesignerPainter extends CustomPainter {
   final bool viewFromOutside; // NEW
   final bool showHandles;     // NEW
 
-  static const _frameColor = Colors.white;
-  static const _outlineColor = Color(0xFF8A8A8A);
-  static const _glassColor = Color(0xFFDDE7F0);
+  static const _frameColor = Color(0xFFE7EBF0);
+  static const _outlineColor = Color(0xFF6C7A89);
+  static const _glassColorTop = Color(0xFFE9F4FF);
+  static const _glassColorBottom = Color(0xFFB9D8F2);
 
   // Device pixel ratio-aware snapping helpers. These align drawing
   // coordinates to the physical pixel grid to avoid blurry, off-center
@@ -578,6 +579,9 @@ class _DesignerPainter extends CustomPainter {
     final scaled = contentSize * fitScale;
     final letter = _letterbox(size, scaled);
 
+    final canvasBg = Paint()..color = const Color(0xFFEFF3F8);
+    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), canvasBg);
+
     canvas.save();
     canvas.translate(letter.left, letter.top);
     canvas.scale(fitScale, fitScale);
@@ -586,9 +590,8 @@ class _DesignerPainter extends CustomPainter {
         _snapRect(Rect.fromLTWH(0, 0, contentSize.width, contentSize.height));
     final innerRect = _snapRect(frameRect.deflate(mm2px(frameThicknessMm)));
 
-    // background
-    final bg = Paint()..color = Colors.white;
-    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), bg);
+    // background blueprint grid
+    _drawBlueprintGrid(canvas, Rect.fromLTWH(0, 0, contentSize.width, contentSize.height));
 
     // subtle shadow
     final shadow = Paint()
@@ -598,7 +601,12 @@ class _DesignerPainter extends CustomPainter {
 
     // frame (outer)
     final framePaint = Paint()
-      ..color = _frameColor
+      ..shader = const LinearGradient(
+        colors: [Color(0xFFF9FBFD), _frameColor, Color(0xFFC4CDD6)],
+        stops: [0.0, 0.5, 1.0],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+      ).createShader(frameRect)
       ..style = PaintingStyle.fill;
     final frameStroke = Paint()
       ..color = _outlineColor
@@ -608,8 +616,30 @@ class _DesignerPainter extends CustomPainter {
     canvas.drawRect(frameRect, frameStroke);
 
     // glass area
-    final glassPaint = Paint()..color = _glassColor;
+    final glassPaint = Paint()
+      ..shader = const LinearGradient(
+        colors: [_glassColorTop, _glassColorBottom],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+      ).createShader(innerRect);
     canvas.drawRect(innerRect, glassPaint);
+    final glassHighlight = Paint()
+      ..color = Colors.white.withOpacity(0.35)
+      ..strokeWidth = 1
+      ..style = PaintingStyle.stroke;
+    canvas.save();
+    canvas.clipRect(innerRect.deflate(2));
+    canvas.drawLine(
+      Offset(_snap(innerRect.left + innerRect.width * 0.12), _snap(innerRect.top + 6)),
+      Offset(_snap(innerRect.left + innerRect.width * 0.38), _snap(innerRect.top + innerRect.height * 0.26)),
+      glassHighlight,
+    );
+    canvas.drawLine(
+      Offset(_snap(innerRect.right - innerRect.width * 0.28), _snap(innerRect.bottom - innerRect.height * 0.18)),
+      Offset(_snap(innerRect.right - innerRect.width * 0.08), _snap(innerRect.bottom - 6)),
+      glassHighlight,
+    );
+    canvas.restore();
 
     // Mullions (dividers)
     final xsAll = [0.0, ...verticalSplits..sort(), 1.0];
@@ -622,7 +652,13 @@ class _DesignerPainter extends CustomPainter {
           center: Offset(x, innerRect.center.dy),
           width: mullionT,
           height: innerRect.height));
-      canvas.drawRect(r, framePaint);
+      final mullionPaint = Paint()
+        ..shader = const LinearGradient(
+          colors: [Color(0xFFF4F7FA), _frameColor, Color(0xFFCBD6E0)],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ).createShader(r);
+      canvas.drawRect(r, mullionPaint);
       canvas.drawRect(r, frameStroke);
     }
     for (var j = 1; j < ysAll.length - 1; j++) {
@@ -631,7 +667,13 @@ class _DesignerPainter extends CustomPainter {
           center: Offset(innerRect.center.dx, y),
           width: innerRect.width,
           height: mullionT));
-      canvas.drawRect(r, framePaint);
+      final mullionPaint = Paint()
+        ..shader = const LinearGradient(
+          colors: [Color(0xFFF4F7FA), _frameColor, Color(0xFFCBD6E0)],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ).createShader(r);
+      canvas.drawRect(r, mullionPaint);
       canvas.drawRect(r, frameStroke);
     }
 
@@ -655,7 +697,7 @@ class _DesignerPainter extends CustomPainter {
 
         // Highlight selected cell
         if (selectedCell?.row == r && selectedCell?.col == c) {
-          final hl = Paint()..color = const Color(0xFF00D1B2).withOpacity(0.15);
+          final hl = Paint()..color = const Color(0xFF00A3FF).withOpacity(0.18);
           canvas.drawRect(rect.deflate(2), hl);
         }
 
@@ -677,15 +719,40 @@ class _DesignerPainter extends CustomPainter {
           final h = (rect.height / zoom).round();
           final tp = TextPainter(
             text: TextSpan(
-              text: '${w}x$h',
-              style: const TextStyle(fontSize: 11, color: Colors.black54),
+              text: '${w} x $h',
+              style: const TextStyle(
+                fontSize: 11,
+                color: Color(0xFF304255),
+                fontWeight: FontWeight.w600,
+              ),
             ),
             textDirection: TextDirection.ltr,
           )..layout();
-          tp.paint(
-            canvas,
-            Offset(rect.center.dx - tp.width / 2, rect.center.dy - tp.height / 2),
-          );
+
+          final hasRoom = rect.width > tp.width + 20 && rect.height > 28;
+          if (hasRoom) {
+            final labelWidth = math.min(rect.width - 12, tp.width + 24);
+            final labelRect = Rect.fromCenter(
+              center: rect.center,
+              width: labelWidth,
+              height: 20,
+            );
+            final labelPaint = Paint()
+              ..color = Colors.white.withOpacity(0.75);
+            canvas.drawRRect(
+              RRect.fromRectAndRadius(labelRect, const Radius.circular(6)),
+              labelPaint,
+            );
+            tp.paint(
+              canvas,
+              Offset(rect.center.dx - tp.width / 2, rect.center.dy - tp.height / 2),
+            );
+          } else {
+            tp.paint(
+              canvas,
+              Offset(rect.center.dx - tp.width / 2, rect.center.dy - tp.height / 2),
+            );
+          }
         }
       }
     }
@@ -719,6 +786,53 @@ class _DesignerPainter extends CustomPainter {
         return PanelType.tiltSideLeft;
       default:
         return t;
+    }
+  }
+
+  void _drawBlueprintGrid(Canvas canvas, Rect frameBounds) {
+    final margin = mm2px(300);
+    final bgRect = Rect.fromLTWH(
+      frameBounds.left - margin,
+      frameBounds.top - margin,
+      frameBounds.width + margin * 2,
+      frameBounds.height + margin * 2,
+    );
+    final bgPaint = Paint()..color = const Color(0xFFF5F7FA);
+    canvas.drawRect(bgRect, bgPaint);
+
+    final minorSpacing = (mm2px(50)).clamp(8.0, 80.0).toDouble();
+    final majorSpacing = mm2px(200);
+    final majorEvery = math.max(1, (majorSpacing / minorSpacing).round());
+
+    final minorPaint = Paint()
+      ..color = const Color(0xFFCBD6E0).withOpacity(0.35)
+      ..strokeWidth = 1;
+    final majorPaint = Paint()
+      ..color = const Color(0xFF9EACB9).withOpacity(0.55)
+      ..strokeWidth = 1.2;
+
+    // vertical lines
+    int column = 0;
+    for (double x = bgRect.left; x <= bgRect.right + 1; x += minorSpacing) {
+      final paint = column % majorEvery == 0 ? majorPaint : minorPaint;
+      canvas.drawLine(
+        Offset(_snap(x), _snap(bgRect.top)),
+        Offset(_snap(x), _snap(bgRect.bottom)),
+        paint,
+      );
+      column++;
+    }
+
+    // horizontal lines
+    int row = 0;
+    for (double y = bgRect.top; y <= bgRect.bottom + 1; y += minorSpacing) {
+      final paint = row % majorEvery == 0 ? majorPaint : minorPaint;
+      canvas.drawLine(
+        Offset(_snap(bgRect.left), _snap(y)),
+        Offset(_snap(bgRect.right), _snap(y)),
+        paint,
+      );
+      row++;
     }
   }
 
@@ -835,25 +949,15 @@ class _DesignerPainter extends CustomPainter {
 
     switch (type) {
       case PanelType.fixed:
-        final fontSize = math.min(rect.width, rect.height) * 0.55;
-        final tp = TextPainter(
-          text: TextSpan(
-            text: 'F',
-            style: TextStyle(
-              fontSize: fontSize,
-              fontWeight: FontWeight.bold,
-              color: _outlineColor,
-            ),
-          ),
-          textDirection: TextDirection.ltr,
-        )
-          ..layout();
-        tp.paint(
-          canvas,
-          Offset(
-            rect.center.dx - tp.width / 2,
-            rect.center.dy - tp.height / 2,
-          ),
+        canvas.drawLine(
+          Offset(_snap(rect.left + 6), _snap(rect.top + 6)),
+          Offset(_snap(rect.right - 6), _snap(rect.bottom - 6)),
+          thin,
+        );
+        canvas.drawLine(
+          Offset(_snap(rect.right - 6), _snap(rect.top + 6)),
+          Offset(_snap(rect.left + 6), _snap(rect.bottom - 6)),
+          thin,
         );
         break;
 
@@ -953,51 +1057,91 @@ class _DesignerPainter extends CustomPainter {
   }
 
   void _drawRulers(Canvas canvas, Rect outer, Rect inner) {
-    final textStyle = const TextStyle(fontSize: 10, color: Colors.black54);
-    final stroke = Paint()
-      ..color = Colors.black26
+    final textStyle = const TextStyle(
+      fontSize: 11,
+      fontWeight: FontWeight.w600,
+      color: Color(0xFF22313F),
+    );
+    final extensionPaint = Paint()
+      ..color = const Color(0xFF6C7A89)
       ..strokeWidth = 1
       ..isAntiAlias = false;
 
-    // top ruler line
-    canvas.drawLine(
-        Offset(_snap(outer.left), _snap(outer.top - 10)),
-        Offset(_snap(outer.right), _snap(outer.top - 10)),
-        stroke);
-    // bottom ruler line
-    canvas.drawLine(
-        Offset(_snap(outer.left), _snap(outer.bottom + 10)),
-        Offset(_snap(outer.right), _snap(outer.bottom + 10)),
-        stroke);
-    // left ruler
-    canvas.drawLine(
-        Offset(_snap(outer.left - 10), _snap(outer.top)),
-        Offset(_snap(outer.left - 10), _snap(outer.bottom)),
-        stroke);
-    // right ruler
-    canvas.drawLine(
-        Offset(_snap(outer.right + 10), _snap(outer.top)),
-        Offset(_snap(outer.right + 10), _snap(outer.bottom)),
-        stroke);
+    void drawLineWithArrows(Offset start, Offset end) {
+      canvas.drawLine(start, end, extensionPaint);
+      final angle = math.atan2(end.dy - start.dy, end.dx - start.dx);
 
-    // labels for inner width/height
-    final widthMm = (inner.width / zoom).round();
-    final heightMm = (inner.height / zoom).round();
+      void drawArrowHead(Offset tip, bool invert) {
+        final dir = invert ? angle + math.pi : angle;
+        const len = 6.0;
+        final wing1 = Offset(
+          tip.dx - len * math.cos(dir - math.pi / 6),
+          tip.dy - len * math.sin(dir - math.pi / 6),
+        );
+        final wing2 = Offset(
+          tip.dx - len * math.cos(dir + math.pi / 6),
+          tip.dy - len * math.sin(dir + math.pi / 6),
+        );
+        canvas.drawLine(tip, wing1, extensionPaint);
+        canvas.drawLine(tip, wing2, extensionPaint);
+      }
 
-    final tpW = TextPainter(
-      text: TextSpan(text: '$widthMm mm', style: textStyle),
-      textDirection: TextDirection.ltr,
-    )..layout();
-    tpW.paint(canvas, Offset(outer.center.dx - tpW.width / 2, outer.top - 26));
+      drawArrowHead(start, true);
+      drawArrowHead(end, false);
+    }
 
-    final tpH = TextPainter(
-      text: TextSpan(text: '$heightMm mm', style: textStyle),
-      textDirection: TextDirection.ltr,
-    )..layout();
-    tpH.paint(
-      canvas,
-      Offset(outer.left - tpH.width - 16, outer.center.dy - tpH.height / 2),
-    );
+    void drawDimensionHorizontal(double y, double left, double right, double ext) {
+      // extension lines
+      canvas.drawLine(
+        Offset(_snap(left), _snap(outer.top)),
+        Offset(_snap(left), _snap(outer.top - ext)),
+        extensionPaint,
+      );
+      canvas.drawLine(
+        Offset(_snap(right), _snap(outer.top)),
+        Offset(_snap(right), _snap(outer.top - ext)),
+        extensionPaint,
+      );
+
+      final start = Offset(_snap(left), _snap(y));
+      final end = Offset(_snap(right), _snap(y));
+      drawLineWithArrows(start, end);
+
+      final widthMm = (inner.width / zoom).round();
+      final tp = TextPainter(
+        text: TextSpan(text: '$widthMm mm', style: textStyle),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      tp.paint(canvas, Offset((start.dx + end.dx) / 2 - tp.width / 2, y - tp.height - 2));
+    }
+
+    void drawDimensionVertical(double x, double top, double bottom, double ext) {
+      canvas.drawLine(
+        Offset(_snap(outer.left), _snap(top)),
+        Offset(_snap(outer.left - ext), _snap(top)),
+        extensionPaint,
+      );
+      canvas.drawLine(
+        Offset(_snap(outer.left), _snap(bottom)),
+        Offset(_snap(outer.left - ext), _snap(bottom)),
+        extensionPaint,
+      );
+
+      final start = Offset(_snap(x), _snap(top));
+      final end = Offset(_snap(x), _snap(bottom));
+      drawLineWithArrows(start, end);
+
+      final heightMm = (inner.height / zoom).round();
+      final tp = TextPainter(
+        text: TextSpan(text: '$heightMm mm', style: textStyle),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      tp.paint(canvas, Offset(x - tp.width - 8, (start.dy + end.dy) / 2 - tp.height / 2));
+    }
+
+    const offset = 28.0;
+    drawDimensionHorizontal(outer.top - offset, outer.left, outer.right, offset - 4);
+    drawDimensionVertical(outer.left - offset, outer.top, outer.bottom, offset - 4);
   }
 
   double _fitScale(Size into, Size content) {
