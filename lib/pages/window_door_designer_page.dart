@@ -44,6 +44,13 @@ enum PanelType {
   slidingRight,      // slides right
 }
 
+/// Visual theme used to render the aluminium/PVC profile.
+enum FrameFinish {
+  white,
+  lightGrey,
+  anthracite,
+}
+
 class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
   // Logical dimensions (mm) of the whole frame
   double widthMm = 1200;
@@ -76,6 +83,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
   bool showSizes = true;
   bool viewFromOutside = false; // NEW: swap L/R symbols like WinStudio outside drawings
   bool showHandles = true;      // NEW: show small handle dots
+  FrameFinish frameFinish = FrameFinish.white;
 
   // Canvas key for export
   final GlobalKey _repaintKey = GlobalKey();
@@ -403,8 +411,9 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
             showSizes: showSizes,
             viewFromOutside: viewFromOutside, // NEW
             showHandles: showHandles,         // NEW
+            frameFinish: frameFinish,
             zoom: zoom,
-            onChanged: (w, h, f, m, r, s, outside, handles, z) {
+            onChanged: (w, h, f, m, r, s, outside, handles, finish, z) {
               setState(() {
                 widthMm = w;
                 heightMm = h;
@@ -414,6 +423,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
                 showSizes = s;
                 viewFromOutside = outside;
                 showHandles = handles;
+                frameFinish = finish;
                 zoom = z;
               });
             },
@@ -446,6 +456,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
                         selectedCell: selectedCell,
                         viewFromOutside: viewFromOutside, // NEW
                         showHandles: showHandles,         // NEW
+                        frameFinish: frameFinish,
                       ),
                       size: Size.infinite,
                     ),
@@ -526,6 +537,86 @@ class _HitTestResult {
 
 // ---------- Painter ----------
 
+class _FramePalette {
+  final Color frameLight;
+  final Color frameDark;
+  final Color frameStroke;
+  final Color mullionLight;
+  final Color mullionDark;
+  final Color mullionStroke;
+  final Color glassLight;
+  final Color glassDark;
+  final Color glassHighlight;
+  final Color background;
+  final Color symbolStroke;
+  final Color selectionFill;
+
+  const _FramePalette({
+    required this.frameLight,
+    required this.frameDark,
+    required this.frameStroke,
+    required this.mullionLight,
+    required this.mullionDark,
+    required this.mullionStroke,
+    required this.glassLight,
+    required this.glassDark,
+    required this.glassHighlight,
+    required this.background,
+    required this.symbolStroke,
+    required this.selectionFill,
+  });
+
+  static _FramePalette resolve(FrameFinish finish) {
+    switch (finish) {
+      case FrameFinish.white:
+        return const _FramePalette(
+          frameLight: Color(0xFFFDFDFD),
+          frameDark: Color(0xFFE2E6EA),
+          frameStroke: Color(0xFF181B20),
+          mullionLight: Color(0xFFF7F8FB),
+          mullionDark: Color(0xFFD8DCE2),
+          mullionStroke: Color(0xFF181B20),
+          glassLight: Color(0xFFBEE3F7),
+          glassDark: Color(0xFF7AB9D8),
+          glassHighlight: Color(0x66FFFFFF),
+          background: Color(0xFFF3F5F9),
+          symbolStroke: Color(0xFF0D0F12),
+          selectionFill: Color(0x330079D6),
+        );
+      case FrameFinish.lightGrey:
+        return const _FramePalette(
+          frameLight: Color(0xFFE7E9ED),
+          frameDark: Color(0xFFC9CCD2),
+          frameStroke: Color(0xFF14171C),
+          mullionLight: Color(0xFFE1E3E7),
+          mullionDark: Color(0xFFB6BAC1),
+          mullionStroke: Color(0xFF14171C),
+          glassLight: Color(0xFFB9E0F5),
+          glassDark: Color(0xFF72AED1),
+          glassHighlight: Color(0x66FFFFFF),
+          background: Color(0xFFEEF1F4),
+          symbolStroke: Color(0xFF121417),
+          selectionFill: Color(0x332E9BFF),
+        );
+      case FrameFinish.anthracite:
+        return const _FramePalette(
+          frameLight: Color(0xFF5D6168),
+          frameDark: Color(0xFF373B41),
+          frameStroke: Color(0xFFEDEFF3),
+          mullionLight: Color(0xFF51555C),
+          mullionDark: Color(0xFF2A2E34),
+          mullionStroke: Color(0xFFEDEFF3),
+          glassLight: Color(0xFFA9D7F3),
+          glassDark: Color(0xFF5D9EC4),
+          glassHighlight: Color(0x66FFFFFF),
+          background: Color(0xFFE6EBF0),
+          symbolStroke: Color(0xFFEFF3F8),
+          selectionFill: Color(0x333F8CFF),
+        );
+    }
+  }
+}
+
 class _DesignerPainter extends CustomPainter {
   final double widthMm;
   final double heightMm;
@@ -540,11 +631,7 @@ class _DesignerPainter extends CustomPainter {
   final CellIndex? selectedCell;
   final bool viewFromOutside; // NEW
   final bool showHandles;     // NEW
-
-  static const _frameColor = Color(0xFFE7EBF0);
-  static const _outlineColor = Color(0xFF6C7A89);
-  static const _glassColorTop = Color(0xFFE9F4FF);
-  static const _glassColorBottom = Color(0xFFB9D8F2);
+  final FrameFinish frameFinish;
 
   // Device pixel ratio-aware snapping helpers. These align drawing
   // coordinates to the physical pixel grid to avoid blurry, off-center
@@ -568,6 +655,7 @@ class _DesignerPainter extends CustomPainter {
     required this.selectedCell,
     required this.viewFromOutside,
     required this.showHandles,
+    required this.frameFinish,
   });
 
   double mm2px(double mm) => mm * zoom;
@@ -578,8 +666,9 @@ class _DesignerPainter extends CustomPainter {
     final fitScale = _fitScale(size, contentSize);
     final scaled = contentSize * fitScale;
     final letter = _letterbox(size, scaled);
+    final palette = _FramePalette.resolve(frameFinish);
 
-    final canvasBg = Paint()..color = const Color(0xFFEFF3F8);
+    final canvasBg = Paint()..color = palette.background;
     canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), canvasBg);
 
     canvas.save();
@@ -601,30 +690,29 @@ class _DesignerPainter extends CustomPainter {
 
     // frame (outer)
     final framePaint = Paint()
-      ..shader = const LinearGradient(
-        colors: [Color(0xFFF9FBFD), _frameColor, Color(0xFFC4CDD6)],
-        stops: [0.0, 0.5, 1.0],
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
+      ..shader = LinearGradient(
+        colors: [palette.frameLight, palette.frameDark],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
       ).createShader(frameRect)
       ..style = PaintingStyle.fill;
     final frameStroke = Paint()
-      ..color = _outlineColor
+      ..color = palette.frameStroke
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
+      ..strokeWidth = 3;
     canvas.drawRect(frameRect, framePaint);
     canvas.drawRect(frameRect, frameStroke);
 
     // glass area
     final glassPaint = Paint()
-      ..shader = const LinearGradient(
-        colors: [_glassColorTop, _glassColorBottom],
+      ..shader = LinearGradient(
+        colors: [palette.glassLight, palette.glassDark],
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
       ).createShader(innerRect);
     canvas.drawRect(innerRect, glassPaint);
     final glassHighlight = Paint()
-      ..color = Colors.white.withOpacity(0.35)
+      ..color = palette.glassHighlight
       ..strokeWidth = 1
       ..style = PaintingStyle.stroke;
     canvas.save();
@@ -646,6 +734,10 @@ class _DesignerPainter extends CustomPainter {
     final ysAll = [0.0, ...horizontalSplits..sort(), 1.0];
 
     final mullionT = mm2px(mullionThicknessMm);
+    final mullionStrokePaint = Paint()
+      ..color = palette.mullionStroke
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.2;
     for (var i = 1; i < xsAll.length - 1; i++) {
       final x = _snap(innerRect.left + xsAll[i] * innerRect.width);
       final r = _snapRect(Rect.fromCenter(
@@ -653,13 +745,13 @@ class _DesignerPainter extends CustomPainter {
           width: mullionT,
           height: innerRect.height));
       final mullionPaint = Paint()
-        ..shader = const LinearGradient(
-          colors: [Color(0xFFF4F7FA), _frameColor, Color(0xFFCBD6E0)],
+        ..shader = LinearGradient(
+          colors: [palette.mullionLight, palette.mullionDark],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ).createShader(r);
       canvas.drawRect(r, mullionPaint);
-      canvas.drawRect(r, frameStroke);
+      canvas.drawRect(r, mullionStrokePaint);
     }
     for (var j = 1; j < ysAll.length - 1; j++) {
       final y = _snap(innerRect.top + ysAll[j] * innerRect.height);
@@ -668,21 +760,22 @@ class _DesignerPainter extends CustomPainter {
           width: innerRect.width,
           height: mullionT));
       final mullionPaint = Paint()
-        ..shader = const LinearGradient(
-          colors: [Color(0xFFF4F7FA), _frameColor, Color(0xFFCBD6E0)],
+        ..shader = LinearGradient(
+          colors: [palette.mullionLight, palette.mullionDark],
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
         ).createShader(r);
       canvas.drawRect(r, mullionPaint);
-      canvas.drawRect(r, frameStroke);
+      canvas.drawRect(r, mullionStrokePaint);
     }
 
     // Cells
     final cellStroke = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1
+      ..strokeWidth = 1.4
       ..isAntiAlias = false
-      ..color = _outlineColor.withOpacity(0.4);
+      ..color = palette.symbolStroke
+          .withOpacity(frameFinish == FrameFinish.anthracite ? 0.52 : 0.38);
 
     for (var r = 0; r < ysAll.length - 1; r++) {
       for (var c = 0; c < xsAll.length - 1; c++) {
@@ -697,7 +790,7 @@ class _DesignerPainter extends CustomPainter {
 
         // Highlight selected cell
         if (selectedCell?.row == r && selectedCell?.col == c) {
-          final hl = Paint()..color = const Color(0xFF00A3FF).withOpacity(0.18);
+          final hl = Paint()..color = palette.selectionFill;
           canvas.drawRect(rect.deflate(2), hl);
         }
 
@@ -706,11 +799,11 @@ class _DesignerPainter extends CustomPainter {
         // Panel symbol
         final type = panelByCell[CellIndex(row: r, col: c)] ?? PanelType.fixed;
         final effType = _effectiveType(type, viewFromOutside);
-        _drawPanelSymbol(canvas, rect, effType);
+        _drawPanelSymbol(canvas, rect, effType, palette);
 
         // Handle dots
         if (showHandles) {
-          _drawHandleDot(canvas, rect, effType);
+          _drawHandleDot(canvas, rect, effType, palette);
         }
 
         // Size labels
@@ -836,370 +929,161 @@ class _DesignerPainter extends CustomPainter {
     }
   }
 
-  void _drawPanelSymbol(Canvas canvas, Rect rect, PanelType type) {
-    final thin = Paint()
-      ..color = _outlineColor
-      ..strokeWidth = 1.2
-      ..isAntiAlias = false
-      ..style = PaintingStyle.stroke;
 
-    // helpers
-    void casementLeftV() {
-      final path = Path()
-        ..moveTo(_snap(rect.left + 6), _snap(rect.top + 6))
-        ..lineTo(_snap(rect.right - 6), _snap(rect.center.dy))
-        ..lineTo(_snap(rect.left + 6), _snap(rect.bottom - 6));
-      canvas.drawPath(path, thin);
+
+  void _drawPanelSymbol(
+      Canvas canvas, Rect rect, PanelType type, _FramePalette palette) {
+    final strokeWidth = math.max(1.6, math.min(rect.shortestSide * 0.045, 3.6));
+    final stroke = Paint()
+      ..color = palette.symbolStroke
+      ..strokeWidth = strokeWidth
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..isAntiAlias = false;
+
+    Offset snapOffset(Offset p) => Offset(_snap(p.dx), _snap(p.dy));
+
+    var inset = math.min(rect.width, rect.height) * 0.08;
+    inset = inset.clamp(6.0, 18.0);
+
+    final topLeft = snapOffset(Offset(rect.left + inset, rect.top + inset));
+    final topRight = snapOffset(Offset(rect.right - inset, rect.top + inset));
+    final bottomLeft = snapOffset(Offset(rect.left + inset, rect.bottom - inset));
+    final bottomRight = snapOffset(Offset(rect.right - inset, rect.bottom - inset));
+    final midLeft = snapOffset(Offset(rect.left + inset, rect.center.dy));
+    final midRight = snapOffset(Offset(rect.right - inset, rect.center.dy));
+    final midTop = snapOffset(Offset(rect.center.dx, rect.top + inset));
+    final midBottom = snapOffset(Offset(rect.center.dx, rect.bottom - inset));
+
+    void line(Offset a, Offset b) => canvas.drawLine(a, b, stroke);
+    void cross() {
+      line(topLeft, bottomRight);
+      line(topRight, bottomLeft);
     }
 
-    void casementRightV() {
-      final path = Path()
-        ..moveTo(_snap(rect.right - 6), _snap(rect.top + 6))
-        ..lineTo(_snap(rect.left + 6), _snap(rect.center.dy))
-        ..lineTo(_snap(rect.right - 6), _snap(rect.bottom - 6));
-      canvas.drawPath(path, thin);
+    void drawFixedMark() {
+      if (rect.width < 40 || rect.height < 40) return;
+      final tp = TextPainter(
+        text: TextSpan(
+          text: 'F',
+          style: TextStyle(
+            color: palette.symbolStroke.withOpacity(
+                frameFinish == FrameFinish.anthracite ? 0.85 : 0.8),
+            fontWeight: FontWeight.w700,
+            fontSize: math.min(rect.width, rect.height) * 0.5,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      final offset = Offset(
+        rect.center.dx - tp.width / 2,
+        rect.center.dy - tp.height / 2,
+      );
+      tp.paint(canvas, offset);
     }
 
-    void triangleTopDown() {
-      final p1 = Offset(_snap(rect.topCenter.dx), _snap(rect.topCenter.dy + 8));
-      final p2 = Offset(_snap(rect.centerLeft.dx + 8), _snap(rect.centerLeft.dy));
-      final p3 = Offset(_snap(rect.centerRight.dx - 8), _snap(rect.centerRight.dy));
-      final path = Path()
-        ..moveTo(p1.dx, p1.dy)
-        ..lineTo(p2.dx, p2.dy)
-        ..lineTo(p3.dx, p3.dy)
-        ..close();
-      canvas.drawPath(path, thin);
-    }
-
-    void triangleBottomUp() {
-      final p1 = Offset(_snap(rect.bottomCenter.dx), _snap(rect.bottomCenter.dy - 8));
-      final p2 = Offset(_snap(rect.centerLeft.dx + 8), _snap(rect.centerLeft.dy));
-      final p3 = Offset(_snap(rect.centerRight.dx - 8), _snap(rect.centerRight.dy));
-      final path = Path()
-        ..moveTo(p1.dx, p1.dy)
-        ..lineTo(p2.dx, p2.dy)
-        ..lineTo(p3.dx, p3.dy)
-        ..close();
-      canvas.drawPath(path, thin);
-    }
-
-    void triangleLeftRight() {
-      final p1 = Offset(_snap(rect.centerLeft.dx + 8), _snap(rect.centerLeft.dy));
-      final p2 = Offset(_snap(rect.topCenter.dx), _snap(rect.topCenter.dy + 8));
-      final p3 = Offset(_snap(rect.bottomCenter.dx), _snap(rect.bottomCenter.dy - 8));
-      final path = Path()
-        ..moveTo(p1.dx, p1.dy)
-        ..lineTo(p2.dx, p2.dy)
-        ..lineTo(p3.dx, p3.dy)
-        ..close();
-      canvas.drawPath(path, thin);
-    }
-
-    void triangleRightLeft() {
-      final p1 = Offset(_snap(rect.centerRight.dx - 8), _snap(rect.centerRight.dy));
-      final p2 = Offset(_snap(rect.topCenter.dx), _snap(rect.topCenter.dy + 8));
-      final p3 = Offset(_snap(rect.bottomCenter.dx), _snap(rect.bottomCenter.dy - 8));
-      final path = Path()
-        ..moveTo(p1.dx, p1.dy)
-        ..lineTo(p2.dx, p2.dy)
-        ..lineTo(p3.dx, p3.dy)
-        ..close();
-      canvas.drawPath(path, thin);
-    }
-
-    void slidingRails() {
-      final x1 = _snap(rect.left + rect.width / 3);
-      final x2 = _snap(rect.left + rect.width * 2 / 3);
+    void drawSliding(bool toRight) {
+      final railPaint = Paint()
+        ..color = palette.symbolStroke.withOpacity(0.82)
+        ..strokeWidth = strokeWidth * 0.8
+        ..style = PaintingStyle.stroke
+        ..isAntiAlias = false;
+      final x1 = _snap(rect.left + rect.width * 0.32);
+      final x2 = _snap(rect.left + rect.width * 0.68);
       canvas.drawLine(
-          Offset(x1, _snap(rect.top + 4)), Offset(x1, _snap(rect.bottom - 4)), thin);
+        Offset(x1, _snap(rect.top + inset * 0.6)),
+        Offset(x1, _snap(rect.bottom - inset * 0.6)),
+        railPaint,
+      );
       canvas.drawLine(
-          Offset(x2, _snap(rect.top + 4)), Offset(x2, _snap(rect.bottom - 4)), thin);
-    }
+        Offset(x2, _snap(rect.top + inset * 0.6)),
+        Offset(x2, _snap(rect.bottom - inset * 0.6)),
+        railPaint,
+      );
 
-    void arrowHoriz(bool toRight) {
-      final y = _snap(rect.center.dy);
-      final start = Offset(_snap(rect.left + 10), y);
-      final end = Offset(_snap(rect.right - 10), y);
-      canvas.drawLine(toRight ? start : end, toRight ? end : start, thin);
+      final start = snapOffset(Offset(rect.left + inset * 0.6, rect.center.dy));
+      final end = snapOffset(Offset(rect.right - inset * 0.6, rect.center.dy));
       final tip = toRight ? end : start;
-      final a = toRight ? -math.pi / 6 : math.pi - math.pi / 6;
-      final b = toRight ? math.pi / 6 : math.pi + math.pi / 6;
-      final len = 8.0;
-      final wing1 = Offset(
-          _snap(tip.dx + len * math.cos(a)), _snap(tip.dy + len * math.sin(a)));
-      final wing2 = Offset(
-          _snap(tip.dx + len * math.cos(b)), _snap(tip.dy + len * math.sin(b)));
-      canvas.drawLine(tip, wing1, thin);
-      canvas.drawLine(tip, wing2, thin);
-    }
-
-    Offset _snapOffset(Offset p) => Offset(_snap(p.dx), _snap(p.dy));
-
-    double _clampDouble(double value, double min, double max) {
-      var lower = min;
-      var upper = max;
-      if (upper < lower) {
-        final tmp = lower;
-        lower = upper;
-        upper = tmp;
-      }
-      if (value < lower) return lower;
-      if (value > upper) return upper;
-      return value;
-    }
-
-    Offset _quadPoint(double t, Offset a, Offset b, Offset c) {
-      final mt = 1 - t;
-      final dx = a.dx * mt * mt + 2 * b.dx * mt * t + c.dx * t * t;
-      final dy = a.dy * mt * mt + 2 * b.dy * mt * t + c.dy * t * t;
-      return Offset(dx, dy);
-    }
-
-    Offset _quadTangent(double t, Offset a, Offset b, Offset c) {
-      final mt = 1 - t;
-      final dx = 2 * mt * (b.dx - a.dx) + 2 * t * (c.dx - b.dx);
-      final dy = 2 * mt * (b.dy - a.dy) + 2 * t * (c.dy - b.dy);
-      return Offset(dx, dy);
-    }
-
-    Offset _rotate(Offset v, double angle) {
-      final cosA = math.cos(angle);
-      final sinA = math.sin(angle);
-      return Offset(v.dx * cosA - v.dy * sinA, v.dx * sinA + v.dy * cosA);
-    }
-
-    final hingePaint = Paint()
-      ..color = _outlineColor.withOpacity(0.55)
-      ..strokeWidth = 1.0
-      ..style = PaintingStyle.stroke;
-
-    double _hingeInsetX() =>
-        _clampDouble(rect.width * 0.06, 3.0, math.min(12.0, rect.width / 3));
-    double _hingeInsetY() =>
-        _clampDouble(rect.height * 0.06, 3.0, math.min(12.0, rect.height / 3));
-
-    void drawHingeAxisVertical(bool left) {
-      final inset = _hingeInsetX();
-      final x = left ? rect.left + inset : rect.right - inset;
-      canvas.drawLine(
-        _snapOffset(Offset(x, rect.top + 6)),
-        _snapOffset(Offset(x, rect.bottom - 6)),
-        hingePaint,
-      );
-    }
-
-    void drawHingeAxisHorizontal(bool top) {
-      final inset = _hingeInsetY();
-      final y = top ? rect.top + inset : rect.bottom - inset;
-      canvas.drawLine(
-        _snapOffset(Offset(rect.left + 6, y)),
-        _snapOffset(Offset(rect.right - 6, y)),
-        hingePaint,
-      );
-    }
-
-    void drawCurvedGuide(
-      Offset start,
-      Offset control,
-      Offset end, {
-      double arrowT = 0.82,
-      double? arrowLength,
-    }) {
-      final path = Path()
-        ..moveTo(_snap(start.dx), _snap(start.dy))
-        ..quadraticBezierTo(
-          _snap(control.dx),
-          _snap(control.dy),
-          _snap(end.dx),
-          _snap(end.dy),
-        );
-      canvas.drawPath(path, thin);
-
-      if (arrowT >= 0) {
-        final t = _clampDouble(arrowT, 0.05, 0.95);
-        final pos = _quadPoint(t, start, control, end);
-        final tangent = _quadTangent(t, start, control, end);
-        if (tangent.distanceSquared > 0.01) {
-          final dist = tangent.distance;
-          final dir = Offset(tangent.dx / dist, tangent.dy / dist);
-          final baseLen = arrowLength ??
-              _clampDouble(
-                math.min(rect.width, rect.height) * 0.18,
-                5.0,
-                12.0,
-              );
-          final vec = Offset(dir.dx * baseLen, dir.dy * baseLen);
-          final tip = pos;
-          final wingAngle = math.pi / 6;
-          final wing1 = tip - _rotate(vec, wingAngle);
-          final wing2 = tip - _rotate(vec, -wingAngle);
-          canvas.drawLine(_snapOffset(tip), _snapOffset(wing1), thin);
-          canvas.drawLine(_snapOffset(tip), _snapOffset(wing2), thin);
-        }
-      }
-    }
-
-    void casementGuides(bool leftHinged) {
-      drawHingeAxisVertical(leftHinged);
-      final hingeInset = _hingeInsetX();
-      final hingeX = leftHinged ? rect.left + hingeInset : rect.right - hingeInset;
-      final startTop = Offset(hingeX, rect.top + hingeInset);
-      final startBottom = Offset(hingeX, rect.bottom - hingeInset);
-      final edgeInset = _clampDouble(rect.height * 0.24, rect.height * 0.18,
-          rect.height * 0.35);
-      final endTop = Offset(
-        leftHinged ? rect.right - hingeInset : rect.left + hingeInset,
-        rect.top + edgeInset,
-      );
-      final endBottom = Offset(
-        leftHinged ? rect.right - hingeInset : rect.left + hingeInset,
-        rect.bottom - edgeInset,
-      );
-      final span = (endTop.dx - startTop.dx).abs();
-      final ctrlShift = _clampDouble(span * 0.72, span * 0.48, span);
-      final ctrlTop = Offset(
-        startTop.dx + (leftHinged ? ctrlShift : -ctrlShift),
-        rect.top + edgeInset * 0.6,
-      );
-      final ctrlBottom = Offset(
-        startBottom.dx + (leftHinged ? ctrlShift : -ctrlShift),
-        rect.bottom - edgeInset * 0.6,
-      );
-      final arrowLen = _clampDouble(rect.width * 0.18, 6.0, 13.0);
-      drawCurvedGuide(startTop, ctrlTop, endTop,
-          arrowT: 0.8, arrowLength: arrowLen);
-      drawCurvedGuide(startBottom, ctrlBottom, endBottom,
-          arrowT: 0.8, arrowLength: arrowLen);
-    }
-
-    void tiltGuidesHorizontal({required bool hingeTop}) {
-      drawHingeAxisHorizontal(hingeTop);
-      final hingeInset = _hingeInsetY();
-      final hingeY = hingeTop ? rect.top + hingeInset : rect.bottom - hingeInset;
-      final openY = hingeTop ? rect.bottom - hingeInset : rect.top + hingeInset;
-      final startLeft = Offset(rect.left + hingeInset, hingeY);
-      final startRight = Offset(rect.right - hingeInset, hingeY);
-      final ctrlYOffset = (hingeTop ? 1 : -1) *
-          _clampDouble(rect.height * 0.4, rect.height * 0.25, rect.height * 0.48);
-      final ctrlLeft = Offset(
-        rect.center.dx - rect.width * 0.24,
-        hingeY + ctrlYOffset,
-      );
-      final ctrlRight = Offset(
-        rect.center.dx + rect.width * 0.24,
-        hingeY + ctrlYOffset,
-      );
-      final end = Offset(rect.center.dx, openY);
-      final arrowLen = _clampDouble(rect.height * 0.16, 5.0, 12.0);
-      drawCurvedGuide(startLeft, ctrlLeft, end,
-          arrowT: hingeTop ? 0.76 : 0.76, arrowLength: arrowLen);
-      drawCurvedGuide(startRight, ctrlRight, end,
-          arrowT: hingeTop ? 0.88 : 0.88, arrowLength: arrowLen);
-    }
-
-    void tiltGuidesVertical(bool leftHinged) {
-      drawHingeAxisVertical(leftHinged);
-      final hingeInset = _hingeInsetX();
-      final hingeX = leftHinged ? rect.left + hingeInset : rect.right - hingeInset;
-      final startTop = Offset(hingeX, rect.top + hingeInset);
-      final startBottom = Offset(hingeX, rect.bottom - hingeInset);
-      final interiorShift = _clampDouble(
-          rect.width * 0.25, rect.width * 0.15, rect.width * 0.35);
-      final endX =
-          rect.center.dx + (leftHinged ? interiorShift : -interiorShift);
-      final verticalShift = _clampDouble(
-          rect.height * 0.22, rect.height * 0.12, rect.height * 0.32);
-      final endTop = Offset(endX, rect.center.dy - verticalShift);
-      final endBottom = Offset(endX, rect.center.dy + verticalShift);
-      final span = (endX - startTop.dx).abs();
-      final ctrlShift = _clampDouble(span * 0.7, span * 0.45, span);
-      final ctrlTop = Offset(
-        startTop.dx + (leftHinged ? ctrlShift : -ctrlShift),
-        startTop.dy + (endTop.dy - startTop.dy) * 0.55,
-      );
-      final ctrlBottom = Offset(
-        startBottom.dx + (leftHinged ? ctrlShift : -ctrlShift),
-        startBottom.dy + (endBottom.dy - startBottom.dy) * 0.45,
-      );
-      final arrowLen = _clampDouble(rect.width * 0.16, 5.0, 11.0);
-      drawCurvedGuide(startTop, ctrlTop, endTop,
-          arrowT: 0.74, arrowLength: arrowLen);
-      drawCurvedGuide(startBottom, ctrlBottom, endBottom,
-          arrowT: 0.74, arrowLength: arrowLen);
+      canvas.drawLine(toRight ? start : end, toRight ? end : start, stroke);
+      final baseAngle = toRight ? 0.0 : math.pi;
+      final arrowLen = math.max(8.0, strokeWidth * 2.8);
+      final wing1 = snapOffset(Offset(
+        tip.dx + arrowLen * math.cos(baseAngle + math.pi / 6),
+        tip.dy + arrowLen * math.sin(baseAngle + math.pi / 6),
+      ));
+      final wing2 = snapOffset(Offset(
+        tip.dx + arrowLen * math.cos(baseAngle - math.pi / 6),
+        tip.dy + arrowLen * math.sin(baseAngle - math.pi / 6),
+      ));
+      canvas.drawLine(tip, wing1, stroke);
+      canvas.drawLine(tip, wing2, stroke);
     }
 
     switch (type) {
       case PanelType.fixed:
-        canvas.drawLine(
-          Offset(_snap(rect.left + 6), _snap(rect.top + 6)),
-          Offset(_snap(rect.right - 6), _snap(rect.bottom - 6)),
-          thin,
-        );
-        canvas.drawLine(
-          Offset(_snap(rect.right - 6), _snap(rect.top + 6)),
-          Offset(_snap(rect.left + 6), _snap(rect.bottom - 6)),
-          thin,
-        );
+        drawFixedMark();
         break;
 
       case PanelType.casementLeft:
-        casementLeftV();
-        casementGuides(true);
+        cross();
+        line(topRight, midLeft);
+        line(bottomRight, midLeft);
         break;
 
       case PanelType.casementRight:
-        casementRightV();
-        casementGuides(false);
+        cross();
+        line(topLeft, midRight);
+        line(bottomLeft, midRight);
         break;
 
       case PanelType.tiltTop:
-        triangleTopDown();
-        tiltGuidesHorizontal(hingeTop: true);
+        line(midBottom, topLeft);
+        line(midBottom, topRight);
         break;
 
       case PanelType.tiltBottom:
-        triangleBottomUp();
-        tiltGuidesHorizontal(hingeTop: false);
+        line(midTop, bottomLeft);
+        line(midTop, bottomRight);
         break;
 
       case PanelType.tiltSideLeft:
-        triangleLeftRight();
-        tiltGuidesVertical(true);
+        line(midRight, topLeft);
+        line(midRight, bottomLeft);
         break;
 
       case PanelType.tiltSideRight:
-        triangleRightLeft();
-        tiltGuidesVertical(false);
+        line(midLeft, topRight);
+        line(midLeft, bottomRight);
         break;
 
       case PanelType.tiltTurnLeft:
-        casementLeftV();
-        triangleTopDown();
-        casementGuides(true);
-        tiltGuidesHorizontal(hingeTop: true);
+        cross();
+        line(topRight, midLeft);
+        line(bottomRight, midLeft);
+        line(midBottom, topLeft);
+        line(midBottom, topRight);
         break;
 
       case PanelType.tiltTurnRight:
-        casementRightV();
-        triangleTopDown();
-        casementGuides(false);
-        tiltGuidesHorizontal(hingeTop: true);
+        cross();
+        line(topLeft, midRight);
+        line(bottomLeft, midRight);
+        line(midBottom, topLeft);
+        line(midBottom, topRight);
         break;
 
       case PanelType.slidingLeft:
-        slidingRails();
-        arrowHoriz(false);
+        drawSliding(false);
         break;
 
       case PanelType.slidingRight:
-        slidingRails();
-        arrowHoriz(true);
+        drawSliding(true);
         break;
     }
   }
 
-  void _drawHandleDot(Canvas canvas, Rect rect, PanelType type) {
+  void _drawHandleDot(
+      Canvas canvas, Rect rect, PanelType type, _FramePalette palette) {
     if (type == PanelType.fixed) return;
     // Place a small dot roughly where the handle would be for the given opening.
     // This matches WinStudio’s little circle marker.
@@ -1239,7 +1123,8 @@ class _DesignerPainter extends CustomPainter {
         return;
     }
     final paint = Paint()
-      ..color = _outlineColor.withOpacity(0.55)
+      ..color = palette.symbolStroke.withOpacity(
+          frameFinish == FrameFinish.anthracite ? 0.8 : 0.55)
       ..isAntiAlias = false;
     canvas.drawCircle(p, r, paint);
   }
@@ -1357,6 +1242,7 @@ class _DesignerPainter extends CustomPainter {
         showSizes != old.showSizes ||
         viewFromOutside != old.viewFromOutside ||
         showHandles != old.showHandles ||
+        frameFinish != old.frameFinish ||
         verticalSplits != old.verticalSplits ||
         horizontalSplits != old.horizontalSplits ||
         !_mapEquals(panelByCell, old.panelByCell);
@@ -1383,6 +1269,7 @@ class _TopControls extends StatelessWidget {
   final bool showSizes;
   final bool viewFromOutside; // NEW
   final bool showHandles;     // NEW
+  final FrameFinish frameFinish;
   final double zoom;
   final void Function(
       double widthMm,
@@ -1393,6 +1280,7 @@ class _TopControls extends StatelessWidget {
       bool showSizes,
       bool viewFromOutside,
       bool showHandles,
+      FrameFinish finish,
       double zoom,
       ) onChanged;
 
@@ -1405,6 +1293,7 @@ class _TopControls extends StatelessWidget {
     required this.showSizes,
     required this.viewFromOutside,
     required this.showHandles,
+    required this.frameFinish,
     required this.zoom,
     required this.onChanged,
   });
@@ -1427,7 +1316,7 @@ class _TopControls extends StatelessWidget {
     final mCtrl =
     TextEditingController(text: mullionThicknessMm.toStringAsFixed(0));
 
-    void commit() {
+    void commitWith(FrameFinish finish) {
       final w = double.tryParse(wCtrl.text) ?? widthMm;
       final h = double.tryParse(hCtrl.text) ?? heightMm;
       final f = double.tryParse(fCtrl.text) ?? frameThicknessMm;
@@ -1441,9 +1330,12 @@ class _TopControls extends StatelessWidget {
         showSizes,
         viewFromOutside,
         showHandles,
+        finish,
         zoom,
       );
     }
+
+    void commit() => commitWith(frameFinish);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
@@ -1507,6 +1399,7 @@ class _TopControls extends StatelessWidget {
                   showSizes,
                   viewFromOutside,
                   showHandles,
+                  frameFinish,
                   zoom,
                 ),
               ),
@@ -1527,6 +1420,7 @@ class _TopControls extends StatelessWidget {
                   v,
                   viewFromOutside,
                   showHandles,
+                  frameFinish,
                   zoom,
                 ),
               ),
@@ -1547,6 +1441,7 @@ class _TopControls extends StatelessWidget {
                   showSizes,
                   v,
                   showHandles,
+                  frameFinish,
                   zoom,
                 ),
               ),
@@ -1567,10 +1462,36 @@ class _TopControls extends StatelessWidget {
                   showSizes,
                   viewFromOutside,
                   v,
+                  frameFinish,
                   zoom,
                 ),
               ),
             ],
+          ),
+          SizedBox(
+            width: 170,
+            child: DropdownButtonFormField<FrameFinish>(
+              value: frameFinish,
+              decoration: dec('Frame finish'),
+              items: const [
+                DropdownMenuItem(
+                  value: FrameFinish.white,
+                  child: Text('White PVC'),
+                ),
+                DropdownMenuItem(
+                  value: FrameFinish.lightGrey,
+                  child: Text('Light grey'),
+                ),
+                DropdownMenuItem(
+                  value: FrameFinish.anthracite,
+                  child: Text('Anthracite'),
+                ),
+              ],
+              onChanged: (finish) {
+                if (finish == null) return;
+                commitWith(finish);
+              },
+            ),
           ),
           SizedBox(
             width: 220,
@@ -1593,6 +1514,7 @@ class _TopControls extends StatelessWidget {
                       showSizes,
                       viewFromOutside,
                       showHandles,
+                      frameFinish,
                       v,
                     ),
                   ),
@@ -1859,109 +1781,133 @@ class _MiniSymbolPainter {
   _MiniSymbolPainter(this.type);
 
   void draw(Canvas canvas, Rect rect) {
+    final strokeWidth = math.max(1.4, math.min(rect.shortestSide * 0.16, 3.0));
     final stroke = Paint()
-      ..color = const Color(0xFF8A8A8A)
-      ..strokeWidth = 2
-      ..style = PaintingStyle.stroke;
-    final thin = Paint()
-      ..color = const Color(0xFF8A8A8A)
-      ..strokeWidth = 1.6
-      ..style = PaintingStyle.stroke;
+      ..color = const Color(0xFF4E4E4E)
+      ..strokeWidth = strokeWidth
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
 
-    void diagTLBR() => canvas.drawLine(rect.topLeft + const Offset(4, 4),
-        rect.bottomRight - const Offset(4, 4), stroke);
-    void diagTRBL() => canvas.drawLine(rect.topRight + const Offset(-4, 4),
-        rect.bottomLeft + const Offset(4, -4), stroke);
+    final inset = math.min(rect.width, rect.height) * 0.18;
+    final topLeft = Offset(rect.left + inset, rect.top + inset);
+    final topRight = Offset(rect.right - inset, rect.top + inset);
+    final bottomLeft = Offset(rect.left + inset, rect.bottom - inset);
+    final bottomRight = Offset(rect.right - inset, rect.bottom - inset);
+    final midLeft = Offset(rect.left + inset, rect.center.dy);
+    final midRight = Offset(rect.right - inset, rect.center.dy);
+    final midTop = Offset(rect.center.dx, rect.top + inset);
+    final midBottom = Offset(rect.center.dx, rect.bottom - inset);
 
-    void triangleTopDown() {
-      final p1 = rect.topCenter + const Offset(0, 6);
-      final p2 = rect.centerLeft + const Offset(6, 0);
-      final p3 = rect.centerRight + const Offset(-6, 0);
-      final path = Path()..moveTo(p1.dx, p1.dy)..lineTo(p2.dx, p2.dy)..lineTo(p3.dx, p3.dy)..close();
-      canvas.drawPath(path, thin);
+    void line(Offset a, Offset b) => canvas.drawLine(a, b, stroke);
+    void cross() {
+      line(topLeft, bottomRight);
+      line(topRight, bottomLeft);
     }
 
-    void triangleBottomUp() {
-      final p1 = rect.bottomCenter + const Offset(0, -6);
-      final p2 = rect.centerLeft + const Offset(6, 0);
-      final p3 = rect.centerRight + const Offset(-6, 0);
-      final path = Path()..moveTo(p1.dx, p1.dy)..lineTo(p2.dx, p2.dy)..lineTo(p3.dx, p3.dy)..close();
-      canvas.drawPath(path, thin);
+    void drawFixed() {
+      final fontSize = math.min(rect.width, rect.height) * 0.48;
+      final tp = TextPainter(
+        text: TextSpan(
+          text: 'F',
+          style: TextStyle(
+            fontSize: fontSize,
+            fontWeight: FontWeight.w700,
+            color: const Color(0xFF414141),
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      tp.paint(
+        canvas,
+        Offset(rect.center.dx - tp.width / 2, rect.center.dy - tp.height / 2),
+      );
     }
 
-    void triangleLeftRight() {
-      final p1 = rect.centerLeft + const Offset(6, 0);
-      final p2 = rect.topCenter + const Offset(0, 6);
-      final p3 = rect.bottomCenter + const Offset(0, -6);
-      final path = Path()..moveTo(p1.dx, p1.dy)..lineTo(p2.dx, p2.dy)..lineTo(p3.dx, p3.dy)..close();
-      canvas.drawPath(path, thin);
-    }
+    void drawSliding(bool toRight) {
+      final rail = Paint()
+        ..color = const Color(0xFF707070)
+        ..strokeWidth = strokeWidth * 0.7
+        ..style = PaintingStyle.stroke;
+      final x1 = rect.left + rect.width * 0.32;
+      final x2 = rect.left + rect.width * 0.68;
+      canvas.drawLine(
+        Offset(x1, rect.top + inset * 0.5),
+        Offset(x1, rect.bottom - inset * 0.5),
+        rail,
+      );
+      canvas.drawLine(
+        Offset(x2, rect.top + inset * 0.5),
+        Offset(x2, rect.bottom - inset * 0.5),
+        rail,
+      );
 
-    void triangleRightLeft() {
-      final p1 = rect.centerRight + const Offset(-6, 0);
-      final p2 = rect.topCenter + const Offset(0, 6);
-      final p3 = rect.bottomCenter + const Offset(0, -6);
-      final path = Path()..moveTo(p1.dx, p1.dy)..lineTo(p2.dx, p2.dy)..lineTo(p3.dx, p3.dy)..close();
-      canvas.drawPath(path, thin);
-    }
-
-    void arrowHoriz(bool toRight) {
-      final y = rect.center.dy;
-      final start = Offset(rect.left + 8, y);
-      final end = Offset(rect.right - 8, y);
-      canvas.drawLine(toRight ? start : end, toRight ? end : start, thin);
+      final start = Offset(rect.left + inset * 0.6, rect.center.dy);
+      final end = Offset(rect.right - inset * 0.6, rect.center.dy);
       final tip = toRight ? end : start;
-      final a = toRight ? -math.pi / 6 : math.pi - math.pi / 6;
-      final b = toRight ? math.pi / 6 : math.pi + math.pi / 6;
-      final len = 6.0;
-      final wing1 = Offset(tip.dx + len * math.cos(a), tip.dy + len * math.sin(a));
-      final wing2 = Offset(tip.dx + len * math.cos(b), tip.dy + len * math.sin(b));
-      canvas.drawLine(tip, wing1, thin);
-      canvas.drawLine(tip, wing2, thin);
+      line(toRight ? start : end, toRight ? end : start);
+      final base = toRight ? 0.0 : math.pi;
+      final len = math.max(6.0, strokeWidth * 2.4);
+      final wing1 = Offset(
+        tip.dx + len * math.cos(base + math.pi / 6),
+        tip.dy + len * math.sin(base + math.pi / 6),
+      );
+      final wing2 = Offset(
+        tip.dx + len * math.cos(base - math.pi / 6),
+        tip.dy + len * math.sin(base - math.pi / 6),
+      );
+      line(tip, wing1);
+      line(tip, wing2);
     }
 
     switch (type) {
       case PanelType.fixed:
-        diagTLBR();
-        diagTRBL();
-        final v = Offset(rect.center.dx, rect.top + 4);
-        final v2 = Offset(rect.center.dx, rect.bottom - 4);
-        final h = Offset(rect.left + 4, rect.center.dy);
-        final h2 = Offset(rect.right - 4, rect.center.dy);
-        canvas.drawLine(v, v2, thin);
-        canvas.drawLine(h, h2, thin);
+        drawFixed();
         break;
       case PanelType.casementLeft:
-        diagTLBR();
+        cross();
+        line(topRight, midLeft);
+        line(bottomRight, midLeft);
         break;
       case PanelType.casementRight:
-        diagTRBL();
+        cross();
+        line(topLeft, midRight);
+        line(bottomLeft, midRight);
         break;
       case PanelType.tiltTop:
-        triangleTopDown();
+        line(midBottom, topLeft);
+        line(midBottom, topRight);
         break;
       case PanelType.tiltBottom:
-        triangleBottomUp();
+        line(midTop, bottomLeft);
+        line(midTop, bottomRight);
         break;
       case PanelType.tiltSideLeft:
-        triangleLeftRight();
+        line(midRight, topLeft);
+        line(midRight, bottomLeft);
         break;
       case PanelType.tiltSideRight:
-        triangleRightLeft();
+        line(midLeft, topRight);
+        line(midLeft, bottomRight);
         break;
       case PanelType.tiltTurnLeft:
-        diagTLBR();
-        triangleTopDown();
+        cross();
+        line(topRight, midLeft);
+        line(bottomRight, midLeft);
+        line(midBottom, topLeft);
+        line(midBottom, topRight);
         break;
       case PanelType.tiltTurnRight:
-        diagTRBL();
-        triangleTopDown();
+        cross();
+        line(topLeft, midRight);
+        line(bottomLeft, midRight);
+        line(midBottom, topLeft);
+        line(midBottom, topRight);
         break;
       case PanelType.slidingLeft:
-        arrowHoriz(false);
+        drawSliding(false);
         break;
       case PanelType.slidingRight:
-        arrowHoriz(true);
+        drawSliding(true);
         break;
     }
   }
