@@ -934,17 +934,199 @@ class _DesignerPainter extends CustomPainter {
       canvas.drawLine(tip, wing2, thin);
     }
 
-    void swingArc(bool leftHinged) {
-      final radius = math.min(rect.width, rect.height) - 12;
-      if (radius <= 0) return;
-      final center = leftHinged
-          ? Offset(_snap(rect.left + 6), _snap(rect.center.dy))
-          : Offset(_snap(rect.right - 6), _snap(rect.center.dy));
-      final arcRect =
-          _snapRect(Rect.fromCircle(center: center, radius: radius));
-      final startAngle = leftHinged ? -math.pi / 2 : math.pi / 2;
-      final sweepAngle = leftHinged ? math.pi : -math.pi;
-      canvas.drawArc(arcRect, startAngle, sweepAngle, false, thin);
+    Offset _snapOffset(Offset p) => Offset(_snap(p.dx), _snap(p.dy));
+
+    double _clampDouble(double value, double min, double max) {
+      var lower = min;
+      var upper = max;
+      if (upper < lower) {
+        final tmp = lower;
+        lower = upper;
+        upper = tmp;
+      }
+      if (value < lower) return lower;
+      if (value > upper) return upper;
+      return value;
+    }
+
+    Offset _quadPoint(double t, Offset a, Offset b, Offset c) {
+      final mt = 1 - t;
+      final dx = a.dx * mt * mt + 2 * b.dx * mt * t + c.dx * t * t;
+      final dy = a.dy * mt * mt + 2 * b.dy * mt * t + c.dy * t * t;
+      return Offset(dx, dy);
+    }
+
+    Offset _quadTangent(double t, Offset a, Offset b, Offset c) {
+      final mt = 1 - t;
+      final dx = 2 * mt * (b.dx - a.dx) + 2 * t * (c.dx - b.dx);
+      final dy = 2 * mt * (b.dy - a.dy) + 2 * t * (c.dy - b.dy);
+      return Offset(dx, dy);
+    }
+
+    Offset _rotate(Offset v, double angle) {
+      final cosA = math.cos(angle);
+      final sinA = math.sin(angle);
+      return Offset(v.dx * cosA - v.dy * sinA, v.dx * sinA + v.dy * cosA);
+    }
+
+    final hingePaint = Paint()
+      ..color = _outlineColor.withOpacity(0.55)
+      ..strokeWidth = 1.0
+      ..style = PaintingStyle.stroke;
+
+    double _hingeInsetX() =>
+        _clampDouble(rect.width * 0.06, 3.0, math.min(12.0, rect.width / 3));
+    double _hingeInsetY() =>
+        _clampDouble(rect.height * 0.06, 3.0, math.min(12.0, rect.height / 3));
+
+    void drawHingeAxisVertical(bool left) {
+      final inset = _hingeInsetX();
+      final x = left ? rect.left + inset : rect.right - inset;
+      canvas.drawLine(
+        _snapOffset(Offset(x, rect.top + 6)),
+        _snapOffset(Offset(x, rect.bottom - 6)),
+        hingePaint,
+      );
+    }
+
+    void drawHingeAxisHorizontal(bool top) {
+      final inset = _hingeInsetY();
+      final y = top ? rect.top + inset : rect.bottom - inset;
+      canvas.drawLine(
+        _snapOffset(Offset(rect.left + 6, y)),
+        _snapOffset(Offset(rect.right - 6, y)),
+        hingePaint,
+      );
+    }
+
+    void drawCurvedGuide(
+      Offset start,
+      Offset control,
+      Offset end, {
+      double arrowT = 0.82,
+      double? arrowLength,
+    }) {
+      final path = Path()
+        ..moveTo(_snap(start.dx), _snap(start.dy))
+        ..quadraticBezierTo(
+          _snap(control.dx),
+          _snap(control.dy),
+          _snap(end.dx),
+          _snap(end.dy),
+        );
+      canvas.drawPath(path, thin);
+
+      if (arrowT >= 0) {
+        final t = _clampDouble(arrowT, 0.05, 0.95);
+        final pos = _quadPoint(t, start, control, end);
+        final tangent = _quadTangent(t, start, control, end);
+        if (tangent.distanceSquared > 0.01) {
+          final dist = tangent.distance;
+          final dir = Offset(tangent.dx / dist, tangent.dy / dist);
+          final baseLen = arrowLength ??
+              _clampDouble(
+                math.min(rect.width, rect.height) * 0.18,
+                5.0,
+                12.0,
+              );
+          final vec = Offset(dir.dx * baseLen, dir.dy * baseLen);
+          final tip = pos;
+          final wingAngle = math.pi / 6;
+          final wing1 = tip - _rotate(vec, wingAngle);
+          final wing2 = tip - _rotate(vec, -wingAngle);
+          canvas.drawLine(_snapOffset(tip), _snapOffset(wing1), thin);
+          canvas.drawLine(_snapOffset(tip), _snapOffset(wing2), thin);
+        }
+      }
+    }
+
+    void casementGuides(bool leftHinged) {
+      drawHingeAxisVertical(leftHinged);
+      final hingeInset = _hingeInsetX();
+      final hingeX = leftHinged ? rect.left + hingeInset : rect.right - hingeInset;
+      final startTop = Offset(hingeX, rect.top + hingeInset);
+      final startBottom = Offset(hingeX, rect.bottom - hingeInset);
+      final edgeInset = _clampDouble(rect.height * 0.24, rect.height * 0.18,
+          rect.height * 0.35);
+      final endTop = Offset(
+        leftHinged ? rect.right - hingeInset : rect.left + hingeInset,
+        rect.top + edgeInset,
+      );
+      final endBottom = Offset(
+        leftHinged ? rect.right - hingeInset : rect.left + hingeInset,
+        rect.bottom - edgeInset,
+      );
+      final span = (endTop.dx - startTop.dx).abs();
+      final ctrlShift = _clampDouble(span * 0.72, span * 0.48, span);
+      final ctrlTop = Offset(
+        startTop.dx + (leftHinged ? ctrlShift : -ctrlShift),
+        rect.top + edgeInset * 0.6,
+      );
+      final ctrlBottom = Offset(
+        startBottom.dx + (leftHinged ? ctrlShift : -ctrlShift),
+        rect.bottom - edgeInset * 0.6,
+      );
+      final arrowLen = _clampDouble(rect.width * 0.18, 6.0, 13.0);
+      drawCurvedGuide(startTop, ctrlTop, endTop,
+          arrowT: 0.8, arrowLength: arrowLen);
+      drawCurvedGuide(startBottom, ctrlBottom, endBottom,
+          arrowT: 0.8, arrowLength: arrowLen);
+    }
+
+    void tiltGuidesHorizontal({required bool hingeTop}) {
+      drawHingeAxisHorizontal(hingeTop);
+      final hingeInset = _hingeInsetY();
+      final hingeY = hingeTop ? rect.top + hingeInset : rect.bottom - hingeInset;
+      final openY = hingeTop ? rect.bottom - hingeInset : rect.top + hingeInset;
+      final startLeft = Offset(rect.left + hingeInset, hingeY);
+      final startRight = Offset(rect.right - hingeInset, hingeY);
+      final ctrlYOffset = (hingeTop ? 1 : -1) *
+          _clampDouble(rect.height * 0.4, rect.height * 0.25, rect.height * 0.48);
+      final ctrlLeft = Offset(
+        rect.center.dx - rect.width * 0.24,
+        hingeY + ctrlYOffset,
+      );
+      final ctrlRight = Offset(
+        rect.center.dx + rect.width * 0.24,
+        hingeY + ctrlYOffset,
+      );
+      final end = Offset(rect.center.dx, openY);
+      final arrowLen = _clampDouble(rect.height * 0.16, 5.0, 12.0);
+      drawCurvedGuide(startLeft, ctrlLeft, end,
+          arrowT: hingeTop ? 0.76 : 0.76, arrowLength: arrowLen);
+      drawCurvedGuide(startRight, ctrlRight, end,
+          arrowT: hingeTop ? 0.88 : 0.88, arrowLength: arrowLen);
+    }
+
+    void tiltGuidesVertical(bool leftHinged) {
+      drawHingeAxisVertical(leftHinged);
+      final hingeInset = _hingeInsetX();
+      final hingeX = leftHinged ? rect.left + hingeInset : rect.right - hingeInset;
+      final startTop = Offset(hingeX, rect.top + hingeInset);
+      final startBottom = Offset(hingeX, rect.bottom - hingeInset);
+      final interiorShift = _clampDouble(
+          rect.width * 0.25, rect.width * 0.15, rect.width * 0.35);
+      final endX =
+          rect.center.dx + (leftHinged ? interiorShift : -interiorShift);
+      final verticalShift = _clampDouble(
+          rect.height * 0.22, rect.height * 0.12, rect.height * 0.32);
+      final endTop = Offset(endX, rect.center.dy - verticalShift);
+      final endBottom = Offset(endX, rect.center.dy + verticalShift);
+      final span = (endX - startTop.dx).abs();
+      final ctrlShift = _clampDouble(span * 0.7, span * 0.45, span);
+      final ctrlTop = Offset(
+        startTop.dx + (leftHinged ? ctrlShift : -ctrlShift),
+        startTop.dy + (endTop.dy - startTop.dy) * 0.55,
+      );
+      final ctrlBottom = Offset(
+        startBottom.dx + (leftHinged ? ctrlShift : -ctrlShift),
+        startBottom.dy + (endBottom.dy - startBottom.dy) * 0.45,
+      );
+      final arrowLen = _clampDouble(rect.width * 0.16, 5.0, 11.0);
+      drawCurvedGuide(startTop, ctrlTop, endTop,
+          arrowT: 0.74, arrowLength: arrowLen);
+      drawCurvedGuide(startBottom, ctrlBottom, endBottom,
+          arrowT: 0.74, arrowLength: arrowLen);
     }
 
     switch (type) {
@@ -963,40 +1145,46 @@ class _DesignerPainter extends CustomPainter {
 
       case PanelType.casementLeft:
         casementLeftV();
-        swingArc(true);
+        casementGuides(true);
         break;
 
       case PanelType.casementRight:
         casementRightV();
-        swingArc(false);
+        casementGuides(false);
         break;
 
       case PanelType.tiltTop:
         triangleTopDown();
+        tiltGuidesHorizontal(hingeTop: true);
         break;
 
       case PanelType.tiltBottom:
         triangleBottomUp();
+        tiltGuidesHorizontal(hingeTop: false);
         break;
 
       case PanelType.tiltSideLeft:
         triangleLeftRight();
+        tiltGuidesVertical(true);
         break;
 
       case PanelType.tiltSideRight:
         triangleRightLeft();
+        tiltGuidesVertical(false);
         break;
 
       case PanelType.tiltTurnLeft:
         casementLeftV();
         triangleTopDown();
-        swingArc(true);
+        casementGuides(true);
+        tiltGuidesHorizontal(hingeTop: true);
         break;
 
       case PanelType.tiltTurnRight:
         casementRightV();
         triangleTopDown();
-        swingArc(false);
+        casementGuides(false);
+        tiltGuidesHorizontal(hingeTop: true);
         break;
 
       case PanelType.slidingLeft:
