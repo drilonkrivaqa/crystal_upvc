@@ -5,22 +5,21 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart' show RenderRepaintBoundary;
-import 'package:path_provider/path_provider.dart';
-import 'dart:io';
+import 'package:flutter/rendering.dart';
 
-/// Window/Door Designer (WinStudio-style openings)
-/// - Rect frame with real-world dimensions (mm)
-/// - Vertical/horizontal mullions (dividers) you can drag, with snapping & min cell size
-/// - Per-cell opening types matching Windows Studio v44.x:
-///   • Fixed, Casement L/R, Tilt Top/Bottom, Side‑Tilt L/R, Tilt&Turn L/R, Sliding L/R
-/// - Outside view toggle (swaps L/R for UK-style “drawn from outside”)
-/// - Optional handle dots drawn on the “handle side”
-/// - Size labels, rulers
-/// - PNG export via RepaintBoundary (returns bytes with Navigator.pop)
+/// Window/Door Designer (from scratch, WinStudio/iWindoor-style)
+/// ----------------------------------------------------------------
+/// Features:
+/// • Real-world size in millimeters (canvas auto-fit with padding)
+/// • Add/drag/remove vertical & horizontal mullions (dividers)
+/// • Smart snapping with minimum cell size constraint (default 250 mm)
+/// • Per-cell opening types (Fixed, Casement L/R, Tilt, Tilt&Turn L/R, Sliding L/R, Door In/Out L/R)
+/// • Outside view toggle (affects hinge/draw arrows orientation)
+/// • Selection: cells or divider lines; keyboard-like actions via toolbar
+/// • Dimension rulers on frame edges
+/// • Export drawing as PNG (transparent) via RepaintBoundary
 ///
-/// Reference for symbol set & look: Play Store screenshots of PVC Windows Studio
-/// (openings grid and drawings). We mirror that palette but keep your one-file design.
+/// No external packages; single file; null-safety; designed to compile cleanly.
 
 class WindowDoorDesignerPage extends StatefulWidget {
   const WindowDoorDesignerPage({super.key});
@@ -29,1886 +28,1016 @@ class WindowDoorDesignerPage extends StatefulWidget {
   State<WindowDoorDesignerPage> createState() => _WindowDoorDesignerPageState();
 }
 
-/// Opening modes (expanded vs. your original)
-enum PanelType {
-  fixed,
-  casementLeft,      // side-hung, hinges on left (view-from-inside)
-  casementRight,     // hinges on right
-  tiltTop,           // tilts inward at top (horizontal axis)
-  tiltBottom,        // tilts inward at bottom
-  tiltSideLeft,      // side-tilt: pivots around left vertical edge (rare, included for parity)
-  tiltSideRight,     // side-tilt: pivots around right vertical edge
-  tiltTurnLeft,      // tilt & turn (left-hinged turn)
-  tiltTurnRight,     // tilt & turn (right-hinged turn)
-  slidingLeft,       // slides left
-  slidingRight,      // slides right
-}
-
-/// Visual theme used to render the aluminium/PVC profile.
-enum FrameFinish {
-  white,
-  lightGrey,
-  anthracite,
-}
-
 class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
-  // Logical dimensions (mm) of the whole frame
-  double widthMm = 1200;
-  double heightMm = 1400;
+  final GlobalKey _exportKey = GlobalKey();
 
-  // Frame and mullion thickness (mm)
-  double frameThicknessMm = 70;
-  double mullionThicknessMm = 60;
+  // Model
+  late DesignModel model;
 
-  // Visual scale: mm -> pixels (user controlled)
-  double zoom = 0.35;
+  // Interaction
+  Selection? selection;
+  DragState? drag;
 
-  // Grid model (fractions 0..1 inside inner frame area)
-  final List<double> verticalSplits = [];
-  final List<double> horizontalSplits = [];
-
-  // Per-cell opening
-  final Map<CellIndex, PanelType> panelByCell = {};
-
-  // Selection
-  CellIndex? selectedCell;
-  _DragState? drag; // current divider drag
-
-  // Rulers & snapping
-  final double snapMm = 5; // snap to 5 mm
-  final double minCellSizeMm = 200;
-
-  // UI toggles
-  bool showRulers = true;
-  bool showSizes = true;
-  bool viewFromOutside = false; // NEW: swap L/R symbols like WinStudio outside drawings
-  bool showHandles = true;      // NEW: show small handle dots
-  FrameFinish frameFinish = FrameFinish.white;
-
-  // Canvas key for export
-  final GlobalKey _repaintKey = GlobalKey();
-
-  // ---------- Helpers: compute layout ----------
-  int get cols => verticalSplits.length + 1;
-  int get rows => horizontalSplits.length + 1;
-
-  List<double> _sorted(List<double> xs) => xs.toList()..sort();
-
-  // Fractions incl. 0 & 1
-  List<double> get _xFractions => [0.0, ..._sorted(verticalSplits), 1.0];
-  List<double> get _yFractions => [0.0, ..._sorted(horizontalSplits), 1.0];
-
-  // Convert mm to pixels
-  double mm2px(double mm) => mm * zoom;
-
-  // Total outer size in px for painter
-  Size get canvasLogicalSizePx => Size(mm2px(widthMm), mm2px(heightMm));
-
-  // ---------- Divider dragging ----------
-  static const double _hitTolerancePx = 16;
-
-  _HitTestResult _hitTest(Offset localPosPx) {
-    final sizePx = canvasLogicalSizePx;
-    final inner = _innerRectPx(sizePx);
-
-    if (!inner.inflate(_hitTolerancePx).contains(localPosPx)) {
-      return const _HitTestResult.none();
-    }
-
-    // vertical dividers
-    final xs = _xFractions;
-    for (var i = 1; i < xs.length - 1; i++) {
-      final x = inner.left + xs[i] * inner.width;
-      if ((localPosPx.dx - x).abs() <= _hitTolerancePx &&
-          localPosPx.dy >= inner.top - _hitTolerancePx &&
-          localPosPx.dy <= inner.bottom + _hitTolerancePx) {
-        return _HitTestResult.vertical(index: i - 1);
-      }
-    }
-
-    // horizontal dividers
-    final ys = _yFractions;
-    for (var j = 1; j < ys.length - 1; j++) {
-      final y = inner.top + ys[j] * inner.height;
-      if ((localPosPx.dy - y).abs() <= _hitTolerancePx &&
-          localPosPx.dx >= inner.left - _hitTolerancePx &&
-          localPosPx.dx <= inner.right + _hitTolerancePx) {
-        return _HitTestResult.horizontal(index: j - 1);
-      }
-    }
-
-    // cell
-    final cell = _locateCell(localPosPx, inner);
-    if (cell != null) return _HitTestResult.cell(cell);
-    return const _HitTestResult.none();
-  }
-
-  CellIndex? _locateCell(Offset p, Rect inner) {
-    final xs = _xFractions;
-    final ys = _yFractions;
-    if (!inner.contains(p)) return null;
-
-    final fx = (p.dx - inner.left) / inner.width;
-    final fy = (p.dy - inner.top) / inner.height;
-
-    int col = 0, row = 0;
-    for (var i = 0; i < xs.length - 1; i++) {
-      if (fx >= xs[i] && fx <= xs[i + 1]) {
-        col = i;
-        break;
-      }
-    }
-    for (var j = 0; j < ys.length - 1; j++) {
-      if (fy >= ys[j] && fy <= ys[j + 1]) {
-        row = j;
-        break;
-      }
-    }
-    return CellIndex(row: row, col: col);
-  }
-
-  Rect _innerRectPx(Size sizePx) {
-    final t = mm2px(frameThicknessMm);
-    return Rect.fromLTWH(t, t, sizePx.width - 2 * t, sizePx.height - 2 * t);
-  }
-
-  // Enforce min cell sizes when moving a split
-  void _updateSplit({
-    required bool isVertical,
-    required int index,
-    required double newFraction,
-  }) {
-    final innerSizeMm = Size(
-      widthMm - 2 * frameThicknessMm,
-      heightMm - 2 * frameThicknessMm,
+  @override
+  void initState() {
+    super.initState();
+    model = DesignModel(
+      widthMm: 1200,
+      heightMm: 1400,
+      minCellSizeMm: 250,
     );
-
-    final fracs = isVertical ? _xFractions : _yFractions;
-    final list = isVertical ? verticalSplits : horizontalSplits;
-
-    final leftFrac = fracs[index];
-    final rightFrac = fracs[index + 2];
-
-    final minFracGap = (minCellSizeMm /
-        (isVertical ? innerSizeMm.width : innerSizeMm.height))
-        .clamp(0.0, 0.45);
-
-    final minAllowed = leftFrac + minFracGap;
-    final maxAllowed = rightFrac - minFracGap;
-
-    final clamped = newFraction.clamp(minAllowed, maxAllowed);
-
-    // snap to snapMm grid in mm space
-    final totalMm = isVertical ? innerSizeMm.width : innerSizeMm.height;
-    final snappedMm = (clamped * totalMm / snapMm).round() * snapMm;
-    final snappedFrac = (snappedMm / totalMm).clamp(minAllowed, maxAllowed);
-
-    setState(() {
-      list[index] = snappedFrac.toDouble();
-    });
   }
 
-  // ---------- Export ----------
   Future<void> _exportPng() async {
-    try {
-      final boundary =
-      _repaintKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
-      if (boundary == null) return;
+    final boundary = _exportKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+    if (boundary == null) return;
+    final ui.Image image = await boundary.toImage(pixelRatio: 3.0);
+    final ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+    if (byteData == null) return;
+    final bytes = byteData.buffer.asUint8List();
 
-      final ui.Image image = await boundary.toImage(pixelRatio: 3.0);
-      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-      if (byteData == null) return;
-      final bytes = byteData.buffer.asUint8List();
-
-      // Optional: write a quick copy for manual testing
-      try {
-        final dir = await getTemporaryDirectory();
-        final file = File(
-            '${dir.path}/window_door_design_${DateTime.now().millisecondsSinceEpoch}.png');
-        await file.writeAsBytes(bytes, flush: true);
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'PNG exported (${bytes.lengthInBytes ~/ 1024} KB). Temp file: ${file.path}',
-            ),
-          ),
-        );
-      } catch (_) {}
-
-      if (mounted) {
-        Navigator.of(context).pop<Uint8List>(bytes);
-      }
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Export failed: $e')),
-      );
-    }
+    // In a real app you might save/share. Here we show a preview dialog.
+    if (!mounted) return;
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        child: InteractiveViewer(
+          maxScale: 5,
+          child: Image.memory(bytes),
+        ),
+      ),
+    );
   }
 
-  // ---------- UI actions ----------
-  void _addVertical() {
-    setState(() {
-      final xs = _xFractions;
-      int gapIndex = 0;
-      double best = -1;
-      for (var i = 0; i < xs.length - 1; i++) {
-        final gap = xs[i + 1] - xs[i];
-        if (gap > best) {
-          best = gap;
-          gapIndex = i;
-        }
-      }
-      final mid = xs[gapIndex] + best / 2;
-      verticalSplits.add(mid);
-    });
-  }
-
-  void _addHorizontal() {
-    setState(() {
-      final ys = _yFractions;
-      int gapIndex = 0;
-      double best = -1;
-      for (var i = 0; i < ys.length - 1; i++) {
-        final gap = ys[i + 1] - ys[i];
-        if (gap > best) {
-          best = gap;
-          gapIndex = i;
-        }
-      }
-      final mid = ys[gapIndex] + best / 2;
-      horizontalSplits.add(mid);
-    });
-  }
-
-  void _removeNearestDivider({required bool vertical}) {
-    setState(() {
-      if (vertical) {
-        if (verticalSplits.isEmpty) return;
-        final toRemove = verticalSplits
-            .reduce((a, b) => (a - 0.5).abs() < (b - 0.5).abs() ? a : b);
-        verticalSplits.remove(toRemove);
-      } else {
-        if (horizontalSplits.isEmpty) return;
-        final toRemove = horizontalSplits
-            .reduce((a, b) => (a - 0.5).abs() < (b - 0.5).abs() ? a : b);
-        horizontalSplits.remove(toRemove);
-      }
-    });
-  }
-
-  void _resetLayout() {
-    setState(() {
-      verticalSplits.clear();
-      horizontalSplits.clear();
-      panelByCell.clear();
-      selectedCell = null;
-    });
-  }
-
-  void _setPanelType(PanelType t) {
-    final c = selectedCell;
-    if (c == null) return;
-    setState(() => panelByCell[c] = t);
-  }
-
-  // ---------- Interaction handlers ----------
-  void _onTapDown(TapDownDetails d, Size painterSize) {
-    final local = _globalToLocal(d.localPosition, painterSize);
-    final hit = _hitTest(local);
-    if (hit.kind == _HitKind.cell) {
-      setState(() => selectedCell = hit.cell);
-    }
-  }
-
-  void _onPanStart(DragStartDetails d, Size painterSize) {
-    final local = _globalToLocal(d.localPosition, painterSize);
-    final hit = _hitTest(local);
-    if (hit.kind == _HitKind.vDivider || hit.kind == _HitKind.hDivider) {
+  void _setOpeningType(OpeningType type) {
+    final sel = selection;
+    if (sel is CellSelection) {
       setState(() {
-        drag = _DragState(
-          isVertical: hit.kind == _HitKind.vDivider,
-          index: hit.index!,
-          startLocalPx: local,
-          startFraction: hit.kind == _HitKind.vDivider
-              ? _xFractions[hit.index! + 1]
-              : _yFractions[hit.index! + 1],
-        );
+        model.setCellType(sel.cell, type);
       });
-    } else if (hit.kind == _HitKind.cell) {
-      setState(() => selectedCell = hit.cell);
     }
   }
 
-  void _onPanUpdate(DragUpdateDetails d, Size painterSize) {
-    final state = drag;
-    if (state == null) return;
-    final inner = _innerRectPx(canvasLogicalSizePx);
-    final local = _globalToLocal(d.localPosition, painterSize);
-
-    if (state.isVertical) {
-      final frac = ((local.dx - inner.left) / inner.width).clamp(0.0, 1.0);
-      _updateSplit(isVertical: true, index: state.index, newFraction: frac);
-    } else {
-      final frac = ((local.dy - inner.top) / inner.height).clamp(0.0, 1.0);
-      _updateSplit(isVertical: false, index: state.index, newFraction: frac);
+  void _deleteSelectedDivider() {
+    final sel = selection;
+    if (sel is DividerSelection) {
+      setState(() {
+        if (sel.axis == Axis.vertical) {
+          model.tryRemoveVertical(sel.index);
+        } else {
+          model.tryRemoveHorizontal(sel.index);
+        }
+        selection = null;
+      });
     }
   }
 
-  void _onPanEnd(DragEndDetails d) {
-    setState(() => drag = null);
+  void _addDivider(Axis axis) {
+    setState(() {
+      // Add at center, or if a cell is selected, through that cell center.
+      double posMm;
+      if (selection is CellSelection) {
+        final cell = (selection as CellSelection).cell;
+        final rect = model.cellRectMm(cell);
+        posMm = axis == Axis.vertical ? (rect.left + rect.right) / 2 : (rect.top + rect.bottom) / 2;
+      } else {
+        posMm = axis == Axis.vertical ? model.widthMm / 2 : model.heightMm / 2;
+      }
+      model.tryAddDivider(axis, posMm);
+    });
   }
 
-  Offset _globalToLocal(Offset localFromGesture, Size painterSize) {
-    final logical = canvasLogicalSizePx;
-    final scale = _fitScale(painterSize, logical);
-    final letter = _letterbox(painterSize, logical * scale);
-    final offset = (localFromGesture - letter.topLeft) / scale;
-    return offset;
+  void _toggleOutsideView() {
+    setState(() => model.outsideView = !model.outsideView);
   }
 
-  double _fitScale(Size into, Size content) {
-    if (content.width <= 0 || content.height <= 0) return 1;
-    final sx = into.width / content.width;
-    final sy = into.height / content.height;
-    return math.min(sx, sy).clamp(0.0001, 1000.0);
-  }
-
-  Rect _letterbox(Size outer, Size content) {
-    final dx = (outer.width - content.width) / 2;
-    final dy = (outer.height - content.height) / 2;
-    return Rect.fromLTWH(dx, dy, content.width, content.height);
-  }
-
-  // ---------- Build ----------
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final sel = selection;
+    final isDividerSelected = sel is DividerSelection;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Window/Door Designer'),
         actions: [
-          IconButton(
-            tooltip: 'Reset',
-            onPressed: _resetLayout,
-            icon: const Icon(Icons.replay),
+          Tooltip(
+            message: 'Outside View',
+            child: IconButton(
+              isSelected: model.outsideView,
+              onPressed: _toggleOutsideView,
+              icon: const Icon(Icons.swap_horiz),
+            ),
           ),
-          IconButton(
-            tooltip: 'Export PNG',
-            onPressed: _exportPng,
-            icon: const Icon(Icons.download),
+          const SizedBox(width: 8),
+          Tooltip(
+            message: 'Export PNG',
+            child: IconButton(
+              onPressed: _exportPng,
+              icon: const Icon(Icons.image_outlined),
+            ),
           ),
+          const SizedBox(width: 8),
         ],
       ),
       body: Column(
         children: [
-          _TopControls(
-            widthMm: widthMm,
-            heightMm: heightMm,
-            frameThicknessMm: frameThicknessMm,
-            mullionThicknessMm: mullionThicknessMm,
-            showRulers: showRulers,
-            showSizes: showSizes,
-            viewFromOutside: viewFromOutside, // NEW
-            showHandles: showHandles,         // NEW
-            frameFinish: frameFinish,
-            zoom: zoom,
-            onChanged: (w, h, f, m, r, s, outside, handles, finish, z) {
-              setState(() {
-                widthMm = w;
-                heightMm = h;
-                frameThicknessMm = f;
-                mullionThicknessMm = m;
-                showRulers = r;
-                showSizes = s;
-                viewFromOutside = outside;
-                showHandles = handles;
-                frameFinish = finish;
-                zoom = z;
-              });
-            },
+          _Toolbar(
+            onAddVertical: () => _addDivider(Axis.vertical),
+            onAddHorizontal: () => _addDivider(Axis.horizontal),
+            onDeleteDivider: isDividerSelected ? _deleteSelectedDivider : null,
+            currentType: (sel is CellSelection)
+                ? model.getCellType(sel.cell)
+                : null,
+            onSetType: _setOpeningType,
           ),
+          const Divider(height: 1),
           Expanded(
             child: LayoutBuilder(
               builder: (context, constraints) {
-                final painterSize =
-                Size(constraints.maxWidth, constraints.maxHeight);
+                // padding around drawing area
+                const pad = 32.0;
+                final size = Size(
+                  constraints.maxWidth - pad * 2,
+                  constraints.maxHeight - pad * 2,
+                );
 
-                return GestureDetector(
-                  onTapDown: (d) => _onTapDown(d, painterSize),
-                  onPanStart: (d) => _onPanStart(d, painterSize),
-                  onPanUpdate: (d) => _onPanUpdate(d, painterSize),
-                  onPanEnd: _onPanEnd,
+                return Padding(
+                  padding: const EdgeInsets.all(pad),
                   child: RepaintBoundary(
-                    key: _repaintKey,
-                    child: CustomPaint(
-                      painter: _DesignerPainter(
-                        widthMm: widthMm,
-                        heightMm: heightMm,
-                        frameThicknessMm: frameThicknessMm,
-                        mullionThicknessMm: mullionThicknessMm,
-                        zoom: zoom,
-                        verticalSplits: verticalSplits,
-                        horizontalSplits: horizontalSplits,
-                        panelByCell: panelByCell,
-                        showRulers: showRulers,
-                        showSizes: showSizes,
-                        selectedCell: selectedCell,
-                        viewFromOutside: viewFromOutside, // NEW
-                        showHandles: showHandles,         // NEW
-                        frameFinish: frameFinish,
+                    key: _exportKey,
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTapUp: (d) {
+                        final hit = model.hitTest(
+                          localPosPx: d.localPosition,
+                          viewportSizePx: size,
+                        );
+                        setState(() {
+                          selection = hit;
+                        });
+                      },
+                      onLongPressStart: (d) {
+                        // Prefer divider selection on long press if near.
+                        final hit = model.hitTest(
+                          localPosPx: d.localPosition,
+                          viewportSizePx: size,
+                          preferDivider: true,
+                        );
+                        setState(() => selection = hit);
+                      },
+                      onPanStart: (d) {
+                        final hit = model.hitTest(
+                          localPosPx: d.localPosition,
+                          viewportSizePx: size,
+                          preferDivider: true,
+                        );
+                        if (hit is DividerSelection) {
+                          final mm = model.pxToMm(d.localPosition, size);
+                          setState(() {
+                            drag = DragState(
+                              axis: hit.axis,
+                              index: hit.index,
+                              startMm: hit.axis == Axis.vertical ? model.vDividersMm[hit.index] : model.hDividersMm[hit.index],
+                              pointerStartMm: hit.axis == Axis.vertical ? mm.dx : mm.dy,
+                            );
+                            selection = hit;
+                          });
+                        }
+                      },
+                      onPanUpdate: (d) {
+                        final st = drag;
+                        if (st == null) return;
+                        final mm = model.pxToMm(d.localPosition, size);
+                        final delta = (st.axis == Axis.vertical ? mm.dx : mm.dy) - st.pointerStartMm;
+                        final target = (st.startMm + delta).clamp(
+                          st.axis == Axis.vertical ? 0.0 : 0.0,
+                          st.axis == Axis.vertical ? model.widthMm : model.heightMm,
+                        );
+                        setState(() {
+                          model.dragDivider(st.axis, st.index, target);
+                        });
+                      },
+                      onPanEnd: (_) {
+                        setState(() => drag = null);
+                      },
+                      child: CustomPaint(
+                        painter: DesignPainter(model: model, selection: selection),
+                        size: Size.infinite,
                       ),
-                      size: Size.infinite,
                     ),
                   ),
                 );
               },
             ),
           ),
-          _BottomToolbar(
-            onAddV: _addVertical,
-            onAddH: _addHorizontal,
-            onRemV: () => _removeNearestDivider(vertical: true),
-            onRemH: () => _removeNearestDivider(vertical: false),
-            selected: selectedCell,
-            currentType: selectedCell == null
-                ? null
-                : panelByCell[selectedCell!] ?? PanelType.fixed,
-            onPanelType: _setPanelType,
-          ),
-          const SizedBox(height: 8),
+          _BottomInfo(model: model),
         ],
       ),
+      floatingActionButton: _QuickTypeFab(
+        enabled: selection is CellSelection,
+        onPick: _setOpeningType,
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endContained,
+      backgroundColor: theme.colorScheme.surface,
     );
   }
 }
 
-// ---------- Small structs ----------
+// ====== Data Model ======
 
-class CellIndex {
-  final int row;
+enum OpeningType {
+  fixed,
+  casementLeft,
+  casementRight,
+  tilt,
+  tiltTurnLeft,
+  tiltTurnRight,
+  slidingLeft,
+  slidingRight,
+  doorInLeft,
+  doorInRight,
+  doorOutLeft,
+  doorOutRight,
+}
+
+@immutable
+class Cell {
   final int col;
-  const CellIndex({required this.row, required this.col});
+  final int row;
+  const Cell(this.col, this.row);
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-          other is CellIndex &&
-              runtimeType == other.runtimeType &&
-              row == other.row &&
-              col == other.col;
-
+  bool operator ==(Object other) => other is Cell && other.col == col && other.row == row;
   @override
-  int get hashCode => row.hashCode ^ col.hashCode;
-
-  @override
-  String toString() => 'Cell($row,$col)';
+  int get hashCode => Object.hash(col, row);
 }
 
-class _DragState {
-  final bool isVertical;
-  final int index;
-  final Offset startLocalPx;
-  final double startFraction;
-  _DragState({
-    required this.isVertical,
-    required this.index,
-    required this.startLocalPx,
-    required this.startFraction,
-  });
-}
+class DesignModel {
+  double widthMm;
+  double heightMm;
+  double minCellSizeMm;
+  bool outsideView;
 
-enum _HitKind { none, vDivider, hDivider, cell }
+  // Divider positions in millimeters, including edges:
+  // vertical: from 0 to widthMm; horizontal: from 0 to heightMm
+  final List<double> vDividersMm;
+  final List<double> hDividersMm;
 
-class _HitTestResult {
-  final _HitKind kind;
-  final int? index; // divider index
-  final CellIndex? cell;
+  // Cell types (defaults to fixed)
+  final Map<Cell, OpeningType> _cellTypes = {};
 
-  const _HitTestResult._(this.kind, this.index, this.cell);
+  // Visual params
+  final double frameThickMm = 70;
+  final double mullionThickMm = 60;
 
-  const _HitTestResult.none() : this._(_HitKind.none, null, null);
-  const _HitTestResult.vertical({required int index})
-      : this._(_HitKind.vDivider, index, null);
-  const _HitTestResult.horizontal({required int index})
-      : this._(_HitKind.hDivider, index, null);
-  const _HitTestResult.cell(CellIndex c) : this._(_HitKind.cell, null, c);
-}
+  // Hit test tolerances (pixels)
+  static const double _dividerHitTolPx = 12;
 
-// ---------- Painter ----------
-
-class _FramePalette {
-  final Color frameLight;
-  final Color frameDark;
-  final Color frameStroke;
-  final Color mullionLight;
-  final Color mullionDark;
-  final Color mullionStroke;
-  final Color glassLight;
-  final Color glassDark;
-  final Color glassHighlight;
-  final Color background;
-  final Color symbolStroke;
-  final Color selectionFill;
-
-  const _FramePalette({
-    required this.frameLight,
-    required this.frameDark,
-    required this.frameStroke,
-    required this.mullionLight,
-    required this.mullionDark,
-    required this.mullionStroke,
-    required this.glassLight,
-    required this.glassDark,
-    required this.glassHighlight,
-    required this.background,
-    required this.symbolStroke,
-    required this.selectionFill,
-  });
-
-  static _FramePalette resolve(FrameFinish finish) {
-    switch (finish) {
-      case FrameFinish.white:
-        return const _FramePalette(
-          frameLight: Color(0xFFFDFDFD),
-          frameDark: Color(0xFFE2E6EA),
-          frameStroke: Color(0xFF181B20),
-          mullionLight: Color(0xFFF7F8FB),
-          mullionDark: Color(0xFFD8DCE2),
-          mullionStroke: Color(0xFF181B20),
-          glassLight: Color(0xFFBEE3F7),
-          glassDark: Color(0xFF7AB9D8),
-          glassHighlight: Color(0x66FFFFFF),
-          background: Color(0xFFF3F5F9),
-          symbolStroke: Color(0xFF0D0F12),
-          selectionFill: Color(0x330079D6),
-        );
-      case FrameFinish.lightGrey:
-        return const _FramePalette(
-          frameLight: Color(0xFFE7E9ED),
-          frameDark: Color(0xFFC9CCD2),
-          frameStroke: Color(0xFF14171C),
-          mullionLight: Color(0xFFE1E3E7),
-          mullionDark: Color(0xFFB6BAC1),
-          mullionStroke: Color(0xFF14171C),
-          glassLight: Color(0xFFB9E0F5),
-          glassDark: Color(0xFF72AED1),
-          glassHighlight: Color(0x66FFFFFF),
-          background: Color(0xFFEEF1F4),
-          symbolStroke: Color(0xFF121417),
-          selectionFill: Color(0x332E9BFF),
-        );
-      case FrameFinish.anthracite:
-        return const _FramePalette(
-          frameLight: Color(0xFF5D6168),
-          frameDark: Color(0xFF373B41),
-          frameStroke: Color(0xFFEDEFF3),
-          mullionLight: Color(0xFF51555C),
-          mullionDark: Color(0xFF2A2E34),
-          mullionStroke: Color(0xFFEDEFF3),
-          glassLight: Color(0xFFA9D7F3),
-          glassDark: Color(0xFF5D9EC4),
-          glassHighlight: Color(0x66FFFFFF),
-          background: Color(0xFFE6EBF0),
-          symbolStroke: Color(0xFFEFF3F8),
-          selectionFill: Color(0x333F8CFF),
-        );
-    }
-  }
-}
-
-class _DesignerPainter extends CustomPainter {
-  final double widthMm;
-  final double heightMm;
-  final double frameThicknessMm;
-  final double mullionThicknessMm;
-  final double zoom;
-  final List<double> verticalSplits;
-  final List<double> horizontalSplits;
-  final Map<CellIndex, PanelType> panelByCell;
-  final bool showRulers;
-  final bool showSizes;
-  final CellIndex? selectedCell;
-  final bool viewFromOutside; // NEW
-  final bool showHandles;     // NEW
-  final FrameFinish frameFinish;
-
-  // Device pixel ratio-aware snapping helpers. These align drawing
-  // coordinates to the physical pixel grid to avoid blurry, off-center
-  // lines when using thin strokes.
-  static final double _dpr = ui.window.devicePixelRatio;
-  static double _snap(double v) => (v * _dpr).roundToDouble() / _dpr;
-  static Rect _snapRect(Rect r) =>
-      Rect.fromLTRB(_snap(r.left), _snap(r.top), _snap(r.right), _snap(r.bottom));
-
-  _DesignerPainter({
+  DesignModel({
     required this.widthMm,
     required this.heightMm,
-    required this.frameThicknessMm,
-    required this.mullionThicknessMm,
-    required this.zoom,
-    required this.verticalSplits,
-    required this.horizontalSplits,
-    required this.panelByCell,
-    required this.showRulers,
-    required this.showSizes,
-    required this.selectedCell,
-    required this.viewFromOutside,
-    required this.showHandles,
-    required this.frameFinish,
-  });
+    this.minCellSizeMm = 250,
+    this.outsideView = true,
+  })  : vDividersMm = [0, widthMm],
+        hDividersMm = [0, heightMm];
 
-  double mm2px(double mm) => mm * zoom;
+  // --- Utilities
 
-  @override
-  void paint(Canvas canvas, Size size) {
-    final contentSize = Size(mm2px(widthMm), mm2px(heightMm));
-    final fitScale = _fitScale(size, contentSize);
-    final scaled = contentSize * fitScale;
-    final letter = _letterbox(size, scaled);
-    final palette = _FramePalette.resolve(frameFinish);
+  double _scaleToPx(Size viewport) {
+    const padMm = 0; // geometry already padded externally
+    final sx = viewport.width / (widthMm + padMm);
+    final sy = viewport.height / (heightMm + padMm);
+    return math.min(sx, sy);
+  }
 
-    final canvasBg = Paint()..color = palette.background;
-    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), canvasBg);
+  Offset mmToPx(Offset mm, Size viewport) {
+    final s = _scaleToPx(viewport);
+    return Offset(mm.dx * s, mm.dy * s);
+  }
 
-    canvas.save();
-    canvas.translate(letter.left, letter.top);
-    canvas.scale(fitScale, fitScale);
+  Offset pxToMm(Offset px, Size viewport) {
+    final s = _scaleToPx(viewport);
+    return Offset(px.dx / s, px.dy / s);
+  }
 
-    final frameRect =
-        _snapRect(Rect.fromLTWH(0, 0, contentSize.width, contentSize.height));
-    final innerRect = _snapRect(frameRect.deflate(mm2px(frameThicknessMm)));
+  Rect _mmRectToPx(Rect r, Size viewport) {
+    final s = _scaleToPx(viewport);
+    return Rect.fromLTWH(r.left * s, r.top * s, r.width * s, r.height * s);
+  }
 
-    // background blueprint grid
-    _drawBlueprintGrid(canvas, Rect.fromLTWH(0, 0, contentSize.width, contentSize.height));
+  // --- Cells (computed from dividers)
 
-    // subtle shadow
-    final shadow = Paint()
-      ..color = Colors.black.withOpacity(0.08)
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8);
-    canvas.drawRect(frameRect.shift(const Offset(8, 8)), shadow);
+  int get cols => vDividersMm.length - 1;
+  int get rows => hDividersMm.length - 1;
 
-    // frame (outer)
-    final framePaint = Paint()
-      ..shader = LinearGradient(
-        colors: [palette.frameLight, palette.frameDark],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ).createShader(frameRect)
-      ..style = PaintingStyle.fill;
-    final frameStroke = Paint()
-      ..color = palette.frameStroke
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3;
-    canvas.drawRect(frameRect, framePaint);
-    canvas.drawRect(frameRect, frameStroke);
+  Rect cellRectMm(Cell c) {
+    final x0 = vDividersMm[c.col];
+    final x1 = vDividersMm[c.col + 1];
+    final y0 = hDividersMm[c.row];
+    final y1 = hDividersMm[c.row + 1];
+    return Rect.fromLTRB(x0, y0, x1, y1);
+  }
 
-    // glass area
-    final glassPaint = Paint()
-      ..shader = LinearGradient(
-        colors: [palette.glassLight, palette.glassDark],
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-      ).createShader(innerRect);
-    canvas.drawRect(innerRect, glassPaint);
-    final glassHighlight = Paint()
-      ..color = palette.glassHighlight
-      ..strokeWidth = 1
-      ..style = PaintingStyle.stroke;
-    canvas.save();
-    canvas.clipRect(innerRect.deflate(2));
-    canvas.drawLine(
-      Offset(_snap(innerRect.left + innerRect.width * 0.12), _snap(innerRect.top + 6)),
-      Offset(_snap(innerRect.left + innerRect.width * 0.38), _snap(innerRect.top + innerRect.height * 0.26)),
-      glassHighlight,
-    );
-    canvas.drawLine(
-      Offset(_snap(innerRect.right - innerRect.width * 0.28), _snap(innerRect.bottom - innerRect.height * 0.18)),
-      Offset(_snap(innerRect.right - innerRect.width * 0.08), _snap(innerRect.bottom - 6)),
-      glassHighlight,
-    );
-    canvas.restore();
+  OpeningType getCellType(Cell c) => _cellTypes[c] ?? OpeningType.fixed;
+  void setCellType(Cell c, OpeningType t) => _cellTypes[c] = t;
 
-    // Mullions (dividers)
-    final xsAll = [0.0, ...verticalSplits..sort(), 1.0];
-    final ysAll = [0.0, ...horizontalSplits..sort(), 1.0];
-
-    final mullionT = mm2px(mullionThicknessMm);
-    final mullionStrokePaint = Paint()
-      ..color = palette.mullionStroke
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.2;
-    for (var i = 1; i < xsAll.length - 1; i++) {
-      final x = _snap(innerRect.left + xsAll[i] * innerRect.width);
-      final r = _snapRect(Rect.fromCenter(
-          center: Offset(x, innerRect.center.dy),
-          width: mullionT,
-          height: innerRect.height));
-      final mullionPaint = Paint()
-        ..shader = LinearGradient(
-          colors: [palette.mullionLight, palette.mullionDark],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ).createShader(r);
-      canvas.drawRect(r, mullionPaint);
-      canvas.drawRect(r, mullionStrokePaint);
-    }
-    for (var j = 1; j < ysAll.length - 1; j++) {
-      final y = _snap(innerRect.top + ysAll[j] * innerRect.height);
-      final r = _snapRect(Rect.fromCenter(
-          center: Offset(innerRect.center.dx, y),
-          width: innerRect.width,
-          height: mullionT));
-      final mullionPaint = Paint()
-        ..shader = LinearGradient(
-          colors: [palette.mullionLight, palette.mullionDark],
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-        ).createShader(r);
-      canvas.drawRect(r, mullionPaint);
-      canvas.drawRect(r, mullionStrokePaint);
-    }
-
-    // Cells
-    final cellStroke = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.4
-      ..isAntiAlias = false
-      ..color = palette.symbolStroke
-          .withOpacity(frameFinish == FrameFinish.anthracite ? 0.52 : 0.38);
-
-    for (var r = 0; r < ysAll.length - 1; r++) {
-      for (var c = 0; c < xsAll.length - 1; c++) {
-        final rect = _snapRect(Rect.fromLTRB(
-          innerRect.left + xsAll[c] * innerRect.width + (c > 0 ? mullionT / 2 : 0),
-          innerRect.top + ysAll[r] * innerRect.height + (r > 0 ? mullionT / 2 : 0),
-          innerRect.left + xsAll[c + 1] * innerRect.width -
-              (c < xsAll.length - 2 ? mullionT / 2 : 0),
-          innerRect.top + ysAll[r + 1] * innerRect.height -
-              (r < ysAll.length - 2 ? mullionT / 2 : 0),
-        ));
-
-        // Highlight selected cell
-        if (selectedCell?.row == r && selectedCell?.col == c) {
-          final hl = Paint()..color = palette.selectionFill;
-          canvas.drawRect(rect.deflate(2), hl);
-        }
-
-        canvas.drawRect(rect, cellStroke);
-
-        // Panel symbol
-        final type = panelByCell[CellIndex(row: r, col: c)] ?? PanelType.fixed;
-        final effType = _effectiveType(type, viewFromOutside);
-        _drawPanelSymbol(canvas, rect, effType, palette);
-
-        // Handle dots
-        if (showHandles) {
-          _drawHandleDot(canvas, rect, effType, palette);
-        }
-
-        // Size labels
-        if (showSizes) {
-          final w = (rect.width / zoom).round();
-          final h = (rect.height / zoom).round();
-          final tp = TextPainter(
-            text: TextSpan(
-              text: '${w} x $h',
-              style: const TextStyle(
-                fontSize: 11,
-                color: Color(0xFF304255),
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            textDirection: TextDirection.ltr,
-          )..layout();
-
-          final hasRoom = rect.width > tp.width + 20 && rect.height > 28;
-          if (hasRoom) {
-            final labelWidth = math.min(rect.width - 12, tp.width + 24);
-            final labelRect = Rect.fromCenter(
-              center: rect.center,
-              width: labelWidth,
-              height: 20,
-            );
-            final labelPaint = Paint()
-              ..color = Colors.white.withOpacity(0.75);
-            canvas.drawRRect(
-              RRect.fromRectAndRadius(labelRect, const Radius.circular(6)),
-              labelPaint,
-            );
-            tp.paint(
-              canvas,
-              Offset(rect.center.dx - tp.width / 2, rect.center.dy - tp.height / 2),
-            );
-          } else {
-            tp.paint(
-              canvas,
-              Offset(rect.center.dx - tp.width / 2, rect.center.dy - tp.height / 2),
-            );
-          }
-        }
+  Iterable<Cell> allCells() sync* {
+    for (var r = 0; r < rows; r++) {
+      for (var c = 0; c < cols; c++) {
+        yield Cell(c, r);
       }
     }
-
-    // Rulers
-    if (showRulers) {
-      _drawRulers(canvas, frameRect, innerRect);
-    }
-
-    canvas.restore();
   }
 
-  PanelType _effectiveType(PanelType t, bool outside) {
-    if (!outside) return t;
-    switch (t) {
-      case PanelType.casementLeft:
-        return PanelType.casementRight;
-      case PanelType.casementRight:
-        return PanelType.casementLeft;
-      case PanelType.tiltTurnLeft:
-        return PanelType.tiltTurnRight;
-      case PanelType.tiltTurnRight:
-        return PanelType.tiltTurnLeft;
-      case PanelType.slidingLeft:
-        return PanelType.slidingRight;
-      case PanelType.slidingRight:
-        return PanelType.slidingLeft;
-      case PanelType.tiltSideLeft:
-        return PanelType.tiltSideRight;
-      case PanelType.tiltSideRight:
-        return PanelType.tiltSideLeft;
-      default:
-        return t;
+  // --- Divider operations
+
+  bool tryAddDivider(Axis axis, double posMm) {
+    final list = axis == Axis.vertical ? vDividersMm : hDividersMm;
+    // Do not add if too close to an existing divider
+    const minGap = 8.0; // mm small safety to avoid duplicates
+    for (final v in list) {
+      if ((v - posMm).abs() < minGap) return false;
     }
+    list.add(posMm.clamp(0, axis == Axis.vertical ? widthMm : heightMm));
+    list.sort();
+    // Enforce min cell size after add; if violates, revert
+    if (!_validateMinCellSizes(axis)) {
+      list.remove(posMm);
+      return false;
+    }
+    // Remap cell types not required (grid indices shift naturally)
+    return true;
   }
 
-  void _drawBlueprintGrid(Canvas canvas, Rect frameBounds) {
-    final margin = mm2px(300);
-    final bgRect = Rect.fromLTWH(
-      frameBounds.left - margin,
-      frameBounds.top - margin,
-      frameBounds.width + margin * 2,
-      frameBounds.height + margin * 2,
-    );
-    final bgPaint = Paint()..color = const Color(0xFFF5F7FA);
-    canvas.drawRect(bgRect, bgPaint);
-
-    final minorSpacing = (mm2px(50)).clamp(8.0, 80.0).toDouble();
-    final majorSpacing = mm2px(200);
-    final majorEvery = math.max(1, (majorSpacing / minorSpacing).round());
-
-    final minorPaint = Paint()
-      ..color = const Color(0xFFCBD6E0).withOpacity(0.35)
-      ..strokeWidth = 1;
-    final majorPaint = Paint()
-      ..color = const Color(0xFF9EACB9).withOpacity(0.55)
-      ..strokeWidth = 1.2;
-
-    // vertical lines
-    int column = 0;
-    for (double x = bgRect.left; x <= bgRect.right + 1; x += minorSpacing) {
-      final paint = column % majorEvery == 0 ? majorPaint : minorPaint;
-      canvas.drawLine(
-        Offset(_snap(x), _snap(bgRect.top)),
-        Offset(_snap(x), _snap(bgRect.bottom)),
-        paint,
-      );
-      column++;
-    }
-
-    // horizontal lines
-    int row = 0;
-    for (double y = bgRect.top; y <= bgRect.bottom + 1; y += minorSpacing) {
-      final paint = row % majorEvery == 0 ? majorPaint : minorPaint;
-      canvas.drawLine(
-        Offset(_snap(bgRect.left), _snap(y)),
-        Offset(_snap(bgRect.right), _snap(y)),
-        paint,
-      );
-      row++;
-    }
+  bool tryRemoveVertical(int index) {
+    if (index == 0 || index == vDividersMm.length - 1) return false; // keep edges
+    final removed = vDividersMm.removeAt(index);
+    // After remove, min sizes are guaranteed (merging cells makes larger).
+    // Clean up types for cells that no longer exist is optional; we leave map benignly.
+    return removed != null;
   }
 
-
-
-  void _drawPanelSymbol(
-      Canvas canvas, Rect rect, PanelType type, _FramePalette palette) {
-    final strokeWidth = math.max(1.6, math.min(rect.shortestSide * 0.045, 3.6));
-    final stroke = Paint()
-      ..color = palette.symbolStroke
-      ..strokeWidth = strokeWidth
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round
-      ..isAntiAlias = false;
-
-    Offset snapOffset(Offset p) => Offset(_snap(p.dx), _snap(p.dy));
-
-    var inset = math.min(rect.width, rect.height) * 0.08;
-    inset = inset.clamp(6.0, 18.0);
-
-    final topLeft = snapOffset(Offset(rect.left + inset, rect.top + inset));
-    final topRight = snapOffset(Offset(rect.right - inset, rect.top + inset));
-    final bottomLeft = snapOffset(Offset(rect.left + inset, rect.bottom - inset));
-    final bottomRight = snapOffset(Offset(rect.right - inset, rect.bottom - inset));
-    final midLeft = snapOffset(Offset(rect.left + inset, rect.center.dy));
-    final midRight = snapOffset(Offset(rect.right - inset, rect.center.dy));
-    final midTop = snapOffset(Offset(rect.center.dx, rect.top + inset));
-    final midBottom = snapOffset(Offset(rect.center.dx, rect.bottom - inset));
-
-    void line(Offset a, Offset b) => canvas.drawLine(a, b, stroke);
-    void cross() {
-      line(topLeft, bottomRight);
-      line(topRight, bottomLeft);
-    }
-
-    void drawFixedMark() {
-      if (rect.width < 40 || rect.height < 40) return;
-      final tp = TextPainter(
-        text: TextSpan(
-          text: 'F',
-          style: TextStyle(
-            color: palette.symbolStroke.withOpacity(
-                frameFinish == FrameFinish.anthracite ? 0.85 : 0.8),
-            fontWeight: FontWeight.w700,
-            fontSize: math.min(rect.width, rect.height) * 0.5,
-          ),
-        ),
-        textDirection: TextDirection.ltr,
-      )..layout();
-      final offset = Offset(
-        rect.center.dx - tp.width / 2,
-        rect.center.dy - tp.height / 2,
-      );
-      tp.paint(canvas, offset);
-    }
-
-    void drawSliding(bool toRight) {
-      final railPaint = Paint()
-        ..color = palette.symbolStroke.withOpacity(0.82)
-        ..strokeWidth = strokeWidth * 0.8
-        ..style = PaintingStyle.stroke
-        ..isAntiAlias = false;
-      final x1 = _snap(rect.left + rect.width * 0.32);
-      final x2 = _snap(rect.left + rect.width * 0.68);
-      canvas.drawLine(
-        Offset(x1, _snap(rect.top + inset * 0.6)),
-        Offset(x1, _snap(rect.bottom - inset * 0.6)),
-        railPaint,
-      );
-      canvas.drawLine(
-        Offset(x2, _snap(rect.top + inset * 0.6)),
-        Offset(x2, _snap(rect.bottom - inset * 0.6)),
-        railPaint,
-      );
-
-      final start = snapOffset(Offset(rect.left + inset * 0.6, rect.center.dy));
-      final end = snapOffset(Offset(rect.right - inset * 0.6, rect.center.dy));
-      final tip = toRight ? end : start;
-      canvas.drawLine(toRight ? start : end, toRight ? end : start, stroke);
-      final baseAngle = toRight ? 0.0 : math.pi;
-      final arrowLen = math.max(8.0, strokeWidth * 2.8);
-      final wing1 = snapOffset(Offset(
-        tip.dx + arrowLen * math.cos(baseAngle + math.pi / 6),
-        tip.dy + arrowLen * math.sin(baseAngle + math.pi / 6),
-      ));
-      final wing2 = snapOffset(Offset(
-        tip.dx + arrowLen * math.cos(baseAngle - math.pi / 6),
-        tip.dy + arrowLen * math.sin(baseAngle - math.pi / 6),
-      ));
-      canvas.drawLine(tip, wing1, stroke);
-      canvas.drawLine(tip, wing2, stroke);
-    }
-
-    switch (type) {
-      case PanelType.fixed:
-        drawFixedMark();
-        break;
-
-      case PanelType.casementLeft:
-        cross();
-        line(topRight, midLeft);
-        line(bottomRight, midLeft);
-        break;
-
-      case PanelType.casementRight:
-        cross();
-        line(topLeft, midRight);
-        line(bottomLeft, midRight);
-        break;
-
-      case PanelType.tiltTop:
-        line(midBottom, topLeft);
-        line(midBottom, topRight);
-        break;
-
-      case PanelType.tiltBottom:
-        line(midTop, bottomLeft);
-        line(midTop, bottomRight);
-        break;
-
-      case PanelType.tiltSideLeft:
-        line(midRight, topLeft);
-        line(midRight, bottomLeft);
-        break;
-
-      case PanelType.tiltSideRight:
-        line(midLeft, topRight);
-        line(midLeft, bottomRight);
-        break;
-
-      case PanelType.tiltTurnLeft:
-        cross();
-        line(topRight, midLeft);
-        line(bottomRight, midLeft);
-        line(midBottom, topLeft);
-        line(midBottom, topRight);
-        break;
-
-      case PanelType.tiltTurnRight:
-        cross();
-        line(topLeft, midRight);
-        line(bottomLeft, midRight);
-        line(midBottom, topLeft);
-        line(midBottom, topRight);
-        break;
-
-      case PanelType.slidingLeft:
-        drawSliding(false);
-        break;
-
-      case PanelType.slidingRight:
-        drawSliding(true);
-        break;
-    }
+  bool tryRemoveHorizontal(int index) {
+    if (index == 0 || index == hDividersMm.length - 1) return false;
+    final removed = hDividersMm.removeAt(index);
+    return removed != null;
   }
 
-  void _drawHandleDot(
-      Canvas canvas, Rect rect, PanelType type, _FramePalette palette) {
-    if (type == PanelType.fixed) return;
-    // Place a small dot roughly where the handle would be for the given opening.
-    // This matches WinStudio’s little circle marker.
-    late Offset p;
-    const r = 3.0;
-    switch (type) {
-      case PanelType.casementLeft:
-      case PanelType.tiltTurnLeft:
-        p = Offset(_snap(rect.right - 12), _snap(rect.center.dy));
-        break;
-      case PanelType.casementRight:
-      case PanelType.tiltTurnRight:
-        p = Offset(_snap(rect.left + 12), _snap(rect.center.dy));
-        break;
-      case PanelType.tiltTop:
-        p = Offset(_snap(rect.center.dx), _snap(rect.bottom - 12));
-        break;
-      case PanelType.tiltBottom:
-        p = Offset(_snap(rect.center.dx), _snap(rect.top + 12));
-        break;
-      case PanelType.tiltSideLeft:
-        p = Offset(_snap(rect.right - 12), _snap(rect.center.dy));
-        break;
-      case PanelType.tiltSideRight:
-        p = Offset(_snap(rect.left + 12), _snap(rect.center.dy));
-        break;
-      case PanelType.slidingLeft:
-        p = Offset(
-            _snap(rect.left + (rect.width * 0.35)), _snap(rect.center.dy));
-        break;
-      case PanelType.slidingRight:
-        p = Offset(
-            _snap(rect.left + (rect.width * 0.65)), _snap(rect.center.dy));
-        break;
-      case PanelType.fixed:
-        // unreachable because of early return
-        return;
-    }
-    final paint = Paint()
-      ..color = palette.symbolStroke.withOpacity(
-          frameFinish == FrameFinish.anthracite ? 0.8 : 0.55)
-      ..isAntiAlias = false;
-    canvas.drawCircle(p, r, paint);
+  void dragDivider(Axis axis, int index, double newPosMm) {
+    final list = axis == Axis.vertical ? vDividersMm : hDividersMm;
+    if (index == 0 || index == list.length - 1) return; // edges fixed
+    // Clamp between neighbors considering minCellSize
+    final prev = list[index - 1];
+    final next = list[index + 1];
+    final low = prev + minCellSizeMm;
+    final high = next - minCellSizeMm;
+    list[index] = newPosMm.clamp(low, high);
   }
 
-  void _drawRulers(Canvas canvas, Rect outer, Rect inner) {
-    final textStyle = const TextStyle(
-      fontSize: 11,
-      fontWeight: FontWeight.w600,
-      color: Color(0xFF22313F),
-    );
-    final extensionPaint = Paint()
-      ..color = const Color(0xFF6C7A89)
-      ..strokeWidth = 1
-      ..isAntiAlias = false;
-
-    void drawLineWithArrows(Offset start, Offset end) {
-      canvas.drawLine(start, end, extensionPaint);
-      final angle = math.atan2(end.dy - start.dy, end.dx - start.dx);
-
-      void drawArrowHead(Offset tip, bool invert) {
-        final dir = invert ? angle + math.pi : angle;
-        const len = 6.0;
-        final wing1 = Offset(
-          tip.dx - len * math.cos(dir - math.pi / 6),
-          tip.dy - len * math.sin(dir - math.pi / 6),
-        );
-        final wing2 = Offset(
-          tip.dx - len * math.cos(dir + math.pi / 6),
-          tip.dy - len * math.sin(dir + math.pi / 6),
-        );
-        canvas.drawLine(tip, wing1, extensionPaint);
-        canvas.drawLine(tip, wing2, extensionPaint);
+  bool _validateMinCellSizes(Axis axis) {
+    if (axis == Axis.vertical) {
+      for (var i = 0; i < vDividersMm.length - 1; i++) {
+        if (vDividersMm[i + 1] - vDividersMm[i] < minCellSizeMm) return false;
       }
-
-      drawArrowHead(start, true);
-      drawArrowHead(end, false);
-    }
-
-    void drawDimensionHorizontal(double y, double left, double right, double ext) {
-      // extension lines
-      canvas.drawLine(
-        Offset(_snap(left), _snap(outer.top)),
-        Offset(_snap(left), _snap(outer.top - ext)),
-        extensionPaint,
-      );
-      canvas.drawLine(
-        Offset(_snap(right), _snap(outer.top)),
-        Offset(_snap(right), _snap(outer.top - ext)),
-        extensionPaint,
-      );
-
-      final start = Offset(_snap(left), _snap(y));
-      final end = Offset(_snap(right), _snap(y));
-      drawLineWithArrows(start, end);
-
-      final widthMm = (inner.width / zoom).round();
-      final tp = TextPainter(
-        text: TextSpan(text: '$widthMm mm', style: textStyle),
-        textDirection: TextDirection.ltr,
-      )..layout();
-      tp.paint(canvas, Offset((start.dx + end.dx) / 2 - tp.width / 2, y - tp.height - 2));
-    }
-
-    void drawDimensionVertical(double x, double top, double bottom, double ext) {
-      canvas.drawLine(
-        Offset(_snap(outer.left), _snap(top)),
-        Offset(_snap(outer.left - ext), _snap(top)),
-        extensionPaint,
-      );
-      canvas.drawLine(
-        Offset(_snap(outer.left), _snap(bottom)),
-        Offset(_snap(outer.left - ext), _snap(bottom)),
-        extensionPaint,
-      );
-
-      final start = Offset(_snap(x), _snap(top));
-      final end = Offset(_snap(x), _snap(bottom));
-      drawLineWithArrows(start, end);
-
-      final heightMm = (inner.height / zoom).round();
-      final tp = TextPainter(
-        text: TextSpan(text: '$heightMm mm', style: textStyle),
-        textDirection: TextDirection.ltr,
-      )..layout();
-      tp.paint(canvas, Offset(x - tp.width - 8, (start.dy + end.dy) / 2 - tp.height / 2));
-    }
-
-    const offset = 28.0;
-    drawDimensionHorizontal(outer.top - offset, outer.left, outer.right, offset - 4);
-    drawDimensionVertical(outer.left - offset, outer.top, outer.bottom, offset - 4);
-  }
-
-  double _fitScale(Size into, Size content) {
-    if (content.width <= 0 || content.height <= 0) return 1;
-    final sx = into.width / content.width;
-    final sy = into.height / content.height;
-    return math.min(sx, sy).clamp(0.0001, 1000.0);
-  }
-
-  Rect _letterbox(Size outer, Size content) {
-    final dx = (outer.width - content.width) / 2;
-    final dy = (outer.height - content.height) / 2;
-    return Rect.fromLTWH(dx, dy, content.width, content.height);
-  }
-
-  @override
-  bool shouldRepaint(covariant _DesignerPainter old) {
-    return widthMm != old.widthMm ||
-        heightMm != old.heightMm ||
-        frameThicknessMm != old.frameThicknessMm ||
-        mullionThicknessMm != old.mullionThicknessMm ||
-        zoom != old.zoom ||
-        selectedCell != old.selectedCell ||
-        showRulers != old.showRulers ||
-        showSizes != old.showSizes ||
-        viewFromOutside != old.viewFromOutside ||
-        showHandles != old.showHandles ||
-        frameFinish != old.frameFinish ||
-        verticalSplits != old.verticalSplits ||
-        horizontalSplits != old.horizontalSplits ||
-        !_mapEquals(panelByCell, old.panelByCell);
-  }
-
-  bool _mapEquals(Map a, Map b) {
-    if (a.length != b.length) return false;
-    for (final e in a.entries) {
-      if (!b.containsKey(e.key)) return false;
-      if (b[e.key] != e.value) return false;
+    } else {
+      for (var i = 0; i < hDividersMm.length - 1; i++) {
+        if (hDividersMm[i + 1] - hDividersMm[i] < minCellSizeMm) return false;
+      }
     }
     return true;
   }
-}
 
-// ---------- UI Widgets ----------
+  // --- Hit testing
 
-class _TopControls extends StatelessWidget {
-  final double widthMm;
-  final double heightMm;
-  final double frameThicknessMm;
-  final double mullionThicknessMm;
-  final bool showRulers;
-  final bool showSizes;
-  final bool viewFromOutside; // NEW
-  final bool showHandles;     // NEW
-  final FrameFinish frameFinish;
-  final double zoom;
-  final void Function(
-      double widthMm,
-      double heightMm,
-      double frameThicknessMm,
-      double mullionThicknessMm,
-      bool showRulers,
-      bool showSizes,
-      bool viewFromOutside,
-      bool showHandles,
-      FrameFinish finish,
-      double zoom,
-      ) onChanged;
-
-  const _TopControls({
-    required this.widthMm,
-    required this.heightMm,
-    required this.frameThicknessMm,
-    required this.mullionThicknessMm,
-    required this.showRulers,
-    required this.showSizes,
-    required this.viewFromOutside,
-    required this.showHandles,
-    required this.frameFinish,
-    required this.zoom,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final numberStyle = const TextStyle(fontSize: 13);
-    InputDecoration dec(String label) => InputDecoration(
-      labelText: label,
-      isDense: true,
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-      contentPadding:
-      const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-    );
-
-    final wCtrl = TextEditingController(text: widthMm.toStringAsFixed(0));
-    final hCtrl = TextEditingController(text: heightMm.toStringAsFixed(0));
-    final fCtrl =
-    TextEditingController(text: frameThicknessMm.toStringAsFixed(0));
-    final mCtrl =
-    TextEditingController(text: mullionThicknessMm.toStringAsFixed(0));
-
-    void commitWith(FrameFinish finish) {
-      final w = double.tryParse(wCtrl.text) ?? widthMm;
-      final h = double.tryParse(hCtrl.text) ?? heightMm;
-      final f = double.tryParse(fCtrl.text) ?? frameThicknessMm;
-      final m = double.tryParse(mCtrl.text) ?? mullionThicknessMm;
-      onChanged(
-        w.clamp(200, 6000),
-        h.clamp(200, 6000),
-        f.clamp(30, 150),
-        m.clamp(30, 150),
-        showRulers,
-        showSizes,
-        viewFromOutside,
-        showHandles,
-        finish,
-        zoom,
-      );
+  Selection? hitTest({
+    required Offset localPosPx,
+    required Size viewportSizePx,
+    bool preferDivider = false,
+  }) {
+    final mm = pxToMm(localPosPx, viewportSizePx);
+    // 1) Divider proximity
+    if (preferDivider) {
+      final dSel = _hitDivider(localPosPx, viewportSizePx);
+      if (dSel != null) return dSel;
     }
 
-    void commit() => commitWith(frameFinish);
+    // 2) Cell
+    final c = _hitCell(mm);
+    if (c != null) return CellSelection(cell: c);
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-      child: Wrap(
-        runSpacing: 8,
-        spacing: 8,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        children: [
-          SizedBox(
-            width: 110,
-            child: TextField(
-              controller: wCtrl,
-              keyboardType: TextInputType.number,
-              style: numberStyle,
-              onSubmitted: (_) => commit(),
-              decoration: dec('Width (mm)'),
-            ),
-          ),
-          SizedBox(
-            width: 110,
-            child: TextField(
-              controller: hCtrl,
-              keyboardType: TextInputType.number,
-              style: numberStyle,
-              onSubmitted: (_) => commit(),
-              decoration: dec('Height (mm)'),
-            ),
-          ),
-          SizedBox(
-            width: 130,
-            child: TextField(
-              controller: fCtrl,
-              keyboardType: TextInputType.number,
-              style: numberStyle,
-              onSubmitted: (_) => commit(),
-              decoration: dec('Frame thk (mm)'),
-            ),
-          ),
-          SizedBox(
-            width: 130,
-            child: TextField(
-              controller: mCtrl,
-              keyboardType: TextInputType.number,
-              style: numberStyle,
-              onSubmitted: (_) => commit(),
-              decoration: dec('Mullion thk (mm)'),
-            ),
-          ),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text('Rulers'),
-              Switch(
-                value: showRulers,
-                onChanged: (v) => onChanged(
-                  double.parse(wCtrl.text),
-                  double.parse(hCtrl.text),
-                  double.parse(fCtrl.text),
-                  double.parse(mCtrl.text),
-                  v,
-                  showSizes,
-                  viewFromOutside,
-                  showHandles,
-                  frameFinish,
-                  zoom,
-                ),
-              ),
-            ],
-          ),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text('Sizes'),
-              Switch(
-                value: showSizes,
-                onChanged: (v) => onChanged(
-                  double.parse(wCtrl.text),
-                  double.parse(hCtrl.text),
-                  double.parse(fCtrl.text),
-                  double.parse(mCtrl.text),
-                  showRulers,
-                  v,
-                  viewFromOutside,
-                  showHandles,
-                  frameFinish,
-                  zoom,
-                ),
-              ),
-            ],
-          ),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text('Outside view'),
-              Switch(
-                value: viewFromOutside,
-                onChanged: (v) => onChanged(
-                  double.parse(wCtrl.text),
-                  double.parse(hCtrl.text),
-                  double.parse(fCtrl.text),
-                  double.parse(mCtrl.text),
-                  showRulers,
-                  showSizes,
-                  v,
-                  showHandles,
-                  frameFinish,
-                  zoom,
-                ),
-              ),
-            ],
-          ),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text('Handles'),
-              Switch(
-                value: showHandles,
-                onChanged: (v) => onChanged(
-                  double.parse(wCtrl.text),
-                  double.parse(hCtrl.text),
-                  double.parse(fCtrl.text),
-                  double.parse(mCtrl.text),
-                  showRulers,
-                  showSizes,
-                  viewFromOutside,
-                  v,
-                  frameFinish,
-                  zoom,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(
-            width: 170,
-            child: DropdownButtonFormField<FrameFinish>(
-              value: frameFinish,
-              decoration: dec('Frame finish'),
-              items: const [
-                DropdownMenuItem(
-                  value: FrameFinish.white,
-                  child: Text('White PVC'),
-                ),
-                DropdownMenuItem(
-                  value: FrameFinish.lightGrey,
-                  child: Text('Light grey'),
-                ),
-                DropdownMenuItem(
-                  value: FrameFinish.anthracite,
-                  child: Text('Anthracite'),
-                ),
-              ],
-              onChanged: (finish) {
-                if (finish == null) return;
-                commitWith(finish);
-              },
-            ),
-          ),
-          SizedBox(
-            width: 220,
-            child: Row(
-              children: [
-                const Text('Zoom', style: TextStyle(fontSize: 13)),
-                Expanded(
-                  child: Slider(
-                    min: 0.1,
-                    max: 1.2,
-                    divisions: 22,
-                    value: zoom.clamp(0.1, 1.2),
-                    label: zoom.toStringAsFixed(2),
-                    onChanged: (v) => onChanged(
-                      double.parse(wCtrl.text),
-                      double.parse(hCtrl.text),
-                      double.parse(fCtrl.text),
-                      double.parse(mCtrl.text),
-                      showRulers,
-                      showSizes,
-                      viewFromOutside,
-                      showHandles,
-                      frameFinish,
-                      v,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          FilledButton.icon(
-            onPressed: commit,
-            icon: const Icon(Icons.check),
-            label: const Text('Apply'),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _BottomToolbar extends StatelessWidget {
-  final VoidCallback onAddV;
-  final VoidCallback onAddH;
-  final VoidCallback onRemV;
-  final VoidCallback onRemH;
-  final CellIndex? selected;
-  final PanelType? currentType;
-  final void Function(PanelType) onPanelType;
-
-  const _BottomToolbar({
-    required this.onAddV,
-    required this.onAddH,
-    required this.onRemV,
-    required this.onRemH,
-    required this.selected,
-    required this.currentType,
-    required this.onPanelType,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(12, 6, 12, 10),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        border: Border(top: BorderSide(color: Colors.black.withOpacity(0.08))),
-      ),
-      child: Row(
-        children: [
-          Wrap(
-            spacing: 8,
-            children: [
-              FilledButton.tonalIcon(
-                onPressed: onAddV,
-                icon: const Icon(Icons.vertical_distribute),
-                label: const Text('Add V'),
-              ),
-              FilledButton.tonalIcon(
-                onPressed: onAddH,
-                icon: const Icon(Icons.horizontal_distribute),
-                label: const Text('Add H'),
-              ),
-              IconButton(
-                tooltip: 'Remove V near center',
-                onPressed: onRemV,
-                icon: const Icon(Icons.vertical_split),
-              ),
-              IconButton(
-                tooltip: 'Remove H near center',
-                onPressed: onRemH,
-                icon: const Icon(Icons.horizontal_split),
-              ),
-            ],
-          ),
-          const SizedBox(width: 16),
-          const VerticalDivider(),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Wrap(
-              spacing: 8,
-              runSpacing: 6,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                Text(
-                  selected == null
-                      ? 'No cell selected'
-                      : 'Cell: r${selected!.row + 1} c${selected!.col + 1}',
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                ),
-                FilledButton.icon(
-                  onPressed: selected == null
-                      ? null
-                      : () async {
-                    final choice = await showDialog<PanelType>(
-                      context: context,
-                      builder: (ctx) => _OpeningPickerDialog(
-                        initial: currentType ?? PanelType.fixed,
-                      ),
-                    );
-                    if (choice != null) onPanelType(choice);
-                  },
-                  icon: const Icon(Icons.open_in_new),
-                  label: Text(
-                    selected == null
-                        ? 'Opening'
-                        : 'Opening (${_labelFor(currentType ?? PanelType.fixed)})',
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
+    // 3) Divider (fallback)
+    return _hitDivider(localPosPx, viewportSizePx);
   }
 
-  static String _labelFor(PanelType t) {
-    switch (t) {
-      case PanelType.fixed:
-        return 'Fixed';
-      case PanelType.casementLeft:
-        return 'Casement L';
-      case PanelType.casementRight:
-        return 'Casement R';
-      case PanelType.tiltTop:
-        return 'Tilt Top';
-      case PanelType.tiltBottom:
-        return 'Tilt Bottom';
-      case PanelType.tiltSideLeft:
-        return 'Side‑Tilt L';
-      case PanelType.tiltSideRight:
-        return 'Side‑Tilt R';
-      case PanelType.tiltTurnLeft:
-        return 'Tilt&Turn L';
-      case PanelType.tiltTurnRight:
-        return 'Tilt&Turn R';
-      case PanelType.slidingLeft:
-        return 'Sliding L';
-      case PanelType.slidingRight:
-        return 'Sliding R';
+  Cell? _hitCell(Offset mm) {
+    // Outside frame?
+    if (mm.dx < 0 || mm.dy < 0 || mm.dx > widthMm || mm.dy > heightMm) return null;
+
+    int col = -1;
+    for (var i = 0; i < vDividersMm.length - 1; i++) {
+      if (mm.dx >= vDividersMm[i] && mm.dx <= vDividersMm[i + 1]) {
+        col = i; break;
+      }
     }
+    int row = -1;
+    for (var j = 0; j < hDividersMm.length - 1; j++) {
+      if (mm.dy >= hDividersMm[j] && mm.dy <= hDividersMm[j + 1]) {
+        row = j; break;
+      }
+    }
+    if (col >= 0 && row >= 0) return Cell(col, row);
+    return null;
+  }
+
+  DividerSelection? _hitDivider(Offset px, Size viewport) {
+    final s = _scaleToPx(viewport);
+
+    // Vertical lines
+    for (var i = 0; i < vDividersMm.length; i++) {
+      final xPx = vDividersMm[i] * s;
+      if ((px.dx - xPx).abs() <= _dividerHitTolPx &&
+          px.dy >= 0 && px.dy <= heightMm * s) {
+        return DividerSelection(axis: Axis.vertical, index: i);
+      }
+    }
+    // Horizontal
+    for (var j = 0; j < hDividersMm.length; j++) {
+      final yPx = hDividersMm[j] * s;
+      if ((px.dy - yPx).abs() <= _dividerHitTolPx &&
+          px.dx >= 0 && px.dx <= widthMm * s) {
+        return DividerSelection(axis: Axis.horizontal, index: j);
+      }
+    }
+    return null;
   }
 }
 
-/// Dialog with a WinStudio-like openings grid
-class _OpeningPickerDialog extends StatelessWidget {
-  final PanelType initial;
-  const _OpeningPickerDialog({required this.initial});
+// ====== Selection & Drag ======
 
-  @override
-  Widget build(BuildContext context) {
-    final options = <PanelType>[
-      PanelType.fixed,
-      PanelType.casementLeft,
-      PanelType.casementRight,
-      PanelType.tiltTop,
-      PanelType.tiltBottom,
-      PanelType.tiltSideLeft,
-      PanelType.tiltSideRight,
-      PanelType.tiltTurnLeft,
-      PanelType.tiltTurnRight,
-      PanelType.slidingLeft,
-      PanelType.slidingRight,
-    ];
-
-    return AlertDialog(
-      title: const Text('Opening'),
-      content: SizedBox(
-        width: 360,
-        child: Wrap(
-          spacing: 10,
-          runSpacing: 10,
-          children: [
-            for (final t in options)
-              _OpeningTile(
-                type: t,
-                selected: t == initial,
-                onTap: () => Navigator.of(context).pop<PanelType>(t),
-              ),
-          ],
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
-        ),
-      ],
-    );
-  }
+abstract class Selection {
+  const Selection();
 }
 
-class _OpeningTile extends StatelessWidget {
-  final PanelType type;
-  final bool selected;
-  final VoidCallback onTap;
-  const _OpeningTile({
-    required this.type,
-    required this.selected,
-    required this.onTap,
+class CellSelection extends Selection {
+  final Cell cell;
+  const CellSelection({required this.cell});
+}
+
+class DividerSelection extends Selection {
+  final Axis axis;
+  final int index; // index in the divider list (including edges)
+  const DividerSelection({required this.axis, required this.index});
+}
+
+class DragState {
+  final Axis axis;
+  final int index;
+  final double startMm;
+  final double pointerStartMm;
+  DragState({
+    required this.axis,
+    required this.index,
+    required this.startMm,
+    required this.pointerStartMm,
   });
-
-  @override
-  Widget build(BuildContext context) {
-    final border = RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(10),
-      side: BorderSide(
-        color: selected
-            ? Theme.of(context).colorScheme.primary
-            : Colors.black26,
-        width: selected ? 2 : 1,
-      ),
-    );
-
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(10),
-      child: Ink(
-        width: 84,
-        height: 84,
-        decoration: ShapeDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          shape: border,
-        ),
-        child: CustomPaint(
-          painter: _OpeningPreviewPainter(type),
-          child: const SizedBox.expand(),
-        ),
-      ),
-    );
-  }
 }
 
-class _OpeningPreviewPainter extends CustomPainter {
-  final PanelType type;
-  _OpeningPreviewPainter(this.type);
+// ====== Painter ======
+
+class DesignPainter extends CustomPainter {
+  final DesignModel model;
+  final Selection? selection;
+
+  DesignPainter({required this.model, required this.selection});
 
   @override
   void paint(Canvas canvas, Size size) {
-    final r = Rect.fromLTWH(10, 10, size.width - 20, size.height - 20);
-    final frame = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.fill;
-    final border = Paint()
-      ..color = const Color(0xFF8A8A8A)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.6;
-    final glass = Paint()..color = const Color(0xFFDDE7F0);
+    // Center the drawing
+    final scale = model._scaleToPx(size);
+    final drawSize = Size(model.widthMm * scale, model.heightMm * scale);
+    final dx = (size.width - drawSize.width) / 2;
+    final dy = (size.height - drawSize.height) / 2;
+    canvas.translate(dx, dy);
 
-    canvas.drawRect(r.inflate(6), frame);
-    canvas.drawRect(r.inflate(6), border);
-    canvas.drawRect(r, glass);
+    final rectPx = Rect.fromLTWH(0, 0, drawSize.width, drawSize.height);
 
-    // reuse the same symbol logic but scaled
-    final p = _MiniSymbolPainter(type);
-    p.draw(canvas, r);
+    _drawBackground(canvas, rectPx);
+    _drawFrame(canvas, rectPx);
+    _drawCells(canvas, rectPx);
+    _drawDividers(canvas, rectPx);
+    _drawCellSymbols(canvas, rectPx);
+    _drawDimensions(canvas, rectPx);
+    _drawSelection(canvas, rectPx);
+    _drawOutsideBadge(canvas, rectPx);
   }
 
-  @override
-  bool shouldRepaint(covariant _OpeningPreviewPainter oldDelegate) =>
-      oldDelegate.type != type;
-}
+  void _drawBackground(Canvas c, Rect r) {
+    final bg = Paint()..color = const Color(0xFFF7F7FA);
+    c.drawRect(r.inflate(24), bg);
+  }
 
-class _MiniSymbolPainter {
-  final PanelType type;
-  _MiniSymbolPainter(this.type);
-
-  void draw(Canvas canvas, Rect rect) {
-    final strokeWidth = math.max(1.4, math.min(rect.shortestSide * 0.16, 3.0));
-    final stroke = Paint()
-      ..color = const Color(0xFF4E4E4E)
-      ..strokeWidth = strokeWidth
+  void _drawFrame(Canvas c, Rect r) {
+    final framePaint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
+      ..strokeWidth = 4
+      ..color = const Color(0xFF1E293B); // slate-800
 
-    final inset = math.min(rect.width, rect.height) * 0.18;
-    final topLeft = Offset(rect.left + inset, rect.top + inset);
-    final topRight = Offset(rect.right - inset, rect.top + inset);
-    final bottomLeft = Offset(rect.left + inset, rect.bottom - inset);
-    final bottomRight = Offset(rect.right - inset, rect.bottom - inset);
-    final midLeft = Offset(rect.left + inset, rect.center.dy);
-    final midRight = Offset(rect.right - inset, rect.center.dy);
-    final midTop = Offset(rect.center.dx, rect.top + inset);
-    final midBottom = Offset(rect.center.dx, rect.bottom - inset);
+    final fill = Paint()..color = const Color(0xFFE2E8F0); // slate-200
+    c.drawRect(r, fill);
+    c.drawRect(r, framePaint);
+  }
 
-    void line(Offset a, Offset b) => canvas.drawLine(a, b, stroke);
-    void cross() {
-      line(topLeft, bottomRight);
-      line(topRight, bottomLeft);
+  void _drawCells(Canvas c, Rect r) {
+    final s = model._scaleToPx(r.size);
+    final glass = Paint()..color = const Color(0xCCBEE3F8); // light glass
+    final sash = Paint()..color = const Color(0xFFCBD5E1); // sash surface
+
+    final frameT = model.frameThickMm * s;
+    final mullT = model.mullionThickMm * s;
+
+    // Draw each cell sash+glass
+    for (final cell in model.allCells()) {
+      final mm = model.cellRectMm(cell);
+      final rp = Rect.fromLTWH(mm.left * s, mm.top * s, mm.width * s, mm.height * s);
+
+      // Sash border region (like profiles)
+      final sashRect = rp.deflate(frameT / 2);
+      c.drawRect(sashRect, sash);
+
+      // Glass area (deflate more, simulate profile)
+      final glassRect = sashRect.deflate(math.min(frameT, mullT));
+      c.drawRect(glassRect, glass);
+
+      // Inner outline
+      c.drawRect(glassRect, Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.2
+        ..color = const Color(0xFF334155));
     }
+  }
 
-    void drawFixed() {
-      final fontSize = math.min(rect.width, rect.height) * 0.48;
+  void _drawDividers(Canvas c, Rect r) {
+    final s = model._scaleToPx(r.size);
+    final mullPaint = Paint()
+      ..color = const Color(0xFF94A3B8)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = model.mullionThickMm * s;
+
+    // Vertical mullions (skip edges)
+    for (var i = 1; i < model.vDividersMm.length - 1; i++) {
+      final x = model.vDividersMm[i] * s;
+      c.drawLine(Offset(x, 0), Offset(x, model.heightMm * s), mullPaint);
+    }
+    // Horizontal mullions
+    for (var j = 1; j < model.hDividersMm.length - 1; j++) {
+      final y = model.hDividersMm[j] * s;
+      c.drawLine(Offset(0, y), Offset(model.widthMm * s, y), mullPaint);
+    }
+  }
+
+  void _drawCellSymbols(Canvas c, Rect r) {
+    final s = model._scaleToPx(r.size);
+    for (final cell in model.allCells()) {
+      final type = model.getCellType(cell);
+      if (type == OpeningType.fixed) {
+        _drawFixedMark(c, cell, s);
+        continue;
+      }
+      switch (type) {
+        case OpeningType.casementLeft:
+        case OpeningType.casementRight:
+          _drawCasement(c, cell, s, rightHinge: type == OpeningType.casementRight);
+          break;
+        case OpeningType.tilt:
+          _drawTilt(c, cell, s);
+          break;
+        case OpeningType.tiltTurnLeft:
+        case OpeningType.tiltTurnRight:
+          _drawTiltTurn(c, cell, s, rightHinge: type == OpeningType.tiltTurnRight);
+          break;
+        case OpeningType.slidingLeft:
+        case OpeningType.slidingRight:
+          _drawSliding(c, cell, s, toRight: type == OpeningType.slidingRight);
+          break;
+        case OpeningType.doorInLeft:
+        case OpeningType.doorInRight:
+          _drawDoorSwing(c, cell, s, outward: false, rightHinge: type == OpeningType.doorInRight);
+          break;
+        case OpeningType.doorOutLeft:
+        case OpeningType.doorOutRight:
+          _drawDoorSwing(c, cell, s, outward: true, rightHinge: type == OpeningType.doorOutRight);
+          break;
+        default:
+          break;
+      }
+    }
+  }
+
+  void _drawFixedMark(Canvas c, Cell cell, double s) {
+    final rp = _cellRectPx(cell, s);
+    final p = Paint()
+      ..color = const Color(0xFF64748B)
+      ..strokeWidth = 2
+      ..style = PaintingStyle.stroke;
+    final pad = math.min(rp.width, rp.height) * 0.18;
+    final rIn = rp.deflate(pad);
+    c.drawLine(rIn.topLeft, rIn.bottomRight, p);
+    c.drawLine(rIn.bottomLeft, rIn.topRight, p);
+  }
+
+  void _drawCasement(Canvas c, Cell cell, double s, {required bool rightHinge}) {
+    final rp = _cellRectPx(cell, s);
+    final p = Paint()
+      ..color = const Color(0xFF0F172A)
+      ..strokeWidth = 2
+      ..style = PaintingStyle.stroke;
+
+    // Consider outsideView flips: hinge orientation is from outside perspective
+    final hingeOnRight = model.outsideView ? rightHinge : !rightHinge;
+
+    // Draw sash triangle/line to indicate swing
+    final pad = math.min(rp.width, rp.height) * 0.18;
+    final inner = rp.deflate(pad);
+    final left = inner.left;
+    final right = inner.right;
+    final top = inner.top;
+    final bottom = inner.bottom;
+    final midY = inner.center.dy;
+
+    if (hingeOnRight) {
+      // Hinge at right: draw from right edge to left mid forming a triangle
+      final path = Path()
+        ..moveTo(right, top)
+        ..lineTo(left, midY)
+        ..lineTo(right, bottom)
+        ..close();
+      c.drawPath(path, p);
+    } else {
+      final path = Path()
+        ..moveTo(left, top)
+        ..lineTo(right, midY)
+        ..lineTo(left, bottom)
+        ..close();
+      c.drawPath(path, p);
+    }
+  }
+
+  void _drawTilt(Canvas c, Cell cell, double s) {
+    final rp = _cellRectPx(cell, s);
+    final p = Paint()
+      ..color = const Color(0xFF0F172A)
+      ..strokeWidth = 2
+      ..style = PaintingStyle.stroke;
+    final pad = math.min(rp.width, rp.height) * 0.2;
+    final inner = rp.deflate(pad);
+    // A small top triangle indicating tilt inward/outward (outside view convention)
+    final topTri = Path()
+      ..moveTo(inner.left, inner.top)
+      ..lineTo(inner.right, inner.top)
+      ..lineTo(inner.center.dx, inner.center.dy * 0.9 + inner.top * 0.1)
+      ..close();
+    c.drawPath(topTri, p);
+  }
+
+  void _drawTiltTurn(Canvas c, Cell cell, double s, {required bool rightHinge}) {
+    _drawTilt(c, cell, s);
+    _drawCasement(c, cell, s, rightHinge: rightHinge);
+  }
+
+  void _drawSliding(Canvas c, Cell cell, double s, {required bool toRight}) {
+    final rp = _cellRectPx(cell, s);
+    final p = Paint()
+      ..color = const Color(0xFF0F172A)
+      ..strokeWidth = 2
+      ..style = PaintingStyle.stroke;
+
+    final pad = math.min(rp.width, rp.height) * 0.18;
+    final inner = rp.deflate(pad);
+
+    // Two panels with arrow showing slide direction
+    final mid = inner.center.dx;
+    c.drawLine(Offset(mid, inner.top), Offset(mid, inner.bottom), p);
+
+    // Arrow
+    final y = inner.center.dy;
+    final len = inner.width * 0.18;
+    if (toRight) {
+      c.drawLine(Offset(mid - len, y), Offset(mid + len, y), p);
+      final arr = Path()
+        ..moveTo(mid + len, y)
+        ..lineTo(mid + len - 8, y - 6)
+        ..lineTo(mid + len - 8, y + 6)
+        ..close();
+      c.drawPath(arr, Paint()..color = p.color);
+    } else {
+      c.drawLine(Offset(mid + len, y), Offset(mid - len, y), p);
+      final arr = Path()
+        ..moveTo(mid - len, y)
+        ..lineTo(mid - len + 8, y - 6)
+        ..lineTo(mid - len + 8, y + 6)
+        ..close();
+      c.drawPath(arr, Paint()..color = p.color);
+    }
+  }
+
+  void _drawDoorSwing(Canvas c, Cell cell, double s, {required bool outward, required bool rightHinge}) {
+    final rp = _cellRectPx(cell, s);
+    final p = Paint()
+      ..color = const Color(0xFF0F172A)
+      ..strokeWidth = 2
+      ..style = PaintingStyle.stroke;
+
+    // Outside view flips handedness
+    final hingeRight = model.outsideView ? rightHinge : !rightHinge;
+
+    final pad = math.min(rp.width, rp.height) * 0.12;
+    final inner = rp.deflate(pad);
+
+    // Arc indicating swing
+    final rectArc = Rect.fromLTWH(
+      hingeRight ? inner.left : inner.left,
+      inner.top,
+      inner.width,
+      inner.height,
+    );
+
+    // Draw as quarter-ellipse: simpler – draw a chord from hinge corner
+    final start = hingeRight ? inner.topRight : inner.topLeft;
+    final end = outward ? (hingeRight ? inner.bottomRight : inner.bottomLeft) : (hingeRight ? inner.bottomLeft : inner.bottomRight);
+
+    c.drawLine(start, end, p);
+  }
+
+  Rect _cellRectPx(Cell cell, double s) {
+    final mm = model.cellRectMm(cell);
+    return Rect.fromLTWH(mm.left * s, mm.top * s, mm.width * s, mm.height * s);
+  }
+
+  void _drawDimensions(Canvas c, Rect r) {
+    // Draw simple outer dimensions (mm)
+    final s = model._scaleToPx(r.size);
+    final textPainter = (String text) {
       final tp = TextPainter(
         text: TextSpan(
-          text: 'F',
-          style: TextStyle(
-            fontSize: fontSize,
-            fontWeight: FontWeight.w700,
-            color: const Color(0xFF414141),
-          ),
+          text: text,
+          style: const TextStyle(fontSize: 12, color: Color(0xFF475569)),
         ),
         textDirection: TextDirection.ltr,
       )..layout();
-      tp.paint(
-        canvas,
-        Offset(rect.center.dx - tp.width / 2, rect.center.dy - tp.height / 2),
-      );
-    }
+      return tp;
+    };
 
-    void drawSliding(bool toRight) {
-      final rail = Paint()
-        ..color = const Color(0xFF707070)
-        ..strokeWidth = strokeWidth * 0.7
-        ..style = PaintingStyle.stroke;
-      final x1 = rect.left + rect.width * 0.32;
-      final x2 = rect.left + rect.width * 0.68;
-      canvas.drawLine(
-        Offset(x1, rect.top + inset * 0.5),
-        Offset(x1, rect.bottom - inset * 0.5),
-        rail,
-      );
-      canvas.drawLine(
-        Offset(x2, rect.top + inset * 0.5),
-        Offset(x2, rect.bottom - inset * 0.5),
-        rail,
-      );
+    final line = Paint()
+      ..color = const Color(0xFF94A3B8)
+      ..strokeWidth = 1;
 
-      final start = Offset(rect.left + inset * 0.6, rect.center.dy);
-      final end = Offset(rect.right - inset * 0.6, rect.center.dy);
-      final tip = toRight ? end : start;
-      line(toRight ? start : end, toRight ? end : start);
-      final base = toRight ? 0.0 : math.pi;
-      final len = math.max(6.0, strokeWidth * 2.4);
-      final wing1 = Offset(
-        tip.dx + len * math.cos(base + math.pi / 6),
-        tip.dy + len * math.sin(base + math.pi / 6),
-      );
-      final wing2 = Offset(
-        tip.dx + len * math.cos(base - math.pi / 6),
-        tip.dy + len * math.sin(base - math.pi / 6),
-      );
-      line(tip, wing1);
-      line(tip, wing2);
-    }
+    // Horizontal dimension above
+    final y = -16.0;
+    c.drawLine(Offset(0, y), Offset(model.widthMm * s, y), line);
+    c.drawLine(Offset(0, y - 6), Offset(0, y + 6), line);
+    c.drawLine(Offset(model.widthMm * s, y - 6), Offset(model.widthMm * s, y + 6), line);
+    final wText = textPainter('${model.widthMm.toStringAsFixed(0)} mm');
+    wText.paint(c, Offset(model.widthMm * s / 2 - wText.width / 2, y - 18));
 
-    switch (type) {
-      case PanelType.fixed:
-        drawFixed();
-        break;
-      case PanelType.casementLeft:
-        cross();
-        line(topRight, midLeft);
-        line(bottomRight, midLeft);
-        break;
-      case PanelType.casementRight:
-        cross();
-        line(topLeft, midRight);
-        line(bottomLeft, midRight);
-        break;
-      case PanelType.tiltTop:
-        line(midBottom, topLeft);
-        line(midBottom, topRight);
-        break;
-      case PanelType.tiltBottom:
-        line(midTop, bottomLeft);
-        line(midTop, bottomRight);
-        break;
-      case PanelType.tiltSideLeft:
-        line(midRight, topLeft);
-        line(midRight, bottomLeft);
-        break;
-      case PanelType.tiltSideRight:
-        line(midLeft, topRight);
-        line(midLeft, bottomRight);
-        break;
-      case PanelType.tiltTurnLeft:
-        cross();
-        line(topRight, midLeft);
-        line(bottomRight, midLeft);
-        line(midBottom, topLeft);
-        line(midBottom, topRight);
-        break;
-      case PanelType.tiltTurnRight:
-        cross();
-        line(topLeft, midRight);
-        line(bottomLeft, midRight);
-        line(midBottom, topLeft);
-        line(midBottom, topRight);
-        break;
-      case PanelType.slidingLeft:
-        drawSliding(false);
-        break;
-      case PanelType.slidingRight:
-        drawSliding(true);
-        break;
+    // Vertical dimension left
+    final x = -16.0;
+    c.drawLine(Offset(x, 0), Offset(x, model.heightMm * s), line);
+    c.drawLine(Offset(x - 6, 0), Offset(x + 6, 0), line);
+    c.drawLine(Offset(x - 6, model.heightMm * s), Offset(x + 6, model.heightMm * s), line);
+    final hText = textPainter('${model.heightMm.toStringAsFixed(0)} mm');
+    // rotate text for vertical read
+    c.save();
+    c.translate(x - 18, model.heightMm * s / 2 + hText.width / 2);
+    c.rotate(-math.pi / 2);
+    hText.paint(c, Offset(0, 0));
+    c.restore();
+  }
+
+  void _drawSelection(Canvas c, Rect r) {
+    final s = model._scaleToPx(r.size);
+    final sel = selection;
+    if (sel == null) return;
+
+    if (sel is CellSelection) {
+      final rp = _cellRectPx(sel.cell, s);
+      final paint = Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3
+        ..color = const Color(0xFF2563EB);
+      c.drawRect(rp.deflate(6), paint);
+    } else if (sel is DividerSelection) {
+      final paint = Paint()
+        ..color = const Color(0xFF2563EB)
+        ..strokeWidth = 3;
+      if (sel.axis == Axis.vertical) {
+        final x = model.vDividersMm[sel.index] * s;
+        c.drawLine(Offset(x, 0), Offset(x, model.heightMm * s), paint);
+      } else {
+        final y = model.hDividersMm[sel.index] * s;
+        c.drawLine(Offset(0, y), Offset(model.widthMm * s, y), paint);
+      }
     }
+  }
+
+  void _drawOutsideBadge(Canvas c, Rect r) {
+    final label = model.outsideView ? 'OUTSIDE VIEW' : 'INSIDE VIEW';
+    final tp = TextPainter(
+      text: TextSpan(
+        text: label,
+        style: TextStyle(
+          fontSize: 11,
+          letterSpacing: 1.2,
+          color: model.outsideView ? const Color(0xFF0EA5E9) : const Color(0xFF16A34A),
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    final pad = 6.0;
+    final rect = Rect.fromLTWH(0, r.height + 8, tp.width + pad * 2, tp.height + pad * 2);
+    final bg = Paint()
+      ..color = const Color(0xFFF1F5F9)
+      ..style = PaintingStyle.fill;
+    c.drawRRect(RRect.fromRectAndRadius(rect, const Radius.circular(6)), bg);
+    tp.paint(c, Offset(pad, r.height + 8 + pad));
+  }
+
+  @override
+  bool shouldRepaint(covariant DesignPainter oldDelegate) {
+    return oldDelegate.model != model || oldDelegate.selection != selection;
+  }
+}
+
+// ====== UI Bits ======
+
+class _Toolbar extends StatelessWidget {
+  final VoidCallback onAddVertical;
+  final VoidCallback onAddHorizontal;
+  final VoidCallback? onDeleteDivider;
+  final OpeningType? currentType;
+  final ValueChanged<OpeningType> onSetType;
+
+  const _Toolbar({
+    required this.onAddVertical,
+    required this.onAddHorizontal,
+    required this.onDeleteDivider,
+    required this.currentType,
+    required this.onSetType,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final chipStyle = Theme.of(context).chipTheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.4),
+      child: Row(
+        children: [
+          FilledButton.tonalIcon(
+            onPressed: onAddVertical,
+            icon: const Icon(Icons.space_bar),
+            label: const Text('Add Vertical'),
+          ),
+          const SizedBox(width: 8),
+          FilledButton.tonalIcon(
+            onPressed: onAddHorizontal,
+            icon: const Icon(Icons.align_horizontal_center),
+            label: const Text('Add Horizontal'),
+          ),
+          const SizedBox(width: 8),
+          FilledButton.tonalIcon(
+            onPressed: onDeleteDivider,
+            icon: const Icon(Icons.delete_outline),
+            label: const Text('Delete Divider'),
+          ),
+          const SizedBox(width: 16),
+          const Text('Opening:'),
+          const SizedBox(width: 8),
+          _OpeningPicker(
+            current: currentType,
+            onPick: onSetType,
+          ),
+          const Spacer(),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: ShapeDecoration(
+              color: Colors.black.withOpacity(0.04),
+              shape: StadiumBorder(side: BorderSide(color: Colors.black.withOpacity(0.06))),
+            ),
+            child: Text(
+              'Tip: Tap a cell to select • Long-press near a divider to select it • Drag divider to move',
+              style: chipStyle.labelStyle,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _OpeningPicker extends StatelessWidget {
+  final OpeningType? current;
+  final ValueChanged<OpeningType> onPick;
+  const _OpeningPicker({required this.current, required this.onPick});
+
+  @override
+  Widget build(BuildContext context) {
+    final opts = OpeningType.values;
+    return DropdownButton<OpeningType>(
+      value: current ?? OpeningType.fixed,
+      onChanged: (v) {
+        if (v != null) onPick(v);
+      },
+      items: [
+        for (final o in opts)
+          DropdownMenuItem(
+            value: o,
+            child: Text(_label(o)),
+          ),
+      ],
+    );
+  }
+
+  String _label(OpeningType o) {
+    switch (o) {
+      case OpeningType.fixed: return 'Fixed';
+      case OpeningType.casementLeft: return 'Casement L';
+      case OpeningType.casementRight: return 'Casement R';
+      case OpeningType.tilt: return 'Tilt';
+      case OpeningType.tiltTurnLeft: return 'Tilt&Turn L';
+      case OpeningType.tiltTurnRight: return 'Tilt&Turn R';
+      case OpeningType.slidingLeft: return 'Sliding L';
+      case OpeningType.slidingRight: return 'Sliding R';
+      case OpeningType.doorInLeft: return 'Door In L';
+      case OpeningType.doorInRight: return 'Door In R';
+      case OpeningType.doorOutLeft: return 'Door Out L';
+      case OpeningType.doorOutRight: return 'Door Out R';
+    }
+  }
+}
+
+class _QuickTypeFab extends StatelessWidget {
+  final bool enabled;
+  final ValueChanged<OpeningType> onPick;
+  const _QuickTypeFab({required this.enabled, required this.onPick});
+
+  @override
+  Widget build(BuildContext context) {
+    return PopupMenuButton<OpeningType>(
+      enabled: enabled,
+      onSelected: onPick,
+      tooltip: enabled ? 'Set opening type for selected cell' : 'Select a cell first',
+      itemBuilder: (_) => [
+        _item(OpeningType.fixed, 'Fixed'),
+        _item(OpeningType.casementLeft, 'Casement L'),
+        _item(OpeningType.casementRight, 'Casement R'),
+        _item(OpeningType.tilt, 'Tilt'),
+        _item(OpeningType.tiltTurnLeft, 'Tilt&Turn L'),
+        _item(OpeningType.tiltTurnRight, 'Tilt&Turn R'),
+        _item(OpeningType.slidingLeft, 'Sliding L'),
+        _item(OpeningType.slidingRight, 'Sliding R'),
+        const PopupMenuDivider(),
+        _item(OpeningType.doorInLeft, 'Door In L'),
+        _item(OpeningType.doorInRight, 'Door In R'),
+        _item(OpeningType.doorOutLeft, 'Door Out L'),
+        _item(OpeningType.doorOutRight, 'Door Out R'),
+      ],
+      child: FloatingActionButton.extended(
+        onPressed: null,
+        label: const Text('Opening'),
+        icon: const Icon(Icons.window_outlined),
+      ),
+    );
+  }
+
+  PopupMenuItem<OpeningType> _item(OpeningType t, String label) =>
+      PopupMenuItem(value: t, child: Text(label));
+}
+
+class _BottomInfo extends StatelessWidget {
+  final DesignModel model;
+  const _BottomInfo({required this.model});
+
+  @override
+  Widget build(BuildContext context) {
+    final dims = '${model.widthMm.toStringAsFixed(0)} × ${model.heightMm.toStringAsFixed(0)} mm';
+    final cells = '${model.cols} × ${model.rows} = ${model.cols * model.rows} cells';
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.4),
+        border: const Border(top: BorderSide(color: Color(0x11000000))),
+      ),
+      child: Row(
+        children: [
+          Text('Size: $dims'),
+          const SizedBox(width: 16),
+          Text('Grid: $cells'),
+          const Spacer(),
+          Text('Min cell: ${model.minCellSizeMm.toStringAsFixed(0)} mm'),
+        ],
+      ),
+    );
   }
 }
