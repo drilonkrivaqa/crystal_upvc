@@ -1,9 +1,19 @@
+import java.io.File
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
+
+fun File.removeEscapedSpaces(): File =
+    File(path.replace("\\ ", " "))
+
+val sanitizedBuildDir = File(projectDir.absolutePath.replace("\\ ", " "), "build").removeEscapedSpaces()
+
+buildDir = sanitizedBuildDir
+layout.buildDirectory.set(sanitizedBuildDir)
 
 android {
     namespace = "com.example.crystal_upvc"
