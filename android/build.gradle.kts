@@ -1,9 +1,14 @@
 import java.io.File
+import java.io.IOException
 
-fun File.removeEscapedSpaces(): File =
-    File(path.replace("\\ ", " "))
+fun File.safeCanonicalFile(): File =
+    try {
+        canonicalFile
+    } catch (_: IOException) {
+        absoluteFile
+    }
 
-val sanitizedRootBuildDir = File(rootProject.projectDir.absolutePath.replace("\\ ", " "), "build").removeEscapedSpaces()
+val sanitizedRootBuildDir = rootProject.projectDir.safeCanonicalFile().resolve("build")
 
 rootProject.buildDir = sanitizedRootBuildDir
 rootProject.layout.buildDirectory.set(sanitizedRootBuildDir)
