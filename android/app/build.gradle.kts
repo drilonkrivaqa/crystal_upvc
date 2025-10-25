@@ -1,4 +1,5 @@
 import java.io.File
+import java.io.IOException
 
 plugins {
     id("com.android.application")
@@ -7,10 +8,14 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
-fun File.removeEscapedSpaces(): File =
-    File(path.replace("\\ ", " "))
+fun File.safeCanonicalFile(): File =
+    try {
+        canonicalFile
+    } catch (_: IOException) {
+        absoluteFile
+    }
 
-val sanitizedBuildDir = File(projectDir.absolutePath.replace("\\ ", " "), "build").removeEscapedSpaces()
+val sanitizedBuildDir = projectDir.safeCanonicalFile().resolve("build")
 
 buildDir = sanitizedBuildDir
 layout.buildDirectory.set(sanitizedBuildDir)
