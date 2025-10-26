@@ -14,6 +14,7 @@ fun flutterSdkPath(): String {
 }
 
 pluginManagement {
+    includeBuild(File(flutterSdkPath(), "packages/flutter_tools/gradle").path)
     repositories {
         google()
         mavenCentral()
@@ -21,6 +22,8 @@ pluginManagement {
     }
 }
 
-include(":app")
+plugins {
+    id("dev.flutter.flutter-plugin-loader") version "1.0.0"
+}
 
-apply(from = File(flutterSdkPath(), "packages/flutter_tools/gradle/app_plugin_loader.gradle"))
+include(":app")
