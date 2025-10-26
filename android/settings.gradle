@@ -1,0 +1,39 @@
+import groovy.json.JsonSlurper
+import java.util.Properties
+
+include ':app'
+
+private Properties loadLocalProperties() {
+    def localProperties = new Properties()
+    def localPropertiesFile = new File(rootDir, 'local.properties')
+    if (localPropertiesFile.exists()) {
+        localPropertiesFile.withReader('UTF-8') { reader ->
+            localProperties.load(reader)
+        }
+    }
+    return localProperties
+}
+
+def localProperties = loadLocalProperties()
+ext.localProperties = localProperties
+
+def flutterSdkPath = localProperties.getProperty('flutter.sdk') ?: System.getenv('FLUTTER_SDK')
+if (flutterSdkPath == null) {
+    throw new GradleException('Flutter SDK not found. Define location with flutter.sdk in the local.properties file or with the FLUTTER_SDK environment variable.')
+}
+
+def pluginsFile = new File(rootDir.parentFile, '.flutter-plugins-dependencies')
+if (pluginsFile.exists()) {
+    def plugins = new JsonSlurper().parseText(pluginsFile.text)
+    plugins.plugins?.android?.each { plugin ->
+        def pluginName = plugin.name
+        def pluginPath = plugin.path
+        if (pluginName && pluginPath) {
+            def pluginDirectory = new File(pluginPath, 'android')
+            if (pluginDirectory.exists()) {
+                include ":$pluginName"
+                project(":$pluginName").projectDir = pluginDirectory
+            }
+        }
+    }
+}
