@@ -11,39 +11,43 @@ if (flutterRoot == null) {
     throw new GradleException('Flutter SDK not found. Define location with flutter.sdk in the local.properties file or with the FLUTTER_SDK environment variable.')
 }
 
-apply plugin: 'com.android.application'
-apply plugin: 'org.jetbrains.kotlin.android'
-apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+}
+
+apply from: "${flutterRoot}/packages/flutter_tools/gradle/flutter.gradle"
 
 def flutterVersionCode = localProperties.getProperty('flutter.versionCode') ?: '1'
 def flutterVersionName = localProperties.getProperty('flutter.versionName') ?: '1.0'
 
 android {
     namespace "com.example.crystal_upvc"
-    compileSdkVersion flutter.compileSdkVersion
+    compileSdk 34
 
     if (flutter.hasProperty('ndkVersion')) {
         ndkVersion = flutter.ndkVersion
     }
 
+    defaultConfig {
+        applicationId "com.example.crystal_upvc"
+        minSdk 21
+        targetSdk 34
+        versionCode flutterVersionCode.toInteger()
+        versionName flutterVersionName
+        multiDexEnabled true
+    }
+
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '17'
     }
 
-    defaultConfig {
-        applicationId "com.example.crystal_upvc"
-        minSdkVersion Math.max(flutter.minSdkVersion, 21)
-        targetSdkVersion flutter.targetSdkVersion
-        versionCode flutterVersionCode.toInteger()
-        versionName flutterVersionName
-    }
-
-    packagingOptions {
+    packaging {
         resources {
             excludes += ['/META-INF/{AL2.0,LGPL2.1}']
         }
@@ -51,11 +55,35 @@ android {
 
     buildTypes {
         release {
-            signingConfig signingConfigs.debug
+            minifyEnabled false
+            shrinkResources false
+        }
+    }
+
+    applicationVariants.all { variant ->
+        variant.assembleProvider?.get()?.doLast {
+            def packageTask = variant.packageApplicationProvider?.get()
+            File outDir = packageTask?.outputDirectory?.get()?.asFile
+            if (outDir == null || !outDir.exists()) {
+                outDir = variant.outputs.first().outputFile?.parentFile
+            }
+            if (outDir != null && outDir.exists()) {
+                def apk = outDir.listFiles()?.find { it.name.endsWith('.apk') }
+                if (apk != null) {
+                    def flutterOut = new File("${rootProject.projectDir}/../build/app/outputs/flutter-apk")
+                    flutterOut.mkdirs()
+                    def targetFile = new File(flutterOut, "app-${variant.name}.apk")
+                    targetFile.bytes = apk.bytes
+                }
+            }
         }
     }
 }
 
 flutter {
     source '../..'
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 }
