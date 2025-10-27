@@ -48,13 +48,24 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     );
   }
 
-  Future<void> _exportPng() async {
+  Future<Uint8List?> _capturePng() async {
     final boundary = _exportKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
-    if (boundary == null) return;
+    if (boundary == null) return null;
     final ui.Image image = await boundary.toImage(pixelRatio: 3.0);
     final ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-    if (byteData == null) return;
-    final bytes = byteData.buffer.asUint8List();
+    if (byteData == null) return null;
+    return byteData.buffer.asUint8List();
+  }
+
+  Future<void> _exportPng() async {
+    final bytes = await _capturePng();
+    if (bytes == null) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Unable to capture design image.')),
+      );
+      return;
+    }
 
     // In a real app you might save/share. Here we show a preview dialog.
     if (!mounted) return;
@@ -67,6 +78,19 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _attachDesign() async {
+    final bytes = await _capturePng();
+    if (bytes == null) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Unable to capture design image.')),
+      );
+      return;
+    }
+    if (!mounted) return;
+    Navigator.of(context).pop(bytes);
   }
 
   void _setOpeningType(OpeningType type) {
@@ -138,6 +162,12 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
             ),
           ),
           const SizedBox(width: 8),
+          FilledButton.icon(
+            onPressed: _attachDesign,
+            icon: const Icon(Icons.check),
+            label: const Text('Attach'),
+          ),
+          const SizedBox(width: 12),
         ],
       ),
       body: Column(
@@ -865,7 +895,7 @@ class DesignPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant DesignPainter oldDelegate) {
-    return oldDelegate.model != model || oldDelegate.selection != selection;
+    return true;
   }
 }
 
