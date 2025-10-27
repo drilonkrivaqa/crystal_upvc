@@ -1,0 +1,34 @@
+com.example.crystal_upvc.app-pngs-0 C:\Users\DRILON~1\STUDIO~1\CRYSTA~2\android\app\build\generated\res\pngs\release
+com.example.crystal_upvc.app-resValues-1 C:\Users\DRILON~1\STUDIO~1\CRYSTA~2\android\app\build\generated\res\resValues\release
+com.example.crystal_upvc.app-packageReleaseResources-2 C:\Users\DRILON~1\STUDIO~1\CRYSTA~2\android\app\build\intermediates\incremental\release\packageReleaseResources\merged.dir
+com.example.crystal_upvc.app-packageReleaseResources-3 C:\Users\DRILON~1\STUDIO~1\CRYSTA~2\android\app\build\intermediates\incremental\release\packageReleaseResources\stripped.dir
+com.example.crystal_upvc.app-merged-not-compiled-resources-4 C:\Users\DRILON~1\STUDIO~1\CRYSTA~2\android\app\build\intermediates\merged-not-compiled-resources\release
+com.example.crystal_upvc.app-release-5 C:\Users\DRILON~1\STUDIO~1\CRYSTA~2\android\app\build\intermediates\merged_res\release\mergeReleaseResources
+com.example.crystal_upvc.app-main-6 C:\Users\Drilon Krivaqa\StudioProjects\crystal_upvc\android\app\src\main\res
+com.example.crystal_upvc.app-release-7 C:\Users\Drilon Krivaqa\StudioProjects\crystal_upvc\android\app\src\release\res
+com.example.crystal_upvc.app-jetified-activity-1.10.1-8 C:\src\gradle-cache\caches\transforms-4\1c92ada3b9f6e8c4113ff735ce31cccd\transformed\jetified-activity-1.10.1\res
+com.example.crystal_upvc.app-jetified-window-1.2.0-9 C:\src\gradle-cache\caches\transforms-4\2e9ab9c6aa81f96ad3aee80cd509628c\transformed\jetified-window-1.2.0\res
+com.example.crystal_upvc.app-jetified-savedstate-1.2.1-10 C:\src\gradle-cache\caches\transforms-4\2edd928cf9fa2640281f2efe89aa0553\transformed\jetified-savedstate-1.2.1\res
+com.example.crystal_upvc.app-core-1.13.1-11 C:\src\gradle-cache\caches\transforms-4\3ba76a8d890dc4c278b105677bb22711\transformed\core-1.13.1\res
+com.example.crystal_upvc.app-jetified-core-viewtree-1.0.0-12 C:\src\gradle-cache\caches\transforms-4\4394a264e21aec3044b260a5dcb7b601\transformed\jetified-core-viewtree-1.0.0\res
+com.example.crystal_upvc.app-jetified-core-ktx-1.13.1-13 C:\src\gradle-cache\caches\transforms-4\43b9caa03d77173654a105223e979ad7\transformed\jetified-core-ktx-1.13.1\res
+com.example.crystal_upvc.app-jetified-lifecycle-viewmodel-savedstate-2.7.0-14 C:\src\gradle-cache\caches\transforms-4\6cf18096eb6ba7fef3b24c839f9824cc\transformed\jetified-lifecycle-viewmodel-savedstate-2.7.0\res
+com.example.crystal_upvc.app-jetified-tracing-1.2.0-15 C:\src\gradle-cache\caches\transforms-4\6d82716801a08d0a78920617b41c544c\transformed\jetified-tracing-1.2.0\res
+com.example.crystal_upvc.app-jetified-profileinstaller-1.4.0-16 C:\src\gradle-cache\caches\transforms-4\7c73d25836f737b7e70d11b673b92c35\transformed\jetified-profileinstaller-1.4.0\res
+com.example.crystal_upvc.app-jetified-lifecycle-process-2.7.0-17 C:\src\gradle-cache\caches\transforms-4\7ecbd2feaa6d588a98ac70a4a8fb9fc6\transformed\jetified-lifecycle-process-2.7.0\res
+com.example.crystal_upvc.app-lifecycle-viewmodel-2.7.0-18 C:\src\gradle-cache\caches\transforms-4\842f301621c6ed6c9aa75fdbf1977d8f\transformed\lifecycle-viewmodel-2.7.0\res
+com.example.crystal_upvc.app-lifecycle-livedata-core-2.7.0-19 C:\src\gradle-cache\caches\transforms-4\887133823ac24444956e99a168cc3e73\transformed\lifecycle-livedata-core-2.7.0\res
+com.example.crystal_upvc.app-jetified-annotation-experimental-1.4.0-20 C:\src\gradle-cache\caches\transforms-4\9054be593091870ea0c6a96c71639e25\transformed\jetified-annotation-experimental-1.4.0\res
+com.example.crystal_upvc.app-jetified-lifecycle-livedata-core-ktx-2.7.0-21 C:\src\gradle-cache\caches\transforms-4\ab349d401340bbbc8cf404fcfa65303f\transformed\jetified-lifecycle-livedata-core-ktx-2.7.0\res
+com.example.crystal_upvc.app-core-runtime-2.2.0-22 C:\src\gradle-cache\caches\transforms-4\b04bafe2cadf8543412516faa8140e6d\transformed\core-runtime-2.2.0\res
+com.example.crystal_upvc.app-jetified-startup-runtime-1.1.1-23 C:\src\gradle-cache\caches\transforms-4\b3a19fd935983955e6e33c992bf44436\transformed\jetified-startup-runtime-1.1.1\res
+com.example.crystal_upvc.app-jetified-core-1.0.0-24 C:\src\gradle-cache\caches\transforms-4\d6462c3bc220c951634fae78153f8cec\transformed\jetified-core-1.0.0\res
+com.example.crystal_upvc.app-fragment-1.7.1-25 C:\src\gradle-cache\caches\transforms-4\e80e16cb5c47d5c20fa5ab3abeb20eaf\transformed\fragment-1.7.1\res
+com.example.crystal_upvc.app-lifecycle-livedata-2.7.0-26 C:\src\gradle-cache\caches\transforms-4\ecf7992f19d3e9712b514949dfe0a91a\transformed\lifecycle-livedata-2.7.0\res
+com.example.crystal_upvc.app-exifinterface-1.4.1-27 C:\src\gradle-cache\caches\transforms-4\ef38e4bb1d92c6b584cec8eb10a234d2\transformed\exifinterface-1.4.1\res
+com.example.crystal_upvc.app-lifecycle-runtime-2.7.0-28 C:\src\gradle-cache\caches\transforms-4\f96a6531feaf5bd554495cd20b5613ce\transformed\lifecycle-runtime-2.7.0\res
+com.example.crystal_upvc.app-jetified-window-java-1.2.0-29 C:\src\gradle-cache\caches\transforms-4\fa41233d55007c67980a26c05ae59de4\transformed\jetified-window-java-1.2.0\res
+com.example.crystal_upvc.app-release-30 C:\src\pub-cache\hosted\pub.dev\flutter_plugin_android_lifecycle-2.0.31\android\build\intermediates\packaged_res\release\packageReleaseResources
+com.example.crystal_upvc.app-release-31 C:\src\pub-cache\hosted\pub.dev\image_picker_android-0.8.13+4\android\build\intermediates\packaged_res\release\packageReleaseResources
+com.example.crystal_upvc.app-release-32 C:\src\pub-cache\hosted\pub.dev\path_provider_android-2.2.19\android\build\intermediates\packaged_res\release\packageReleaseResources
+com.example.crystal_upvc.app-release-33 C:\src\pub-cache\hosted\pub.dev\printing-5.14.2\android\build\intermediates\packaged_res\release\packageReleaseResources
