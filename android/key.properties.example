@@ -1,0 +1,9 @@
+# Copy this file to android/key.properties and replace the placeholder values
+# with the credentials for the keystore that was used to sign previous
+# production builds of the Crystal UPVC application. Keeping the same
+# signing key is required for installing updates over existing installs and
+# retaining on-device data.
+storeFile=../keystore/crystal_upvc.jks
+storePassword=changeit
+keyAlias=crystal_upvc
+keyPassword=changeit
