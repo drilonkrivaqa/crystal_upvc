@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -48,6 +49,20 @@ Future<pw.ThemeData> _loadPdfTheme() async {
   final baseFont = pw.Font.ttf(baseFontData);
   final boldFont = pw.Font.ttf(boldFontData);
   return pw.ThemeData.withFont(base: baseFont, bold: boldFont);
+}
+
+final _initializedLocales = <String>{};
+
+Future<void> _ensureLocaleInitialized(String locale) async {
+  if (_initializedLocales.contains(locale)) {
+    return;
+  }
+  try {
+    await initializeDateFormatting(locale);
+  } catch (_) {
+    // Ignore failures and allow Intl to fall back to default formats.
+  }
+  _initializedLocales.add(locale);
 }
 
 Future<pw.MemoryImage?> _loadCompanyLogo() async {
@@ -259,6 +274,7 @@ Future<void> exportGlassResultsPdf({
   required List<Customer> customers,
 }) async {
   if (results.isEmpty) return;
+  await _ensureLocaleInitialized(l10n.localeName);
   final theme = await _loadPdfTheme();
   final logoImage = await _loadCompanyLogo();
   final doc = pw.Document(theme: theme);
@@ -360,6 +376,7 @@ Future<void> exportBlindResultsPdf({
   required List<Customer> customers,
 }) async {
   if (results.isEmpty) return;
+  await _ensureLocaleInitialized(l10n.localeName);
   final theme = await _loadPdfTheme();
   final logoImage = await _loadCompanyLogo();
   final doc = pw.Document(theme: theme);
@@ -462,6 +479,7 @@ Future<void> exportHekriResultsPdf({
   required int sawWidth,
 }) async {
   if (results.isEmpty) return;
+  await _ensureLocaleInitialized(l10n.localeName);
   final theme = await _loadPdfTheme();
   final logoImage = await _loadCompanyLogo();
   final doc = pw.Document(theme: theme);
@@ -566,6 +584,7 @@ Future<void> exportCuttingResultsPdf<T>({
   required int sawWidth,
 }) async {
   if (results.isEmpty) return;
+  await _ensureLocaleInitialized(l10n.localeName);
   final theme = await _loadPdfTheme();
   final logoImage = await _loadCompanyLogo();
   final doc = pw.Document(theme: theme);
