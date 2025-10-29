@@ -1,884 +1,569 @@
 // lib/pages/window_door_designer_page.dart
-import 'dart:math' as math;
+//
+// Crystal uPVC — Window/Door Designer (clean & robust)
+// - Grid (rows x cols)
+// - Per-cell sash types (Fixed, Casement L/R, Tilt, Tilt&Turn L/R, Sliding L/R)
+// - Outside view toggle (mirrors L/R types visually)
+// - Correct Tilt&Turn glyphs:
+//      • Tilt&Turn RIGHT  -> triangles with apex at TOP and LEFT
+//      • Tilt&Turn LEFT   -> triangles with apex at TOP and RIGHT
+// - Export PNG via RepaintBoundary
+//
+// Drop-in: only depends on Flutter SDK.
+
 import 'dart:typed_data';
 import 'dart:ui' as ui;
-
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-
-/// Window/Door Designer — symbol layer aligned with pro drafting conventions.
-/// • Real size in mm (auto-fit, centered)
-/// • Add / drag / remove dividers with min-cell constraint
-/// • Select cell or divider; set per-cell opening type
-/// • Outside/Inside view toggle (handing defined from OUTSIDE/SECURE side)
-/// • Dimension lines
-/// • Export PNG (preview dialog)
-///
-/// Single file, null-safe, no external packages.
+import 'package:flutter/rendering.dart' show RenderRepaintBoundary;
 
 class WindowDoorDesignerPage extends StatefulWidget {
   const WindowDoorDesignerPage({super.key});
+
   @override
   State<WindowDoorDesignerPage> createState() => _WindowDoorDesignerPageState();
 }
 
-class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
-  final GlobalKey _exportKey = GlobalKey();
+// ---- appearance constants ----------------------------------------------------
 
-  late DesignModel model;
-  Selection? selection;
-  DragState? drag;
+const double kFrameStroke = 4;
+const double kMullionStroke = 3;
+const double kSashStroke = 3;
+const Color kGlassFill = Color(0xFFAEE7F2);
+const Color kLineColor = Colors.black87;
+
+// -----------------------------------------------------------------------------
+
+class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
+  int rows = 1;
+  int cols = 2;
+  bool outsideView = true;
+
+  SashType activeTool = SashType.fixed;
+  int? selectedIndex;
+
+  late List<SashType> cells;
+
+  final _repaintKey = GlobalKey();
 
   @override
   void initState() {
     super.initState();
-    model = DesignModel(widthMm: 1200, heightMm: 1400, minCellSizeMm: 250);
+    cells = List<SashType>.filled(rows * cols, SashType.fixed, growable: true);
   }
 
-  // ---------- Export ----------
-  Future<Uint8List?> _capturePng() async {
-    final b = _exportKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
-    if (b == null) return null;
-    final img = await b.toImage(pixelRatio: 3);
-    final data = await img.toByteData(format: ui.ImageByteFormat.png);
-    return data?.buffer.asUint8List();
+  void _regrid(int r, int c) {
+    setState(() {
+      rows = r.clamp(1, 8);
+      cols = c.clamp(1, 8);
+      cells = List<SashType>.filled(rows * cols, SashType.fixed, growable: true);
+      selectedIndex = null;
+    });
+  }
+
+  int _xyToIndex(int r, int c) => r * cols + c;
+
+  void _onTapCanvas(Offset localPos, Size size) {
+    final cellW = size.width / cols;
+    final cellH = size.height / rows;
+    final c = (localPos.dx ~/ cellW).clamp(0, cols - 1);
+    final r = (localPos.dy ~/ cellH).clamp(0, rows - 1);
+    final idx = _xyToIndex(r, c);
+
+    setState(() {
+      selectedIndex = idx;
+      cells[idx] = activeTool;
+    });
   }
 
   Future<void> _exportPng() async {
-    final bytes = await _capturePng();
-    if (!mounted) return;
-    if (bytes == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Unable to capture design image.')));
-      return;
+    try {
+      final boundary = _repaintKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+      if (boundary == null) return;
+      final img = await boundary.toImage(pixelRatio: 3);
+      final bd = await img.toByteData(format: ui.ImageByteFormat.png);
+      if (bd == null) return;
+      final bytes = bd.buffer.asUint8List();
+
+      if (!mounted) return;
+      await showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text('PNG preview'),
+          content: Image.memory(bytes),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close')),
+          ],
+        ),
+      );
+      // Use `bytes` in your PDF generator.
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Export failed: $e')));
     }
-    showDialog(
-      context: context,
-      builder: (_) => Dialog(child: InteractiveViewer(maxScale: 6, child: Image.memory(bytes))),
-    );
   }
 
-  Future<void> _attachDesign() async {
-    final bytes = await _capturePng();
-    if (!mounted) return;
-    if (bytes == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Unable to capture design image.')));
-      return;
-    }
-    Navigator.of(context).pop(bytes);
-  }
-
-  // ---------- Actions ----------
-  void _addDivider(Axis axis) {
+  void _reset() {
     setState(() {
-      final pos = switch (selection) {
-        CellSelection s => axis == Axis.vertical
-            ? (model.cellRectMm(s.cell).left + model.cellRectMm(s.cell).right) / 2
-            : (model.cellRectMm(s.cell).top + model.cellRectMm(s.cell).bottom) / 2,
-        _ => axis == Axis.vertical ? model.widthMm / 2 : model.heightMm / 2,
-      };
-      model.tryAddDivider(axis, pos);
+      cells = List<SashType>.filled(rows * cols, SashType.fixed, growable: true);
+      selectedIndex = null;
+      activeTool = SashType.fixed;
+      outsideView = true;
     });
   }
 
-  void _deleteSelectedDivider() {
-    final sel = selection;
-    if (sel is! DividerSelection) return;
-    setState(() {
-      if (sel.axis == Axis.vertical) {
-        model.tryRemoveVertical(sel.index);
-      } else {
-        model.tryRemoveHorizontal(sel.index);
-      }
-      selection = null;
-    });
-  }
-
-  void _setOpeningType(OpeningType type) {
-    final sel = selection;
-    if (sel is! CellSelection) return;
-    setState(() => model.setCellType(sel.cell, type));
-  }
-
-  void _toggleOutsideView() => setState(() => model.outsideView = !model.outsideView);
-
-  // ---------- Build ----------
   @override
   Widget build(BuildContext context) {
-    final sel = selection;
-    final dividerSelected = sel is DividerSelection;
+    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Window/Door Designer'),
         actions: [
-          Tooltip(
-            message: model.outsideView ? 'Outside (secure) view' : 'Inside view',
-            child: IconButton(
-              onPressed: _toggleOutsideView,
-              icon: const Icon(Icons.swap_horiz),
-              isSelected: model.outsideView,
-            ),
-          ),
-          IconButton(tooltip: 'Export PNG', onPressed: _exportPng, icon: const Icon(Icons.image_outlined)),
-          const SizedBox(width: 6),
-          FilledButton.icon(onPressed: _attachDesign, icon: const Icon(Icons.check), label: const Text('Attach')),
-          const SizedBox(width: 10),
+          IconButton(onPressed: _exportPng, tooltip: 'Export PNG', icon: const Icon(Icons.download)),
+          IconButton(onPressed: _reset, tooltip: 'Reset', icon: const Icon(Icons.refresh)),
         ],
       ),
       body: Column(
         children: [
-          _Toolbar(
-            onAddVertical: () => _addDivider(Axis.vertical),
-            onAddHorizontal: () => _addDivider(Axis.horizontal),
-            onDeleteDivider: dividerSelected ? _deleteSelectedDivider : null,
-            currentType: (sel is CellSelection) ? model.getCellType(sel.cell) : null,
-            onSetType: _setOpeningType,
-          ),
-          const Divider(height: 1),
-          Expanded(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                const pad = 24.0;
-                final viewport = Size(constraints.maxWidth - pad * 2, constraints.maxHeight - pad * 2);
-
-                return Padding(
-                  padding: const EdgeInsets.all(pad),
-                  child: RepaintBoundary(
-                    key: _exportKey,
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTapUp: (d) {
-                        final hit = model.hitTest(localPosPx: d.localPosition, viewportSizePx: viewport);
-                        setState(() => selection = hit);
-                      },
-                      onLongPressStart: (d) {
-                        final hit = model.hitTest(localPosPx: d.localPosition, viewportSizePx: viewport, preferDivider: true);
-                        setState(() => selection = hit);
-                      },
-                      onPanStart: (d) {
-                        final hit = model.hitTest(localPosPx: d.localPosition, viewportSizePx: viewport, preferDivider: true);
-                        if (hit is DividerSelection) {
-                          final layout = model.computeLayout(viewport);
-                          final inDrawPx = d.localPosition - layout.offsetPx;
-                          final mmPt = Offset(inDrawPx.dx / layout.scale, inDrawPx.dy / layout.scale);
-                          setState(() {
-                            drag = DragState(
-                              axis: hit.axis,
-                              index: hit.index,
-                              startMm: hit.axis == Axis.vertical
-                                  ? model.vDividersMm[hit.index]
-                                  : model.hDividersMm[hit.index],
-                              pointerStartMm: hit.axis == Axis.vertical ? mmPt.dx : mmPt.dy,
-                            );
-                            selection = hit;
-                          });
-                        }
-                      },
-                      onPanUpdate: (d) {
-                        final st = drag;
-                        if (st == null) return;
-                        final layout = model.computeLayout(viewport);
-                        final inDrawPx = d.localPosition - layout.offsetPx;
-                        final mmPt = Offset(inDrawPx.dx / layout.scale, inDrawPx.dy / layout.scale);
-                        final delta = (st.axis == Axis.vertical ? mmPt.dx : mmPt.dy) - st.pointerStartMm;
-                        setState(() => model.dragDivider(st.axis, st.index, st.startMm + delta));
-                      },
-                      onPanEnd: (_) => setState(() => drag = null),
-                      child: CustomPaint(painter: DesignPainter(model: model, selection: selection), size: Size.infinite),
-                    ),
-                  ),
-                );
-              },
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 10, 12, 0),
+            child: Wrap(
+              spacing: 18,
+              runSpacing: 8,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                _RowsColsPicker(
+                  rows: rows,
+                  cols: cols,
+                  onChanged: (r, c) => _regrid(r, c),
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Switch(value: outsideView, onChanged: (v) => setState(() => outsideView = v)),
+                    const Text('Outside view'),
+                  ],
+                ),
+                _Legend(theme: theme),
+              ],
             ),
           ),
-          _BottomInfo(model: model),
+          const SizedBox(height: 6),
+          Expanded(
+            child: Center(
+              child: AspectRatio(
+                aspectRatio: 1.6,
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return RepaintBoundary(
+                      key: _repaintKey,
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTapDown: (d) => _onTapCanvas(d.localPosition, constraints.biggest),
+                        child: CustomPaint(
+                          size: constraints.biggest,
+                          painter: _WindowPainter(
+                            rows: rows,
+                            cols: cols,
+                            cells: cells,
+                            selectedIndex: selectedIndex,
+                            outsideView: outsideView,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ),
+          const Divider(height: 1),
+          _ToolPalette(active: activeTool, onChanged: (t) => setState(() => activeTool = t)),
+          const SizedBox(height: 8),
         ],
       ),
-      floatingActionButton: _QuickTypeFab(enabled: selection is CellSelection, onPick: _setOpeningType),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endContained,
     );
   }
 }
 
-// ======================= Data Model & Layout =======================
+// ── model / types ──────────────────────────────────────────────────────────────
 
-enum OpeningType {
+enum SashType {
   fixed,
   casementLeft,
   casementRight,
   tilt,
-  tiltTurnLeft,
-  tiltTurnRight,
+  tiltTurnLeft,   // triangles apex TOP + RIGHT
+  tiltTurnRight,  // triangles apex TOP + LEFT
   slidingLeft,
   slidingRight,
-  doorInLeft,
-  doorInRight,
-  doorOutLeft,
-  doorOutRight,
 }
 
-@immutable
-class Cell {
-  final int col;
-  final int row;
-  const Cell(this.col, this.row);
-  @override
-  bool operator ==(Object other) => other is Cell && other.col == col && other.row == row;
-  @override
-  int get hashCode => Object.hash(col, row);
-}
+// ── painter ───────────────────────────────────────────────────────────────────
 
-class LayoutParams {
-  final double scale;     // px per mm
-  final Offset offsetPx;  // top-left of drawing rect inside viewport
-  final Size drawSizePx;  // drawing size in px
-  const LayoutParams(this.scale, this.offsetPx, this.drawSizePx);
-}
+class _WindowPainter extends CustomPainter {
+  final int rows;
+  final int cols;
+  final List<SashType> cells;
+  final int? selectedIndex;
+  final bool outsideView;
 
-class DesignModel {
-  double widthMm;
-  double heightMm;
-  double minCellSizeMm;
-  bool outsideView;
-
-  final List<double> vDividersMm;
-  final List<double> hDividersMm;
-  final Map<Cell, OpeningType> _cellTypes = {};
-
-  // Visual params
-  final double frameThickMm = 70;
-  final double mullionThickMm = 60;
-
-  static const double _dividerHitTolPx = 12;
-
-  DesignModel({
-    required this.widthMm,
-    required this.heightMm,
-    this.minCellSizeMm = 250,
-    this.outsideView = true,
-  })  : vDividersMm = [0, widthMm],
-        hDividersMm = [0, heightMm];
-
-  LayoutParams computeLayout(Size viewportPx) {
-    final sx = viewportPx.width / widthMm;
-    final sy = viewportPx.height / heightMm;
-    final scale = math.min(sx, sy);
-    final drawSize = Size(widthMm * scale, heightMm * scale);
-    final dx = (viewportPx.width - drawSize.width) / 2;
-    final dy = (viewportPx.height - drawSize.height) / 2;
-    return LayoutParams(scale, Offset(dx, dy), drawSize);
-  }
-
-  int get cols => vDividersMm.length - 1;
-  int get rows => hDividersMm.length - 1;
-
-  Rect cellRectMm(Cell c) {
-    final x0 = vDividersMm[c.col];
-    final x1 = vDividersMm[c.col + 1];
-    final y0 = hDividersMm[c.row];
-    final y1 = hDividersMm[c.row + 1];
-    return Rect.fromLTRB(x0, y0, x1, y1);
-  }
-
-  OpeningType getCellType(Cell c) => _cellTypes[c] ?? OpeningType.fixed;
-  void setCellType(Cell c, OpeningType t) => _cellTypes[c] = t;
-
-  Iterable<Cell> allCells() sync* {
-    for (var r = 0; r < rows; r++) {
-      for (var c = 0; c < cols; c++) {
-        yield Cell(c, r);
-      }
-    }
-  }
-
-  bool tryAddDivider(Axis axis, double posMm) {
-    final list = axis == Axis.vertical ? vDividersMm : hDividersMm;
-    const minGapMm = 8.0;
-    if (posMm < 0 || posMm > (axis == Axis.vertical ? widthMm : heightMm)) return false;
-    for (final v in list) {
-      if ((v - posMm).abs() < minGapMm) return false;
-    }
-    list.add(posMm);
-    list.sort();
-    if (!_validateMinCellSizes(axis)) {
-      list.remove(posMm);
-      return false;
-    }
-    return true;
-  }
-
-  bool tryRemoveVertical(int index) {
-    if (index <= 0 || index >= vDividersMm.length - 1) return false;
-    vDividersMm.removeAt(index);
-    return true;
-  }
-
-  bool tryRemoveHorizontal(int index) {
-    if (index <= 0 || index >= hDividersMm.length - 1) return false;
-    hDividersMm.removeAt(index);
-    return true;
-  }
-
-  void dragDivider(Axis axis, int index, double newPosMm) {
-    final list = axis == Axis.vertical ? vDividersMm : hDividersMm;
-    if (index == 0 || index == list.length - 1) return; // edges fixed
-    final prev = list[index - 1];
-    final next = list[index + 1];
-    final low = prev + minCellSizeMm;
-    final high = next - minCellSizeMm;
-    final maxSpan = axis == Axis.vertical ? widthMm : heightMm;
-    list[index] = newPosMm.clamp(low, high).clamp(0, maxSpan);
-  }
-
-  bool _validateMinCellSizes(Axis axis) {
-    if (axis == Axis.vertical) {
-      for (var i = 0; i < vDividersMm.length - 1; i++) {
-        if (vDividersMm[i + 1] - vDividersMm[i] < minCellSizeMm) return false;
-      }
-    } else {
-      for (var i = 0; i < hDividersMm.length - 1; i++) {
-        if (hDividersMm[i + 1] - hDividersMm[i] < minCellSizeMm) return false;
-      }
-    }
-    return true;
-  }
-
-  Selection? hitTest({
-    required Offset localPosPx,
-    required Size viewportSizePx,
-    bool preferDivider = false,
-  }) {
-    final layout = computeLayout(viewportSizePx);
-    final p = localPosPx - layout.offsetPx;
-    final inside = p.dx >= -_dividerHitTolPx &&
-        p.dy >= -_dividerHitTolPx &&
-        p.dx <= layout.drawSizePx.width + _dividerHitTolPx &&
-        p.dy <= layout.drawSizePx.height + _dividerHitTolPx;
-    if (!inside) return null;
-
-    if (preferDivider) {
-      final d = _hitDivider(p, layout);
-      if (d != null) return d;
-    }
-    final c = _hitCell(p, layout);
-    if (c != null) return CellSelection(cell: c);
-    return _hitDivider(p, layout);
-  }
-
-  Cell? _hitCell(Offset pInDrawPx, LayoutParams layout) {
-    final mm = Offset(pInDrawPx.dx / layout.scale, pInDrawPx.dy / layout.scale);
-    if (mm.dx < 0 || mm.dy < 0 || mm.dx > widthMm || mm.dy > heightMm) return null;
-    int col = -1, row = -1;
-    for (var i = 0; i < vDividersMm.length - 1; i++) {
-      if (mm.dx >= vDividersMm[i] && mm.dx <= vDividersMm[i + 1]) { col = i; break; }
-    }
-    for (var j = 0; j < hDividersMm.length - 1; j++) {
-      if (mm.dy >= hDividersMm[j] && mm.dy <= hDividersMm[j + 1]) { row = j; break; }
-    }
-    if (col >= 0 && row >= 0) return Cell(col, row);
-    return null;
-  }
-
-  DividerSelection? _hitDivider(Offset pInDrawPx, LayoutParams layout) {
-    final tol = _dividerHitTolPx;
-    final s = layout.scale;
-    for (var i = 0; i < vDividersMm.length; i++) {
-      final x = vDividersMm[i] * s;
-      if ((pInDrawPx.dx - x).abs() <= tol && pInDrawPx.dy >= 0 && pInDrawPx.dy <= heightMm * s) {
-        return DividerSelection(axis: Axis.vertical, index: i);
-      }
-    }
-    for (var j = 0; j < hDividersMm.length; j++) {
-      final y = hDividersMm[j] * s;
-      if ((pInDrawPx.dy - y).abs() <= tol && pInDrawPx.dx >= 0 && pInDrawPx.dx <= widthMm * s) {
-        return DividerSelection(axis: Axis.horizontal, index: j);
-      }
-    }
-    return null;
-  }
-}
-
-// ======================= Selection & Drag =======================
-
-abstract class Selection { const Selection(); }
-
-class CellSelection extends Selection {
-  final Cell cell;
-  const CellSelection({required this.cell});
-}
-
-class DividerSelection extends Selection {
-  final Axis axis;
-  final int index;
-  const DividerSelection({required this.axis, required this.index});
-}
-
-class DragState {
-  final Axis axis;
-  final int index;
-  final double startMm;
-  final double pointerStartMm;
-  const DragState({
-    required this.axis,
-    required this.index,
-    required this.startMm,
-    required this.pointerStartMm,
+  _WindowPainter({
+    required this.rows,
+    required this.cols,
+    required this.cells,
+    required this.selectedIndex,
+    required this.outsideView,
   });
-}
-
-// ======================= Painter (with accurate glyphs) =======================
-
-class DesignPainter extends CustomPainter {
-  final DesignModel model;
-  final Selection? selection;
-  DesignPainter({required this.model, required this.selection});
 
   @override
   void paint(Canvas canvas, Size size) {
-    final layout = model.computeLayout(size);
-    final s = layout.scale;
-
-    // background
-    canvas.drawRect(Offset.zero & size, Paint()..color = const Color(0xFFF7F7FA));
-
-    // shift to drawing rect
-    canvas.save();
-    canvas.translate(layout.offsetPx.dx, layout.offsetPx.dy);
-
-    final frameRectPx = Rect.fromLTWH(0, 0, layout.drawSizePx.width, layout.drawSizePx.height);
-
-    _drawFrame(canvas, frameRectPx);
-    _drawDividers(canvas, s);
-    _drawCells(canvas, s);
-    _drawCellSymbols(canvas, s); // <— conventions-based glyphs
-    _drawDimensions(canvas, s);
-    _drawSelection(canvas, s);
-    _drawViewBadge(canvas, frameRectPx);
-    canvas.restore();
-  }
-
-  // ----- visuals base -----
-  void _drawFrame(Canvas c, Rect r) {
-    c.drawRect(r, Paint()..color = const Color(0xFFE2E8F0)); // sash/frame bg
-    c.drawRect(r, Paint()
+    final paintFrame = Paint()
+      ..color = kLineColor
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 3
-      ..color = const Color(0xFF1E293B));
-  }
+      ..strokeWidth = kFrameStroke
+      ..isAntiAlias = true;
 
-  void _drawCells(Canvas c, double s) {
-    final glass = Paint()..color = const Color(0xCCBEE3F8);
-    final sash  = Paint()..color = const Color(0xFFCBD5E1);
-    final frameT = model.frameThickMm * s;
-    final mullT  = model.mullionThickMm * s;
-
-    for (final cell in model.allCells()) {
-      final mm = model.cellRectMm(cell);
-      final rp = Rect.fromLTWH(mm.left * s, mm.top * s, mm.width * s, mm.height * s);
-      final sashRect  = rp.deflate(frameT / 2);
-      final glassRect = sashRect.deflate(math.min(frameT, mullT));
-      c.drawRect(sashRect, sash);
-      c.drawRect(glassRect, glass);
-      c.drawRect(glassRect, Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1
-        ..color = const Color(0xFF334155));
-    }
-  }
-
-  void _drawDividers(Canvas c, double s) {
-    final mull = Paint()
-      ..color = const Color(0xFF94A3B8)
+    final paintMullion = Paint()
+      ..color = kLineColor
       ..style = PaintingStyle.stroke
-      ..strokeWidth = model.mullionThickMm * s;
-    for (var i = 1; i < model.vDividersMm.length - 1; i++) {
-      final x = model.vDividersMm[i] * s;
-      c.drawLine(Offset(x, 0), Offset(x, model.heightMm * s), mull);
-    }
-    for (var j = 1; j < model.hDividersMm.length - 1; j++) {
-      final y = model.hDividersMm[j] * s;
-      c.drawLine(Offset(0, y), Offset(model.widthMm * s, y), mull);
-    }
-  }
+      ..strokeWidth = kMullionStroke
+      ..isAntiAlias = true;
 
-  // ----- symbols (drafting-accurate) -----
-  void _drawCellSymbols(Canvas c, double s) {
-    for (final cell in model.allCells()) {
-      final t = model.getCellType(cell);
-      switch (t) {
-        case OpeningType.fixed:
-          _fixedMark(c, cell, s);
-          break;
-        case OpeningType.casementLeft:
-        case OpeningType.casementRight:
-          _casement(c, cell, s, rightHinge: t == OpeningType.casementRight);
-          break;
-        case OpeningType.tilt:
-          _tilt(c, cell, s);
-          break;
-        case OpeningType.tiltTurnLeft:
-        case OpeningType.tiltTurnRight:
-          _tilt(c, cell, s);
-          _casement(c, cell, s, rightHinge: t == OpeningType.tiltTurnRight);
-          break;
-        case OpeningType.slidingLeft:
-        case OpeningType.slidingRight:
-          _sliding(c, cell, s, toRight: t == OpeningType.slidingRight);
-          break;
-        case OpeningType.doorInLeft:
-        case OpeningType.doorInRight:
-          _door(c, cell, s, outward: false, rightHinge: t == OpeningType.doorInRight);
-          break;
-        case OpeningType.doorOutLeft:
-        case OpeningType.doorOutRight:
-          _door(c, cell, s, outward: true, rightHinge: t == OpeningType.doorOutRight);
-          break;
+    final paintSash = Paint()
+      ..color = kLineColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = kSashStroke
+      ..isAntiAlias = true;
+
+    final paintGlass = Paint()
+      ..color = kGlassFill
+      ..style = PaintingStyle.fill
+      ..isAntiAlias = true;
+
+    // outer frame
+    final outer = Rect.fromLTWH(0, 0, size.width, size.height);
+    canvas.drawRect(outer, paintFrame);
+
+    final cellW = size.width / cols;
+    final cellH = size.height / rows;
+
+    // cells
+    for (int r = 0; r < rows; r++) {
+      for (int c = 0; c < cols; c++) {
+        final idx = r * cols + c;
+        final rect = Rect.fromLTWH(c * cellW, r * cellH, cellW, cellH);
+
+        canvas.drawRect(rect.deflate(2), paintGlass);
+
+        if (selectedIndex == idx) {
+          final highlight = Paint()
+            ..color = Colors.amber.withOpacity(0.25)
+            ..style = PaintingStyle.fill;
+          canvas.drawRect(rect.deflate(6), highlight);
+        }
+
+        // mirror L/R types when not outside view
+        final t = _mirrorForInside(cells[idx], outsideView);
+        _drawGlyph(canvas, rect.deflate(8), t, paintSash);
       }
     }
-  }
 
-  Rect _cellPx(Cell cell, double s) {
-    final mm = model.cellRectMm(cell);
-    return Rect.fromLTWH(mm.left * s, mm.top * s, mm.width * s, mm.height * s);
-  }
-
-  // Fixed: “X” mark
-  void _fixedMark(Canvas c, Cell cell, double s) {
-    final rp = _cellPx(cell, s);
-    final p  = Paint()..color = const Color(0xFF64748B)..style = PaintingStyle.stroke..strokeWidth = 2;
-    final pad = math.min(rp.width, rp.height) * 0.18;
-    final r   = rp.deflate(pad);
-    c.drawLine(r.topLeft, r.bottomRight, p);
-    c.drawLine(r.bottomLeft, r.topRight, p);
-  }
-
-  // Casement: quarter-circle swing arc from hinge corner + hinge ticks
-  void _casement(Canvas c, Cell cell, double s, {required bool rightHinge}) {
-    final rp  = _cellPx(cell, s);
-    final pad = math.min(rp.width, rp.height) * 0.14;
-    final r   = rp.deflate(pad);
-
-    // Handing from OUTSIDE view; flip in inside view
-    final hingeRight = model.outsideView ? rightHinge : !rightHinge;
-
-    final p = Paint()..color = const Color(0xFF0F172A)..style = PaintingStyle.stroke..strokeWidth = 2;
-
-    // Hinge stile ticks (short markers)
-    final tick = math.min(r.width, r.height) * 0.08;
-    if (hingeRight) {
-      c.drawLine(Offset(r.right, r.top + 6), Offset(r.right, r.top + 6 + tick), p);
-      c.drawLine(Offset(r.right, r.bottom - 6), Offset(r.right, r.bottom - 6 - tick), p);
-    } else {
-      c.drawLine(Offset(r.left, r.top + 6), Offset(r.left, r.top + 6 + tick), p);
-      c.drawLine(Offset(r.left, r.bottom - 6), Offset(r.left, r.bottom - 6 - tick), p);
+    // mullions
+    for (int c = 1; c < cols; c++) {
+      final x = c * cellW;
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paintMullion);
     }
-
-    // Arc (quarter circle inside sash area)
-    final start = hingeRight ? 3 * math.pi / 2 : math.pi; // 270° if right hinge, 180° if left
-    final sweep = math.pi / 2;
-    final arcRect = r;
-    final path = Path()..addArc(arcRect, start, sweep);
-    c.drawPath(path, p);
-
-    // Leaf chord (closed hinge corner -> mid of opening), shows open leaf
-    final chord = hingeRight
-        ? (Offset(r.right, r.top), Offset(r.center.dx, r.center.dy))
-        : (Offset(r.left, r.top), Offset(r.center.dx, r.center.dy));
-    c.drawLine(chord.$1, chord.$2, p);
-  }
-
-  // Tilt: top vent glyph + small inward arrow
-  void _tilt(Canvas c, Cell cell, double s) {
-    final rp  = _cellPx(cell, s);
-    final pad = math.min(rp.width, rp.height) * 0.16;
-    final r   = rp.deflate(pad);
-
-    final p = Paint()..color = const Color(0xFF0F172A)..style = PaintingStyle.stroke..strokeWidth = 2;
-
-    // Trapezoid vent at top edge (outside view -> tilt inward)
-    final top = r.top + r.height * 0.12;
-    final dx  = r.width * 0.18;
-    final vent = Path()
-      ..moveTo(r.left + dx, r.top)
-      ..lineTo(r.right - dx, r.top)
-      ..lineTo(r.center.dx, top)
-      ..close();
-    c.drawPath(vent, p);
-
-    // Inward arrow
-    final y0 = r.center.dy, x0 = r.center.dx;
-    c.drawLine(Offset(x0, y0), Offset(x0, y0 - 12), p);
-    c.drawLine(Offset(x0, y0 - 12), Offset(x0 - 5, y0 - 5), p);
-    c.drawLine(Offset(x0, y0 - 12), Offset(x0 + 5, y0 - 5), p);
-  }
-
-  // Sliding: mid stile + track arrows (toRight decides arrow direction)
-  void _sliding(Canvas c, Cell cell, double s, {required bool toRight}) {
-    final rp  = _cellPx(cell, s);
-    final pad = math.min(rp.width, rp.height) * 0.16;
-    final r   = rp.deflate(pad);
-
-    final p = Paint()..color = const Color(0xFF0F172A)..style = PaintingStyle.stroke..strokeWidth = 2;
-
-    // Overlap stile
-    final mid = r.center.dx;
-    c.drawLine(Offset(mid, r.top), Offset(mid, r.bottom), p);
-
-    // Direction arrow along top rail
-    final y = r.top + r.height * 0.18;
-    final len = r.width * 0.22;
-    if (toRight) {
-      c.drawLine(Offset(mid - len, y), Offset(mid + len, y), p);
-      final arr = Path()
-        ..moveTo(mid + len, y)
-        ..lineTo(mid + len - 8, y - 6)
-        ..lineTo(mid + len - 8, y + 6)
-        ..close();
-      c.drawPath(arr, Paint()..color = p.color);
-    } else {
-      c.drawLine(Offset(mid + len, y), Offset(mid - len, y), p);
-      final arr = Path()
-        ..moveTo(mid - len, y)
-        ..lineTo(mid - len + 8, y - 6)
-        ..lineTo(mid - len + 8, y + 6)
-        ..close();
-      c.drawPath(arr, Paint()..color = p.color);
+    for (int r = 1; r < rows; r++) {
+      final y = r * cellH;
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), paintMullion);
     }
   }
 
-  // Door: true quarter-circle swing; respects L/R + In/Out from OUTSIDE view
-  void _door(Canvas c, Cell cell, double s, {required bool outward, required bool rightHinge}) {
-    final rp  = _cellPx(cell, s);
-    final pad = math.min(rp.width, rp.height) * 0.12;
-    final r   = rp.deflate(pad);
-
-    final hingeRight = model.outsideView ? rightHinge : !rightHinge;
-
-    final p = Paint()..color = const Color(0xFF0F172A)..style = PaintingStyle.stroke..strokeWidth = 2;
-
-    // Closed leaf line at hinge stile (thin)
-    if (hingeRight) {
-      c.drawLine(Offset(r.right, r.top), Offset(r.right, r.bottom), p);
-    } else {
-      c.drawLine(Offset(r.left, r.top), Offset(r.left, r.bottom), p);
-    }
-
-    // Arc quadrant: choose start angle by hand + in/out
-    // Canvas angles: 0=+x, pi/2=+y (down). Quarter sweep.
-    double start;
-    if (hingeRight && outward) start = math.pi;           // open toward outside, hinge at right
-    else if (hingeRight && !outward) start = 3 * math.pi / 2;
-    else if (!hingeRight && outward) start = 3 * math.pi / 2;
-    else start = math.pi;
-
-    final sweep = math.pi / 2;
-    final arcRect = r;
-    final path = Path()..addArc(arcRect, start, sweep);
-    c.drawPath(path, p);
-  }
-
-  // ----- dims / selection / badge -----
-  void _drawDimensions(Canvas c, double s) {
-    final line = Paint()..color = const Color(0xFF94A3B8)..strokeWidth = 1;
-
-    const y = -16.0;
-    c.drawLine(Offset(0, y), Offset(model.widthMm * s, y), line);
-    c.drawLine(const Offset(0, y - 6), const Offset(0, y + 6), line);
-    c.drawLine(Offset(model.widthMm * s, y - 6), Offset(model.widthMm * s, y + 6), line);
-    final w = _tp('${model.widthMm.toStringAsFixed(0)} mm');
-    w.paint(c, Offset(model.widthMm * s / 2 - w.width / 2, y - 18));
-
-    const x = -16.0;
-    c.drawLine(const Offset(x, 0), Offset(x, model.heightMm * s), line);
-    c.drawLine(const Offset(x - 6, 0), const Offset(x + 6, 0), line);
-    c.drawLine(Offset(x - 6, model.heightMm * s), Offset(x + 6, model.heightMm * s), line);
-    final h = _tp('${model.heightMm.toStringAsFixed(0)} mm');
-    c.save();
-    c.translate(x - 18, model.heightMm * s / 2 + h.width / 2);
-    c.rotate(-math.pi / 2);
-    h.paint(c, Offset.zero);
-    c.restore();
-  }
-
-  void _drawSelection(Canvas c, double s) {
-    final sel = selection;
-    if (sel == null) return;
-
-    final paint = Paint()..color = const Color(0xFF2563EB)..strokeWidth = 3..style = PaintingStyle.stroke;
-
-    if (sel is CellSelection) {
-      final mm = model.cellRectMm(sel.cell);
-      final rp = Rect.fromLTWH(mm.left * s, mm.top * s, mm.width * s, mm.height * s).deflate(6);
-      c.drawRect(rp, paint);
-    } else if (sel is DividerSelection) {
-      if (sel.axis == Axis.vertical) {
-        final x = model.vDividersMm[sel.index] * s;
-        c.drawLine(Offset(x, 0), Offset(x, model.heightMm * s), paint);
-      } else {
-        final y = model.hDividersMm[sel.index] * s;
-        c.drawLine(Offset(0, y), Offset(model.widthMm * s, y), paint);
-      }
+  SashType _mirrorForInside(SashType t, bool outside) {
+    if (outside) return t;
+    switch (t) {
+      case SashType.casementLeft:  return SashType.casementRight;
+      case SashType.casementRight: return SashType.casementLeft;
+      case SashType.tiltTurnLeft:  return SashType.tiltTurnRight;
+      case SashType.tiltTurnRight: return SashType.tiltTurnLeft;
+      case SashType.slidingLeft:   return SashType.slidingRight;
+      case SashType.slidingRight:  return SashType.slidingLeft;
+      default: return t;
     }
   }
 
-  void _drawViewBadge(Canvas c, Rect frameRect) {
-    final label = model.outsideView ? 'OUTSIDE (SECURE) VIEW' : 'INSIDE VIEW';
-    final tp = _tp(label, color: model.outsideView ? const Color(0xFF0EA5E9) : const Color(0xFF16A34A), weight: FontWeight.w600);
-    const pad = 6.0;
-    final rect = Rect.fromLTWH(0, frameRect.height + 8, tp.width + pad * 2, tp.height + pad * 2);
-    c.drawRRect(RRect.fromRectAndRadius(rect, const Radius.circular(6)), Paint()..color = const Color(0xFFF1F5F9));
-    tp.paint(c, Offset(pad, frameRect.height + 8 + pad));
+  void _drawGlyph(Canvas canvas, Rect r, SashType type, Paint p) {
+    switch (type) {
+      case SashType.fixed:
+        _drawFixed(canvas, r);
+        break;
+      case SashType.casementLeft:
+        _drawCasement(canvas, r, leftHinge: true, paint: p);
+        break;
+      case SashType.casementRight:
+        _drawCasement(canvas, r, leftHinge: false, paint: p);
+        break;
+      case SashType.tilt:
+        _drawTilt(canvas, r, p);
+        break;
+      case SashType.tiltTurnLeft:
+        _drawTiltTurn(canvas, r, sideApex: _SideApex.right, paint: p); // TOP + RIGHT
+        break;
+      case SashType.tiltTurnRight:
+        _drawTiltTurn(canvas, r, sideApex: _SideApex.left, paint: p);  // TOP + LEFT
+        break;
+      case SashType.slidingLeft:
+        _drawSliding(canvas, r, toLeft: true, paint: p);
+        break;
+      case SashType.slidingRight:
+        _drawSliding(canvas, r, toLeft: false, paint: p);
+        break;
+    }
   }
 
-  TextPainter _tp(String text, {Color color = const Color(0xFF475569), FontWeight weight = FontWeight.w500}) {
-    return TextPainter(
-      text: TextSpan(text: text, style: TextStyle(fontSize: 12, color: color, fontWeight: weight, letterSpacing: 0.2)),
+  // Fixed: big F in center
+  void _drawFixed(Canvas canvas, Rect r) {
+    final tp = TextPainter(
+      text: const TextSpan(
+        text: 'F',
+        style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Colors.black),
+      ),
       textDirection: TextDirection.ltr,
     )..layout();
+    tp.paint(canvas, Offset(r.center.dx - tp.width / 2, r.center.dy - tp.height / 2));
+  }
+
+  // Casement: main diagonal + short legs at handle side
+  void _drawCasement(Canvas canvas, Rect r, {required bool leftHinge, required Paint paint}) {
+    final path = Path();
+    if (leftHinge) {
+      path.moveTo(r.left, r.top);
+      path.lineTo(r.right, r.bottom);
+      final cx = r.right - r.width * 0.1;
+      path
+        ..moveTo(cx, r.top + r.height * 0.06)
+        ..lineTo(r.right, r.top)
+        ..moveTo(cx, r.bottom - r.height * 0.06)
+        ..lineTo(r.right, r.bottom);
+    } else {
+      path.moveTo(r.right, r.top);
+      path.lineTo(r.left, r.bottom);
+      final cx = r.left + r.width * 0.1;
+      path
+        ..moveTo(cx, r.top + r.height * 0.06)
+        ..lineTo(r.left, r.top)
+        ..moveTo(cx, r.bottom - r.height * 0.06)
+        ..lineTo(r.left, r.bottom);
+    }
+    canvas.drawPath(path, paint);
+  }
+
+  // Tilt: apex TOP, base on bottom
+  void _drawTilt(Canvas canvas, Rect r, Paint p) {
+    final path = Path()
+      ..moveTo(r.center.dx, r.top)
+      ..lineTo(r.left, r.bottom)
+      ..moveTo(r.center.dx, r.top)
+      ..lineTo(r.right, r.bottom)
+      ..moveTo(r.left, r.bottom)
+      ..lineTo(r.right, r.bottom);
+    canvas.drawPath(path, p);
+  }
+
+  // Tilt&Turn: two clear triangles.
+  // Requirement:
+  //   • TT RIGHT => triangles apex at TOP and LEFT
+  //   • TT LEFT  => triangles apex at TOP and RIGHT
+  void _drawTiltTurn(Canvas canvas, Rect r, {required _SideApex sideApex, required Paint paint}) {
+    // Triangle A: apex at TOP center, base across bottom corners
+    final topTri = Path()
+      ..moveTo(r.center.dx, r.top)   // apex (sharp)
+      ..lineTo(r.left, r.bottom)     // left base
+      ..lineTo(r.right, r.bottom)    // right base
+      ..close();
+    // But we only want the triangle "lines" (not filled). Draw the three edges:
+    canvas.drawLine(Offset(r.center.dx, r.top), Offset(r.left, r.bottom), paint);
+    canvas.drawLine(Offset(r.center.dx, r.top), Offset(r.right, r.bottom), paint);
+    canvas.drawLine(Offset(r.left, r.bottom), Offset(r.right, r.bottom), paint);
+
+    // Triangle B: apex on LEFT or RIGHT center, base on opposite vertical corners
+    if (sideApex == _SideApex.left) {
+      // Apex at left center, base at top-right and bottom-right
+      canvas.drawLine(Offset(r.left, r.center.dy), Offset(r.right, r.top), paint);
+      canvas.drawLine(Offset(r.left, r.center.dy), Offset(r.right, r.bottom), paint);
+      // Base edge along right side for a crisp triangle impression
+      canvas.drawLine(Offset(r.right, r.top), Offset(r.right, r.bottom), paint);
+    } else {
+      // Apex at right center, base at top-left and bottom-left
+      canvas.drawLine(Offset(r.right, r.center.dy), Offset(r.left, r.top), paint);
+      canvas.drawLine(Offset(r.right, r.center.dy), Offset(r.left, r.bottom), paint);
+      // Base edge along left side
+      canvas.drawLine(Offset(r.left, r.top), Offset(r.left, r.bottom), paint);
+    }
+  }
+
+  // Sliding: long arrow
+  void _drawSliding(Canvas canvas, Rect r, {required bool toLeft, required Paint paint}) {
+    final y = r.center.dy;
+    final l = r.left + r.width * 0.12;
+    final ri = r.right - r.width * 0.12;
+    final start = Offset(toLeft ? ri : l, y);
+    final end = Offset(toLeft ? l : ri, y);
+
+    canvas.drawLine(start, end, paint);
+
+    final ah = r.shortestSide * 0.06; // arrow head size
+    final dir = toLeft ? -1 : 1;
+    final head1 = Offset(end.dx - dir * ah, end.dy - ah * 0.55);
+    final head2 = Offset(end.dx - dir * ah, end.dy + ah * 0.55);
+    canvas.drawLine(end, head1, paint);
+    canvas.drawLine(end, head2, paint);
   }
 
   @override
-  bool shouldRepaint(covariant DesignPainter oldDelegate) => true;
+  bool shouldRepaint(covariant _WindowPainter old) {
+    return rows != old.rows ||
+        cols != old.cols ||
+        outsideView != old.outsideView ||
+        selectedIndex != old.selectedIndex ||
+        !_listEquals(cells, old.cells);
+  }
+
+  bool _listEquals(List a, List b) {
+    if (identical(a, b)) return true;
+    if (a.length != b.length) return false;
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+    return true;
+  }
 }
 
-// ======================= UI Bits =======================
+enum _SideApex { left, right }
 
-class _Toolbar extends StatelessWidget {
-  final VoidCallback onAddVertical;
-  final VoidCallback onAddHorizontal;
-  final VoidCallback? onDeleteDivider;
-  final OpeningType? currentType;
-  final ValueChanged<OpeningType> onSetType;
+// ── UI helpers ────────────────────────────────────────────────────────────────
 
-  const _Toolbar({
-    required this.onAddVertical,
-    required this.onAddHorizontal,
-    required this.onDeleteDivider,
-    required this.currentType,
-    required this.onSetType,
+class _ToolPalette extends StatelessWidget {
+  final SashType active;
+  final ValueChanged<SashType> onChanged;
+  const _ToolPalette({required this.active, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    final items = <_ToolItem>[
+      _ToolItem('F', SashType.fixed),
+      _ToolItem('CL', SashType.casementLeft),
+      _ToolItem('CR', SashType.casementRight),
+      _ToolItem('T', SashType.tilt),
+      _ToolItem('TTR', SashType.tiltTurnRight), // top + left
+      _ToolItem('TTL', SashType.tiltTurnLeft),  // top + right
+      _ToolItem('SL', SashType.slidingLeft),
+      _ToolItem('SR', SashType.slidingRight),
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 6, 8, 10),
+      child: Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: items.map((ti) {
+          final selected = ti.type == active;
+          return ChoiceChip(
+            label: Text(ti.label),
+            selected: selected,
+            onSelected: (_) => onChanged(ti.type),
+          );
+        }).toList(),
+      ),
+    );
+  }
+}
+
+class _ToolItem {
+  final String label;
+  final SashType type;
+  _ToolItem(this.label, this.type);
+}
+
+class _RowsColsPicker extends StatelessWidget {
+  final int rows;
+  final int cols;
+  final void Function(int rows, int cols) onChanged;
+  const _RowsColsPicker({
+    required this.rows,
+    required this.cols,
+    required this.onChanged,
   });
 
   @override
   Widget build(BuildContext context) {
-    final chipStyle = Theme.of(context).chipTheme;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.4),
-      child: Row(
-        children: [
-          FilledButton.tonalIcon(onPressed: onAddVertical, icon: const Icon(Icons.space_bar), label: const Text('Add Vertical')),
-          const SizedBox(width: 8),
-          FilledButton.tonalIcon(onPressed: onAddHorizontal, icon: const Icon(Icons.align_horizontal_center), label: const Text('Add Horizontal')),
-          const SizedBox(width: 8),
-          FilledButton.tonalIcon(onPressed: onDeleteDivider, icon: const Icon(Icons.delete_outline), label: const Text('Delete Divider')),
-          const SizedBox(width: 16),
-          const Text('Opening:'),
-          const SizedBox(width: 8),
-          _OpeningPicker(current: currentType, onPick: onSetType),
-          const Spacer(),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            decoration: ShapeDecoration(
-              color: Colors.black.withOpacity(0.04),
-              shape: StadiumBorder(side: BorderSide(color: Colors.black.withOpacity(0.06))),
-            ),
-            child: Text('Tap a cell • Long-press near a divider • Drag divider', style: chipStyle.labelStyle),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _OpeningPicker extends StatelessWidget {
-  final OpeningType? current;
-  final ValueChanged<OpeningType> onPick;
-  const _OpeningPicker({required this.current, required this.onPick});
-
-  @override
-  Widget build(BuildContext context) {
-    final value = current ?? OpeningType.fixed;
-    return DropdownButton<OpeningType>(
-      value: value,
-      onChanged: (v) { if (v != null) onPick(v); },
-      items: [
-        _item(OpeningType.fixed, 'Fixed'),
-        _item(OpeningType.casementLeft, 'Casement L'),
-        _item(OpeningType.casementRight, 'Casement R'),
-        _item(OpeningType.tilt, 'Tilt'),
-        _item(OpeningType.tiltTurnLeft, 'Tilt&Turn L'),
-        _item(OpeningType.tiltTurnRight, 'Tilt&Turn R'),
-        _item(OpeningType.slidingLeft, 'Sliding L'),
-        _item(OpeningType.slidingRight, 'Sliding R'),
-        const DropdownMenuItem<OpeningType>(enabled: false, child: Divider(height: 1)),
-        _item(OpeningType.doorInLeft, 'Door In L'),
-        _item(OpeningType.doorInRight, 'Door In R'),
-        _item(OpeningType.doorOutLeft, 'Door Out L'),
-        _item(OpeningType.doorOutRight, 'Door Out R'),
+    return Row(
+      children: [
+        _stepper('Rows', rows, (v) => onChanged(v, cols)),
+        const SizedBox(width: 10),
+        _stepper('Cols', cols, (v) => onChanged(rows, v)),
       ],
     );
   }
 
-  DropdownMenuItem<OpeningType> _item(OpeningType t, String label) =>
-      DropdownMenuItem(value: t, child: Text(label));
-}
-
-class _QuickTypeFab extends StatelessWidget {
-  final bool enabled;
-  final ValueChanged<OpeningType> onPick;
-  const _QuickTypeFab({required this.enabled, required this.onPick});
-
-  @override
-  Widget build(BuildContext context) {
-    return PopupMenuButton<OpeningType>(
-      enabled: enabled,
-      onSelected: onPick,
-      tooltip: enabled ? 'Set opening type for selected cell' : 'Select a cell first',
-      itemBuilder: (_) => [
-        _item(OpeningType.fixed, 'Fixed'),
-        _item(OpeningType.casementLeft, 'Casement L'),
-        _item(OpeningType.casementRight, 'Casement R'),
-        _item(OpeningType.tilt, 'Tilt'),
-        _item(OpeningType.tiltTurnLeft, 'Tilt&Turn L'),
-        _item(OpeningType.tiltTurnRight, 'Tilt&Turn R'),
-        _item(OpeningType.slidingLeft, 'Sliding L'),
-        _item(OpeningType.slidingRight, 'Sliding R'),
-        const PopupMenuDivider(),
-        _item(OpeningType.doorInLeft, 'Door In L'),
-        _item(OpeningType.doorInRight, 'Door In R'),
-        _item(OpeningType.doorOutLeft, 'Door Out L'),
-        _item(OpeningType.doorOutRight, 'Door Out R'),
+  Widget _stepper(String title, int value, ValueChanged<int> onVal) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text('$title: ', style: const TextStyle(fontWeight: FontWeight.w600)),
+        IconButton(
+          tooltip: 'Decrease $title',
+          onPressed: value > 1 ? () => onVal(value - 1) : null,
+          icon: const Icon(Icons.remove_circle_outline),
+        ),
+        Text('$value'),
+        IconButton(
+          tooltip: 'Increase $title',
+          onPressed: value < 8 ? () => onVal(value + 1) : null,
+          icon: const Icon(Icons.add_circle_outline),
+        ),
       ],
-      child: const FloatingActionButton.extended(onPressed: null, icon: Icon(Icons.window_outlined), label: Text('Opening')),
     );
   }
-
-  PopupMenuItem<OpeningType> _item(OpeningType t, String label) =>
-      PopupMenuItem(value: t, child: Text(label));
 }
 
-class _BottomInfo extends StatelessWidget {
-  final DesignModel model;
-  const _BottomInfo({required this.model});
+class _Legend extends StatelessWidget {
+  final ThemeData theme;
+  const _Legend({required this.theme});
 
   @override
   Widget build(BuildContext context) {
-    final dims = '${model.widthMm.toStringAsFixed(0)} × ${model.heightMm.toStringAsFixed(0)} mm';
-    final cells = '${model.cols} × ${model.rows} = ${model.cols * model.rows} cells';
+    final style = theme.textTheme.bodySmall;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const _Swatch(color: kGlassFill),
+        const SizedBox(width: 6),
+        Text('Glass', style: style),
+        const SizedBox(width: 14),
+        const _Swatch(color: kLineColor, borderOnly: true),
+        const SizedBox(width: 6),
+        Text('Frame/Mullion', style: style),
+      ],
+    );
+  }
+}
+
+class _Swatch extends StatelessWidget {
+  final Color color;
+  final bool borderOnly;
+  const _Swatch({required this.color, this.borderOnly = false});
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      width: 18,
+      height: 14,
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.4),
-        border: const Border(top: BorderSide(color: Color(0x11000000))),
-      ),
-      child: Row(
-        children: [
-          Text('Size: $dims'),
-          const SizedBox(width: 16),
-          Text('Grid: $cells'),
-          const Spacer(),
-          Text('Min cell: ${model.minCellSizeMm.toStringAsFixed(0)} mm'),
-        ],
+        color: borderOnly ? null : color,
+        border: Border.all(color: kLineColor, width: 1.3),
+        borderRadius: BorderRadius.circular(2),
       ),
     );
   }
