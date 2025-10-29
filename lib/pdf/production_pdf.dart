@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
@@ -342,10 +343,14 @@ Future<void> exportGlassResultsPdf({
     ),
   );
 
-  await Printing.sharePdf(
-    bytes: await doc.save(),
-    filename: 'glass_results.pdf',
-  );
+  try {
+    await Printing.layoutPdf(
+      onLayout: (PdfPageFormat format) async => doc.save(),
+      name: 'glass_results.pdf',
+    );
+  } catch (e) {
+    debugPrint('Error printing PDF: $e');
+  }
 }
 
 Future<void> exportBlindResultsPdf({
@@ -439,10 +444,14 @@ Future<void> exportBlindResultsPdf({
     ),
   );
 
-  await Printing.sharePdf(
-    bytes: await doc.save(),
-    filename: 'blind_results.pdf',
-  );
+  try {
+    await Printing.layoutPdf(
+      onLayout: (PdfPageFormat format) async => doc.save(),
+      name: 'blind_results.pdf',
+    );
+  } catch (e) {
+    debugPrint('Error printing PDF: $e');
+  }
 }
 
 Future<void> exportHekriResultsPdf({
@@ -537,10 +546,14 @@ Future<void> exportHekriResultsPdf({
     ),
   );
 
-  await Printing.sharePdf(
-    bytes: await doc.save(),
-    filename: 'hekri_results.pdf',
-  );
+  try {
+    await Printing.layoutPdf(
+      onLayout: (PdfPageFormat format) async => doc.save(),
+      name: 'hekri_results.pdf',
+    );
+  } catch (e) {
+    debugPrint('Error printing PDF: $e');
+  }
 }
 
 Future<void> exportCuttingResultsPdf<T>({
@@ -676,8 +689,12 @@ Future<void> exportCuttingResultsPdf<T>({
     ),
   );
 
-  await Printing.sharePdf(
-    bytes: await doc.save(),
-    filename: 'cutting_results.pdf',
-  );
+  try {
+    await Printing.layoutPdf(
+      onLayout: (PdfPageFormat format) async => doc.save(),
+      name: 'cutting_results.pdf',
+    );
+  } catch (e) {
+    debugPrint('Error printing PDF: $e');
+  }
 }
