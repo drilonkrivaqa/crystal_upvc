@@ -1,8 +1,9 @@
 Map<int, String> buildOfferLetterMap(Set<int> selectedOffers) {
   final sorted = selectedOffers.toList()..sort();
   final map = <int, String>{};
+  final shouldAssignLetters = sorted.length > 1;
   for (var i = 0; i < sorted.length; i++) {
-    map[sorted[i]] = _letterForIndex(i);
+    map[sorted[i]] = shouldAssignLetters ? _letterForIndex(i) : '';
   }
   return map;
 }
