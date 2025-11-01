@@ -29,11 +29,38 @@ const double kMullionStroke = 3;
 const double kSashStroke    = 3;
 
 // Colors
-const Color kPVC            = Color(0xFFEDEFF2);   // light PVC body
-const Color kPVCShadow      = Color(0xFFCCD2DA);   // subtle inner shadow edge
-const Color kGlassFill      = Color(0xFFAEDCF2);   // calm blue glass
 const Color kLineColor      = Colors.black87;
-const Color kBlindBoxColor  = Color(0xFFB0B3B8);
+
+class _ProfileColorOption {
+  final String label;
+  final Color base;
+  final Color shadow;
+  const _ProfileColorOption(this.label, this.base, this.shadow);
+}
+
+class _SimpleColorOption {
+  final String label;
+  final Color color;
+  const _SimpleColorOption(this.label, this.color);
+}
+
+const _profileColorOptions = <_ProfileColorOption>[
+  _ProfileColorOption('White', Color(0xFFEDEFF2), Color(0xFFCCD2DA)),
+  _ProfileColorOption('Anthracite', Color(0xFF4A5058), Color(0xFF2F343A)),
+  _ProfileColorOption('Golden Oak', Color(0xFFB48346), Color(0xFF8C6330)),
+];
+
+const _blindColorOptions = <_SimpleColorOption>[
+  _SimpleColorOption('White', Color(0xFFEDEFF2)),
+  _SimpleColorOption('Anthracite', Color(0xFF4A5058)),
+  _SimpleColorOption('Golden Oak', Color(0xFFB48346)),
+];
+
+const _glassColorOptions = <_SimpleColorOption>[
+  _SimpleColorOption('Blue', Color(0xFFAEDCF2)),
+  _SimpleColorOption('White', Color(0xFFF7FAFC)),
+  _SimpleColorOption('Grey Blue', Color(0xFF9FB4C7)),
+];
 
 // Selection outline
 const Color kSelectOutline  = Color(0xFF1E88E5);   // blue outline
@@ -87,6 +114,9 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
   int? selectedIndex;
 
   late List<SashType> cells;
+  late List<Color> cellGlassColors;
+  late _ProfileColorOption profileColor;
+  late _SimpleColorOption blindColor;
 
   final _repaintKey = GlobalKey();
 
@@ -97,6 +127,10 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     cols = (widget.initialCols ?? cols).clamp(1, 8).toInt();
     showBlindBox = widget.initialShowBlind ?? showBlindBox;
     cells = List<SashType>.filled(rows * cols, SashType.fixed, growable: true);
+    cellGlassColors =
+        List<Color>.filled(rows * cols, _glassColorOptions.first.color, growable: true);
+    profileColor = _profileColorOptions.first;
+    blindColor = _blindColorOptions.first;
   }
 
   void _regrid(int r, int c) {
@@ -104,6 +138,8 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
       rows = r.clamp(1, 8);
       cols = c.clamp(1, 8);
       cells = List<SashType>.filled(rows * cols, SashType.fixed, growable: true);
+      cellGlassColors =
+          List<Color>.filled(rows * cols, _glassColorOptions.first.color, growable: true);
       selectedIndex = null;
     });
   }
@@ -177,10 +213,14 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
   void _reset() {
     setState(() {
       cells = List<SashType>.filled(rows * cols, SashType.fixed, growable: true);
+      cellGlassColors =
+          List<Color>.filled(rows * cols, _glassColorOptions.first.color, growable: true);
       selectedIndex = null;
       activeTool = SashType.fixed;
       outsideView = true;
       showBlindBox = false;
+      profileColor = _profileColorOptions.first;
+      blindColor = _blindColorOptions.first;
     });
   }
 
@@ -228,7 +268,55 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
                     const Text('Roller blind box'),
                   ],
                 ),
-                _Legend(theme: theme),
+                _colorGroup(
+                  title: 'Profile colour',
+                  chips: _profileColorOptions.map((opt) {
+                    final selected = profileColor == opt;
+                    return ChoiceChip(
+                      label: Text(opt.label),
+                      avatar: _ColorDot(color: opt.base),
+                      selected: selected,
+                      onSelected: (_) => setState(() => profileColor = opt),
+                    );
+                  }).toList(),
+                ),
+                if (showBlindBox)
+                  _colorGroup(
+                    title: 'Blind colour',
+                    chips: _blindColorOptions.map((opt) {
+                      final selected = blindColor == opt;
+                      return ChoiceChip(
+                        label: Text(opt.label),
+                        avatar: _ColorDot(color: opt.color),
+                        selected: selected,
+                        onSelected: (_) => setState(() => blindColor = opt),
+                      );
+                    }).toList(),
+                  ),
+                _colorGroup(
+                  title: selectedIndex == null
+                      ? 'Glass colour (select a section)'
+                      : 'Glass colour',
+                  chips: _glassColorOptions.map((opt) {
+                    final isSelected =
+                        selectedIndex != null && cellGlassColors[selectedIndex!] == opt.color;
+                    return ChoiceChip(
+                      label: Text(opt.label),
+                      avatar: _ColorDot(color: opt.color),
+                      selected: isSelected,
+                      onSelected: selectedIndex != null
+                          ? (_) => setState(() => cellGlassColors[selectedIndex!] = opt.color)
+                          : null,
+                    );
+                  }).toList(),
+                ),
+                _Legend(
+                  theme: theme,
+                  frameColor: profileColor.base,
+                  glassColor: selectedIndex != null
+                      ? cellGlassColors[selectedIndex!]
+                      : _glassColorOptions.first.color,
+                ),
               ],
             ),
           ),
@@ -254,6 +342,9 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
                             outsideView: outsideView,
                             showBlindBox: showBlindBox,
                             windowHeightMm: _windowHeightMm,
+                            cellGlassColors: cellGlassColors,
+                            profileColor: profileColor,
+                            blindColor: blindColor,
                           ),
                         ),
                       ),
@@ -305,6 +396,22 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     }
     return canvasHeightPx / totalMm;
   }
+
+  Widget _colorGroup({required String title, required List<Widget> chips}) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+        const SizedBox(height: 4),
+        Wrap(
+          spacing: 6,
+          runSpacing: 6,
+          children: chips,
+        ),
+      ],
+    );
+  }
 }
 
 // ── painter ───────────────────────────────────────────────────────────────────
@@ -313,19 +420,25 @@ class _WindowPainter extends CustomPainter {
   final int rows;
   final int cols;
   final List<SashType> cells;
+  final List<Color> cellGlassColors;
   final int? selectedIndex;
   final bool outsideView;
   final bool showBlindBox;
   final double windowHeightMm;
+  final _ProfileColorOption profileColor;
+  final _SimpleColorOption blindColor;
 
   _WindowPainter({
     required this.rows,
     required this.cols,
     required this.cells,
+    required this.cellGlassColors,
     required this.selectedIndex,
     required this.outsideView,
     required this.showBlindBox,
     required this.windowHeightMm,
+    required this.profileColor,
+    required this.blindColor,
   });
 
   @override
@@ -336,12 +449,12 @@ class _WindowPainter extends CustomPainter {
 
     // Paint objects
     final paintFrameFill = Paint()
-      ..color = kPVC
+      ..color = profileColor.base
       ..style = PaintingStyle.fill
       ..isAntiAlias = true;
 
     final paintFrameEdge = Paint()
-      ..color = kPVCShadow
+      ..color = profileColor.shadow
       ..style = PaintingStyle.stroke
       ..strokeWidth = kFrameStroke
       ..isAntiAlias = true;
@@ -359,14 +472,13 @@ class _WindowPainter extends CustomPainter {
       ..isAntiAlias = true;
 
     final paintGlass = Paint()
-      ..color = kGlassFill
       ..style = PaintingStyle.fill
       ..isAntiAlias = true;
 
     if (showBlindBox) {
       final blindRect = Rect.fromLTWH(0, 0, size.width, blindHeightPx);
       final blindFill = Paint()
-        ..color = kBlindBoxColor
+        ..color = blindColor.color
         ..style = PaintingStyle.fill
         ..isAntiAlias = true;
       final blindOutline = Paint()
@@ -391,7 +503,7 @@ class _WindowPainter extends CustomPainter {
     // A subtle inner shadow edge on the opening perimeter (to read as depth)
     final lipRect = opening; // same outline, just a slightly darker stroke
     final lipPaint = Paint()
-      ..color = kPVCShadow.withOpacity(0.8)
+      ..color = profileColor.shadow.withOpacity(0.8)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.3
       ..isAntiAlias = true;
@@ -415,6 +527,7 @@ class _WindowPainter extends CustomPainter {
         );
 
         // Glass
+        paintGlass.color = cellGlassColors[idx];
         canvas.drawRect(rect, paintGlass);
 
         // Selection (non-tint dashed outline, toggle-able)
@@ -617,7 +730,10 @@ class _WindowPainter extends CustomPainter {
         showBlindBox != old.showBlindBox ||
         windowHeightMm != old.windowHeightMm ||
         selectedIndex != old.selectedIndex ||
-        !_listEquals(cells, old.cells);
+        profileColor != old.profileColor ||
+        blindColor != old.blindColor ||
+        !_listEquals(cells, old.cells) ||
+        !_listEquals(cellGlassColors, old.cellGlassColors);
   }
 
   bool _listEquals(List a, List b) {
@@ -720,7 +836,9 @@ class _RowsColsPicker extends StatelessWidget {
 
 class _Legend extends StatelessWidget {
   final ThemeData theme;
-  const _Legend({required this.theme});
+  final Color frameColor;
+  final Color glassColor;
+  const _Legend({required this.theme, required this.frameColor, required this.glassColor});
 
   @override
   Widget build(BuildContext context) {
@@ -728,13 +846,17 @@ class _Legend extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const _Swatch(color: kGlassFill),
+        _Swatch(color: glassColor),
         const SizedBox(width: 6),
         Text('Glass', style: style),
         const SizedBox(width: 14),
-        const _Swatch(color: kLineColor, borderOnly: true),
+        _Swatch(color: kLineColor, borderOnly: true),
         const SizedBox(width: 6),
         Text('Frame/Mullion', style: style),
+        const SizedBox(width: 14),
+        _Swatch(color: frameColor),
+        const SizedBox(width: 6),
+        Text('Profile', style: style),
       ],
     );
   }
@@ -754,6 +876,24 @@ class _Swatch extends StatelessWidget {
         color: borderOnly ? null : color,
         border: Border.all(color: kLineColor, width: 1.3),
         borderRadius: BorderRadius.circular(2),
+      ),
+    );
+  }
+}
+
+class _ColorDot extends StatelessWidget {
+  final Color color;
+  const _ColorDot({required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 20,
+      height: 20,
+      decoration: BoxDecoration(
+        color: color,
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.black26),
       ),
     );
   }
