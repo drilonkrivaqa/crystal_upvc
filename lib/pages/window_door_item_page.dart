@@ -194,7 +194,11 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                         MaterialPageRoute(builder: (_) => designerPage),
                       );
                       if (bytes != null && mounted) {
-                        setState(() => _designImageBytes = bytes);
+                        setState(() {
+                          _designImageBytes = bytes;
+                          photoBytes = bytes;
+                          photoPath = null;
+                        });
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                               content: Text(l10n.designImageAttached)),
@@ -229,6 +233,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                                     setState(() {
                                       photoPath = picked.path;
                                       photoBytes = bytes;
+                                      _designImageBytes = null;
                                     });
                                   }
                                 },
