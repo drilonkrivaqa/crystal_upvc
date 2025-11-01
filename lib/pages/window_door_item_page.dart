@@ -188,6 +188,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                             (heightValue != null && heightValue > 0) ? heightValue : null,
                         initialRows: initialRows,
                         initialCols: initialCols,
+                        initialShowBlind: blindIndex != null,
                       );
 
                       final bytes = await Navigator.push<Uint8List>(

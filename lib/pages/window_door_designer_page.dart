@@ -62,6 +62,7 @@ class WindowDoorDesignerPage extends StatefulWidget {
   final double? initialHeight;
   final int? initialRows;
   final int? initialCols;
+  final bool? initialShowBlind;
 
   const WindowDoorDesignerPage({
     super.key,
@@ -69,6 +70,7 @@ class WindowDoorDesignerPage extends StatefulWidget {
     this.initialHeight,
     this.initialRows,
     this.initialCols,
+    this.initialShowBlind,
   });
 
   @override
@@ -93,6 +95,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     super.initState();
     rows = (widget.initialRows ?? rows).clamp(1, 8).toInt();
     cols = (widget.initialCols ?? cols).clamp(1, 8).toInt();
+    showBlindBox = widget.initialShowBlind ?? showBlindBox;
     cells = List<SashType>.filled(rows * cols, SashType.fixed, growable: true);
   }
 
