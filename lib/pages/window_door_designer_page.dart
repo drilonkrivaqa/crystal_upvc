@@ -95,6 +95,7 @@ class WindowDoorDesignerPage extends StatefulWidget {
   final int? initialRows;
   final int? initialCols;
   final bool? initialShowBlind;
+  final List<SashType>? initialCells;
 
   const WindowDoorDesignerPage({
     super.key,
@@ -103,6 +104,7 @@ class WindowDoorDesignerPage extends StatefulWidget {
     this.initialRows,
     this.initialCols,
     this.initialShowBlind,
+    this.initialCells,
   });
 
   @override
@@ -136,6 +138,11 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
         List<Color>.filled(rows * cols, _glassColorOptions.first.color, growable: true);
     profileColor = _profileColorOptions.first;
     blindColor = _blindColorOptions.first;
+
+    final providedCells = widget.initialCells;
+    if (providedCells != null && providedCells.length == cells.length) {
+      cells = List<SashType>.from(providedCells, growable: true);
+    }
   }
 
   void _regrid(int r, int c) {
