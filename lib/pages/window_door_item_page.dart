@@ -62,6 +62,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   String? notes;
   int verticalSections = 1;
   int horizontalSections = 1;
+  bool _autoBlindApplied = false;
+  int? _lastAutoBlindHeight;
   List<bool> fixedSectors = [false];
   List<int> sectionWidths = [0];
   List<int> sectionHeights = [0];
@@ -150,6 +152,9 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     horizontalAdapters =
         List<bool>.from(widget.existingItem?.horizontalAdapters ?? []);
     _ensureGridSize();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _autoConfigureSectionsForBlind();
+    });
   }
 
   @override
@@ -276,7 +281,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                                     decoration: InputDecoration(
                                         labelText: l10n.heightMm),
                                     keyboardType: TextInputType.number,
-                                    onChanged: (_) => _recalculateHeights(),
+                                    onChanged: (_) => _onHeightChanged(),
                                   ),
                                 ),
                               ],
@@ -482,7 +487,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                                   ),
                               ],
                               onChanged: (val) =>
-                                  setState(() => blindIndex = val),
+                                  _onBlindChanged(val),
                             ),
                             const SizedBox(height: 12),
                             DropdownButtonFormField<int?>(
@@ -611,43 +616,144 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     if (newVertical < 1) newVertical = 1;
     if (newHorizontal < 1) newHorizontal = 1;
 
-    bool vChanged = newVertical != verticalSections;
-    bool hChanged = newHorizontal != horizontalSections;
-
-    verticalSections = newVertical;
-    horizontalSections = newHorizontal;
+    final bool vChanged = newVertical != verticalSections;
+    final bool hChanged = newHorizontal != horizontalSections;
 
     if (vChanged) {
-      for (final c in sectionWidthCtrls) {
-        c.dispose();
-      }
-      sectionWidths = List<int>.filled(verticalSections, 0);
-      sectionWidthCtrls = [
-        for (int i = 0; i < verticalSections; i++)
-          TextEditingController(text: '0')
-      ];
-      verticalAdapters = List<bool>.filled(verticalSections - 1, false);
+      _applyVerticalSectionCount(newVertical);
+      verticalController.text = newVertical.toString();
     }
-
     if (hChanged) {
-      for (final c in sectionHeightCtrls) {
-        c.dispose();
-      }
-      sectionHeights = List<int>.filled(horizontalSections, 0);
-      sectionHeightCtrls = [
-        for (int i = 0; i < horizontalSections; i++)
-          TextEditingController(text: '0')
-      ];
-      horizontalAdapters = List<bool>.filled(horizontalSections - 1, false);
+      _applyHorizontalSectionCount(newHorizontal);
+      horizontalController.text = newHorizontal.toString();
     }
 
     if (vChanged || hChanged) {
-      fixedSectors =
-          List<bool>.filled(verticalSections * horizontalSections, false);
+      _resetFixedSectors();
     }
 
     _ensureGridSize();
     setState(() {});
+  }
+
+  void _onHeightChanged() {
+    _recalculateHeights();
+    _autoConfigureSectionsForBlind();
+  }
+
+  void _onBlindChanged(int? val) {
+    setState(() => blindIndex = val);
+    if (val != null) {
+      _autoConfigureSectionsForBlind();
+    } else {
+      _clearAutoBlindConfiguration();
+    }
+  }
+
+  void _applyVerticalSectionCount(int sections) {
+    sections = sections < 1 ? 1 : sections;
+    if (sections == verticalSections) return;
+
+    for (final controller in sectionWidthCtrls) {
+      controller.dispose();
+    }
+    verticalSections = sections;
+    sectionWidths = List<int>.filled(verticalSections, 0);
+    sectionWidthCtrls = [
+      for (int i = 0; i < verticalSections; i++)
+        TextEditingController(text: '0')
+    ];
+    verticalAdapters = List<bool>.filled(verticalSections - 1, false);
+    _autoBlindApplied = false;
+    _lastAutoBlindHeight = null;
+  }
+
+  void _applyHorizontalSectionCount(int sections, {bool fromAuto = false}) {
+    sections = sections < 1 ? 1 : sections;
+    if (sections == horizontalSections) return;
+
+    for (final controller in sectionHeightCtrls) {
+      controller.dispose();
+    }
+    horizontalSections = sections;
+    sectionHeights = List<int>.filled(horizontalSections, 0);
+    sectionHeightCtrls = [
+      for (int i = 0; i < horizontalSections; i++)
+        TextEditingController(text: '0')
+    ];
+    horizontalAdapters = List<bool>.filled(horizontalSections - 1, false);
+    if (!fromAuto) {
+      _autoBlindApplied = false;
+      _lastAutoBlindHeight = null;
+    }
+  }
+
+  void _resetFixedSectors() {
+    fixedSectors = List<bool>.filled(verticalSections * horizontalSections, false);
+  }
+
+  void _autoConfigureSectionsForBlind() {
+    if (blindIndex == null) return;
+    final blind = blindBox.getAt(blindIndex!);
+    if (blind == null || blind.boxHeight <= 0) return;
+
+    final int totalHeight = int.tryParse(heightController.text) ?? 0;
+    if (totalHeight <= blind.boxHeight) {
+      return;
+    }
+
+    final bool hasManualHeights = horizontalSections > 1 &&
+        sectionHeights.take(horizontalSections - 1).any((h) {
+          if (h <= 0) return false;
+          if (_autoBlindApplied && _lastAutoBlindHeight != null) {
+            return h != _lastAutoBlindHeight;
+          }
+          return true;
+        });
+    if (hasManualHeights) {
+      _autoBlindApplied = false;
+      return;
+    }
+
+    if (horizontalSections < 2) {
+      _applyHorizontalSectionCount(2, fromAuto: true);
+      horizontalController.text = '2';
+      _resetFixedSectors();
+    }
+
+    _ensureGridSize();
+
+    if (sectionHeightCtrls.isEmpty) {
+      return;
+    }
+
+    sectionHeightCtrls[0].text = blind.boxHeight.toString();
+    sectionHeights[0] = blind.boxHeight;
+    for (int i = 1; i < horizontalSections - 1; i++) {
+      sectionHeightCtrls[i].text = '0';
+      sectionHeights[i] = 0;
+    }
+    _recalculateHeights(showErrors: false);
+    _autoBlindApplied = true;
+    _lastAutoBlindHeight = blind.boxHeight;
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  void _clearAutoBlindConfiguration() {
+    if (!_autoBlindApplied) return;
+
+    _autoBlindApplied = false;
+    _lastAutoBlindHeight = null;
+    _applyHorizontalSectionCount(1, fromAuto: true);
+    horizontalController.text = '1';
+    _resetFixedSectors();
+    _ensureGridSize();
+    _recalculateHeights(showErrors: false);
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   void _ensureGridSize() {
@@ -752,8 +858,18 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     int totalHeight = int.tryParse(heightController.text) ?? 0;
     int specifiedSum = 0;
     int unspecified = 0;
+    bool keepAutoBlind = _autoBlindApplied;
     for (int i = 0; i < horizontalSections - 1; i++) {
       int val = int.tryParse(sectionHeightCtrls[i].text) ?? 0;
+      if (_autoBlindApplied) {
+        if (i == 0) {
+          if (_lastAutoBlindHeight == null || val != _lastAutoBlindHeight) {
+            keepAutoBlind = false;
+          }
+        } else if (val > 0) {
+          keepAutoBlind = false;
+        }
+      }
       if (val <= 0) {
         unspecified++;
       } else {
@@ -785,6 +901,10 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     if (last < 0) last = 0;
     sectionHeights[horizontalSections - 1] = last;
     sectionHeightCtrls[horizontalSections - 1].text = last.toString();
+    if (!keepAutoBlind) {
+      _autoBlindApplied = false;
+      _lastAutoBlindHeight = null;
+    }
     if (mounted) setState(() {});
   }
 
