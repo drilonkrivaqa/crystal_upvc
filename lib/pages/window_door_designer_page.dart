@@ -82,6 +82,8 @@ enum SashType {
   tiltTurnRight,  // triangles apex TOP + LEFT
   slidingLeft,
   slidingRight,
+  slidingTiltLeft,
+  slidingTiltRight,
 }
 
 // -----------------------------------------------------------------------------
@@ -606,6 +608,8 @@ class _WindowPainter extends CustomPainter {
       case SashType.tiltTurnRight: return SashType.tiltTurnLeft;
       case SashType.slidingLeft:   return SashType.slidingRight;
       case SashType.slidingRight:  return SashType.slidingLeft;
+      case SashType.slidingTiltLeft:  return SashType.slidingTiltRight;
+      case SashType.slidingTiltRight: return SashType.slidingTiltLeft;
       default: return t;
     }
   }
@@ -641,6 +645,12 @@ class _WindowPainter extends CustomPainter {
         break;
       case SashType.slidingRight:
         _drawSliding(canvas, r, toLeft: false, paint: p);
+        break;
+      case SashType.slidingTiltLeft:
+        _drawSlidingTilt(canvas, r, toLeft: true, paint: p);
+        break;
+      case SashType.slidingTiltRight:
+        _drawSlidingTilt(canvas, r, toLeft: false, paint: p);
         break;
     }
   }
@@ -748,6 +758,34 @@ class _WindowPainter extends CustomPainter {
     canvas.drawLine(end, head2, paint);
   }
 
+  void _drawSlidingTilt(Canvas canvas, Rect r,
+      {required bool toLeft, required Paint paint}) {
+    // Draw the tilt triangle using the full rect for easy recognition.
+    _drawTilt(canvas, r, paint);
+
+    // Overlay a shorter sliding arrow to indicate lateral movement + tilt.
+    final arrowRect = Rect.fromCenter(
+      center: r.center,
+      width: r.width * 0.85,
+      height: r.height * 0.5,
+    );
+
+    final y = arrowRect.center.dy;
+    final l = arrowRect.left;
+    final ri = arrowRect.right;
+    final start = Offset(toLeft ? ri : l, y);
+    final end = Offset(toLeft ? l : ri, y);
+
+    canvas.drawLine(start, end, paint);
+
+    final ah = arrowRect.shortestSide * 0.3;
+    final dir = toLeft ? -1 : 1;
+    final head1 = Offset(end.dx - dir * ah, end.dy - ah * 0.55);
+    final head2 = Offset(end.dx - dir * ah, end.dy + ah * 0.55);
+    canvas.drawLine(end, head1, paint);
+    canvas.drawLine(end, head2, paint);
+  }
+
   @override
   bool shouldRepaint(covariant _WindowPainter old) {
     return rows != old.rows ||
@@ -794,6 +832,8 @@ class _ToolPalette extends StatelessWidget {
       _ToolItem('TTL', SashType.tiltTurnLeft),  // top + right
       _ToolItem('SL', SashType.slidingLeft),
       _ToolItem('SR', SashType.slidingRight),
+      _ToolItem('STL', SashType.slidingTiltLeft),
+      _ToolItem('STR', SashType.slidingTiltRight),
     ];
 
     return Padding(
