@@ -10,6 +10,7 @@
 //
 // Dependencies: Flutter SDK only.
 
+import 'dart:math' as math;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
@@ -664,10 +665,11 @@ class _WindowPainter extends CustomPainter {
 
   // Fixed: big F in center
   void _drawFixed(Canvas canvas, Rect r) {
+    final fontSize = math.max(24.0, math.min(r.width, r.height) * 0.6);
     final tp = TextPainter(
-      text: const TextSpan(
+      text: TextSpan(
         text: 'F',
-        style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Colors.black),
+        style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w900, color: Colors.black),
       ),
       textDirection: TextDirection.ltr,
     )..layout();
