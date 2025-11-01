@@ -294,8 +294,6 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
             content: Text('Saving PNG is not supported on this platform.'),
           ),
         );
-      } else if (savedPath.isEmpty) {
-        // User cancelled the save dialog; no further action is needed.
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Design saved to $savedPath')),
