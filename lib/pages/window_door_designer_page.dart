@@ -1,20 +1,58 @@
 // lib/pages/window_door_designer_page.dart
 //
-// Crystal uPVC — Window/Door Designer (clean & robust)
-// - Grid (rows x cols)
+// Crystal uPVC — Window/Door Designer (clean, realistic frame, non-intrusive selection)
+// - Realistic PVC frame (face + inner rebate), glass area inset properly
+// - Grid (rows x cols) drawn inside the opening (not under the frame)
 // - Per-cell sash types (Fixed, Casement L/R, Tilt, Tilt&Turn L/R, Sliding L/R)
 // - Outside view toggle (mirrors L/R types visually)
-// - Correct Tilt&Turn glyphs:
-//      • Tilt&Turn RIGHT  -> triangles with apex at TOP and LEFT
-//      • Tilt&Turn LEFT   -> triangles with apex at TOP and RIGHT
+// - Correct Tilt&Turn glyphs per your requirement
 // - Export PNG via RepaintBoundary
 //
-// Drop-in: only depends on Flutter SDK.
+// Dependencies: Flutter SDK only.
 
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show RenderRepaintBoundary;
+
+// ---- appearance constants ----------------------------------------------------
+
+// Frame + opening geometry
+const double kFrameStroke = 1.6;     // thin frame edge stroke
+const double kFrameFace   = 22.0;    // visible PVC frame face (outer to opening)
+const double kRebateLip   = 6.0;     // small inner lip before glass (sash/bead look)
+
+// Lines
+const double kMullionStroke = 3;
+const double kSashStroke    = 3;
+
+// Colors
+const Color kPVC            = Color(0xFFEDEFF2);   // light PVC body
+const Color kPVCShadow      = Color(0xFFCCD2DA);   // subtle inner shadow edge
+const Color kGlassFill      = Color(0xFFAEDCF2);   // calm blue glass
+const Color kLineColor      = Colors.black87;
+
+// Selection outline
+const Color kSelectOutline  = Color(0xFF1E88E5);   // blue outline
+const double kSelectDash    = 7.0;
+const double kSelectGap     = 5.0;
+
+// -----------------------------------------------------------------------------
+// Model / types
+
+enum SashType {
+  fixed,
+  casementLeft,
+  casementRight,
+  tilt,
+  tiltTurnLeft,   // triangles apex TOP + RIGHT
+  tiltTurnRight,  // triangles apex TOP + LEFT
+  slidingLeft,
+  slidingRight,
+}
+
+// -----------------------------------------------------------------------------
+// Page
 
 class WindowDoorDesignerPage extends StatefulWidget {
   const WindowDoorDesignerPage({super.key});
@@ -22,16 +60,6 @@ class WindowDoorDesignerPage extends StatefulWidget {
   @override
   State<WindowDoorDesignerPage> createState() => _WindowDoorDesignerPageState();
 }
-
-// ---- appearance constants ----------------------------------------------------
-
-const double kFrameStroke = 4;
-const double kMullionStroke = 3;
-const double kSashStroke = 3;
-const Color kGlassFill = Color(0xFFAEE7F2);
-const Color kLineColor = Colors.black87;
-
-// -----------------------------------------------------------------------------
 
 class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
   int rows = 1;
@@ -63,14 +91,30 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
   int _xyToIndex(int r, int c) => r * cols + c;
 
   void _onTapCanvas(Offset localPos, Size size) {
-    final cellW = size.width / cols;
-    final cellH = size.height / rows;
-    final c = (localPos.dx ~/ cellW).clamp(0, cols - 1);
-    final r = (localPos.dy ~/ cellH).clamp(0, rows - 1);
+    // Hit test inside the opening (frame inset)
+    final outer = Rect.fromLTWH(0, 0, size.width, size.height);
+    final opening = outer.deflate(kFrameFace);
+
+    if (!opening.contains(localPos)) {
+      // Tapping the frame area: just clear selection
+      setState(() => selectedIndex = null);
+      return;
+    }
+
+    final cellArea = opening.deflate(kRebateLip);
+    final cellW = cellArea.width / cols;
+    final cellH = cellArea.height / rows;
+    final c = ((localPos.dx - cellArea.left) ~/ cellW).clamp(0, cols - 1);
+    final r = ((localPos.dy - cellArea.top) ~/ cellH).clamp(0, rows - 1);
     final idx = _xyToIndex(r, c);
 
     setState(() {
-      selectedIndex = idx;
+      // Toggle selection if same cell tapped, otherwise select and paint active tool
+      if (selectedIndex == idx) {
+        selectedIndex = null;
+      } else {
+        selectedIndex = idx;
+      }
       cells[idx] = activeTool;
     });
   }
@@ -186,19 +230,6 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
   }
 }
 
-// ── model / types ──────────────────────────────────────────────────────────────
-
-enum SashType {
-  fixed,
-  casementLeft,
-  casementRight,
-  tilt,
-  tiltTurnLeft,   // triangles apex TOP + RIGHT
-  tiltTurnRight,  // triangles apex TOP + LEFT
-  slidingLeft,
-  slidingRight,
-}
-
 // ── painter ───────────────────────────────────────────────────────────────────
 
 class _WindowPainter extends CustomPainter {
@@ -218,8 +249,14 @@ class _WindowPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paintFrame = Paint()
-      ..color = kLineColor
+    // Paint objects
+    final paintFrameFill = Paint()
+      ..color = kPVC
+      ..style = PaintingStyle.fill
+      ..isAntiAlias = true;
+
+    final paintFrameEdge = Paint()
+      ..color = kPVCShadow
       ..style = PaintingStyle.stroke
       ..strokeWidth = kFrameStroke
       ..isAntiAlias = true;
@@ -241,42 +278,104 @@ class _WindowPainter extends CustomPainter {
       ..style = PaintingStyle.fill
       ..isAntiAlias = true;
 
-    // outer frame
+    // Outer rect (whole widget)
     final outer = Rect.fromLTWH(0, 0, size.width, size.height);
-    canvas.drawRect(outer, paintFrame);
 
-    final cellW = size.width / cols;
-    final cellH = size.height / rows;
+    // 1) Draw PVC frame body
+    canvas.drawRect(outer, paintFrameFill);
+    canvas.drawRect(outer, paintFrameEdge);
 
-    // cells
+    // 2) Opening (where glass & sashes live), inset by frame face
+    final opening = outer.deflate(kFrameFace);
+
+    // A subtle inner shadow edge on the opening perimeter (to read as depth)
+    final lipRect = opening; // same outline, just a slightly darker stroke
+    final lipPaint = Paint()
+      ..color = kPVCShadow.withOpacity(0.8)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.3
+      ..isAntiAlias = true;
+    canvas.drawRect(lipRect, lipPaint);
+
+    // 3) Glass/sash area is even further deflated by rebate/bead lip
+    final glassArea = opening.deflate(kRebateLip);
+
+    // 4) Draw cells (glass + glyphs) inside glassArea
+    final cellW = glassArea.width / cols;
+    final cellH = glassArea.height / rows;
+
     for (int r = 0; r < rows; r++) {
       for (int c = 0; c < cols; c++) {
         final idx = r * cols + c;
-        final rect = Rect.fromLTWH(c * cellW, r * cellH, cellW, cellH);
+        final rect = Rect.fromLTWH(
+          glassArea.left + c * cellW,
+          glassArea.top + r * cellH,
+          cellW,
+          cellH,
+        );
 
-        canvas.drawRect(rect.deflate(2), paintGlass);
+        // Glass
+        canvas.drawRect(rect, paintGlass);
 
+        // Selection (non-tint dashed outline, toggle-able)
         if (selectedIndex == idx) {
-          final highlight = Paint()
-            ..color = Colors.amber.withOpacity(0.25)
-            ..style = PaintingStyle.fill;
-          canvas.drawRect(rect.deflate(6), highlight);
+          _drawDashedRect(canvas, rect.deflate(5), kSelectOutline, kSelectDash, kSelectGap, 2.0);
         }
 
-        // mirror L/R types when not outside view
+        // Mirror L/R types when viewing from inside
         final t = _mirrorForInside(cells[idx], outsideView);
         _drawGlyph(canvas, rect.deflate(8), t, paintSash);
       }
     }
 
-    // mullions
+    // 5) Mullions between cells (over glass)
+    // verticals
     for (int c = 1; c < cols; c++) {
-      final x = c * cellW;
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paintMullion);
+      final x = glassArea.left + c * cellW;
+      canvas.drawLine(Offset(x, glassArea.top), Offset(x, glassArea.bottom), paintMullion);
     }
+    // horizontals
     for (int r = 1; r < rows; r++) {
-      final y = r * cellH;
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), paintMullion);
+      final y = glassArea.top + r * cellH;
+      canvas.drawLine(Offset(glassArea.left, y), Offset(glassArea.right, y), paintMullion);
+    }
+
+    // 6) Small sash/bead stroke around the whole glass area (a clean inner frame look)
+    final beadPaint = Paint()
+      ..color = kLineColor.withOpacity(0.8)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.4
+      ..isAntiAlias = true;
+    canvas.drawRect(glassArea, beadPaint);
+  }
+
+  // Selection outline helper
+  void _drawDashedRect(Canvas canvas, Rect r, Color color, double dash, double gap, double width) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = width;
+
+    // Top
+    _dashLine(canvas, Offset(r.left, r.top), Offset(r.right, r.top), paint, dash, gap);
+    // Right
+    _dashLine(canvas, Offset(r.right, r.top), Offset(r.right, r.bottom), paint, dash, gap);
+    // Bottom
+    _dashLine(canvas, Offset(r.right, r.bottom), Offset(r.left, r.bottom), paint, dash, gap);
+    // Left
+    _dashLine(canvas, Offset(r.left, r.bottom), Offset(r.left, r.top), paint, dash, gap);
+  }
+
+  void _dashLine(Canvas canvas, Offset a, Offset b, Paint paint, double dash, double gap) {
+    final total = (b - a);
+    final length = total.distance;
+    final dir = total / length;
+    double traveled = 0;
+    while (traveled < length) {
+      final start = a + dir * traveled;
+      final end = a + dir * (traveled + dash).clamp(0, length);
+      canvas.drawLine(start, end, paint);
+      traveled += dash + gap;
     }
   }
 
@@ -372,33 +471,22 @@ class _WindowPainter extends CustomPainter {
   }
 
   // Tilt&Turn: two clear triangles.
-  // Requirement:
   //   • TT RIGHT => triangles apex at TOP and LEFT
   //   • TT LEFT  => triangles apex at TOP and RIGHT
   void _drawTiltTurn(Canvas canvas, Rect r, {required _SideApex sideApex, required Paint paint}) {
-    // Triangle A: apex at TOP center, base across bottom corners
-    final topTri = Path()
-      ..moveTo(r.center.dx, r.top)   // apex (sharp)
-      ..lineTo(r.left, r.bottom)     // left base
-      ..lineTo(r.right, r.bottom)    // right base
-      ..close();
-    // But we only want the triangle "lines" (not filled). Draw the three edges:
+    // Top triangle
     canvas.drawLine(Offset(r.center.dx, r.top), Offset(r.left, r.bottom), paint);
     canvas.drawLine(Offset(r.center.dx, r.top), Offset(r.right, r.bottom), paint);
     canvas.drawLine(Offset(r.left, r.bottom), Offset(r.right, r.bottom), paint);
 
-    // Triangle B: apex on LEFT or RIGHT center, base on opposite vertical corners
+    // Side triangle
     if (sideApex == _SideApex.left) {
-      // Apex at left center, base at top-right and bottom-right
       canvas.drawLine(Offset(r.left, r.center.dy), Offset(r.right, r.top), paint);
       canvas.drawLine(Offset(r.left, r.center.dy), Offset(r.right, r.bottom), paint);
-      // Base edge along right side for a crisp triangle impression
       canvas.drawLine(Offset(r.right, r.top), Offset(r.right, r.bottom), paint);
     } else {
-      // Apex at right center, base at top-left and bottom-left
       canvas.drawLine(Offset(r.right, r.center.dy), Offset(r.left, r.top), paint);
       canvas.drawLine(Offset(r.right, r.center.dy), Offset(r.left, r.bottom), paint);
-      // Base edge along left side
       canvas.drawLine(Offset(r.left, r.top), Offset(r.left, r.bottom), paint);
     }
   }
