@@ -289,16 +289,17 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
       final savedPath = await design_saver.saveDesignImage(bytes, fileName);
       if (!mounted) return;
       if (savedPath == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Saving PNG is not supported on this platform.'),
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Design saved to $savedPath')),
-        );
+        return;
       }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Design saved to $savedPath')),
+      );
+    } on UnsupportedError catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message ?? 'Saving PNG is not supported on this platform.')),
+      );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
