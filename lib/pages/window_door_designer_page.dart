@@ -15,6 +15,8 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show RenderRepaintBoundary;
+import '../utils/design_image_saver_stub.dart'
+    if (dart.library.io) '../utils/design_image_saver_io.dart' as design_saver;
 
 // ---- appearance constants ----------------------------------------------------
 
@@ -86,6 +88,8 @@ enum SashType {
   slidingTiltLeft,
   slidingTiltRight,
 }
+
+enum _ExportAction { close, save, useAsPhoto }
 
 // -----------------------------------------------------------------------------
 // Page
@@ -198,28 +202,108 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
 
   Future<void> _exportPng() async {
     try {
-      final boundary = _repaintKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
-      if (boundary == null) return;
-      final img = await boundary.toImage(pixelRatio: 3);
-      final bd = await img.toByteData(format: ui.ImageByteFormat.png);
-      if (bd == null) return;
-      final bytes = bd.buffer.asUint8List();
+      final bytes = await _captureDesignBytes();
+      if (bytes == null) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Unable to capture the design preview.')),
+        );
+        return;
+      }
 
       if (!mounted) return;
-      await showDialog(
+      final action = await showDialog<_ExportAction>(
         context: context,
         builder: (_) => AlertDialog(
-          title: const Text('PNG preview'),
-          content: Image.memory(bytes),
+          title: const Text('Export design'),
+          content: SizedBox(
+            width: 320,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.memory(bytes),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'Choose what to do with your generated design.',
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close')),
+            TextButton(
+              onPressed: () => Navigator.pop(context, _ExportAction.close),
+              child: const Text('Close'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, _ExportAction.save),
+              child: const Text('Save PNG'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(context, _ExportAction.useAsPhoto),
+              child: const Text('Use as photo'),
+            ),
           ],
         ),
       );
-      // Use `bytes` in your PDF generator.
+
+      if (!mounted) return;
+      switch (action) {
+        case _ExportAction.save:
+          await _saveDesignToStorage(bytes);
+          break;
+        case _ExportAction.useAsPhoto:
+          if (mounted) {
+            Navigator.of(context).pop(bytes);
+          }
+          break;
+        default:
+          break;
+      }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Export failed: $e')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Export failed: $e')));
+    }
+  }
+
+  Future<Uint8List?> _captureDesignBytes() async {
+    final boundary =
+        _repaintKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+    if (boundary == null) {
+      return null;
+    }
+
+    final img = await boundary.toImage(pixelRatio: 3);
+    final bd = await img.toByteData(format: ui.ImageByteFormat.png);
+    return bd?.buffer.asUint8List();
+  }
+
+  Future<void> _saveDesignToStorage(Uint8List bytes) async {
+    final fileName =
+        'window_door_${DateTime.now().millisecondsSinceEpoch}.png';
+    try {
+      final savedPath = await design_saver.saveDesignImage(bytes, fileName);
+      if (!mounted) return;
+      if (savedPath == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Saving PNG is not supported on this platform.'),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Design saved to $savedPath')),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Save failed: $e')),
+      );
     }
   }
 
