@@ -60,8 +60,16 @@ enum SashType {
 class WindowDoorDesignerPage extends StatefulWidget {
   final double? initialWidth;
   final double? initialHeight;
+  final int? initialRows;
+  final int? initialCols;
 
-  const WindowDoorDesignerPage({super.key, this.initialWidth, this.initialHeight});
+  const WindowDoorDesignerPage({
+    super.key,
+    this.initialWidth,
+    this.initialHeight,
+    this.initialRows,
+    this.initialCols,
+  });
 
   @override
   State<WindowDoorDesignerPage> createState() => _WindowDoorDesignerPageState();
@@ -83,6 +91,8 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
   @override
   void initState() {
     super.initState();
+    rows = (widget.initialRows ?? rows).clamp(1, 8).toInt();
+    cols = (widget.initialCols ?? cols).clamp(1, 8).toInt();
     cells = List<SashType>.filled(rows * cols, SashType.fixed, growable: true);
   }
 
