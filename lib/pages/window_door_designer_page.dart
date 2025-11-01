@@ -101,6 +101,8 @@ class WindowDoorDesignerPage extends StatefulWidget {
   final int? initialCols;
   final bool? initialShowBlind;
   final List<SashType>? initialCells;
+  final List<double>? initialColumnSizes;
+  final List<double>? initialRowSizes;
 
   const WindowDoorDesignerPage({
     super.key,
@@ -110,6 +112,8 @@ class WindowDoorDesignerPage extends StatefulWidget {
     this.initialCols,
     this.initialShowBlind,
     this.initialCells,
+    this.initialColumnSizes,
+    this.initialRowSizes,
   });
 
   @override
@@ -129,6 +133,8 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
   late List<Color> cellGlassColors;
   late _ProfileColorOption profileColor;
   late _SimpleColorOption blindColor;
+  late List<double> _columnSizes;
+  late List<double> _rowSizes;
 
   final _repaintKey = GlobalKey();
 
@@ -143,6 +149,8 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
         List<Color>.filled(rows * cols, _glassColorOptions.first.color, growable: true);
     profileColor = _profileColorOptions.first;
     blindColor = _blindColorOptions.first;
+    _columnSizes = _initialSizes(widget.initialColumnSizes, cols);
+    _rowSizes = _initialSizes(widget.initialRowSizes, rows);
 
     final providedCells = widget.initialCells;
     if (providedCells != null && providedCells.length == cells.length) {
@@ -158,6 +166,8 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
       cellGlassColors =
           List<Color>.filled(rows * cols, _glassColorOptions.first.color, growable: true);
       selectedIndex = null;
+      _columnSizes = List<double>.filled(cols, 1.0);
+      _rowSizes = List<double>.filled(rows, 1.0);
     });
   }
 
@@ -183,10 +193,10 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     }
 
     final cellArea = opening.deflate(kRebateLip);
-    final cellW = cellArea.width / cols;
-    final cellH = cellArea.height / rows;
-    final c = ((localPos.dx - cellArea.left) ~/ cellW).clamp(0, cols - 1);
-    final r = ((localPos.dy - cellArea.top) ~/ cellH).clamp(0, rows - 1);
+    final columnFractions = _normalizedFractions(_columnSizes, cols);
+    final rowFractions = _normalizedFractions(_rowSizes, rows);
+    final c = _hitTestAxis(localPos.dx, cellArea.left, cellArea.width, columnFractions, cols);
+    final r = _hitTestAxis(localPos.dy, cellArea.top, cellArea.height, rowFractions, rows);
     final idx = _xyToIndex(r, c);
 
     setState(() {
@@ -198,6 +208,91 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
       }
       cells[idx] = activeTool;
     });
+  }
+
+  List<double> _initialSizes(List<double>? values, int count) {
+    if (count <= 0) {
+      return const <double>[];
+    }
+    if (values == null || values.isEmpty) {
+      return List<double>.filled(count, 1.0);
+    }
+    final result = List<double>.filled(count, 1.0);
+    bool hasPositive = false;
+    for (int i = 0; i < count; i++) {
+      if (i < values.length) {
+        final value = values[i];
+        if (value.isFinite && value > 0) {
+          result[i] = value;
+          hasPositive = true;
+        } else if (value.isFinite && value == 0) {
+          result[i] = 0.0;
+        }
+      }
+    }
+    if (!hasPositive) {
+      return List<double>.filled(count, 1.0);
+    }
+    return result;
+  }
+
+  List<double> _normalizedFractions(List<double> sizes, int count) {
+    if (count <= 0) {
+      return const <double>[];
+    }
+    final sanitized = List<double>.generate(count, (index) {
+      if (index < sizes.length) {
+        final value = sizes[index];
+        if (value.isFinite && value > 0) {
+          return value;
+        }
+      }
+      return 0.0;
+    });
+    double positiveSum = 0;
+    int positiveCount = 0;
+    for (final value in sanitized) {
+      if (value > 0) {
+        positiveSum += value;
+        positiveCount++;
+      }
+    }
+    if (positiveSum <= 0 || positiveCount <= 0) {
+      return List<double>.filled(count, 1.0 / count);
+    }
+    final fallbackValue = positiveSum / positiveCount;
+    for (int i = 0; i < sanitized.length; i++) {
+      if (sanitized[i] <= 0) {
+        sanitized[i] = fallbackValue;
+      }
+    }
+    final total = sanitized.fold<double>(0, (sum, value) => sum + value);
+    if (total <= 0) {
+      return List<double>.filled(count, 1.0 / count);
+    }
+    return sanitized.map((value) => value / total).toList(growable: false);
+  }
+
+  int _hitTestAxis(
+    double position,
+    double origin,
+    double extent,
+    List<double> fractions,
+    int limit,
+  ) {
+    if (limit <= 1 || extent <= 0) {
+      return 0;
+    }
+    double cursor = origin;
+    for (int index = 0; index < limit; index++) {
+      final width = extent * fractions[index];
+      final end = cursor + width;
+      if (position < end || index == limit - 1) {
+        return index;
+      }
+      cursor = end;
+    }
+    return limit - 1;
   }
 
   Future<void> _exportPng() async {
@@ -443,6 +538,8 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
                             cellGlassColors: cellGlassColors,
                             profileColor: profileColor,
                             blindColor: blindColor,
+                            columnFractions: _normalizedFractions(_columnSizes, cols),
+                            rowFractions: _normalizedFractions(_rowSizes, rows),
                           ),
                         ),
                       ),
@@ -525,6 +622,8 @@ class _WindowPainter extends CustomPainter {
   final double windowHeightMm;
   final _ProfileColorOption profileColor;
   final _SimpleColorOption blindColor;
+  final List<double> columnFractions;
+  final List<double> rowFractions;
 
   _WindowPainter({
     required this.rows,
@@ -537,6 +636,8 @@ class _WindowPainter extends CustomPainter {
     required this.windowHeightMm,
     required this.profileColor,
     required this.blindColor,
+    required this.columnFractions,
+    required this.rowFractions,
   });
 
   @override
@@ -611,17 +712,35 @@ class _WindowPainter extends CustomPainter {
     final glassArea = opening.deflate(kRebateLip);
 
     // 4) Draw cells (glass + glyphs) inside glassArea
-    final cellW = glassArea.width / cols;
-    final cellH = glassArea.height / rows;
+    final effectiveColumnFractions = _ensureFractions(columnFractions, cols);
+    final effectiveRowFractions = _ensureFractions(rowFractions, rows);
+    final columnOffsets = List<double>.filled(cols, glassArea.left);
+    final columnWidths = List<double>.filled(cols, 0.0);
+    double cursorX = glassArea.left;
+    for (int c = 0; c < cols; c++) {
+      final width = glassArea.width * effectiveColumnFractions[c];
+      columnOffsets[c] = cursorX;
+      columnWidths[c] = width;
+      cursorX += width;
+    }
+    final rowOffsets = List<double>.filled(rows, glassArea.top);
+    final rowHeights = List<double>.filled(rows, 0.0);
+    double cursorY = glassArea.top;
+    for (int r = 0; r < rows; r++) {
+      final height = glassArea.height * effectiveRowFractions[r];
+      rowOffsets[r] = cursorY;
+      rowHeights[r] = height;
+      cursorY += height;
+    }
 
     for (int r = 0; r < rows; r++) {
       for (int c = 0; c < cols; c++) {
         final idx = r * cols + c;
         final rect = Rect.fromLTWH(
-          glassArea.left + c * cellW,
-          glassArea.top + r * cellH,
-          cellW,
-          cellH,
+          columnOffsets[c],
+          rowOffsets[r],
+          columnWidths[c],
+          rowHeights[r],
         );
 
         // Glass
@@ -641,13 +760,17 @@ class _WindowPainter extends CustomPainter {
 
     // 5) Mullions between cells (over glass)
     // verticals
-    for (int c = 1; c < cols; c++) {
-      final x = glassArea.left + c * cellW;
+    double mullionX = glassArea.left;
+    for (int c = 0; c < cols - 1; c++) {
+      mullionX += columnWidths[c];
+      final x = mullionX;
       canvas.drawLine(Offset(x, glassArea.top), Offset(x, glassArea.bottom), paintMullion);
     }
     // horizontals
-    for (int r = 1; r < rows; r++) {
-      final y = glassArea.top + r * cellH;
+    double mullionY = glassArea.top;
+    for (int r = 0; r < rows - 1; r++) {
+      mullionY += rowHeights[r];
+      final y = mullionY;
       canvas.drawLine(Offset(glassArea.left, y), Offset(glassArea.right, y), paintMullion);
     }
 
@@ -658,6 +781,35 @@ class _WindowPainter extends CustomPainter {
       ..strokeWidth = 1.4
       ..isAntiAlias = true;
     canvas.drawRect(glassArea, beadPaint);
+  }
+
+  List<double> _ensureFractions(List<double> fractions, int expectedLength) {
+    if (expectedLength <= 0) {
+      return const <double>[];
+    }
+    if (fractions.length == expectedLength) {
+      return fractions;
+    }
+    if (fractions.isEmpty) {
+      return List<double>.filled(expectedLength, 1.0 / expectedLength);
+    }
+    final normalized = List<double>.generate(expectedLength, (index) {
+      if (index < fractions.length) {
+        final value = fractions[index];
+        if (value.isFinite && value > 0) {
+          return value;
+        }
+      }
+      return 0.0;
+    });
+    double sum = 0;
+    for (final value in normalized) {
+      sum += value;
+    }
+    if (sum <= 0) {
+      return List<double>.filled(expectedLength, 1.0 / expectedLength);
+    }
+    return normalized.map((value) => value / sum).toList(growable: false);
   }
 
   // Selection outline helper

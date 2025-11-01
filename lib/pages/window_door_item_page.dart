@@ -178,6 +178,16 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                           : (horizontalSections > 8 ? 8 : horizontalSections);
                       final initialCells =
                           _buildInitialDesignerCells(initialRows, initialCols);
+                      final initialColumnSizes = List<double>.generate(
+                        initialCols,
+                        (index) =>
+                            index < sectionWidths.length ? sectionWidths[index].toDouble() : 0.0,
+                      );
+                      final initialRowSizes = List<double>.generate(
+                        initialRows,
+                        (index) =>
+                            index < sectionHeights.length ? sectionHeights[index].toDouble() : 0.0,
+                      );
                       final designerPage = WindowDoorDesignerPage(
                         initialWidth:
                             (widthValue != null && widthValue > 0) ? widthValue : null,
@@ -187,6 +197,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                         initialCols: initialCols,
                         initialShowBlind: blindIndex != null,
                         initialCells: initialCells,
+                        initialColumnSizes: initialColumnSizes,
+                        initialRowSizes: initialRowSizes,
                       );
 
                       final bytes = await Navigator.push<Uint8List>(
