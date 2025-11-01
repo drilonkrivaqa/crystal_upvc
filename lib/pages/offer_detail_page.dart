@@ -877,13 +877,20 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 );
               },
               child: ListTile(
-                leading: item.photoPath != null
-                    ? (kIsWeb
+                leading: () {
+                  if (item.photoPath != null) {
+                    return kIsWeb
                         ? Image.network(item.photoPath!,
                             width: 60, height: 60, fit: BoxFit.contain)
                         : Image.file(File(item.photoPath!),
-                            width: 60, height: 60, fit: BoxFit.contain))
-                    : null,
+                            width: 60, height: 60, fit: BoxFit.contain);
+                  }
+                  if (item.photoBytes != null) {
+                    return Image.memory(item.photoBytes!,
+                        width: 60, height: 60, fit: BoxFit.contain);
+                  }
+                  return null;
+                }(),
                 title: Text(item.name),
                 subtitle: Text(() {
                   final sb = StringBuffer();

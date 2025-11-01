@@ -237,8 +237,9 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                                     });
                                   }
                                 },
-                                child: photoBytes != null
-                                    ? Image.memory(photoBytes!,
+                                child: (_designImageBytes ?? photoBytes) != null
+                                    ? Image.memory(
+                                        (_designImageBytes ?? photoBytes)!,
                                         width: 120,
                                         height: 120,
                                         fit: BoxFit.contain)
@@ -260,15 +261,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                                               child: Text(l10n.clickAddPhoto),
                                             ),
                                           )),
-                            if (_designImageBytes != null)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 12.0),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(12),
-                                  child: Image.memory(_designImageBytes!,
-                                      height: 180, fit: BoxFit.contain),
-                                ),
-                              ),
                             const SizedBox(height: 12),
                             TextField(
                                 controller: nameController,
