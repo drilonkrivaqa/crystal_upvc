@@ -21,6 +21,8 @@ import 'package:flutter/rendering.dart' show RenderRepaintBoundary;
 const double kFrameStroke = 1.6;     // thin frame edge stroke
 const double kFrameFace   = 22.0;    // visible PVC frame face (outer to opening)
 const double kRebateLip   = 6.0;     // small inner lip before glass (sash/bead look)
+const double kBlindBoxHeightMm = 200.0; // default blind box height in millimetres
+const double kFallbackWindowHeightMm = 1400.0; // used when real dimensions absent
 
 // Lines
 const double kMullionStroke = 3;
@@ -31,6 +33,7 @@ const Color kPVC            = Color(0xFFEDEFF2);   // light PVC body
 const Color kPVCShadow      = Color(0xFFCCD2DA);   // subtle inner shadow edge
 const Color kGlassFill      = Color(0xFFAEDCF2);   // calm blue glass
 const Color kLineColor      = Colors.black87;
+const Color kBlindBoxColor  = Color(0xFFB0B3B8);
 
 // Selection outline
 const Color kSelectOutline  = Color(0xFF1E88E5);   // blue outline
@@ -68,6 +71,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
   int rows = 1;
   int cols = 2;
   bool outsideView = true;
+  bool showBlindBox = false;
 
   SashType activeTool = SashType.fixed;
   int? selectedIndex;
@@ -94,8 +98,16 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
   int _xyToIndex(int r, int c) => r * cols + c;
 
   void _onTapCanvas(Offset localPos, Size size) {
+    final mmToPx = _mmToPx(size.height);
+    final blindHeightPx = showBlindBox ? kBlindBoxHeightMm * mmToPx : 0.0;
+
+    if (showBlindBox && localPos.dy < blindHeightPx) {
+      setState(() => selectedIndex = null);
+      return;
+    }
+
     // Hit test inside the opening (frame inset)
-    final outer = Rect.fromLTWH(0, 0, size.width, size.height);
+    final outer = Rect.fromLTWH(0, blindHeightPx, size.width, size.height - blindHeightPx);
     final opening = outer.deflate(kFrameFace);
 
     if (!opening.contains(localPos)) {
@@ -155,6 +167,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
       selectedIndex = null;
       activeTool = SashType.fixed;
       outsideView = true;
+      showBlindBox = false;
     });
   }
 
@@ -192,6 +205,16 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
                     const Text('Outside view'),
                   ],
                 ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Switch(
+                      value: showBlindBox,
+                      onChanged: (v) => setState(() => showBlindBox = v),
+                    ),
+                    const Text('Roller blind box'),
+                  ],
+                ),
                 _Legend(theme: theme),
               ],
             ),
@@ -216,6 +239,8 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
                             cells: cells,
                             selectedIndex: selectedIndex,
                             outsideView: outsideView,
+                            showBlindBox: showBlindBox,
+                            windowHeightMm: _windowHeightMm,
                           ),
                         ),
                       ),
@@ -238,13 +263,34 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     final h = widget.initialHeight ?? 0;
 
     if (w > 0 && h > 0) {
-      final ratio = w / h;
+      final totalHeight = h + (showBlindBox ? kBlindBoxHeightMm : 0);
+      final ratio = w / totalHeight;
       if (ratio.isFinite && ratio > 0) {
         return ratio;
       }
     }
 
-    return 1.6;
+    const defaultAspect = 1.6;
+    final defaultHeight = kFallbackWindowHeightMm;
+    final defaultWidth = defaultAspect * defaultHeight;
+    final totalHeight = defaultHeight + (showBlindBox ? kBlindBoxHeightMm : 0);
+    return defaultWidth / totalHeight;
+  }
+
+  double get _windowHeightMm {
+    final h = widget.initialHeight;
+    if (h != null && h > 0) {
+      return h;
+    }
+    return kFallbackWindowHeightMm;
+  }
+
+  double _mmToPx(double canvasHeightPx) {
+    final totalMm = _windowHeightMm + (showBlindBox ? kBlindBoxHeightMm : 0);
+    if (totalMm <= 0) {
+      return 0;
+    }
+    return canvasHeightPx / totalMm;
   }
 }
 
@@ -256,6 +302,8 @@ class _WindowPainter extends CustomPainter {
   final List<SashType> cells;
   final int? selectedIndex;
   final bool outsideView;
+  final bool showBlindBox;
+  final double windowHeightMm;
 
   _WindowPainter({
     required this.rows,
@@ -263,10 +311,16 @@ class _WindowPainter extends CustomPainter {
     required this.cells,
     required this.selectedIndex,
     required this.outsideView,
+    required this.showBlindBox,
+    required this.windowHeightMm,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
+    final totalHeightMm = windowHeightMm + (showBlindBox ? kBlindBoxHeightMm : 0);
+    final mmToPx = totalHeightMm > 0 ? size.height / totalHeightMm : 0.0;
+    final blindHeightPx = showBlindBox ? kBlindBoxHeightMm * mmToPx : 0.0;
+
     // Paint objects
     final paintFrameFill = Paint()
       ..color = kPVC
@@ -296,8 +350,23 @@ class _WindowPainter extends CustomPainter {
       ..style = PaintingStyle.fill
       ..isAntiAlias = true;
 
+    if (showBlindBox) {
+      final blindRect = Rect.fromLTWH(0, 0, size.width, blindHeightPx);
+      final blindFill = Paint()
+        ..color = kBlindBoxColor
+        ..style = PaintingStyle.fill
+        ..isAntiAlias = true;
+      final blindOutline = Paint()
+        ..color = kLineColor.withOpacity(0.6)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.2
+        ..isAntiAlias = true;
+      canvas.drawRect(blindRect, blindFill);
+      canvas.drawRect(blindRect, blindOutline);
+    }
+
     // Outer rect (whole widget)
-    final outer = Rect.fromLTWH(0, 0, size.width, size.height);
+    final outer = Rect.fromLTWH(0, blindHeightPx, size.width, size.height - blindHeightPx);
 
     // 1) Draw PVC frame body
     canvas.drawRect(outer, paintFrameFill);
@@ -532,6 +601,8 @@ class _WindowPainter extends CustomPainter {
     return rows != old.rows ||
         cols != old.cols ||
         outsideView != old.outsideView ||
+        showBlindBox != old.showBlindBox ||
+        windowHeightMm != old.windowHeightMm ||
         selectedIndex != old.selectedIndex ||
         !_listEquals(cells, old.cells);
   }
