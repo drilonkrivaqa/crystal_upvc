@@ -170,11 +170,24 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                     onPressed: () async {
                       final widthValue = double.tryParse(widthController.text);
                       final heightValue = double.tryParse(heightController.text);
+                      final verticalValue = int.tryParse(verticalController.text);
+                      final horizontalValue =
+                          int.tryParse(horizontalController.text);
+                      final initialCols =
+                          (verticalValue != null && verticalValue > 0)
+                              ? verticalValue
+                              : 1;
+                      final initialRows =
+                          (horizontalValue != null && horizontalValue > 0)
+                              ? horizontalValue
+                              : 1;
                       final designerPage = WindowDoorDesignerPage(
                         initialWidth:
                             (widthValue != null && widthValue > 0) ? widthValue : null,
                         initialHeight:
                             (heightValue != null && heightValue > 0) ? heightValue : null,
+                        initialRows: initialRows,
+                        initialCols: initialCols,
                       );
 
                       final bytes = await Navigator.push<Uint8List>(
