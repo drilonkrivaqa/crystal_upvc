@@ -187,8 +187,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                         initialCols: initialCols,
                         initialShowBlind: blindIndex != null,
                         initialCells: initialCells,
-                        initialSectionWidths: List<int>.from(sectionWidths),
-                        initialSectionHeights: List<int>.from(sectionHeights),
                       );
 
                       final bytes = await Navigator.push<Uint8List>(
