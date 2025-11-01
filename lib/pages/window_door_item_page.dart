@@ -170,17 +170,14 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                     onPressed: () async {
                       final widthValue = double.tryParse(widthController.text);
                       final heightValue = double.tryParse(heightController.text);
-                      final verticalValue = int.tryParse(verticalController.text);
-                      final horizontalValue =
-                          int.tryParse(horizontalController.text);
+                      _ensureGridSize();
                       final initialCols =
-                          (verticalValue != null && verticalValue > 0)
-                              ? verticalValue
-                              : 1;
-                      final initialRows =
-                          (horizontalValue != null && horizontalValue > 0)
-                              ? horizontalValue
-                              : 1;
+                          verticalSections < 1 ? 1 : (verticalSections > 8 ? 8 : verticalSections);
+                      final initialRows = horizontalSections < 1
+                          ? 1
+                          : (horizontalSections > 8 ? 8 : horizontalSections);
+                      final initialCells =
+                          _buildInitialDesignerCells(initialRows, initialCols);
                       final designerPage = WindowDoorDesignerPage(
                         initialWidth:
                             (widthValue != null && widthValue > 0) ? widthValue : null,
@@ -189,6 +186,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                         initialRows: initialRows,
                         initialCols: initialCols,
                         initialShowBlind: blindIndex != null,
+                        initialCells: initialCells,
                       );
 
                       final bytes = await Navigator.push<Uint8List>(
@@ -718,6 +716,41 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
 
     _recalculateWidths(showErrors: false);
     _recalculateHeights(showErrors: false);
+  }
+
+  List<SashType> _buildInitialDesignerCells(int rows, int cols) {
+    final total = rows * cols;
+    if (total <= 0) {
+      return const <SashType>[];
+    }
+
+    final normalizedFixed = List<bool>.filled(total, true);
+    for (int i = 0; i < total; i++) {
+      if (i < fixedSectors.length) {
+        normalizedFixed[i] = fixedSectors[i];
+      }
+    }
+
+    final openingsCount =
+        normalizedFixed.where((isFixed) => !isFixed).length;
+    final leftColumns = cols ~/ 2;
+
+    return List<SashType>.generate(total, (index) {
+      final isFixed = normalizedFixed[index];
+      if (isFixed || openingsCount == 0) {
+        return SashType.fixed;
+      }
+
+      if (total == 1 || cols == 1) {
+        return SashType.tiltTurnRight;
+      }
+
+      final column = index % cols;
+      if (column < leftColumns) {
+        return SashType.tiltTurnLeft;
+      }
+      return SashType.tiltTurnRight;
+    });
   }
 
   void _recalculateWidths({bool showErrors = true}) {
