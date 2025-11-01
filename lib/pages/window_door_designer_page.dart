@@ -76,6 +76,8 @@ enum SashType {
   casementLeft,
   casementRight,
   tilt,
+  tiltLeft,       // triangle apex LEFT (opens to the right)
+  tiltRight,      // triangle apex RIGHT (opens to the left)
   tiltTurnLeft,   // triangles apex TOP + RIGHT
   tiltTurnRight,  // triangles apex TOP + LEFT
   slidingLeft,
@@ -598,6 +600,8 @@ class _WindowPainter extends CustomPainter {
     switch (t) {
       case SashType.casementLeft:  return SashType.casementRight;
       case SashType.casementRight: return SashType.casementLeft;
+      case SashType.tiltLeft:      return SashType.tiltRight;
+      case SashType.tiltRight:     return SashType.tiltLeft;
       case SashType.tiltTurnLeft:  return SashType.tiltTurnRight;
       case SashType.tiltTurnRight: return SashType.tiltTurnLeft;
       case SashType.slidingLeft:   return SashType.slidingRight;
@@ -619,6 +623,12 @@ class _WindowPainter extends CustomPainter {
         break;
       case SashType.tilt:
         _drawTilt(canvas, r, p);
+        break;
+      case SashType.tiltLeft:
+        _drawTiltSide(canvas, r, apexLeft: true, paint: p);
+        break;
+      case SashType.tiltRight:
+        _drawTiltSide(canvas, r, apexLeft: false, paint: p);
         break;
       case SashType.tiltTurnLeft:
         _drawTiltTurn(canvas, r, sideApex: _SideApex.right, paint: p); // TOP + RIGHT
@@ -682,6 +692,21 @@ class _WindowPainter extends CustomPainter {
       ..moveTo(r.left, r.bottom)
       ..lineTo(r.right, r.bottom);
     canvas.drawPath(path, p);
+  }
+
+  // Tilt (horizontal): apex LEFT/RIGHT, base vertical
+  void _drawTiltSide(Canvas canvas, Rect r,
+      {required bool apexLeft, required Paint paint}) {
+    final apexX = apexLeft ? r.left : r.right;
+    final baseX = apexLeft ? r.right : r.left;
+    final path = Path()
+      ..moveTo(apexX, r.center.dy)
+      ..lineTo(baseX, r.top)
+      ..moveTo(apexX, r.center.dy)
+      ..lineTo(baseX, r.bottom)
+      ..moveTo(baseX, r.top)
+      ..lineTo(baseX, r.bottom);
+    canvas.drawPath(path, paint);
   }
 
   // Tilt&Turn: two clear triangles.
@@ -763,6 +788,8 @@ class _ToolPalette extends StatelessWidget {
       _ToolItem('CL', SashType.casementLeft),
       _ToolItem('CR', SashType.casementRight),
       _ToolItem('T', SashType.tilt),
+      _ToolItem('R', SashType.tiltLeft),
+      _ToolItem('L', SashType.tiltRight),
       _ToolItem('TTR', SashType.tiltTurnRight), // top + left
       _ToolItem('TTL', SashType.tiltTurnLeft),  // top + right
       _ToolItem('SL', SashType.slidingLeft),
