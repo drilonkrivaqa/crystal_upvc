@@ -51,8 +51,8 @@ const _profileColorOptions = <_ProfileColorOption>[
 ];
 
 const _blindColorOptions = <_SimpleColorOption>[
-  _SimpleColorOption('White', Color(0xFFEDEFF2)),
   _SimpleColorOption('Grey', Color(0xFF737373)),
+  _SimpleColorOption('White', Color(0xFFEDEFF2)),
   _SimpleColorOption('Anthracite', Color(0xFF303338)),
   _SimpleColorOption('Golden Oak', Color(0xFF704D27)),
 ];
