@@ -55,7 +55,10 @@ enum SashType {
 // Page
 
 class WindowDoorDesignerPage extends StatefulWidget {
-  const WindowDoorDesignerPage({super.key});
+  final double? initialWidth;
+  final double? initialHeight;
+
+  const WindowDoorDesignerPage({super.key, this.initialWidth, this.initialHeight});
 
   @override
   State<WindowDoorDesignerPage> createState() => _WindowDoorDesignerPageState();
@@ -158,6 +161,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final aspectRatio = _aspectRatioFromDimensions();
 
     return Scaffold(
       appBar: AppBar(
@@ -196,7 +200,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
           Expanded(
             child: Center(
               child: AspectRatio(
-                aspectRatio: 1.6,
+                aspectRatio: aspectRatio,
                 child: LayoutBuilder(
                   builder: (context, constraints) {
                     return RepaintBoundary(
@@ -227,6 +231,20 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
         ],
       ),
     );
+  }
+
+  double _aspectRatioFromDimensions() {
+    final w = widget.initialWidth ?? 0;
+    final h = widget.initialHeight ?? 0;
+
+    if (w > 0 && h > 0) {
+      final ratio = w / h;
+      if (ratio.isFinite && ratio > 0) {
+        return ratio;
+      }
+    }
+
+    return 1.6;
   }
 }
 

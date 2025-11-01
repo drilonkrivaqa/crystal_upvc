@@ -168,10 +168,18 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                     tooltip: l10n.designWindowDoor,
                     icon: const Icon(Icons.design_services),
                     onPressed: () async {
+                      final widthValue = double.tryParse(widthController.text);
+                      final heightValue = double.tryParse(heightController.text);
+                      final designerPage = WindowDoorDesignerPage(
+                        initialWidth:
+                            (widthValue != null && widthValue > 0) ? widthValue : null,
+                        initialHeight:
+                            (heightValue != null && heightValue > 0) ? heightValue : null,
+                      );
+
                       final bytes = await Navigator.push<Uint8List>(
                         context,
-                        MaterialPageRoute(
-                            builder: (_) => const WindowDoorDesignerPage()),
+                        MaterialPageRoute(builder: (_) => designerPage),
                       );
                       if (bytes != null && mounted) {
                         setState(() => _designImageBytes = bytes);
