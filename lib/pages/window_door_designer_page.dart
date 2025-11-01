@@ -18,14 +18,14 @@ import 'package:flutter/rendering.dart' show RenderRepaintBoundary;
 // ---- appearance constants ----------------------------------------------------
 
 // Frame + opening geometry
-const double kFrameStroke = 1.6;     // thin frame edge stroke
-const double kFrameFace   = 22.0;    // visible PVC frame face (outer to opening)
+const double kFrameStroke = 1;     // thin frame edge stroke
+const double kFrameFace   = 10.0;    // visible PVC frame face (outer to opening)
 const double kRebateLip   = 6.0;     // small inner lip before glass (sash/bead look)
 const double kBlindBoxHeightMm = 200.0; // default blind box height in millimetres
-const double kFallbackWindowHeightMm = 1400.0; // used when real dimensions absent
+const double kFallbackWindowHeightMm = 1200.0; // used when real dimensions absent
 
 // Lines
-const double kMullionStroke = 3;
+const double kMullionStroke = 2;
 const double kSashStroke    = 3;
 
 // Colors
@@ -46,14 +46,15 @@ class _SimpleColorOption {
 
 const _profileColorOptions = <_ProfileColorOption>[
   _ProfileColorOption('White', Color(0xFFEDEFF2), Color(0xFFCCD2DA)),
-  _ProfileColorOption('Anthracite', Color(0xFF4A5058), Color(0xFF2F343A)),
-  _ProfileColorOption('Golden Oak', Color(0xFFB48346), Color(0xFF8C6330)),
+  _ProfileColorOption('Anthracite', Color(0xFF3C4047), Color(0xFF2F343A)),
+  _ProfileColorOption('Golden Oak', Color(0xFF704D27), Color(0xFF3D2712)),
 ];
 
 const _blindColorOptions = <_SimpleColorOption>[
   _SimpleColorOption('White', Color(0xFFEDEFF2)),
-  _SimpleColorOption('Anthracite', Color(0xFF4A5058)),
-  _SimpleColorOption('Golden Oak', Color(0xFFB48346)),
+  _SimpleColorOption('Grey', Color(0xFF737373)),
+  _SimpleColorOption('Anthracite', Color(0xFF303338)),
+  _SimpleColorOption('Golden Oak', Color(0xFF704D27)),
 ];
 
 const _glassColorOptions = <_SimpleColorOption>[
@@ -849,10 +850,6 @@ class _Legend extends StatelessWidget {
         _Swatch(color: glassColor),
         const SizedBox(width: 6),
         Text('Glass', style: style),
-        const SizedBox(width: 14),
-        _Swatch(color: kLineColor, borderOnly: true),
-        const SizedBox(width: 6),
-        Text('Frame/Mullion', style: style),
         const SizedBox(width: 14),
         _Swatch(color: frameColor),
         const SizedBox(width: 6),
