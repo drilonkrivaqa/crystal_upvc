@@ -96,8 +96,6 @@ class WindowDoorDesignerPage extends StatefulWidget {
   final int? initialCols;
   final bool? initialShowBlind;
   final List<SashType>? initialCells;
-  final List<int>? initialSectionWidths;
-  final List<int>? initialSectionHeights;
 
   const WindowDoorDesignerPage({
     super.key,
@@ -107,8 +105,6 @@ class WindowDoorDesignerPage extends StatefulWidget {
     this.initialCols,
     this.initialShowBlind,
     this.initialCells,
-    this.initialSectionWidths,
-    this.initialSectionHeights,
   });
 
   @override
@@ -128,8 +124,6 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
   late List<Color> cellGlassColors;
   late _ProfileColorOption profileColor;
   late _SimpleColorOption blindColor;
-  late List<double> columnSizesMm;
-  late List<double> rowSizesMm;
 
   final _repaintKey = GlobalKey();
 
@@ -144,16 +138,6 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
         List<Color>.filled(rows * cols, _glassColorOptions.first.color, growable: true);
     profileColor = _profileColorOptions.first;
     blindColor = _blindColorOptions.first;
-    columnSizesMm = _deriveSectionSizes(
-      count: cols,
-      provided: widget.initialSectionWidths,
-      totalMm: widget.initialWidth,
-    );
-    rowSizesMm = _deriveSectionSizes(
-      count: rows,
-      provided: widget.initialSectionHeights,
-      totalMm: widget.initialHeight,
-    );
 
     final providedCells = widget.initialCells;
     if (providedCells != null && providedCells.length == cells.length) {
@@ -169,8 +153,6 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
       cellGlassColors =
           List<Color>.filled(rows * cols, _glassColorOptions.first.color, growable: true);
       selectedIndex = null;
-      columnSizesMm = List<double>.filled(cols, _averageOrOne(columnSizesMm));
-      rowSizesMm = List<double>.filled(rows, _averageOrOne(rowSizesMm));
     });
   }
 
@@ -196,19 +178,10 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     }
 
     final cellArea = opening.deflate(kRebateLip);
-    final colFractions = _sectionFractions(columnSizesMm, cols);
-    final rowFractions = _sectionFractions(rowSizesMm, rows);
-
-    final c = _positionToIndex(
-        position: localPos.dx,
-        start: cellArea.left,
-        length: cellArea.width,
-        fractions: colFractions);
-    final r = _positionToIndex(
-        position: localPos.dy,
-        start: cellArea.top,
-        length: cellArea.height,
-        fractions: rowFractions);
+    final cellW = cellArea.width / cols;
+    final cellH = cellArea.height / rows;
+    final c = ((localPos.dx - cellArea.left) ~/ cellW).clamp(0, cols - 1);
+    final r = ((localPos.dy - cellArea.top) ~/ cellH).clamp(0, rows - 1);
     final idx = _xyToIndex(r, c);
 
     setState(() {
@@ -260,16 +233,6 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
       showBlindBox = false;
       profileColor = _profileColorOptions.first;
       blindColor = _blindColorOptions.first;
-      columnSizesMm = _deriveSectionSizes(
-        count: cols,
-        provided: widget.initialSectionWidths,
-        totalMm: widget.initialWidth,
-      );
-      rowSizesMm = _deriveSectionSizes(
-        count: rows,
-        provided: widget.initialSectionHeights,
-        totalMm: widget.initialHeight,
-      );
     });
   }
 
@@ -394,8 +357,6 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
                             cellGlassColors: cellGlassColors,
                             profileColor: profileColor,
                             blindColor: blindColor,
-                            columnSizesMm: columnSizesMm,
-                            rowSizesMm: rowSizesMm,
                           ),
                         ),
                       ),
@@ -414,8 +375,8 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
   }
 
   double _aspectRatioFromDimensions() {
-    final w = _windowWidthMm;
-    final h = _windowHeightMm;
+    final w = widget.initialWidth ?? 0;
+    final h = widget.initialHeight ?? 0;
 
     if (w > 0 && h > 0) {
       final totalHeight = h + (showBlindBox ? kBlindBoxHeightMm : 0);
@@ -437,23 +398,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     if (h != null && h > 0) {
       return h;
     }
-    final sum = _sum(rowSizesMm);
-    if (sum > 0) {
-      return sum;
-    }
     return kFallbackWindowHeightMm;
-  }
-
-  double get _windowWidthMm {
-    final w = widget.initialWidth;
-    if (w != null && w > 0) {
-      return w;
-    }
-    final sum = _sum(columnSizesMm);
-    if (sum > 0) {
-      return sum;
-    }
-    return kFallbackWindowHeightMm * 1.6;
   }
 
   double _mmToPx(double canvasHeightPx) {
@@ -462,109 +407,6 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
       return 0;
     }
     return canvasHeightPx / totalMm;
-  }
-
-  List<double> _deriveSectionSizes({
-    required int count,
-    required List<int>? provided,
-    required double? totalMm,
-  }) {
-    if (count <= 0) {
-      return const <double>[];
-    }
-
-    final result = List<double>.filled(count, 0);
-    double specifiedSum = 0;
-    int specifiedCount = 0;
-    int unspecified = 0;
-
-    for (int i = 0; i < count; i++) {
-      final value =
-          (provided != null && i < provided.length) ? provided[i].toDouble() : 0;
-      if (value > 0) {
-        result[i] = value;
-        specifiedSum += value;
-        specifiedCount++;
-      } else {
-        unspecified++;
-      }
-    }
-
-    double fallback = 0;
-    final total = totalMm ?? 0;
-    if (total > 0) {
-      final remaining = (total - specifiedSum).clamp(0, double.infinity);
-      if (unspecified > 0) {
-        fallback = remaining / unspecified;
-      } else if (specifiedSum <= 0) {
-        fallback = total / count;
-      }
-    }
-
-    if (fallback <= 0) {
-      if (specifiedCount > 0) {
-        fallback = specifiedSum / specifiedCount;
-      } else {
-        fallback = 1;
-      }
-    }
-
-    for (int i = 0; i < count; i++) {
-      if (result[i] <= 0) {
-        result[i] = fallback;
-      }
-    }
-    return result;
-  }
-
-  List<double> _sectionFractions(List<double> sizes, int count) {
-    if (count <= 0) {
-      return const <double>[];
-    }
-    final total = _sum(sizes);
-    if (total <= 0) {
-      return List<double>.filled(count, 1 / count);
-    }
-    return [for (int i = 0; i < count; i++) (sizes[i] / total).clamp(0.0, 1.0)];
-  }
-
-  double _sum(List<double> values) {
-    double total = 0;
-    for (final v in values) {
-      total += v;
-    }
-    return total;
-  }
-
-  double _averageOrOne(List<double> values) {
-    if (values.isEmpty) {
-      return 1;
-    }
-    final total = _sum(values);
-    if (total <= 0) {
-      return 1;
-    }
-    return total / values.length;
-  }
-
-  int _positionToIndex({
-    required double position,
-    required double start,
-    required double length,
-    required List<double> fractions,
-  }) {
-    if (fractions.isEmpty) {
-      return 0;
-    }
-    double offset = start;
-    for (int i = 0; i < fractions.length; i++) {
-      final segment = length * fractions[i];
-      if (position <= offset + segment || i == fractions.length - 1) {
-        return i;
-      }
-      offset += segment;
-    }
-    return fractions.length - 1;
   }
 
   Widget _colorGroup({required String title, required List<Widget> chips}) {
@@ -597,8 +439,6 @@ class _WindowPainter extends CustomPainter {
   final double windowHeightMm;
   final _ProfileColorOption profileColor;
   final _SimpleColorOption blindColor;
-  final List<double> columnSizesMm;
-  final List<double> rowSizesMm;
 
   _WindowPainter({
     required this.rows,
@@ -611,8 +451,6 @@ class _WindowPainter extends CustomPainter {
     required this.windowHeightMm,
     required this.profileColor,
     required this.blindColor,
-    required this.columnSizesMm,
-    required this.rowSizesMm,
   });
 
   @override
@@ -687,21 +525,17 @@ class _WindowPainter extends CustomPainter {
     final glassArea = opening.deflate(kRebateLip);
 
     // 4) Draw cells (glass + glyphs) inside glassArea
-    final colFractions = _fractions(columnSizesMm, cols);
-    final rowFractions = _fractions(rowSizesMm, rows);
-    final colWidths = _sizesFromFractions(glassArea.width, colFractions, cols);
-    final rowHeights = _sizesFromFractions(glassArea.height, rowFractions, rows);
-    final colStarts = _prefixes(glassArea.left, colWidths);
-    final rowStarts = _prefixes(glassArea.top, rowHeights);
+    final cellW = glassArea.width / cols;
+    final cellH = glassArea.height / rows;
 
     for (int r = 0; r < rows; r++) {
       for (int c = 0; c < cols; c++) {
         final idx = r * cols + c;
         final rect = Rect.fromLTWH(
-          colStarts[c],
-          rowStarts[r],
-          colWidths[c],
-          rowHeights[r],
+          glassArea.left + c * cellW,
+          glassArea.top + r * cellH,
+          cellW,
+          cellH,
         );
 
         // Glass
@@ -722,12 +556,12 @@ class _WindowPainter extends CustomPainter {
     // 5) Mullions between cells (over glass)
     // verticals
     for (int c = 1; c < cols; c++) {
-      final x = colStarts[c];
+      final x = glassArea.left + c * cellW;
       canvas.drawLine(Offset(x, glassArea.top), Offset(x, glassArea.bottom), paintMullion);
     }
     // horizontals
     for (int r = 1; r < rows; r++) {
-      final y = rowStarts[r];
+      final y = glassArea.top + r * cellH;
       canvas.drawLine(Offset(glassArea.left, y), Offset(glassArea.right, y), paintMullion);
     }
 
@@ -970,9 +804,7 @@ class _WindowPainter extends CustomPainter {
         profileColor != old.profileColor ||
         blindColor != old.blindColor ||
         !_listEquals(cells, old.cells) ||
-        !_listEquals(cellGlassColors, old.cellGlassColors) ||
-        !_listEquals(columnSizesMm, old.columnSizesMm) ||
-        !_listEquals(rowSizesMm, old.rowSizesMm);
+        !_listEquals(cellGlassColors, old.cellGlassColors);
   }
 
   bool _listEquals(List a, List b) {
@@ -982,45 +814,6 @@ class _WindowPainter extends CustomPainter {
       if (a[i] != b[i]) return false;
     }
     return true;
-  }
-
-  List<double> _fractions(List<double> sizes, int count) {
-    if (count <= 0) {
-      return const <double>[];
-    }
-    double total = 0;
-    for (int i = 0; i < count; i++) {
-      if (i < sizes.length) {
-        total += sizes[i];
-      }
-    }
-    if (total <= 0) {
-      return List<double>.filled(count, 1 / count);
-    }
-    return [
-      for (int i = 0; i < count; i++)
-        (i < sizes.length ? sizes[i] : 0) / total
-    ];
-  }
-
-  List<double> _sizesFromFractions(double totalLength, List<double> fractions, int count) {
-    if (count <= 0) {
-      return const <double>[];
-    }
-    if (fractions.length != count) {
-      return List<double>.filled(count, totalLength / count);
-    }
-    return [for (final f in fractions) totalLength * f];
-  }
-
-  List<double> _prefixes(double start, List<double> sizes) {
-    final result = <double>[];
-    double cursor = start;
-    for (final size in sizes) {
-      result.add(cursor);
-      cursor += size;
-    }
-    return result;
   }
 }
 
