@@ -104,10 +104,7 @@ abstract class AppLocalizations {
     Locale('sq')
   ];
 
-  /// No description provided for @appTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'TONI AL-PVC'**
+  /// Localized company name displayed across the application.
   String get appTitle;
 
   /// No description provided for @homeCatalogs.
@@ -225,22 +222,13 @@ abstract class AppLocalizations {
   /// **'Bead'**
   String get cuttingPieceBead;
 
-  /// No description provided for @welcomeAddress.
-  ///
-  /// In en, this message translates to:
-  /// **'Ilir Konushevci St., No. 80, Kamenica, Kosovo, 62000'**
+  /// Localized company address shown on PDF headers and welcome screen.
   String get welcomeAddress;
 
-  /// No description provided for @welcomePhones.
-  ///
-  /// In en, this message translates to:
-  /// **'+38344357639 | +38344268300'**
+  /// Localized company phone numbers.
   String get welcomePhones;
 
-  /// No description provided for @welcomeWebsite.
-  ///
-  /// In en, this message translates to:
-  /// **'www.tonialpvc.com | tonialpvc@gmail.com'**
+  /// Localized company website and email contact.
   String get welcomeWebsite;
 
   /// No description provided for @welcomeEnter.

@@ -1,5 +1,6 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
+import '../../company_details.dart';
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -9,7 +10,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'TONI AL-PVC';
+  String get appTitle => CompanyDetails.ofLanguageCode(localeName).name;
 
   @override
   String get homeCatalogs => 'Pricelist';
@@ -79,13 +80,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get welcomeAddress =>
-      'Ilir Konushevci St., No. 80, Kamenica, Kosovo, 62000';
+      CompanyDetails.ofLanguageCode(localeName).address;
 
   @override
-  String get welcomePhones => '+38344357639 | +38344268300';
+  String get welcomePhones => CompanyDetails.ofLanguageCode(localeName).phones;
 
   @override
-  String get welcomeWebsite => 'www.tonialpvc.com | tonialpvc@gmail.com';
+  String get welcomeWebsite =>
+      CompanyDetails.ofLanguageCode(localeName).website;
 
   @override
   String get welcomeEnter => 'Enter';
