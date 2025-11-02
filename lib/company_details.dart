@@ -5,12 +5,14 @@ class CompanyInfo {
   final String address;
   final String phones;
   final String website;
+  final String logoAsset;
 
   const CompanyInfo({
     required this.name,
     required this.address,
     required this.phones,
     required this.website,
+    required this.logoAsset,
   });
 }
 
@@ -21,30 +23,35 @@ class CompanyDetails {
       address: 'Rr. Ilir Konushevci, Nr. 80, Kamenicë, Kosovë, 62000',
       phones: '+38344357639 | +38344268300',
       website: 'www.tonialpvc.com | tonialpvc@gmail.com',
+      logoAsset: 'assets/logo.png',
     ),
     'en': CompanyInfo(
       name: 'TONI AL-PVC',
       address: 'Ilir Konushevci St., No. 80, Kamenica, Kosovo, 62000',
       phones: '+38344357639 | +38344268300',
       website: 'www.tonialpvc.com | tonialpvc@gmail.com',
+      logoAsset: 'assets/logo.png',
     ),
     'de': CompanyInfo(
       name: 'TONI AL-PVC',
       address: 'Ilir Konushevci Str., Nr. 80, Kamenica, Kosovo, 62000',
       phones: '+38344357639 | +38344268300',
       website: 'www.tonialpvc.com | tonialpvc@gmail.com',
+      logoAsset: 'assets/logo.png',
     ),
     'fr': CompanyInfo(
       name: 'TONI AL-PVC',
       address: 'Rue Ilir Konushevci, n° 80, Kamenica, Kosovo, 62000',
       phones: '+38344357639 | +38344268300',
       website: 'www.tonialpvc.com | tonialpvc@gmail.com',
+      logoAsset: 'assets/logo.png',
     ),
     'it': CompanyInfo(
       name: 'TONI AL-PVC',
       address: 'Via Ilir Konushevci, n. 80, Kamenica, Kosovo, 62000',
       phones: '+38344357639 | +38344268300',
       website: 'www.tonialpvc.com | tonialpvc@gmail.com',
+      logoAsset: 'assets/logo.png',
     ),
   };
 

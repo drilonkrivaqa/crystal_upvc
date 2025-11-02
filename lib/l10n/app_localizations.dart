@@ -1107,6 +1107,7 @@ class AppLocalizations {
   String get welcomeAddress => CompanyDetails.ofLocale(locale).address;
   String get welcomePhones => CompanyDetails.ofLocale(locale).phones;
   String get welcomeWebsite => CompanyDetails.ofLocale(locale).website;
+  String get companyLogoAsset => CompanyDetails.ofLocale(locale).logoAsset;
   String get welcomeEnter => _t('welcomeEnter');
   String get catalogsTitle => _t('catalogsTitle');
   String get catalogProfile => _t('catalogProfile');
