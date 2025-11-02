@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../l10n/app_localizations.dart';
 import '../models.dart';
 import '../theme/app_background.dart';
-import '../utils/profile_sort_order.dart';
 import '../widgets/glass_card.dart';
 
 class HekriProfilesPage extends StatefulWidget {
@@ -16,15 +14,11 @@ class HekriProfilesPage extends StatefulWidget {
 
 class _HekriProfilesPageState extends State<HekriProfilesPage> {
   late Box<ProfileSet> profileBox;
-  late Box settingsBox;
-  ProfileSortOrder _sortOrder = ProfileSortOrder.newest;
 
   @override
   void initState() {
     super.initState();
     profileBox = Hive.box<ProfileSet>('profileSets');
-    settingsBox = Hive.box('settings');
-    _sortOrder = profileSortOrderFromStorage(settingsBox);
   }
 
   void _editProfile(int index) {
@@ -126,50 +120,18 @@ class _HekriProfilesPageState extends State<HekriProfilesPage> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.productionRegisteredProfiles),
-        actions: [
-          PopupMenuButton<ProfileSortOrder>(
-            initialValue: _sortOrder,
-            icon: const Icon(Icons.sort),
-            onSelected: (order) {
-              setState(() {
-                _sortOrder = order;
-              });
-              saveProfileSortOrder(settingsBox, order);
-            },
-            itemBuilder: (context) => [
-              CheckedPopupMenuItem<ProfileSortOrder>(
-                value: ProfileSortOrder.newest,
-                checked: _sortOrder == ProfileSortOrder.newest,
-                child: Text(l10n.profilesSortNewest),
-              ),
-              CheckedPopupMenuItem<ProfileSortOrder>(
-                value: ProfileSortOrder.nameAsc,
-                checked: _sortOrder == ProfileSortOrder.nameAsc,
-                child: Text(l10n.profilesSortNameAsc),
-              ),
-              CheckedPopupMenuItem<ProfileSortOrder>(
-                value: ProfileSortOrder.nameDesc,
-                checked: _sortOrder == ProfileSortOrder.nameDesc,
-                child: Text(l10n.profilesSortNameDesc),
-              ),
-            ],
-          ),
-        ],
-      ),
+      appBar: AppBar(title: Text(l10n.productionRegisteredProfiles)),
       body: AppBackground(
         child: ValueListenableBuilder(
           valueListenable: profileBox.listenable(),
           builder: (context, Box<ProfileSet> box, _) {
-            final entries = getSortedProfileEntries(box, _sortOrder);
             return ListView.builder(
-              itemCount: entries.length,
+              itemCount: box.length,
               itemBuilder: (context, index) {
-                final entry = entries[index];
-                final profile = entry.value;
+                final profile = box.getAt(index);
+                if (profile == null) return const SizedBox();
                 return GlassCard(
-                  onTap: () => _editProfile(entry.key),
+                  onTap: () => _editProfile(index),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
