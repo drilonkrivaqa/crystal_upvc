@@ -901,12 +901,40 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                   sb.writeln(
                       'Sections: ${item.horizontalSections}x${item.verticalSections}');
                   sb.writeln('Openings: ${item.openings}');
-                  sb.writeln(
-                      '${item.sectionWidths.length > 1 ? 'Widths' : 'Width'}: ${item.sectionWidths.join(', ')}');
+                  if (item.perRowSectionWidths != null &&
+                      item.perRowSectionWidths!.isNotEmpty) {
+                    final rowStrings = <String>[];
+                    for (int i = 0;
+                        i < item.perRowSectionWidths!.length;
+                        i++) {
+                      final row = item.perRowSectionWidths![i];
+                      if (row.isEmpty) continue;
+                      rowStrings.add('R${i + 1}: ${row.join(', ')}');
+                    }
+                    if (rowStrings.isNotEmpty) {
+                      sb.writeln('Widths: ${rowStrings.join(' | ')}');
+                    }
+                  } else {
+                    sb.writeln(
+                        '${item.sectionWidths.length > 1 ? 'Widths' : 'Width'}: ${item.sectionWidths.join(', ')}');
+                  }
                   sb.writeln(
                       '${item.sectionHeights.length > 1 ? 'Heights' : 'Height'}: ${item.sectionHeights.join(', ')}');
-                  sb.writeln(
-                      'V div: ${item.verticalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ')}');
+                  if (item.hasPerRowLayout) {
+                    final adapters = <String>[];
+                    final perRow = item.perRowVerticalAdapters ?? const <List<bool>>[];
+                    for (int i = 0; i < perRow.length; i++) {
+                      if (perRow[i].isEmpty) continue;
+                      adapters.add(
+                          'R${i + 1}: ${perRow[i].map((a) => a ? 'Adapter' : 'T').join(', ')}');
+                    }
+                    if (adapters.isNotEmpty) {
+                      sb.writeln('V div: ${adapters.join(' | ')}');
+                    }
+                  } else {
+                    sb.writeln(
+                        'V div: ${item.verticalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ')}');
+                  }
                   sb.writeln(
                       'H div: ${item.horizontalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ')}');
                   sb.writeln(

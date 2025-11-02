@@ -115,10 +115,10 @@ class _XhamiPageState extends State<XhamiPage> {
     }
 
     for (int r = 0; r < item.horizontalSections; r++) {
-      for (int c = 0; c < item.verticalSections; c++) {
-        final w = item.sectionWidths[c].toDouble();
+      final rowWidths = item.widthsForRow(r);
+      for (int c = 0; c < rowWidths.length; c++) {
+        final w = rowWidths[c].toDouble();
         final h = effectiveHeights[r].toDouble();
-        final idx = r * item.verticalSections + c;
         final l = set.lInnerThickness.toDouble();
         final z = set.zInnerThickness.toDouble();
         const melt = 6.0;
@@ -126,7 +126,7 @@ class _XhamiPageState extends State<XhamiPage> {
         final fixedTakeoff = set.fixedGlassTakeoff.toDouble();
         final sashTakeoff = set.sashGlassTakeoff.toDouble();
         final insets = item.sectionInsets(set, r, c);
-        if (!item.fixedSectors[idx]) {
+        if (!item.isFixedAt(r, c)) {
           final sashW =
               (w - insets.left - insets.right + sashAdd).clamp(0, w);
           final sashH =

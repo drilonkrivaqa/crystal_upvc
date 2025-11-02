@@ -62,12 +62,14 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   String? notes;
   int verticalSections = 1;
   int horizontalSections = 1;
-  List<bool> fixedSectors = [false];
-  List<int> sectionWidths = [0];
   List<int> sectionHeights = [0];
-  List<bool> verticalAdapters = [];
   List<bool> horizontalAdapters = [];
-  List<TextEditingController> sectionWidthCtrls = [];
+  List<int> rowVerticalSections = [1];
+  List<List<int>> rowSectionWidths = [<int>[0]];
+  List<List<TextEditingController>> rowSectionWidthCtrls =
+      [<TextEditingController>[]];
+  List<List<bool>> rowFixedSectors = [<bool>[false]];
+  List<List<bool>> rowVerticalAdapters = [<bool>[]];
   List<TextEditingController> sectionHeightCtrls = [];
 
   int _normalizeIndex(int? index, int length) {
@@ -139,16 +141,84 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     extra1Desc = widget.existingItem?.extra1Desc;
     extra2Desc = widget.existingItem?.extra2Desc;
     notes = widget.existingItem?.notes;
-    verticalSections = widget.existingItem?.verticalSections ?? 1;
-    horizontalSections = widget.existingItem?.horizontalSections ?? 1;
-    fixedSectors =
-        List<bool>.from(widget.existingItem?.fixedSectors ?? [false]);
-    sectionWidths = List<int>.from(widget.existingItem?.sectionWidths ?? []);
-    sectionHeights = List<int>.from(widget.existingItem?.sectionHeights ?? []);
-    verticalAdapters =
-        List<bool>.from(widget.existingItem?.verticalAdapters ?? []);
+    final existingItem = widget.existingItem;
+    verticalSections = existingItem?.verticalSections ?? 1;
+    horizontalSections = existingItem?.horizontalSections ?? 1;
+    sectionHeights = List<int>.from(existingItem?.sectionHeights ?? []);
     horizontalAdapters =
-        List<bool>.from(widget.existingItem?.horizontalAdapters ?? []);
+        List<bool>.from(existingItem?.horizontalAdapters ?? []);
+
+    final existingFixed = List<bool>.from(existingItem?.fixedSectors ?? <bool>[]);
+    final existingWidths = List<int>.from(existingItem?.sectionWidths ?? <int>[]);
+    final existingVerticalAdapters =
+        List<bool>.from(existingItem?.verticalAdapters ?? <bool>[]);
+
+    if (existingItem != null && existingItem.hasPerRowLayout) {
+      rowVerticalSections =
+          List<int>.from(existingItem.perRowVerticalSections ?? <int>[]);
+      rowSectionWidths = (existingItem.perRowSectionWidths ?? const <List<int>>[])
+          .map((row) => List<int>.from(row))
+          .toList();
+      rowFixedSectors =
+          (existingItem.perRowFixedSectors ?? const <List<bool>>[])
+              .map((row) => List<bool>.from(row))
+              .toList();
+      rowVerticalAdapters =
+          (existingItem.perRowVerticalAdapters ?? const <List<bool>>[])
+              .map((row) => List<bool>.from(row))
+              .toList();
+    } else {
+      rowVerticalSections =
+          List<int>.filled(horizontalSections, verticalSections); // default grid
+      rowSectionWidths = List<List<int>>.generate(horizontalSections, (row) {
+        return List<int>.generate(verticalSections,
+            (col) => col < existingWidths.length ? existingWidths[col] : 0);
+      });
+      rowFixedSectors = List<List<bool>>.generate(horizontalSections, (row) {
+        return List<bool>.generate(verticalSections, (col) {
+          final idx = row * verticalSections + col;
+          if (idx >= 0 && idx < existingFixed.length) {
+            return existingFixed[idx];
+          }
+          return false;
+        });
+      });
+      rowVerticalAdapters = List<List<bool>>.generate(horizontalSections, (_) {
+        return List<bool>.generate(
+            verticalSections > 1 ? verticalSections - 1 : 0, (index) {
+          if (index >= 0 && index < existingVerticalAdapters.length) {
+            return existingVerticalAdapters[index];
+          }
+          return false;
+        });
+      });
+    }
+
+    if (rowVerticalSections.isEmpty) {
+      rowVerticalSections = [verticalSections];
+    }
+    if (rowSectionWidths.isEmpty) {
+      rowSectionWidths = [List<int>.filled(verticalSections, 0)];
+    }
+    if (rowFixedSectors.isEmpty) {
+      rowFixedSectors = [List<bool>.filled(verticalSections, false)];
+    }
+    if (rowVerticalAdapters.isEmpty) {
+      rowVerticalAdapters = [List<bool>.filled(verticalSections > 1 ? verticalSections - 1 : 0, false)];
+    }
+
+    rowSectionWidthCtrls = List<List<TextEditingController>>.generate(
+        rowSectionWidths.length,
+        (row) => List<TextEditingController>.generate(
+            rowSectionWidths[row].length,
+            (col) => TextEditingController(
+                text: rowSectionWidths[row][col].toString())));
+
+    verticalSections = rowVerticalSections.isNotEmpty
+        ? rowVerticalSections.reduce(
+            (value, element) => element > value ? element : value)
+        : verticalSections;
+    verticalController.text = verticalSections.toString();
     _ensureGridSize();
   }
 
@@ -178,10 +248,21 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                           : (horizontalSections > 8 ? 8 : horizontalSections);
                       final initialCells =
                           _buildInitialDesignerCells(initialRows, initialCols);
+                      final defaultWidths = List<int>.filled(initialCols, 0);
+                      for (final row in rowSectionWidths) {
+                        for (int i = 0;
+                            i < row.length && i < defaultWidths.length;
+                            i++) {
+                          if (row[i] > defaultWidths[i]) {
+                            defaultWidths[i] = row[i];
+                          }
+                        }
+                      }
                       final initialColumnSizes = List<double>.generate(
                         initialCols,
-                        (index) =>
-                            index < sectionWidths.length ? sectionWidths[index].toDouble() : 0.0,
+                        (index) => index < defaultWidths.length
+                            ? defaultWidths[index].toDouble()
+                            : 0.0,
                       );
                       final initialRowSizes = List<double>.generate(
                         initialRows,
@@ -287,7 +368,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                                     decoration: InputDecoration(
                                         labelText: l10n.widthMm),
                                     keyboardType: TextInputType.number,
-                                    onChanged: (_) => _recalculateWidths(),
+                                    onChanged: (_) =>
+                                        _recalculateAllWidths(showErrors: false),
                                   ),
                                 ),
                                 const SizedBox(width: 12),
@@ -556,7 +638,11 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     final width = int.tryParse(widthController.text) ?? 0;
     final height = int.tryParse(heightController.text) ?? 0;
     final quantity = int.tryParse(quantityController.text) ?? 1;
-    final openings = fixedSectors.where((f) => !f).length;
+    _ensureGridSize();
+    final openings = rowFixedSectors.fold<int>(
+        0,
+        (prev, row) =>
+            prev + row.where((isFixed) => !isFixed).length);
     final mPrice = double.tryParse(priceController.text);
     final mBasePrice = double.tryParse(basePriceController.text);
 
@@ -565,6 +651,32 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
         SnackBar(content: Text(l10n.fillAllRequired)),
       );
       return false;
+    }
+
+    final maxVertical = rowVerticalSections.isNotEmpty
+        ? rowVerticalSections.reduce((value, element) =>
+            element > value ? element : value)
+        : verticalSections;
+    final flattenedFixed = <bool>[];
+    for (final row in rowFixedSectors) {
+      flattenedFixed.addAll(row);
+    }
+    final defaultSectionWidths = List<int>.filled(maxVertical, 0);
+    for (final row in rowSectionWidths) {
+      for (int i = 0; i < row.length && i < defaultSectionWidths.length; i++) {
+        if (row[i] > defaultSectionWidths[i]) {
+          defaultSectionWidths[i] = row[i];
+        }
+      }
+    }
+    final defaultVerticalAdapters =
+        List<bool>.filled(maxVertical > 1 ? maxVertical - 1 : 0, false);
+    for (final rowAdapters in rowVerticalAdapters) {
+      for (int i = 0;
+          i < rowAdapters.length && i < defaultVerticalAdapters.length;
+          i++) {
+        defaultVerticalAdapters[i] = rowAdapters[i];
+      }
     }
 
     widget.onSave(
@@ -579,12 +691,12 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
         mechanismIndex: mechanismIndex,
         accessoryIndex: accessoryIndex,
         openings: openings,
-        verticalSections: verticalSections,
+        verticalSections: maxVertical,
         horizontalSections: horizontalSections,
-        fixedSectors: fixedSectors,
-        sectionWidths: sectionWidths,
+        fixedSectors: flattenedFixed,
+        sectionWidths: defaultSectionWidths,
         sectionHeights: sectionHeights,
-        verticalAdapters: verticalAdapters,
+        verticalAdapters: defaultVerticalAdapters,
         horizontalAdapters: horizontalAdapters,
         photoPath: _designImageBytes != null ? null : photoPath,
         photoBytes: _designImageBytes ?? photoBytes,
@@ -595,6 +707,16 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
         extra1Desc: extra1DescController.text,
         extra2Desc: extra2DescController.text,
         notes: notesController.text,
+        perRowVerticalSections: List<int>.from(rowVerticalSections),
+        perRowSectionWidths: rowSectionWidths
+            .map((row) => List<int>.from(row))
+            .toList(),
+        perRowFixedSectors: rowFixedSectors
+            .map((row) => List<bool>.from(row))
+            .toList(),
+        perRowVerticalAdapters: rowVerticalAdapters
+            .map((row) => List<bool>.from(row))
+            .toList(),
       ),
     );
     return true;
@@ -638,21 +760,23 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     verticalSections = newVertical;
     horizontalSections = newHorizontal;
 
-    if (vChanged) {
-      for (final c in sectionWidthCtrls) {
-        c.dispose();
+    if (vChanged || hChanged) {
+      for (final rowCtrls in rowSectionWidthCtrls) {
+        for (final ctrl in rowCtrls) {
+          ctrl.dispose();
+        }
       }
-      sectionWidths = List<int>.filled(verticalSections, 0);
-      sectionWidthCtrls = [
-        for (int i = 0; i < verticalSections; i++)
-          TextEditingController(text: '0')
-      ];
-      verticalAdapters = List<bool>.filled(verticalSections - 1, false);
+      rowSectionWidthCtrls = [];
+      rowSectionWidths = [];
+      rowFixedSectors = [];
+      rowVerticalAdapters = [];
+      rowVerticalSections =
+          List<int>.filled(horizontalSections, verticalSections);
     }
 
     if (hChanged) {
-      for (final c in sectionHeightCtrls) {
-        c.dispose();
+      for (final ctrl in sectionHeightCtrls) {
+        ctrl.dispose();
       }
       sectionHeights = List<int>.filled(horizontalSections, 0);
       sectionHeightCtrls = [
@@ -662,44 +786,110 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
       horizontalAdapters = List<bool>.filled(horizontalSections - 1, false);
     }
 
-    if (vChanged || hChanged) {
-      fixedSectors =
-          List<bool>.filled(verticalSections * horizontalSections, false);
-    }
-
     _ensureGridSize();
     setState(() {});
   }
 
   void _ensureGridSize() {
-    int total = verticalSections * horizontalSections;
-    if (fixedSectors.length < total) {
-      fixedSectors = List<bool>.from(fixedSectors)
-        ..addAll(List<bool>.filled(total - fixedSectors.length, false));
-    } else if (fixedSectors.length > total) {
-      fixedSectors = fixedSectors.sublist(0, total);
+    if (horizontalSections < 1) horizontalSections = 1;
+    if (verticalSections < 1) verticalSections = 1;
+
+    if (rowVerticalSections.length < horizontalSections) {
+      rowVerticalSections.addAll(List<int>.filled(
+          horizontalSections - rowVerticalSections.length, verticalSections));
+    } else if (rowVerticalSections.length > horizontalSections) {
+      rowVerticalSections =
+          rowVerticalSections.sublist(0, horizontalSections);
     }
-    if (sectionWidths.length < verticalSections) {
-      sectionWidths
-          .addAll(List<int>.filled(verticalSections - sectionWidths.length, 0));
-    } else if (sectionWidths.length > verticalSections) {
-      sectionWidths = sectionWidths.sublist(0, verticalSections);
+
+    if (rowSectionWidths.length < horizontalSections) {
+      rowSectionWidths.addAll(List<List<int>>.generate(
+          horizontalSections - rowSectionWidths.length,
+          (_) => List<int>.filled(verticalSections, 0)));
+    } else if (rowSectionWidths.length > horizontalSections) {
+      rowSectionWidths = rowSectionWidths.sublist(0, horizontalSections);
     }
-    if (sectionWidthCtrls.length < verticalSections) {
-      for (int i = sectionWidthCtrls.length; i < verticalSections; i++) {
-        sectionWidthCtrls.add(TextEditingController(
-            text:
-                (i < sectionWidths.length ? sectionWidths[i] : 0).toString()));
+
+    if (rowSectionWidthCtrls.length < horizontalSections) {
+      rowSectionWidthCtrls.addAll(List<List<TextEditingController>>.generate(
+          horizontalSections - rowSectionWidthCtrls.length,
+          (_) => <TextEditingController>[]));
+    } else if (rowSectionWidthCtrls.length > horizontalSections) {
+      rowSectionWidthCtrls =
+          rowSectionWidthCtrls.sublist(0, horizontalSections);
+    }
+
+    if (rowFixedSectors.length < horizontalSections) {
+      rowFixedSectors.addAll(List<List<bool>>.generate(
+          horizontalSections - rowFixedSectors.length,
+          (_) => List<bool>.filled(verticalSections, false)));
+    } else if (rowFixedSectors.length > horizontalSections) {
+      rowFixedSectors = rowFixedSectors.sublist(0, horizontalSections);
+    }
+
+    if (rowVerticalAdapters.length < horizontalSections) {
+      rowVerticalAdapters.addAll(List<List<bool>>.generate(
+          horizontalSections - rowVerticalAdapters.length,
+          (_) => List<bool>.filled(
+              verticalSections > 1 ? verticalSections - 1 : 0, false)));
+    } else if (rowVerticalAdapters.length > horizontalSections) {
+      rowVerticalAdapters = rowVerticalAdapters.sublist(0, horizontalSections);
+    }
+
+    for (int r = 0; r < horizontalSections; r++) {
+      int columns = rowVerticalSections[r];
+      if (columns < 1) {
+        columns = 1;
       }
-    } else if (sectionWidthCtrls.length > verticalSections) {
-      sectionWidthCtrls = sectionWidthCtrls.sublist(0, verticalSections);
+      if (columns > verticalSections) {
+        columns = verticalSections;
+      }
+      rowVerticalSections[r] = columns;
+
+      if (rowSectionWidths[r].length < columns) {
+        rowSectionWidths[r].addAll(
+            List<int>.filled(columns - rowSectionWidths[r].length, 0));
+      } else if (rowSectionWidths[r].length > columns) {
+        rowSectionWidths[r] = rowSectionWidths[r].sublist(0, columns);
+      }
+
+      if (rowSectionWidthCtrls[r].length < columns) {
+        for (int i = rowSectionWidthCtrls[r].length; i < columns; i++) {
+          rowSectionWidthCtrls[r].add(TextEditingController(
+              text: (i < rowSectionWidths[r].length
+                      ? rowSectionWidths[r][i]
+                      : 0)
+                  .toString()));
+        }
+      } else if (rowSectionWidthCtrls[r].length > columns) {
+        rowSectionWidthCtrls[r] =
+            rowSectionWidthCtrls[r].sublist(0, columns);
+      }
+
+      if (rowFixedSectors[r].length < columns) {
+        rowFixedSectors[r].addAll(
+            List<bool>.filled(columns - rowFixedSectors[r].length, false));
+      } else if (rowFixedSectors[r].length > columns) {
+        rowFixedSectors[r] = rowFixedSectors[r].sublist(0, columns);
+      }
+
+      final targetAdapters = columns > 1 ? columns - 1 : 0;
+      if (rowVerticalAdapters[r].length < targetAdapters) {
+        rowVerticalAdapters[r].addAll(List<bool>.filled(
+            targetAdapters - rowVerticalAdapters[r].length, false));
+      } else if (rowVerticalAdapters[r].length > targetAdapters) {
+        rowVerticalAdapters[r] =
+            rowVerticalAdapters[r].sublist(0, targetAdapters);
+      }
     }
+
     if (sectionHeights.length < horizontalSections) {
       sectionHeights.addAll(
           List<int>.filled(horizontalSections - sectionHeights.length, 0));
     } else if (sectionHeights.length > horizontalSections) {
       sectionHeights = sectionHeights.sublist(0, horizontalSections);
     }
+
     if (sectionHeightCtrls.length < horizontalSections) {
       for (int i = sectionHeightCtrls.length; i < horizontalSections; i++) {
         sectionHeightCtrls.add(TextEditingController(
@@ -709,12 +899,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     } else if (sectionHeightCtrls.length > horizontalSections) {
       sectionHeightCtrls = sectionHeightCtrls.sublist(0, horizontalSections);
     }
-    if (verticalAdapters.length < verticalSections - 1) {
-      verticalAdapters.addAll(List<bool>.filled(
-          (verticalSections - 1) - verticalAdapters.length, false));
-    } else if (verticalAdapters.length > verticalSections - 1) {
-      verticalAdapters = verticalAdapters.sublist(0, verticalSections - 1);
-    }
+
     if (horizontalAdapters.length < horizontalSections - 1) {
       horizontalAdapters.addAll(List<bool>.filled(
           (horizontalSections - 1) - horizontalAdapters.length, false));
@@ -723,7 +908,9 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
           horizontalAdapters.sublist(0, horizontalSections - 1);
     }
 
-    _recalculateWidths(showErrors: false);
+    for (int r = 0; r < horizontalSections; r++) {
+      _recalculateRowWidths(r, showErrors: false, rebuild: false);
+    }
     _recalculateHeights(showErrors: false);
   }
 
@@ -734,9 +921,15 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     }
 
     final normalizedFixed = List<bool>.filled(total, true);
-    for (int i = 0; i < total; i++) {
-      if (i < fixedSectors.length) {
-        normalizedFixed[i] = fixedSectors[i];
+    for (int r = 0; r < rows; r++) {
+      final rowCount =
+          r < rowVerticalSections.length ? rowVerticalSections[r] : cols;
+      for (int c = 0; c < rowCount && c < cols; c++) {
+        final idx = r * cols + c;
+        if (r < rowFixedSectors.length &&
+            c < rowFixedSectors[r].length) {
+          normalizedFixed[idx] = rowFixedSectors[r][c];
+        }
       }
     }
 
@@ -762,19 +955,25 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     });
   }
 
-  void _recalculateWidths({bool showErrors = true}) {
-    if (verticalSections == 0) return;
-    int totalWidth = int.tryParse(widthController.text) ?? 0;
+  void _recalculateRowWidths(int row,
+      {bool showErrors = true, bool rebuild = true}) {
+    if (row < 0 || row >= horizontalSections) return;
+    final columns = rowVerticalSections[row];
+    if (columns <= 0) return;
+
+    final totalWidth = int.tryParse(widthController.text) ?? 0;
     int specifiedSum = 0;
     int unspecified = 0;
-    for (int i = 0; i < verticalSections - 1; i++) {
-      int val = int.tryParse(sectionWidthCtrls[i].text) ?? 0;
+    for (int i = 0; i < columns - 1; i++) {
+      final ctrl = rowSectionWidthCtrls[row][i];
+      int val = int.tryParse(ctrl.text) ?? 0;
       if (val <= 0) {
         unspecified++;
       } else {
         specifiedSum += val;
       }
     }
+
     int remaining = totalWidth - specifiedSum;
     if (remaining < 0) {
       if (showErrors && mounted) {
@@ -785,22 +984,35 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
       }
       remaining = 0;
     }
-    int autoWidth = (unspecified + 1) > 0 ? remaining ~/ (unspecified + 1) : 0;
-    for (int i = 0; i < verticalSections - 1; i++) {
-      int val = int.tryParse(sectionWidthCtrls[i].text) ?? 0;
+
+    final autoWidth = (unspecified + 1) > 0 ? remaining ~/ (unspecified + 1) : 0;
+    for (int i = 0; i < columns - 1; i++) {
+      final ctrl = rowSectionWidthCtrls[row][i];
+      int val = int.tryParse(ctrl.text) ?? 0;
       if (val <= 0) {
         val = autoWidth;
-        sectionWidthCtrls[i].text = val.toString();
+        ctrl.text = val.toString();
       }
-      sectionWidths[i] = val;
+      rowSectionWidths[row][i] = val;
     }
+
     int used = 0;
-    for (int i = 0; i < verticalSections - 1; i++) used += sectionWidths[i];
+    for (int i = 0; i < columns - 1; i++) {
+      used += rowSectionWidths[row][i];
+    }
     int last = totalWidth - used;
-    if (last < 0) last = 0;
-    sectionWidths[verticalSections - 1] = last;
-    sectionWidthCtrls[verticalSections - 1].text = last.toString();
-    if (mounted) setState(() {});
+    if (last < 0) {
+      last = 0;
+    }
+    rowSectionWidths[row][columns - 1] = last;
+    rowSectionWidthCtrls[row][columns - 1].text = last.toString();
+    if (rebuild && mounted) setState(() {});
+  }
+
+  void _recalculateAllWidths({bool showErrors = true}) {
+    for (int r = 0; r < horizontalSections; r++) {
+      _recalculateRowWidths(r, showErrors: showErrors);
+    }
   }
 
   void _recalculateHeights({bool showErrors = true}) {
@@ -848,61 +1060,70 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     final l10n = AppLocalizations.of(context);
     return Column(
       children: [
-        if (verticalSections > 0)
-          Row(
-            children: [
-              const SizedBox(width: 40),
-              for (int c = 0; c < verticalSections; c++)
-                Expanded(
-                  flex: sectionWidths[c] > 0 ? sectionWidths[c] : 1,
-                  child: Center(
-                    child: Text(
-                      'W${c + 1}: ${sectionWidths[c]}',
-                      style: const TextStyle(fontSize: 12),
-                    ),
-                  ),
-                ),
-            ],
-          ),
         for (int r = 0; r < horizontalSections; r++)
           Expanded(
             flex: sectionHeights[r] > 0 ? sectionHeights[r] : 1,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+            child: Column(
               children: [
-                SizedBox(
-                  width: 40,
-                  child: Center(
-                    child: Text(
-                      'H${r + 1}: ${sectionHeights[r]}',
-                      style: const TextStyle(fontSize: 12),
-                    ),
-                  ),
-                ),
-                for (int c = 0; c < verticalSections; c++)
-                  Expanded(
-                    flex: sectionWidths[c] > 0 ? sectionWidths[c] : 1,
-                    child: GestureDetector(
-                      onTap: () {
-                        int index = r * verticalSections + c;
-                        setState(
-                            () => fixedSectors[index] = !fixedSectors[index]);
-                      },
-                      child: Container(
-                        margin: const EdgeInsets.all(4),
-                        color: fixedSectors[r * verticalSections + c]
-                            ? AppColors.grey400
-                            : Colors.blue[200],
+                Row(
+                  children: [
+                    const SizedBox(width: 40),
+                    for (int c = 0; c < rowVerticalSections[r]; c++)
+                      Expanded(
+                        flex: rowSectionWidths[r][c] > 0
+                            ? rowSectionWidths[r][c]
+                            : 1,
                         child: Center(
                           child: Text(
-                            fixedSectors[r * verticalSections + c]
-                                ? l10n.fixed
-                                : l10n.openWithSash,
+                            'W${r + 1}.${c + 1}: ${rowSectionWidths[r][c]}',
+                            style: const TextStyle(fontSize: 12),
                           ),
                         ),
                       ),
-                    ),
+                  ],
+                ),
+                Expanded(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      SizedBox(
+                        width: 40,
+                        child: Center(
+                          child: Text(
+                            'H${r + 1}: ${sectionHeights[r]}',
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                        ),
+                      ),
+                      for (int c = 0; c < rowVerticalSections[r]; c++)
+                        Expanded(
+                          flex: rowSectionWidths[r][c] > 0
+                              ? rowSectionWidths[r][c]
+                              : 1,
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                rowFixedSectors[r][c] = !rowFixedSectors[r][c];
+                              });
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.all(4),
+                              color: rowFixedSectors[r][c]
+                                  ? AppColors.grey400
+                                  : Colors.blue[200],
+                              child: Center(
+                                child: Text(
+                                  rowFixedSectors[r][c]
+                                      ? l10n.fixed
+                                      : l10n.openWithSash,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
+                ),
               ],
             ),
           ),
@@ -915,23 +1136,56 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (verticalSections > 0)
-          Text(verticalSections > 1
-              ? l10n.sectorWidths
-              : l10n.sectorWidth),
-        for (int i = 0; i < verticalSections; i++)
-          TextField(
-            controller: sectionWidthCtrls[i],
-            decoration: InputDecoration(
-              labelText: i == verticalSections - 1
-                  ? l10n.widthAutoLabel(i + 1)
-                  : l10n.widthLabel(i + 1),
-            ),
-            keyboardType: TextInputType.number,
-            enabled: i < verticalSections - 1,
-            onChanged:
-                i < verticalSections - 1 ? (_) => _recalculateWidths() : null,
+        for (int r = 0; r < horizontalSections; r++) ...[
+          if (r > 0) const SizedBox(height: 8),
+          Text('${l10n.sectorWidths} (row ${r + 1})'),
+          DropdownButton<int>(
+            value: rowVerticalSections[r].clamp(1, verticalSections),
+            items: [
+              for (int count = 1; count <= verticalSections; count++)
+                DropdownMenuItem<int>(
+                  value: count,
+                  child: Text(count.toString()),
+                ),
+            ],
+            onChanged: (val) {
+              if (val == null) return;
+              setState(() {
+                rowVerticalSections[r] = val;
+                _ensureGridSize();
+              });
+            },
           ),
+          for (int c = 0; c < rowVerticalSections[r]; c++)
+            TextField(
+              controller: rowSectionWidthCtrls[r][c],
+              decoration: InputDecoration(
+                labelText: c == rowVerticalSections[r] - 1
+                    ? '${l10n.widthAutoLabel(c + 1)} (row ${r + 1})'
+                    : '${l10n.widthLabel(c + 1)} (row ${r + 1})',
+              ),
+              keyboardType: TextInputType.number,
+              enabled: c < rowVerticalSections[r] - 1,
+              onChanged: c < rowVerticalSections[r] - 1
+                  ? (_) => _recalculateRowWidths(r)
+                  : null,
+            ),
+          if (rowVerticalSections[r] > 1) ...[
+            const SizedBox(height: 4),
+            Text('${l10n.verticalDivision} (row ${r + 1})'),
+            for (int i = 0; i < rowVerticalSections[r] - 1; i++)
+              DropdownButton<bool>(
+                value: rowVerticalAdapters[r][i],
+                items: [
+                  const DropdownMenuItem(value: false, child: Text('T')),
+                  DropdownMenuItem(
+                      value: true, child: Text(l10n.pdfAdapter)),
+                ],
+                onChanged: (val) => setState(
+                    () => rowVerticalAdapters[r][i] = val ?? false),
+              ),
+          ],
+        ],
         if (horizontalSections > 0) const SizedBox(height: 8),
         if (horizontalSections > 0)
           Text(horizontalSections > 1
@@ -951,18 +1205,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                 ? (_) => _recalculateHeights()
                 : null,
           ),
-        if (verticalSections > 1) const SizedBox(height: 8),
-        if (verticalSections > 1) Text(l10n.verticalDivision),
-        for (int i = 0; i < verticalSections - 1; i++)
-          DropdownButton<bool>(
-            value: verticalAdapters[i],
-            items: [
-              const DropdownMenuItem(value: false, child: Text('T')),
-              DropdownMenuItem(value: true, child: Text(l10n.pdfAdapter)),
-            ],
-            onChanged: (val) =>
-                setState(() => verticalAdapters[i] = val ?? false),
-          ),
         if (horizontalSections > 1) const SizedBox(height: 8),
         if (horizontalSections > 1) Text(l10n.horizontalDivision),
         for (int i = 0; i < horizontalSections - 1; i++)
@@ -977,5 +1219,31 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
           ),
       ],
     );
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    widthController.dispose();
+    heightController.dispose();
+    quantityController.dispose();
+    verticalController.dispose();
+    horizontalController.dispose();
+    priceController.dispose();
+    basePriceController.dispose();
+    extra1Controller.dispose();
+    extra2Controller.dispose();
+    extra1DescController.dispose();
+    extra2DescController.dispose();
+    notesController.dispose();
+    for (final ctrl in sectionHeightCtrls) {
+      ctrl.dispose();
+    }
+    for (final rowCtrls in rowSectionWidthCtrls) {
+      for (final ctrl in rowCtrls) {
+        ctrl.dispose();
+      }
+    }
+    super.dispose();
   }
 }

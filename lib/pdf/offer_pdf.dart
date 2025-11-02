@@ -353,7 +353,10 @@ Future<void> printOfferPdf({
                 '${l10n.pdfSections} ${item.horizontalSections}x${item.verticalSections}'),
             pw.Text('${l10n.pdfOpening} ${item.openings}'),
             pw.Text(
-                '${item.sectionWidths.length > 1 ? l10n.pdfWidths : l10n.pdfWidth} ${item.sectionWidths.join(', ')}'),
+                item.perRowSectionWidths != null &&
+                        item.perRowSectionWidths!.isNotEmpty
+                    ? '${l10n.pdfWidths} ${item.perRowSectionWidths!.asMap().entries.map((e) => 'R${e.key + 1}: ${e.value.join(', ')}').join(' | ')}'
+                    : '${item.sectionWidths.length > 1 ? l10n.pdfWidths : l10n.pdfWidth} ${item.sectionWidths.join(', ')}'),
             pw.Text(
                 '${item.sectionHeights.length > 1 ? l10n.pdfHeights : l10n.pdfHeight} ${item.sectionHeights.join(', ')}'),
             if (item.verticalSections != 1)
