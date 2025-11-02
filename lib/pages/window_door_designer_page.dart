@@ -430,128 +430,198 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
           IconButton(onPressed: _reset, tooltip: 'Reset', icon: const Icon(Icons.refresh)),
         ],
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 10, 12, 0),
-            child: Wrap(
-              spacing: 18,
-              runSpacing: 8,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                _RowsColsPicker(
-                  rows: rows,
-                  cols: cols,
-                  onChanged: (r, c) => _regrid(r, c),
-                ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Switch(value: outsideView, onChanged: (v) => setState(() => outsideView = v)),
-                    const Text('Outside view'),
-                  ],
-                ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Switch(
-                      value: showBlindBox,
-                      onChanged: (v) => setState(() => showBlindBox = v),
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final isWide = constraints.maxWidth >= 900;
+            final canvas = _buildCanvasArea(aspectRatio);
+            final controls = _buildControlsPanel(theme, isWide: isWide);
+
+            if (isWide) {
+              final panelWidth = math.min(420.0, constraints.maxWidth * 0.38);
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(
+                    flex: 3,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+                      child: canvas,
                     ),
-                    const Text('Roller blind box'),
-                  ],
-                ),
-                _colorGroup(
-                  title: 'Profile colour',
-                  chips: _profileColorOptions.map((opt) {
-                    final selected = profileColor == opt;
-                    return ChoiceChip(
-                      label: Text(opt.label),
-                      avatar: _ColorDot(color: opt.base),
-                      selected: selected,
-                      onSelected: (_) => setState(() => profileColor = opt),
-                    );
-                  }).toList(),
-                ),
-                if (showBlindBox)
-                  _colorGroup(
-                    title: 'Blind colour',
-                    chips: _blindColorOptions.map((opt) {
-                      final selected = blindColor == opt;
-                      return ChoiceChip(
-                        label: Text(opt.label),
-                        avatar: _ColorDot(color: opt.color),
-                        selected: selected,
-                        onSelected: (_) => setState(() => blindColor = opt),
-                      );
-                    }).toList(),
                   ),
-                _colorGroup(
-                  title: selectedIndex == null
-                      ? 'Glass colour (select a section)'
-                      : 'Glass colour',
-                  chips: _glassColorOptions.map((opt) {
-                    final isSelected =
-                        selectedIndex != null && cellGlassColors[selectedIndex!] == opt.color;
-                    return ChoiceChip(
-                      label: Text(opt.label),
-                      avatar: _ColorDot(color: opt.color),
-                      selected: isSelected,
-                      onSelected: selectedIndex != null
-                          ? (_) => setState(() => cellGlassColors[selectedIndex!] = opt.color)
-                          : null,
-                    );
-                  }).toList(),
+                  const VerticalDivider(width: 1),
+                  SizedBox(
+                    width: panelWidth,
+                    child: controls,
+                  ),
+                ],
+              );
+            }
+
+            final controlHeight = math.max(
+              280.0,
+              math.min(constraints.maxHeight * 0.55, 520.0),
+            );
+
+            return Column(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 16, 12, 8),
+                    child: canvas,
+                  ),
                 ),
-                _Legend(
-                  theme: theme,
-                  frameColor: profileColor.base,
-                  glassColor: selectedIndex != null
-                      ? cellGlassColors[selectedIndex!]
-                      : _glassColorOptions.first.color,
+                const Divider(height: 1),
+                SizedBox(
+                  height: controlHeight,
+                  child: controls,
                 ),
               ],
-            ),
-          ),
-          const SizedBox(height: 6),
-          Expanded(
-            child: Center(
-              child: AspectRatio(
-                aspectRatio: aspectRatio,
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    return RepaintBoundary(
-                      key: _repaintKey,
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTapDown: (d) => _onTapCanvas(d.localPosition, constraints.biggest),
-                        child: CustomPaint(
-                          size: constraints.biggest,
-                          painter: _WindowPainter(
-                            rows: rows,
-                            cols: cols,
-                            cells: cells,
-                            selectedIndex: selectedIndex,
-                            outsideView: outsideView,
-                            showBlindBox: showBlindBox,
-                            windowHeightMm: _windowHeightMm,
-                            cellGlassColors: cellGlassColors,
-                            profileColor: profileColor,
-                            blindColor: blindColor,
-                            columnFractions: _normalizedFractions(_columnSizes, cols),
-                            rowFractions: _normalizedFractions(_rowSizes, rows),
-                          ),
-                        ),
-                      ),
-                    );
-                  },
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCanvasArea(double aspectRatio) {
+    return Center(
+      child: AspectRatio(
+        aspectRatio: aspectRatio,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return RepaintBoundary(
+              key: _repaintKey,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTapDown: (d) => _onTapCanvas(d.localPosition, constraints.biggest),
+                child: CustomPaint(
+                  size: constraints.biggest,
+                  painter: _WindowPainter(
+                    rows: rows,
+                    cols: cols,
+                    cells: cells,
+                    selectedIndex: selectedIndex,
+                    outsideView: outsideView,
+                    showBlindBox: showBlindBox,
+                    windowHeightMm: _windowHeightMm,
+                    cellGlassColors: cellGlassColors,
+                    profileColor: profileColor,
+                    blindColor: blindColor,
+                    columnFractions: _normalizedFractions(_columnSizes, cols),
+                    rowFractions: _normalizedFractions(_rowSizes, rows),
+                  ),
                 ),
               ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildControlsPanel(ThemeData theme, {required bool isWide}) {
+    final titleStyle = theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600);
+    final labelStyle = theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600);
+
+    return SingleChildScrollView(
+      padding: EdgeInsets.fromLTRB(isWide ? 24 : 16, 16, isWide ? 24 : 16, 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (titleStyle != null) ...[
+            Text('Configuration', style: titleStyle),
+            const SizedBox(height: 12),
+          ],
+          _RowsColsPicker(
+            rows: rows,
+            cols: cols,
+            onChanged: (r, c) => _regrid(r, c),
+          ),
+          const SizedBox(height: 16),
+          SwitchListTile.adaptive(
+            contentPadding: EdgeInsets.zero,
+            visualDensity: VisualDensity.compact,
+            title: const Text('Outside view'),
+            value: outsideView,
+            onChanged: (v) => setState(() => outsideView = v),
+          ),
+          SwitchListTile.adaptive(
+            contentPadding: EdgeInsets.zero,
+            visualDensity: VisualDensity.compact,
+            title: const Text('Roller blind box'),
+            value: showBlindBox,
+            onChanged: (v) => setState(() => showBlindBox = v),
+          ),
+          const SizedBox(height: 20),
+          _colorGroup(
+            title: 'Profile colour',
+            chips: _profileColorOptions.map((opt) {
+              final selected = profileColor == opt;
+              return ChoiceChip(
+                label: Text(opt.label),
+                avatar: _ColorDot(color: opt.base),
+                selected: selected,
+                onSelected: (_) => setState(() => profileColor = opt),
+              );
+            }).toList(),
+          ),
+          if (showBlindBox) ...[
+            const SizedBox(height: 16),
+            _colorGroup(
+              title: 'Blind colour',
+              chips: _blindColorOptions.map((opt) {
+                final selected = blindColor == opt;
+                return ChoiceChip(
+                  label: Text(opt.label),
+                  avatar: _ColorDot(color: opt.color),
+                  selected: selected,
+                  onSelected: (_) => setState(() => blindColor = opt),
+                );
+              }).toList(),
+            ),
+          ],
+          const SizedBox(height: 16),
+          _colorGroup(
+            title: selectedIndex == null
+                ? 'Glass colour (select a section)'
+                : 'Glass colour',
+            chips: _glassColorOptions.map((opt) {
+              final isSelected =
+                  selectedIndex != null && cellGlassColors[selectedIndex!] == opt.color;
+              return ChoiceChip(
+                label: Text(opt.label),
+                avatar: _ColorDot(color: opt.color),
+                selected: isSelected,
+                onSelected: selectedIndex != null
+                    ? (_) => setState(() => cellGlassColors[selectedIndex!] = opt.color)
+                    : null,
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 20),
+          if (labelStyle != null) ...[
+            Text('Legend', style: labelStyle),
+            const SizedBox(height: 8),
+          ],
+          Align(
+            alignment: Alignment.centerLeft,
+            child: _Legend(
+              theme: theme,
+              frameColor: profileColor.base,
+              glassColor: selectedIndex != null
+                  ? cellGlassColors[selectedIndex!]
+                  : _glassColorOptions.first.color,
             ),
           ),
-          const Divider(height: 1),
-          _ToolPalette(active: activeTool, onChanged: (t) => setState(() => activeTool = t)),
+          const SizedBox(height: 24),
+          if (titleStyle != null) Text('Sash presets', style: titleStyle),
           const SizedBox(height: 8),
+          _ToolPalette(
+            active: activeTool,
+            onChanged: (t) => setState(() => activeTool = t),
+            padding: EdgeInsets.zero,
+          ),
         ],
       ),
     );
@@ -1063,7 +1133,13 @@ enum _SideApex { left, right }
 class _ToolPalette extends StatelessWidget {
   final SashType active;
   final ValueChanged<SashType> onChanged;
-  const _ToolPalette({required this.active, required this.onChanged});
+  final EdgeInsetsGeometry padding;
+
+  const _ToolPalette({
+    required this.active,
+    required this.onChanged,
+    this.padding = const EdgeInsets.fromLTRB(8, 6, 8, 10),
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1083,7 +1159,7 @@ class _ToolPalette extends StatelessWidget {
     ];
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 6, 8, 10),
+      padding: padding,
       child: Wrap(
         spacing: 8,
         runSpacing: 8,
@@ -1118,10 +1194,12 @@ class _RowsColsPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Wrap(
+      spacing: 10,
+      runSpacing: 4,
+      crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         _stepper('Rows', rows, (v) => onChanged(v, cols)),
-        const SizedBox(width: 10),
         _stepper('Cols', cols, (v) => onChanged(rows, v)),
       ],
     );
