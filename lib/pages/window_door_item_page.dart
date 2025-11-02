@@ -7,6 +7,7 @@ import '../models.dart';
 import '../theme/app_colors.dart';
 import 'window_door_designer_page.dart';
 import '../l10n/app_localizations.dart';
+import '../utils/profile_sort.dart';
 
 class WindowDoorItemPage extends StatefulWidget {
   final void Function(WindowDoorItem) onSave;
@@ -30,6 +31,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   late Box<Blind> blindBox;
   late Box<Mechanism> mechanismBox;
   late Box<Accessory> accessoryBox;
+  late Box settingsBox;
 
   late TextEditingController nameController;
   late TextEditingController widthController;
@@ -94,6 +96,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     blindBox = Hive.box<Blind>('blinds');
     mechanismBox = Hive.box<Mechanism>('mechanisms');
     accessoryBox = Hive.box<Accessory>('accessories');
+    settingsBox = Hive.box('settings');
 
     nameController =
         TextEditingController(text: widget.existingItem?.name ?? '');
@@ -410,23 +413,81 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                           Icons.view_list,
                         ),
                         const SizedBox(height: 16),
-                        DropdownButtonFormField<int>(
-                          initialValue: profileSetIndex,
-                          isExpanded: true,
-                          decoration:
-                              InputDecoration(labelText: l10n.catalogProfile),
-                          items: [
-                            for (int i = 0; i < profileSetBox.length; i++)
-                              DropdownMenuItem<int>(
-                                value: i,
-                                child: Text(
-                                  profileSetBox.getAt(i)?.name ?? '',
-                                  overflow: TextOverflow.ellipsis,
+                        ValueListenableBuilder(
+                          valueListenable: settingsBox
+                              .listenable(keys: [kProfileSortOrderKey]),
+                          builder: (context, Box box, _) {
+                            final sortOption = profileSortOptionFromString(
+                              box.get(kProfileSortOrderKey) as String?,
+                            );
+                            final entries = sortedProfileEntries(
+                              profileSetBox,
+                              sortOption,
+                            );
+                            if (entries.isEmpty) {
+                              return DropdownButtonFormField<int>(
+                                value: null,
+                                isExpanded: true,
+                                decoration: InputDecoration(
+                                  labelText: l10n.catalogProfile,
                                 ),
+                                items: const [],
+                                onChanged: null,
+                              );
+                            }
+
+                            final normalizedIndex = _normalizeIndex(
+                                profileSetIndex, profileSetBox.length);
+                            if (normalizedIndex != profileSetIndex) {
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                if (!mounted) return;
+                                setState(() {
+                                  profileSetIndex = normalizedIndex;
+                                });
+                              });
+                            }
+
+                            var selectedValue = normalizedIndex;
+                            final hasSelected = entries.any(
+                              (entry) => entry.key == selectedValue,
+                            );
+                            if (!hasSelected) {
+                              selectedValue = entries.first.key;
+                              if (selectedValue != profileSetIndex) {
+                                WidgetsBinding.instance
+                                    .addPostFrameCallback((_) {
+                                  if (!mounted) return;
+                                  setState(() {
+                                    profileSetIndex = selectedValue;
+                                  });
+                                });
+                              }
+                            }
+
+                            return DropdownButtonFormField<int>(
+                              value: selectedValue,
+                              isExpanded: true,
+                              decoration: InputDecoration(
+                                labelText: l10n.catalogProfile,
                               ),
-                          ],
-                          onChanged: (val) =>
-                              setState(() => profileSetIndex = val ?? 0),
+                              items: [
+                                for (final entry in entries)
+                                  DropdownMenuItem<int>(
+                                    value: entry.key,
+                                    child: Text(
+                                      entry.value.name,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                              ],
+                              onChanged: (val) {
+                                if (val == null) return;
+                                setState(() {
+                                  profileSetIndex = val;
+                                });
+                              },
+                            );
+                          },
                         ),
                         const SizedBox(height: 16),
                         DropdownButtonFormField<int>(
