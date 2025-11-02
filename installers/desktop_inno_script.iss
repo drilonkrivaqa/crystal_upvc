@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Toni Al-Pvc"
-#define MyAppVersion "1.4"
+#define MyAppVersion "1.5"
 #define MyAppPublisher "Toni Al-Pvc Sh.P.K."
 #define MyAppURL "https://www.tonialpvc.com/"
 #define MyAppExeName "crystal_upvc.exe"
