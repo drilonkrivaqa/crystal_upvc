@@ -1220,89 +1220,197 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
 
   Widget _buildDimensionInputs() {
     final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        for (int r = 0; r < horizontalSections; r++) ...[
-          if (r > 0) const SizedBox(height: 8),
-          Text('${l10n.sectorWidths} (row ${r + 1})'),
-          DropdownButton<int>(
-            value: rowVerticalSections[r].clamp(1, verticalSections),
-            items: [
-              for (int count = 1; count <= verticalSections; count++)
-                DropdownMenuItem<int>(
-                  value: count,
-                  child: Text(count.toString()),
-                ),
-            ],
-            onChanged: (val) {
-              if (val == null) return;
-              setState(() {
-                rowVerticalSections[r] = val;
-                _ensureGridSize();
-              });
-            },
-          ),
-          for (int c = 0; c < rowVerticalSections[r]; c++)
-            TextField(
-              controller: rowSectionWidthCtrls[r][c],
-              decoration: InputDecoration(
-                labelText: c == rowVerticalSections[r] - 1
-                    ? '${l10n.widthAutoLabel(c + 1)} (row ${r + 1})'
-                    : '${l10n.widthLabel(c + 1)} (row ${r + 1})',
-              ),
-              keyboardType: TextInputType.number,
-              enabled: c < rowVerticalSections[r] - 1,
-              onChanged: c < rowVerticalSections[r] - 1
-                  ? (_) => _recalculateRowWidths(r)
-                  : null,
-            ),
-          if (rowVerticalSections[r] > 1) ...[
-            const SizedBox(height: 4),
-            Text('${l10n.verticalDivision} (row ${r + 1})'),
-            for (int i = 0; i < rowVerticalSections[r] - 1; i++)
-              DropdownButton<bool>(
-                value: rowVerticalAdapters[r][i],
-                items: [
-                  const DropdownMenuItem(value: false, child: Text('T')),
-                  DropdownMenuItem(
-                      value: true, child: Text(l10n.pdfAdapter)),
+        for (int r = 0; r < horizontalSections; r++)
+          Card(
+            margin: EdgeInsets.only(bottom: r == horizontalSections - 1 ? 12 : 16),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          '${l10n.sectorWidths} (row ${r + 1})',
+                          style: theme.textTheme.titleMedium,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      SizedBox(
+                        width: 160,
+                        child: DropdownButtonFormField<int>(
+                          value: rowVerticalSections[r].clamp(1, verticalSections),
+                          decoration: InputDecoration(
+                            labelText: l10n.verticalSections,
+                          ),
+                          items: [
+                            for (int count = 1; count <= verticalSections; count++)
+                              DropdownMenuItem<int>(
+                                value: count,
+                                child: Text(count.toString()),
+                              ),
+                          ],
+                          onChanged: (val) {
+                            if (val == null) return;
+                            setState(() {
+                              rowVerticalSections[r] = val;
+                              _ensureGridSize();
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Wrap(
+                    spacing: 12,
+                    runSpacing: 12,
+                    children: [
+                      for (int c = 0; c < rowVerticalSections[r]; c++)
+                        SizedBox(
+                          width: 180,
+                          child: TextField(
+                            controller: rowSectionWidthCtrls[r][c],
+                            decoration: InputDecoration(
+                              labelText: c == rowVerticalSections[r] - 1
+                                  ? '${l10n.widthAutoLabel(c + 1)} (row ${r + 1})'
+                                  : '${l10n.widthLabel(c + 1)} (row ${r + 1})',
+                            ),
+                            keyboardType: TextInputType.number,
+                            enabled: c < rowVerticalSections[r] - 1,
+                            onChanged: c < rowVerticalSections[r] - 1
+                                ? (_) => _recalculateRowWidths(r)
+                                : null,
+                          ),
+                        ),
+                    ],
+                  ),
+                  if (rowVerticalSections[r] > 1) ...[
+                    const SizedBox(height: 20),
+                    Text(
+                      '${l10n.verticalDivision} (row ${r + 1})',
+                      style: theme.textTheme.titleSmall,
+                    ),
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 12,
+                      runSpacing: 12,
+                      children: [
+                        for (int i = 0; i < rowVerticalSections[r] - 1; i++)
+                          SizedBox(
+                            width: 160,
+                            child: DropdownButtonFormField<bool>(
+                              value: rowVerticalAdapters[r][i],
+                              decoration: InputDecoration(
+                                labelText:
+                                    '${l10n.verticalDivision} ${i + 1}',
+                              ),
+                              items: [
+                                const DropdownMenuItem(
+                                    value: false, child: Text('T')),
+                                DropdownMenuItem(
+                                    value: true, child: Text(l10n.pdfAdapter)),
+                              ],
+                              onChanged: (val) => setState(
+                                  () => rowVerticalAdapters[r][i] = val ?? false),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
                 ],
-                onChanged: (val) => setState(
-                    () => rowVerticalAdapters[r][i] = val ?? false),
               ),
-          ],
-        ],
-        if (horizontalSections > 0) const SizedBox(height: 8),
-        if (horizontalSections > 0)
-          Text(horizontalSections > 1
-              ? l10n.sectorHeights
-              : l10n.sectorHeight),
-        for (int i = 0; i < horizontalSections; i++)
-          TextField(
-            controller: sectionHeightCtrls[i],
-            decoration: InputDecoration(
-              labelText: i == horizontalSections - 1
-                  ? l10n.heightAutoLabel(i + 1)
-                  : l10n.heightLabel(i + 1),
             ),
-            keyboardType: TextInputType.number,
-            enabled: i < horizontalSections - 1,
-            onChanged: i < horizontalSections - 1
-                ? (_) => _recalculateHeights()
-                : null,
           ),
-        if (horizontalSections > 1) const SizedBox(height: 8),
-        if (horizontalSections > 1) Text(l10n.horizontalDivision),
-        for (int i = 0; i < horizontalSections - 1; i++)
-          DropdownButton<bool>(
-            value: horizontalAdapters[i],
-            items: [
-              const DropdownMenuItem(value: false, child: Text('T')),
-              DropdownMenuItem(value: true, child: Text(l10n.pdfAdapter)),
-            ],
-            onChanged: (val) =>
-                setState(() => horizontalAdapters[i] = val ?? false),
+        if (horizontalSections > 0)
+          Card(
+            margin: EdgeInsets.only(bottom: horizontalSections > 1 ? 16 : 0),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    horizontalSections > 1
+                        ? l10n.sectorHeights
+                        : l10n.sectorHeight,
+                    style: theme.textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 16),
+                  Wrap(
+                    spacing: 12,
+                    runSpacing: 12,
+                    children: [
+                      for (int i = 0; i < horizontalSections; i++)
+                        SizedBox(
+                          width: 180,
+                          child: TextField(
+                            controller: sectionHeightCtrls[i],
+                            decoration: InputDecoration(
+                              labelText: i == horizontalSections - 1
+                                  ? l10n.heightAutoLabel(i + 1)
+                                  : l10n.heightLabel(i + 1),
+                            ),
+                            keyboardType: TextInputType.number,
+                            enabled: i < horizontalSections - 1,
+                            onChanged: i < horizontalSections - 1
+                                ? (_) => _recalculateHeights()
+                                : null,
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        if (horizontalSections > 1)
+          Card(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.horizontalDivision,
+                    style: theme.textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 16),
+                  Wrap(
+                    spacing: 12,
+                    runSpacing: 12,
+                    children: [
+                      for (int i = 0; i < horizontalSections - 1; i++)
+                        SizedBox(
+                          width: 160,
+                          child: DropdownButtonFormField<bool>(
+                            value: horizontalAdapters[i],
+                            decoration: InputDecoration(
+                              labelText: '${l10n.horizontalDivision} ${i + 1}',
+                            ),
+                            items: [
+                              const DropdownMenuItem(
+                                  value: false, child: Text('T')),
+                              DropdownMenuItem(
+                                  value: true, child: Text(l10n.pdfAdapter)),
+                            ],
+                            onChanged: (val) => setState(
+                                () => horizontalAdapters[i] = val ?? false),
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
           ),
       ],
     );
