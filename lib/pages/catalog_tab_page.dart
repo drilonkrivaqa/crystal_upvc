@@ -321,7 +321,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                 if (nameController.text.isEmpty) return;
                 switch (widget.type) {
                   case CatalogType.profileSet:
-                  box.putAt(
+                    box.putAt(
                       index,
                       ProfileSet(
                         name: nameController.text,
@@ -366,8 +366,10 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                             int.tryParse(sashGlassController.text) ?? 10,
                         sashValue:
                             int.tryParse(sashValueController.text) ?? 22,
-                      ));
-                  break;
+                        createdAt: item.createdAt,
+                      ),
+                    );
+                    break;
                 case CatalogType.glass:
                   box.putAt(
                       index,
@@ -695,39 +697,44 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                       sashGlassTakeoff:
                           int.tryParse(sashGlassController.text) ?? 10,
                       sashValue: int.tryParse(sashValueController.text) ?? 22,
+                      createdAt: DateTime.now(),
                     ));
                     break;
-                case CatalogType.glass:
-                  box.add(Glass(
-                    name: nameController.text,
-                    pricePerM2: double.tryParse(pricePerM2Controller.text) ?? 0,
-                    massPerM2: double.tryParse(massPerM2Controller.text) ?? 0,
-                    ug: double.tryParse(ugController.text),
-                    psi: double.tryParse(psiController.text),
-                  ));
-                  break;
-                case CatalogType.blind:
-                  box.add(Blind(
-                    name: nameController.text,
-                    pricePerM2: double.tryParse(pricePerM2Controller.text) ?? 0,
-                    boxHeight: int.tryParse(boxHeightController.text) ?? 0,
-                    massPerM2: double.tryParse(massPerM2Controller.text) ?? 0,
-                  ));
-                  break;
-                case CatalogType.mechanism:
-                  box.add(Mechanism(
-                    name: nameController.text,
-                    price: double.tryParse(priceController.text) ?? 0,
-                    mass: double.tryParse(massController.text) ?? 0,
-                  ));
-                  break;
-                case CatalogType.accessory:
-                  box.add(Accessory(
-                    name: nameController.text,
-                    price: double.tryParse(priceController.text) ?? 0,
-                    mass: double.tryParse(massController.text) ?? 0,
-                  ));
-                  break;
+                  case CatalogType.glass:
+                    box.add(Glass(
+                      name: nameController.text,
+                      pricePerM2:
+                          double.tryParse(pricePerM2Controller.text) ?? 0,
+                      massPerM2:
+                          double.tryParse(massPerM2Controller.text) ?? 0,
+                      ug: double.tryParse(ugController.text),
+                      psi: double.tryParse(psiController.text),
+                    ));
+                    break;
+                  case CatalogType.blind:
+                    box.add(Blind(
+                      name: nameController.text,
+                      pricePerM2:
+                          double.tryParse(pricePerM2Controller.text) ?? 0,
+                      boxHeight: int.tryParse(boxHeightController.text) ?? 0,
+                      massPerM2:
+                          double.tryParse(massPerM2Controller.text) ?? 0,
+                    ));
+                    break;
+                  case CatalogType.mechanism:
+                    box.add(Mechanism(
+                      name: nameController.text,
+                      price: double.tryParse(priceController.text) ?? 0,
+                      mass: double.tryParse(massController.text) ?? 0,
+                    ));
+                    break;
+                  case CatalogType.accessory:
+                    box.add(Accessory(
+                      name: nameController.text,
+                      price: double.tryParse(priceController.text) ?? 0,
+                      mass: double.tryParse(massController.text) ?? 0,
+                    ));
+                    break;
               }
               Navigator.pop(context);
               setState(() {});
