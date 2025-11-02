@@ -1043,7 +1043,9 @@ class _WindowPainter extends CustomPainter {
         profileColor != old.profileColor ||
         blindColor != old.blindColor ||
         !_listEquals(cells, old.cells) ||
-        !_listEquals(cellGlassColors, old.cellGlassColors);
+        !_listEquals(cellGlassColors, old.cellGlassColors) ||
+        !_doubleListEquals(columnFractions, old.columnFractions) ||
+        !_doubleListEquals(rowFractions, old.rowFractions);
   }
 
   bool _listEquals(List a, List b) {
@@ -1051,6 +1053,15 @@ class _WindowPainter extends CustomPainter {
     if (a.length != b.length) return false;
     for (int i = 0; i < a.length; i++) {
       if (a[i] != b[i]) return false;
+    }
+    return true;
+  }
+
+  bool _doubleListEquals(List<double> a, List<double> b) {
+    if (identical(a, b)) return true;
+    if (a.length != b.length) return false;
+    for (int i = 0; i < a.length; i++) {
+      if ((a[i] - b[i]).abs() > 1e-6) return false;
     }
     return true;
   }
