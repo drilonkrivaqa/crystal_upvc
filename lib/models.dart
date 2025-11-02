@@ -251,6 +251,14 @@ class WindowDoorItem extends HiveObject {
   Uint8List? photoBytes; // raw image bytes
   @HiveField(24)
   String? notes; // optional notes for this item
+  @HiveField(26)
+  List<int>? perRowVerticalSections; // number of sections per horizontal row
+  @HiveField(27)
+  List<List<int>>? perRowSectionWidths; // width of each vertical section per row
+  @HiveField(28)
+  List<List<bool>>? perRowFixedSectors; // fixed/open per cell per row
+  @HiveField(29)
+  List<List<bool>>? perRowVerticalAdapters; // adapter flags between vertical sections per row
 
   WindowDoorItem({
     required this.name,
@@ -279,6 +287,10 @@ class WindowDoorItem extends HiveObject {
     List<int>? sectionHeights,
     List<bool>? verticalAdapters,
     List<bool>? horizontalAdapters,
+    this.perRowVerticalSections,
+    this.perRowSectionWidths,
+    this.perRowFixedSectors,
+    this.perRowVerticalAdapters,
   })  : fixedSectors = fixedSectors ??
             List<bool>.filled(verticalSections * horizontalSections, false),
         sectionWidths = sectionWidths ?? List<int>.filled(verticalSections, 0),
@@ -290,6 +302,171 @@ class WindowDoorItem extends HiveObject {
         horizontalAdapters = horizontalAdapters ??
             List<bool>.filled(
                 horizontalSections > 0 ? horizontalSections - 1 : 0, false);
+
+  bool get hasPerRowLayout =>
+      perRowVerticalSections != null && perRowVerticalSections!.isNotEmpty;
+
+  int columnsInRow(int row) {
+    if (horizontalSections <= 0) {
+      return 0;
+    }
+    if (hasPerRowLayout) {
+      if (row >= 0 && row < perRowVerticalSections!.length) {
+        final value = perRowVerticalSections![row];
+        return value > 0 ? value : 0;
+      }
+      return 0;
+    }
+    return verticalSections;
+  }
+
+  List<int> widthsForRow(int row) {
+    final columns = columnsInRow(row);
+    if (columns <= 0) {
+      return const <int>[];
+    }
+    if (hasPerRowLayout) {
+      if (row >= 0 && row < (perRowSectionWidths?.length ?? 0)) {
+        final rowWidths = perRowSectionWidths![row];
+        if (rowWidths.length >= columns) {
+          return List<int>.from(rowWidths.take(columns));
+        }
+        return List<int>.from(rowWidths)
+          ..addAll(List<int>.filled(columns - rowWidths.length, 0));
+      }
+      return List<int>.filled(columns, 0);
+    }
+    return List<int>.generate(columns,
+        (c) => c < sectionWidths.length ? sectionWidths[c] : 0);
+  }
+
+  List<bool> fixedForRow(int row) {
+    final columns = columnsInRow(row);
+    if (columns <= 0) {
+      return const <bool>[];
+    }
+    if (hasPerRowLayout) {
+      if (row >= 0 && row < (perRowFixedSectors?.length ?? 0)) {
+        final rowFixed = perRowFixedSectors![row];
+        if (rowFixed.length >= columns) {
+          return List<bool>.from(rowFixed.take(columns));
+        }
+        return List<bool>.from(rowFixed)
+          ..addAll(List<bool>.filled(columns - rowFixed.length, false));
+      }
+      return List<bool>.filled(columns, true);
+    }
+    return List<bool>.generate(columns, (c) {
+      final idx = row * verticalSections + c;
+      if (idx >= 0 && idx < fixedSectors.length) {
+        return fixedSectors[idx];
+      }
+      return true;
+    });
+  }
+
+  bool isFixedAt(int row, int column) {
+    if (hasPerRowLayout) {
+      if (row >= 0 &&
+          row < (perRowFixedSectors?.length ?? 0) &&
+          column >= 0 &&
+          column < (perRowFixedSectors![row].length)) {
+        return perRowFixedSectors![row][column];
+      }
+      return true;
+    }
+    final idx = row * verticalSections + column;
+    if (idx >= 0 && idx < fixedSectors.length) {
+      return fixedSectors[idx];
+    }
+    return true;
+  }
+
+  void setFixedAt(int row, int column, bool value) {
+    if (hasPerRowLayout) {
+      if (row >= 0 &&
+          row < (perRowFixedSectors?.length ?? 0) &&
+          column >= 0 &&
+          column < perRowFixedSectors![row].length) {
+        perRowFixedSectors![row][column] = value;
+      }
+      return;
+    }
+    final idx = row * verticalSections + column;
+    if (idx >= 0 && idx < fixedSectors.length) {
+      fixedSectors[idx] = value;
+    }
+  }
+
+  List<bool> verticalAdaptersForRow(int row) {
+    final columns = columnsInRow(row);
+    if (columns <= 1) {
+      return const <bool>[];
+    }
+    if (hasPerRowLayout) {
+      if (row >= 0 && row < (perRowVerticalAdapters?.length ?? 0)) {
+        final rowAdapters = perRowVerticalAdapters![row];
+        if (rowAdapters.length >= columns - 1) {
+          return List<bool>.from(rowAdapters.take(columns - 1));
+        }
+        return List<bool>.from(rowAdapters)
+          ..addAll(List<bool>.filled(columns - 1 - rowAdapters.length, false));
+      }
+      return List<bool>.filled(columns - 1, false);
+    }
+    return List<bool>.generate(columns - 1, (i) {
+      if (i >= 0 && i < verticalAdapters.length) {
+        return verticalAdapters[i];
+      }
+      return false;
+    });
+  }
+
+  bool verticalAdapterAt(int row, int index) {
+    if (hasPerRowLayout) {
+      if (row >= 0 &&
+          row < (perRowVerticalAdapters?.length ?? 0) &&
+          index >= 0 &&
+          index < perRowVerticalAdapters![row].length) {
+        return perRowVerticalAdapters![row][index];
+      }
+      return false;
+    }
+    if (index >= 0 && index < verticalAdapters.length) {
+      return verticalAdapters[index];
+    }
+    return false;
+  }
+
+  int flattenedIndex(int row, int column) {
+    if (!hasPerRowLayout) {
+      return row * verticalSections + column;
+    }
+    int idx = 0;
+    for (int r = 0; r < row && r < horizontalSections; r++) {
+      idx += columnsInRow(r);
+    }
+    return idx + column;
+  }
+
+  int totalCells() {
+    if (!hasPerRowLayout) {
+      return verticalSections * horizontalSections;
+    }
+    int total = 0;
+    for (int r = 0; r < horizontalSections; r++) {
+      total += columnsInRow(r);
+    }
+    return total;
+  }
+
+  List<List<T>> _clone2d<T>(List<List<T>>? source) {
+    if (source == null) {
+      return <List<T>>[];
+    }
+    return List<List<T>>.generate(source.length,
+        (i) => List<T>.from(source[i], growable: true), growable: true);
+  }
 
   WindowDoorItem copy() {
     return WindowDoorItem(
@@ -321,15 +498,28 @@ class WindowDoorItem extends HiveObject {
       sectionHeights: List<int>.from(sectionHeights),
       verticalAdapters: List<bool>.from(verticalAdapters),
       horizontalAdapters: List<bool>.from(horizontalAdapters),
+      perRowVerticalSections: perRowVerticalSections != null
+          ? List<int>.from(perRowVerticalSections!)
+          : null,
+      perRowSectionWidths: perRowSectionWidths != null
+          ? _clone2d<int>(perRowSectionWidths!)
+          : null,
+      perRowFixedSectors: perRowFixedSectors != null
+          ? _clone2d<bool>(perRowFixedSectors!)
+          : null,
+      perRowVerticalAdapters: perRowVerticalAdapters != null
+          ? _clone2d<bool>(perRowVerticalAdapters!)
+          : null,
     );
   }
 
   SectionInsets sectionInsets(ProfileSet set, int row, int col) {
     final halfT = set.tInnerThickness.toDouble() / 2;
     final l = set.lInnerThickness.toDouble();
+    final columns = columnsInRow(row);
     return SectionInsets(
       left: col == 0 ? l : halfT,
-      right: col == verticalSections - 1 ? l : halfT,
+      right: col == columns - 1 ? l : halfT,
       top: row == 0 ? l : halfT,
       bottom: row == horizontalSections - 1 ? l : halfT,
     );
@@ -357,12 +547,12 @@ class WindowDoorItem extends HiveObject {
     double glazingBeadLength = 0;
 
     for (int r = 0; r < horizontalSections; r++) {
-      for (int c = 0; c < verticalSections; c++) {
-        final w = sectionWidths[c].toDouble();
+      final rowWidths = widthsForRow(r);
+      for (int c = 0; c < rowWidths.length; c++) {
+        final w = rowWidths[c].toDouble();
         final h = effectiveHeights[r].toDouble();
-        final idx = r * verticalSections + c;
         final insets = sectionInsets(set, r, c);
-        if (!fixedSectors[idx]) {
+        if (!isFixedAt(r, c)) {
           final sashW =
               (w - insets.left - insets.right + sashAdd).clamp(0, w);
           final sashH =
@@ -383,12 +573,27 @@ class WindowDoorItem extends HiveObject {
       }
     }
 
-    for (int i = 0; i < verticalSections - 1; i++) {
-      final len = (effectiveHeight - 2 * l).clamp(0, effectiveHeight);
-      if (verticalAdapters[i]) {
-        adapterLength += (len / 1000.0) * set.priceAdapter;
-      } else {
-        tLength += (len / 1000.0) * set.priceT;
+    if (hasPerRowLayout) {
+      for (int r = 0; r < horizontalSections; r++) {
+        final rowAdapters = verticalAdaptersForRow(r);
+        final rowHeight = effectiveHeights[r];
+        for (int i = 0; i < rowAdapters.length; i++) {
+          final len = (rowHeight - 2 * l).clamp(0, rowHeight);
+          if (rowAdapters[i]) {
+            adapterLength += (len / 1000.0) * set.priceAdapter;
+          } else {
+            tLength += (len / 1000.0) * set.priceT;
+          }
+        }
+      }
+    } else {
+      for (int i = 0; i < verticalSections - 1; i++) {
+        final len = (effectiveHeight - 2 * l).clamp(0, effectiveHeight);
+        if (verticalAdapters[i]) {
+          adapterLength += (len / 1000.0) * set.priceAdapter;
+        } else {
+          tLength += (len / 1000.0) * set.priceT;
+        }
       }
     }
     for (int i = 0; i < horizontalSections - 1; i++) {
@@ -423,12 +628,12 @@ class WindowDoorItem extends HiveObject {
 
     double total = 0;
     for (int r = 0; r < horizontalSections; r++) {
-      for (int c = 0; c < verticalSections; c++) {
-        final w = sectionWidths[c].toDouble();
+      final rowWidths = widthsForRow(r);
+      for (int c = 0; c < rowWidths.length; c++) {
+        final w = rowWidths[c].toDouble();
         final h = effectiveHeights[r].toDouble();
-        final idx = r * verticalSections + c;
         final insets = sectionInsets(set, r, c);
-        if (!fixedSectors[idx]) {
+        if (!isFixedAt(r, c)) {
           final sashW =
               (w - insets.left - insets.right + sashAdd).clamp(0, w);
           final sashH =
@@ -474,12 +679,12 @@ class WindowDoorItem extends HiveObject {
     double glazingBeadLength = 0;
 
     for (int r = 0; r < horizontalSections; r++) {
-      for (int c = 0; c < verticalSections; c++) {
-        final w = sectionWidths[c].toDouble();
+      final rowWidths = widthsForRow(r);
+      for (int c = 0; c < rowWidths.length; c++) {
+        final w = rowWidths[c].toDouble();
         final h = effectiveHeights[r].toDouble();
-        final idx = r * verticalSections + c;
         final insets = sectionInsets(set, r, c);
-        if (!fixedSectors[idx]) {
+        if (!isFixedAt(r, c)) {
           final sashW =
               (w - insets.left - insets.right + sashAdd).clamp(0, w);
           final sashH =
@@ -500,12 +705,27 @@ class WindowDoorItem extends HiveObject {
       }
     }
 
-    for (int i = 0; i < verticalSections - 1; i++) {
-      final len = (effectiveHeight - 2 * l).clamp(0, effectiveHeight);
-      if (verticalAdapters[i]) {
-        adapterLength += (len / 1000.0) * set.massAdapter;
-      } else {
-        tLength += (len / 1000.0) * set.massT;
+    if (hasPerRowLayout) {
+      for (int r = 0; r < horizontalSections; r++) {
+        final rowAdapters = verticalAdaptersForRow(r);
+        final rowHeight = effectiveHeights[r];
+        for (int i = 0; i < rowAdapters.length; i++) {
+          final len = (rowHeight - 2 * l).clamp(0, rowHeight);
+          if (rowAdapters[i]) {
+            adapterLength += (len / 1000.0) * set.massAdapter;
+          } else {
+            tLength += (len / 1000.0) * set.massT;
+          }
+        }
+      }
+    } else {
+      for (int i = 0; i < verticalSections - 1; i++) {
+        final len = (effectiveHeight - 2 * l).clamp(0, effectiveHeight);
+        if (verticalAdapters[i]) {
+          adapterLength += (len / 1000.0) * set.massAdapter;
+        } else {
+          tLength += (len / 1000.0) * set.massT;
+        }
       }
     }
     for (int i = 0; i < horizontalSections - 1; i++) {
@@ -540,12 +760,12 @@ class WindowDoorItem extends HiveObject {
 
     double total = 0;
     for (int r = 0; r < horizontalSections; r++) {
-      for (int c = 0; c < verticalSections; c++) {
-        final w = sectionWidths[c].toDouble();
+      final rowWidths = widthsForRow(r);
+      for (int c = 0; c < rowWidths.length; c++) {
+        final w = rowWidths[c].toDouble();
         final h = effectiveHeights[r].toDouble();
-        final idx = r * verticalSections + c;
         final insets = sectionInsets(set, r, c);
-        if (!fixedSectors[idx]) {
+        if (!isFixedAt(r, c)) {
           final sashW =
               (w - insets.left - insets.right + sashAdd).clamp(0, w);
           final sashH =
@@ -598,14 +818,14 @@ class WindowDoorItem extends HiveObject {
     double lg = 0;
 
     for (int r = 0; r < horizontalSections; r++) {
-      for (int c = 0; c < verticalSections; c++) {
-        final w = sectionWidths[c].toDouble();
+      final rowWidths = widthsForRow(r);
+      for (int c = 0; c < rowWidths.length; c++) {
+        final w = rowWidths[c].toDouble();
         final h = effectiveHeights[r].toDouble();
-        final idx = r * verticalSections + c;
         final insets = sectionInsets(set, r, c);
         double glassW;
         double glassH;
-        if (!fixedSectors[idx]) {
+        if (!isFixedAt(r, c)) {
           final sashW =
               (w - insets.left - insets.right + sashAdd).clamp(0, w).toDouble();
           final sashH =
@@ -630,12 +850,27 @@ class WindowDoorItem extends HiveObject {
       }
     }
 
-    for (int i = 0; i < verticalSections - 1; i++) {
-      final len = (effectiveHeight - 2 * l).clamp(0, effectiveHeight) / 1000.0;
-      if (verticalAdapters[i]) {
-        adapterLen += len;
-      } else {
-        tLen += len;
+    if (hasPerRowLayout) {
+      for (int r = 0; r < horizontalSections; r++) {
+        final rowAdapters = verticalAdaptersForRow(r);
+        final rowHeight = effectiveHeights[r];
+        for (int i = 0; i < rowAdapters.length; i++) {
+          final len = (rowHeight - 2 * l).clamp(0, rowHeight) / 1000.0;
+          if (rowAdapters[i]) {
+            adapterLen += len;
+          } else {
+            tLen += len;
+          }
+        }
+      }
+    } else {
+      for (int i = 0; i < verticalSections - 1; i++) {
+        final len = (effectiveHeight - 2 * l).clamp(0, effectiveHeight) / 1000.0;
+        if (verticalAdapters[i]) {
+          adapterLen += len;
+        } else {
+          tLen += len;
+        }
       }
     }
     for (int i = 0; i < horizontalSections - 1; i++) {

@@ -223,15 +223,15 @@ class _HekriPageState extends State<HekriPage> {
     final sashAdd = set.sashValue.toDouble();
 
     for (int r = 0; r < item.horizontalSections; r++) {
-      for (int c = 0; c < item.verticalSections; c++) {
-        final w = item.sectionWidths[c].toDouble();
+      final rowWidths = item.widthsForRow(r);
+      for (int c = 0; c < rowWidths.length; c++) {
+        final w = rowWidths[c].toDouble();
         double h = item.sectionHeights[r].toDouble();
         if (r == item.horizontalSections - 1) {
           h = (h - boxHeight).clamp(0, h);
         }
-        final idx = r * item.verticalSections + c;
         final insets = item.sectionInsets(set, r, c);
-        if (!item.fixedSectors[idx]) {
+        if (!item.isFixedAt(r, c)) {
           final sashW =
               (w - insets.left - insets.right + sashAdd).clamp(0, w);
           final sashH =
@@ -242,10 +242,27 @@ class _HekriPageState extends State<HekriPage> {
       }
     }
 
-    for (int i = 0; i < item.verticalSections - 1; i++) {
-      if (!item.verticalAdapters[i]) {
-        final len = (effectiveHeight - 2 * l).clamp(0, effectiveHeight).round();
-        map[PieceType.t]!.add(len);
+    if (item.hasPerRowLayout) {
+      for (int r = 0; r < item.horizontalSections; r++) {
+        double h = item.sectionHeights[r].toDouble();
+        if (r == item.horizontalSections - 1) {
+          h = (h - boxHeight).clamp(0, h);
+        }
+        final adapters = item.verticalAdaptersForRow(r);
+        for (int i = 0; i < adapters.length; i++) {
+          if (!adapters[i]) {
+            final len = (h - 2 * l).clamp(0, h).round();
+            map[PieceType.t]!.add(len);
+          }
+        }
+      }
+    } else {
+      for (int i = 0; i < item.verticalSections - 1; i++) {
+        if (!item.verticalAdapters[i]) {
+          final len =
+              (effectiveHeight - 2 * l).clamp(0, effectiveHeight).round();
+          map[PieceType.t]!.add(len);
+        }
       }
     }
     for (int i = 0; i < item.horizontalSections - 1; i++) {
