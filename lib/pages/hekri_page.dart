@@ -12,7 +12,7 @@ import '../widgets/glass_card.dart';
 import '../widgets/offer_letters_table.dart';
 import '../widgets/offer_multi_select.dart';
 import '../widgets/saw_width_dialog.dart';
-import 'hekri_profiles_page.dart';
+import 'profiles_page.dart';
 
 class HekriPage extends StatefulWidget {
   const HekriPage({super.key});
