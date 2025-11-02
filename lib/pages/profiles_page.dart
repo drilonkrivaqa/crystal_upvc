@@ -3,7 +3,6 @@ import 'package:hive_flutter/hive_flutter.dart';
 import '../l10n/app_localizations.dart';
 import '../models.dart';
 import '../theme/app_background.dart';
-import '../utils/profile_sort.dart';
 import '../widgets/glass_card.dart';
 
 class HekriProfilesPage extends StatefulWidget {
@@ -15,24 +14,11 @@ class HekriProfilesPage extends StatefulWidget {
 
 class _HekriProfilesPageState extends State<HekriProfilesPage> {
   late Box<ProfileSet> profileBox;
-  late Box settingsBox;
-  late ProfileSortOption _sortOption;
 
   @override
   void initState() {
     super.initState();
     profileBox = Hive.box<ProfileSet>('profileSets');
-    settingsBox = Hive.box('settings');
-    _sortOption = profileSortOptionFromString(
-      settingsBox.get(kProfileSortOrderKey) as String?,
-    );
-  }
-
-  void _updateSort(ProfileSortOption option) {
-    settingsBox.put(kProfileSortOrderKey, option.name);
-    setState(() {
-      _sortOption = option;
-    });
   }
 
   void _editProfile(int index) {
@@ -118,7 +104,6 @@ class _HekriProfilesPageState extends State<HekriProfilesPage> {
                   fixedGlassTakeoff: profile.fixedGlassTakeoff,
                   sashGlassTakeoff: profile.sashGlassTakeoff,
                   sashValue: profile.sashValue,
-                  createdAt: profile.createdAt,
                 ),
               );
               Navigator.pop(context);
@@ -140,73 +125,27 @@ class _HekriProfilesPageState extends State<HekriProfilesPage> {
         child: ValueListenableBuilder(
           valueListenable: profileBox.listenable(),
           builder: (context, Box<ProfileSet> box, _) {
-            final entries = sortedProfileEntries(box, _sortOption);
-            return Column(
-              children: [
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                  child: DropdownButtonFormField<ProfileSortOption>(
-                    value: _sortOption,
-                    decoration: InputDecoration(
-                      labelText: l10n.productionProfileSortLabel,
-                    ),
-                    items: [
-                      DropdownMenuItem(
-                        value: ProfileSortOption.nameAsc,
-                        child: Text(l10n.productionProfileSortNameAsc),
-                      ),
-                      DropdownMenuItem(
-                        value: ProfileSortOption.nameDesc,
-                        child: Text(l10n.productionProfileSortNameDesc),
-                      ),
-                      DropdownMenuItem(
-                        value: ProfileSortOption.createdDesc,
-                        child: Text(l10n.productionProfileSortNewest),
-                      ),
-                      DropdownMenuItem(
-                        value: ProfileSortOption.createdAsc,
-                        child: Text(l10n.productionProfileSortOldest),
-                      ),
+            return ListView.builder(
+              itemCount: box.length,
+              itemBuilder: (context, index) {
+                final profile = box.getAt(index);
+                if (profile == null) return const SizedBox();
+                return GlassCard(
+                  onTap: () => _editProfile(index),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(profile.name,
+                          style: const TextStyle(fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 4),
+                      Text(l10n.productionOffsetsSummary(
+                          profile.hekriOffsetL,
+                          profile.hekriOffsetZ,
+                          profile.hekriOffsetT)),
                     ],
-                    onChanged: (value) {
-                      if (value != null) {
-                        _updateSort(value);
-                      }
-                    },
                   ),
-                ),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: entries.length,
-                    itemBuilder: (context, index) {
-                      final entry = entries[index];
-                      final profile = entry.value;
-                      return GlassCard(
-                        onTap: () => _editProfile(entry.key),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              profile.name,
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              l10n.productionOffsetsSummary(
-                                profile.hekriOffsetL,
-                                profile.hekriOffsetZ,
-                                profile.hekriOffsetT,
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
+                );
+              },
             );
           },
         ),

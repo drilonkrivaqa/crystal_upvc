@@ -78,8 +78,6 @@ class ProfileSet extends HiveObject {
   int tOuterThickness; // Outer thickness of T profile
   @HiveField(25, defaultValue: 0)
   int adapterOuterThickness; // Outer thickness of Adapter
-  @HiveField(27)
-  DateTime? createdAt;
 
   ProfileSet({
     required this.name,
@@ -109,7 +107,6 @@ class ProfileSet extends HiveObject {
     this.zOuterThickness = 0,
     this.tOuterThickness = 0,
     this.adapterOuterThickness = 0,
-    this.createdAt,
   });
 }
 
