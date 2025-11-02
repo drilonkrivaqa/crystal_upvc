@@ -22,12 +22,6 @@ Future<bool> _migrateCustomers() async {
 Future<bool> _migrateProfileSets() async {
   try {
     final box = await Hive.openBox<ProfileSet>('profileSets');
-    final now = DateTime.now();
-    final missingCount = box.values
-        .whereType<ProfileSet>()
-        .where((profile) => profile.createdAt == null)
-        .length;
-    var assignOffset = missingCount;
     for (final key in box.keys) {
       final profile = box.get(key);
       if (profile != null) {
@@ -67,11 +61,6 @@ Future<bool> _migrateProfileSets() async {
         }
         if (p.adapterOuterThickness == null) {
           profile.adapterOuterThickness = 0;
-          changed = true;
-        }
-        if (profile.createdAt == null) {
-          assignOffset -= 1;
-          profile.createdAt = now.subtract(Duration(seconds: assignOffset));
           changed = true;
         }
         if (changed) {
