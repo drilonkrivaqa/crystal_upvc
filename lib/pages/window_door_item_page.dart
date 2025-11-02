@@ -44,8 +44,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   late TextEditingController extra1DescController;
   late TextEditingController extra2DescController;
   late TextEditingController notesController;
-  late TextEditingController _profileSearchController;
-  late TextEditingController _glassSearchController;
 
   int profileSetIndex = 0;
   int glassIndex = 0;
@@ -123,8 +121,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
         TextEditingController(text: widget.existingItem?.extra2Desc ?? '');
     notesController =
         TextEditingController(text: widget.existingItem?.notes ?? '');
-    _profileSearchController = TextEditingController();
-    _glassSearchController = TextEditingController();
 
     profileSetIndex = _normalizeIndex(
         widget.existingItem?.profileSetIndex ??
@@ -226,48 +222,9 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     _ensureGridSize();
   }
 
-  List<int> _buildFilteredProfileIndices() {
-    final query = _profileSearchController.text.trim().toLowerCase();
-    final result = <int>[];
-    for (int i = 0; i < profileSetBox.length; i++) {
-      final name = (profileSetBox.getAt(i)?.name ?? '').toLowerCase();
-      if (query.isEmpty || name.contains(query)) {
-        result.add(i);
-      }
-    }
-
-    final isValidSelection =
-        profileSetIndex >= 0 && profileSetIndex < profileSetBox.length;
-    if (isValidSelection && !result.contains(profileSetIndex)) {
-      result.insert(0, profileSetIndex);
-    }
-
-    return result;
-  }
-
-  List<int> _buildFilteredGlassIndices() {
-    final query = _glassSearchController.text.trim().toLowerCase();
-    final result = <int>[];
-    for (int i = 0; i < glassBox.length; i++) {
-      final name = (glassBox.getAt(i)?.name ?? '').toLowerCase();
-      if (query.isEmpty || name.contains(query)) {
-        result.add(i);
-      }
-    }
-
-    final isValidSelection = glassIndex >= 0 && glassIndex < glassBox.length;
-    if (isValidSelection && !result.contains(glassIndex)) {
-      result.insert(0, glassIndex);
-    }
-
-    return result;
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final filteredProfileIndices = _buildFilteredProfileIndices();
-    final filteredGlassIndices = _buildFilteredGlassIndices();
     return WillPopScope(
         onWillPop: _onWillPop,
         child: Scaffold(
@@ -453,28 +410,17 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                           Icons.view_list,
                         ),
                         const SizedBox(height: 16),
-                        TextField(
-                          controller: _profileSearchController,
-                          decoration: InputDecoration(
-                            prefixIcon: const Icon(Icons.search),
-                            hintText: l10n.catalogProfile,
-                          ),
-                          onChanged: (_) => setState(() {}),
-                        ),
-                        const SizedBox(height: 16),
                         DropdownButtonFormField<int>(
-                          value: filteredProfileIndices.contains(profileSetIndex)
-                              ? profileSetIndex
-                              : null,
+                          initialValue: profileSetIndex,
                           isExpanded: true,
                           decoration:
                               InputDecoration(labelText: l10n.catalogProfile),
                           items: [
-                            for (final index in filteredProfileIndices)
+                            for (int i = 0; i < profileSetBox.length; i++)
                               DropdownMenuItem<int>(
-                                value: index,
+                                value: i,
                                 child: Text(
-                                  profileSetBox.getAt(index)?.name ?? '',
+                                  profileSetBox.getAt(i)?.name ?? '',
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
@@ -483,28 +429,17 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                               setState(() => profileSetIndex = val ?? 0),
                         ),
                         const SizedBox(height: 16),
-                        TextField(
-                          controller: _glassSearchController,
-                          decoration: InputDecoration(
-                            prefixIcon: const Icon(Icons.search),
-                            hintText: l10n.catalogGlass,
-                          ),
-                          onChanged: (_) => setState(() {}),
-                        ),
-                        const SizedBox(height: 16),
                         DropdownButtonFormField<int>(
-                          value: filteredGlassIndices.contains(glassIndex)
-                              ? glassIndex
-                              : null,
+                          initialValue: glassIndex,
                           isExpanded: true,
                           decoration:
                               InputDecoration(labelText: l10n.catalogGlass),
                           items: [
-                            for (final index in filteredGlassIndices)
+                            for (int i = 0; i < glassBox.length; i++)
                               DropdownMenuItem<int>(
-                                value: index,
+                                value: i,
                                 child: Text(
-                                  glassBox.getAt(index)?.name ?? '',
+                                  glassBox.getAt(i)?.name ?? '',
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
@@ -1388,8 +1323,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     extra1DescController.dispose();
     extra2DescController.dispose();
     notesController.dispose();
-    _profileSearchController.dispose();
-    _glassSearchController.dispose();
     for (final ctrl in sectionHeightCtrls) {
       ctrl.dispose();
     }
