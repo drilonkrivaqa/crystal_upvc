@@ -1,6 +1,5 @@
 {
   "@@locale": "de",
-  "appTitle": "TONI AL-PVC",
   "homeCatalogs": "Preisliste",
   "homeCustomers": "Kunden",
   "homeOffers": "Angebote",
@@ -20,9 +19,6 @@
   "cuttingPieceT": "T",
   "cuttingPieceAdapter": "Adapter",
   "cuttingPieceBead": "Glasleiste",
-  "welcomeAddress": "Ilir Konushevci Str., Nr. 80, Kamenica, Kosovo, 62000",
-  "welcomePhones": "+38344357639 | +38344268300",
-  "welcomeWebsite": "www.tonialpvc.com | tonialpvc@gmail.com",
   "welcomeEnter": "Eintreten",
   "catalogsTitle": "Preisliste",
   "catalogProfile": "Profil",

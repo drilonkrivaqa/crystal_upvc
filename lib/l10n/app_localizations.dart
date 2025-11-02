@@ -1,5 +1,7 @@
 import 'package:flutter/widgets.dart';
 
+import '../company_details.dart';
+
 class AppLocalizations {
   AppLocalizations(this.locale);
 
@@ -7,7 +9,6 @@ class AppLocalizations {
 
   static const Map<String, Map<String, String>> _localizedValues = {
     'sq': {
-      'appTitle': 'TONI AL-PVC',
       'homeCatalogs': 'Çmimore',
       'homeCustomers': 'Klientët',
       'homeOffers': 'Ofertat',
@@ -35,9 +36,6 @@ class AppLocalizations {
       'cuttingPieceT': 'T',
       'cuttingPieceAdapter': 'Adapter',
       'cuttingPieceBead': 'Llajsne',
-      'welcomeAddress': 'Rr. Ilir Konushevci, Nr. 80, Kamenicë, Kosovë, 62000',
-      'welcomePhones': '+38344357639 | +38344268300',
-      'welcomeWebsite': 'www.tonialpvc.com | tonialpvc@gmail.com',
       'welcomeEnter': 'Hyr',
       'catalogsTitle': 'Çmimorja',
       'catalogProfile': 'Profili',
@@ -223,7 +221,6 @@ class AppLocalizations {
       'horizontalDivision': 'Ndarja Horizontale',
     },
     'en': {
-      'appTitle': 'TONI AL-PVC',
       'homeCatalogs': 'Catalogs',
       'homeCustomers': 'Customers',
       'homeOffers': 'Offers',
@@ -249,9 +246,6 @@ class AppLocalizations {
       'cuttingPieceT': 'T',
       'cuttingPieceAdapter': 'Adapter',
       'cuttingPieceBead': 'Bead',
-      'welcomeAddress': 'Ilir Konushevci St., No. 80, Kamenica, Kosovo, 62000',
-      'welcomePhones': '+38344357639 | +38344268300',
-      'welcomeWebsite': 'www.tonialpvc.com | tonialpvc@gmail.com',
       'welcomeEnter': 'Enter',
       'catalogsTitle': 'Price List',
       'catalogProfile': 'Profile',
@@ -431,7 +425,6 @@ class AppLocalizations {
       'horizontalDivision': 'Horizontal division',
     },
     'de': {
-      'appTitle': 'TONI AL-PVC',
       'homeCatalogs': 'Preisliste',
       'homeCustomers': 'Kunden',
       'homeOffers': 'Angebote',
@@ -457,9 +450,6 @@ class AppLocalizations {
       'cuttingPieceT': 'T',
       'cuttingPieceAdapter': 'Adapter',
       'cuttingPieceBead': 'Glasleiste',
-      'welcomeAddress': 'Ilir Konushevci Str., Nr. 80, Kamenica, Kosovo, 62000',
-      'welcomePhones': '+38344357639 | +38344268300',
-      'welcomeWebsite': 'www.tonialpvc.com | tonialpvc@gmail.com',
       'welcomeEnter': 'Eintreten',
       'catalogsTitle': 'Preisliste',
       'catalogProfile': 'Profil',
@@ -644,7 +634,6 @@ class AppLocalizations {
       'horizontalDivision': 'Horizontale Teilung',
     },
     'fr': {
-      'appTitle': 'TONI AL-PVC',
       'homeCatalogs': 'Liste de prix',
       'homeCustomers': 'Clients',
       'homeOffers': 'Offres',
@@ -671,9 +660,6 @@ class AppLocalizations {
       'cuttingPieceT': 'T',
       'cuttingPieceAdapter': 'Adaptateur',
       'cuttingPieceBead': 'Parclose',
-      'welcomeAddress': 'Rue Ilir Konushevci, n° 80, Kamenica, Kosovo, 62000',
-      'welcomePhones': '+38344357639 | +38344268300',
-      'welcomeWebsite': 'www.tonialpvc.com | tonialpvc@gmail.com',
       'welcomeEnter': 'Entrer',
       'catalogsTitle': 'Liste de prix',
       'catalogProfile': 'Profil',
@@ -857,7 +843,6 @@ class AppLocalizations {
       'horizontalDivision': 'Division horizontale',
     },
     'it': {
-      'appTitle': 'TONI AL-PVC',
       'homeCatalogs': 'Listino prezzi',
       'homeCustomers': 'Clienti',
       'homeOffers': 'Offerte',
@@ -883,9 +868,6 @@ class AppLocalizations {
       'cuttingPieceT': 'T',
       'cuttingPieceAdapter': 'Adattatore',
       'cuttingPieceBead': 'Fermavetro',
-      'welcomeAddress': 'Via Ilir Konushevci, n. 80, Kamenica, Kosovo, 62000',
-      'welcomePhones': '+38344357639 | +38344268300',
-      'welcomeWebsite': 'www.tonialpvc.com | tonialpvc@gmail.com',
       'welcomeEnter': 'Entra',
       'catalogsTitle': 'Listino prezzi',
       'catalogProfile': 'Profilo',
@@ -1072,7 +1054,7 @@ class AppLocalizations {
 
   String _t(String key) => _localizedValues[locale.languageCode]![key]!;
 
-  String get appTitle => _t('appTitle');
+  String get appTitle => CompanyDetails.ofLocale(locale).name;
   String get homeCatalogs => _t('homeCatalogs');
   String get homeCustomers => _t('homeCustomers');
   String get homeOffers => _t('homeOffers');
@@ -1122,9 +1104,9 @@ class AppLocalizations {
   String get cuttingPieceT => _t('cuttingPieceT');
   String get cuttingPieceAdapter => _t('cuttingPieceAdapter');
   String get cuttingPieceBead => _t('cuttingPieceBead');
-  String get welcomeAddress => _t('welcomeAddress');
-  String get welcomePhones => _t('welcomePhones');
-  String get welcomeWebsite => _t('welcomeWebsite');
+  String get welcomeAddress => CompanyDetails.ofLocale(locale).address;
+  String get welcomePhones => CompanyDetails.ofLocale(locale).phones;
+  String get welcomeWebsite => CompanyDetails.ofLocale(locale).website;
   String get welcomeEnter => _t('welcomeEnter');
   String get catalogsTitle => _t('catalogsTitle');
   String get catalogProfile => _t('catalogProfile');
