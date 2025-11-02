@@ -65,9 +65,9 @@ Future<void> _ensureLocaleInitialized(String locale) async {
   _initializedLocales.add(locale);
 }
 
-Future<pw.MemoryImage?> _loadCompanyLogo() async {
+Future<pw.MemoryImage?> _loadCompanyLogo(String assetPath) async {
   try {
-    final data = await rootBundle.load('assets/logo.png');
+    final data = await rootBundle.load(assetPath);
     return pw.MemoryImage(data.buffer.asUint8List());
   } catch (_) {
     return null;
@@ -276,7 +276,7 @@ Future<void> exportGlassResultsPdf({
   if (results.isEmpty) return;
   await _ensureLocaleInitialized(l10n.localeName);
   final theme = await _loadPdfTheme();
-  final logoImage = await _loadCompanyLogo();
+  final logoImage = await _loadCompanyLogo(l10n.companyLogoAsset);
   final doc = pw.Document(theme: theme);
 
   final entries = results.entries.toList()
@@ -378,7 +378,7 @@ Future<void> exportBlindResultsPdf({
   if (results.isEmpty) return;
   await _ensureLocaleInitialized(l10n.localeName);
   final theme = await _loadPdfTheme();
-  final logoImage = await _loadCompanyLogo();
+  final logoImage = await _loadCompanyLogo(l10n.companyLogoAsset);
   final doc = pw.Document(theme: theme);
 
   final entries = results.entries.toList()
@@ -481,7 +481,7 @@ Future<void> exportHekriResultsPdf({
   if (results.isEmpty) return;
   await _ensureLocaleInitialized(l10n.localeName);
   final theme = await _loadPdfTheme();
-  final logoImage = await _loadCompanyLogo();
+  final logoImage = await _loadCompanyLogo(l10n.companyLogoAsset);
   final doc = pw.Document(theme: theme);
 
   final entries = results.entries.toList()
@@ -586,7 +586,7 @@ Future<void> exportCuttingResultsPdf<T>({
   if (results.isEmpty) return;
   await _ensureLocaleInitialized(l10n.localeName);
   final theme = await _loadPdfTheme();
-  final logoImage = await _loadCompanyLogo();
+  final logoImage = await _loadCompanyLogo(l10n.companyLogoAsset);
   final doc = pw.Document(theme: theme);
 
   final entries = results.entries.toList()

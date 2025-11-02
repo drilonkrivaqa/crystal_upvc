@@ -56,7 +56,7 @@ class _WelcomePageState extends State<WelcomePage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Image.asset('assets/logo.png', width: 220)
+                  Image.asset(l10n.companyLogoAsset, width: 220)
                       .animate()
                       .fadeIn(duration: 600.ms)
                       .slideY(begin: 0.2),

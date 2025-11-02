@@ -28,9 +28,10 @@ Future<void> printOfferPdf({
   final boldFont = pw.Font.ttf(boldFontData);
 
   // Load company logo
+  final logoAsset = l10n.companyLogoAsset;
   pw.MemoryImage? logoImage;
   try {
-    final logoData = await rootBundle.load('assets/logo.png');
+    final logoData = await rootBundle.load(logoAsset);
     logoImage = pw.MemoryImage(logoData.buffer.asUint8List());
   } catch (_) {
     logoImage = null;
