@@ -19,13 +19,6 @@ class AppLocalizations {
       'productionRollerShutter': 'Roleta',
       'productionIron': 'Hekur',
       'productionRegisteredProfiles': 'Profilet e regjistruara',
-      'productionProfileSortLabel': 'Rendit sipas',
-      'productionProfileSortNameAsc': 'Emri (A-Z)',
-      'productionProfileSortNameDesc': 'Emri (Z-A)',
-      'productionProfileSortNewest':
-          'Krijuar (nga më i riu te më i vjetri)',
-      'productionProfileSortOldest':
-          'Krijuar (nga më i vjetri te më i riu)',
       'productionSawSettings': 'Cilësimet e sharrës',
       'productionProfileSawWidth':
           'Gjerësia e sharrës së profilit (mm)',
@@ -238,11 +231,6 @@ class AppLocalizations {
       'productionRollerShutter': 'Roller Shutter',
       'productionIron': 'Iron',
       'productionRegisteredProfiles': 'Registered Profiles',
-      'productionProfileSortLabel': 'Sort profiles by',
-      'productionProfileSortNameAsc': 'Name (A-Z)',
-      'productionProfileSortNameDesc': 'Name (Z-A)',
-      'productionProfileSortNewest': 'Created (newest first)',
-      'productionProfileSortOldest': 'Created (oldest first)',
       'productionSawSettings': 'Saw settings',
       'productionProfileSawWidth': 'Profile saw width (mm)',
       'productionHekriSawWidth': 'Iron saw width (mm)',
@@ -447,11 +435,6 @@ class AppLocalizations {
       'productionRollerShutter': 'Rollladen',
       'productionIron': 'Eisen',
       'productionRegisteredProfiles': 'Registrierte Profile',
-      'productionProfileSortLabel': 'Profile sortieren nach',
-      'productionProfileSortNameAsc': 'Name (A-Z)',
-      'productionProfileSortNameDesc': 'Name (Z-A)',
-      'productionProfileSortNewest': 'Erstellt (neueste zuerst)',
-      'productionProfileSortOldest': 'Erstellt (älteste zuerst)',
       'productionSawSettings': 'Sägeeinstellungen',
       'productionProfileSawWidth': 'Sägebreite Profil (mm)',
       'productionHekriSawWidth': 'Sägebreite Eisen (mm)',
@@ -661,13 +644,6 @@ class AppLocalizations {
       'productionRollerShutter': 'Volet roulant',
       'productionIron': 'Fer',
       'productionRegisteredProfiles': 'Profils enregistrés',
-      'productionProfileSortLabel': 'Trier les profils par',
-      'productionProfileSortNameAsc': 'Nom (A-Z)',
-      'productionProfileSortNameDesc': 'Nom (Z-A)',
-      'productionProfileSortNewest':
-          'Création (du plus récent au plus ancien)',
-      'productionProfileSortOldest':
-          'Création (du plus ancien au plus récent)',
       'productionSawSettings': 'Réglages de scie',
       'productionProfileSawWidth':
           'Largeur de scie pour profilés (mm)',
@@ -877,13 +853,6 @@ class AppLocalizations {
       'productionRollerShutter': 'Tapparella',
       'productionIron': 'Ferro',
       'productionRegisteredProfiles': 'Profili registrati',
-      'productionProfileSortLabel': 'Ordina i profili per',
-      'productionProfileSortNameAsc': 'Nome (A-Z)',
-      'productionProfileSortNameDesc': 'Nome (Z-A)',
-      'productionProfileSortNewest':
-          'Creazione (dal più nuovo al più vecchio)',
-      'productionProfileSortOldest':
-          'Creazione (dal più vecchio al più nuovo)',
       'productionSawSettings': 'Impostazioni sega',
       'productionProfileSawWidth': 'Larghezza sega profili (mm)',
       'productionHekriSawWidth': 'Larghezza sega ferro (mm)',
@@ -1096,18 +1065,7 @@ class AppLocalizations {
   String get productionRollerShutter =>
       _t('productionRollerShutter');
   String get productionIron => _t('productionIron');
-  String get productionRegisteredProfiles =>
-      _t('productionRegisteredProfiles');
-  String get productionProfileSortLabel =>
-      _t('productionProfileSortLabel');
-  String get productionProfileSortNameAsc =>
-      _t('productionProfileSortNameAsc');
-  String get productionProfileSortNameDesc =>
-      _t('productionProfileSortNameDesc');
-  String get productionProfileSortNewest =>
-      _t('productionProfileSortNewest');
-  String get productionProfileSortOldest =>
-      _t('productionProfileSortOldest');
+  String get productionRegisteredProfiles => _t('productionRegisteredProfiles');
   String get productionSawSettings => _t('productionSawSettings');
   String get productionProfileSawWidth => _t('productionProfileSawWidth');
   String get productionHekriSawWidth => _t('productionHekriSawWidth');
