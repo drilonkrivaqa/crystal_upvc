@@ -104,9 +104,6 @@ abstract class AppLocalizations {
     Locale('sq')
   ];
 
-  /// Localized company name displayed across the application.
-  String get appTitle;
-
   /// No description provided for @homeCatalogs.
   ///
   /// In en, this message translates to:
@@ -221,15 +218,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Bead'**
   String get cuttingPieceBead;
-
-  /// Localized company address shown on PDF headers and welcome screen.
-  String get welcomeAddress;
-
-  /// Localized company phone numbers.
-  String get welcomePhones;
-
-  /// Localized company website and email contact.
-  String get welcomeWebsite;
 
   /// No description provided for @welcomeEnter.
   ///

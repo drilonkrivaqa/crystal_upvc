@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-import '../../company_details.dart';
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -8,9 +7,6 @@ import 'app_localizations.dart';
 /// The translations for Italian (`it`).
 class AppLocalizationsIt extends AppLocalizations {
   AppLocalizationsIt([String locale = 'it']) : super(locale);
-
-  @override
-  String get appTitle => CompanyDetails.ofLanguageCode(localeName).name;
 
   @override
   String get homeCatalogs => 'Listino prezzi';
@@ -77,17 +73,6 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get cuttingPieceBead => 'Fermavetro';
-
-  @override
-  String get welcomeAddress =>
-      CompanyDetails.ofLanguageCode(localeName).address;
-
-  @override
-  String get welcomePhones => CompanyDetails.ofLanguageCode(localeName).phones;
-
-  @override
-  String get welcomeWebsite =>
-      CompanyDetails.ofLanguageCode(localeName).website;
 
   @override
   String get welcomeEnter => 'Entra';
