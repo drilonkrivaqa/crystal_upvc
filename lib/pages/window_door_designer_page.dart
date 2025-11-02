@@ -71,6 +71,51 @@ const Color kSelectOutline  = Color(0xFF1E88E5);   // blue outline
 const double kSelectDash    = 7.0;
 const double kSelectGap     = 5.0;
 
+class _CellPosition {
+  final int row;
+  final int column;
+  const _CellPosition(this.row, this.column);
+}
+
+class _CellModel {
+  SashType sash;
+  Color glassColor;
+  _CellModel({required this.sash, required this.glassColor});
+}
+
+class _RowModel {
+  double heightWeight;
+  List<double> columnWeights;
+  final List<_CellModel> cells;
+
+  _RowModel({
+    required this.heightWeight,
+    required List<double> columnWeights,
+    required List<_CellModel> cells,
+  })  : columnWeights = List<double>.from(columnWeights),
+        cells = List<_CellModel>.from(cells);
+
+  int get columnCount => cells.length;
+
+  void updateColumnCount(int count, Color defaultGlassColor) {
+    final target = count.clamp(1, 8);
+    if (target == columnCount) {
+      return;
+    }
+    if (target > columnCount) {
+      columnWeights.addAll(List<double>.filled(target - columnCount, 1.0));
+      for (int i = columnCount; i < target; i++) {
+        cells.add(_CellModel(sash: SashType.fixed, glassColor: defaultGlassColor));
+      }
+      return;
+    }
+
+    // Shrink
+    columnWeights = columnWeights.take(target).toList(growable: true);
+    cells.removeRange(target, cells.length);
+  }
+}
+
 // -----------------------------------------------------------------------------
 // Model / types
 
@@ -121,64 +166,59 @@ class WindowDoorDesignerPage extends StatefulWidget {
 }
 
 class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
-  int rows = 1;
-  int cols = 2;
   bool outsideView = true;
   bool showBlindBox = false;
 
   SashType activeTool = SashType.fixed;
-  int? selectedIndex;
+  _CellPosition? _selectedCell;
 
-  late List<SashType> cells;
-  late List<Color> cellGlassColors;
+  late List<_RowModel> _rows;
   late _ProfileColorOption profileColor;
   late _SimpleColorOption blindColor;
-  late List<double> _columnSizes;
-  late List<double> _rowSizes;
+  late int _baseColumnCount;
+  int _columnsControlRow = 0;
 
   final _repaintKey = GlobalKey();
 
   @override
   void initState() {
     super.initState();
-    rows = (widget.initialRows ?? rows).clamp(1, 8).toInt();
-    cols = (widget.initialCols ?? cols).clamp(1, 8).toInt();
+    final initialRows = (widget.initialRows ?? 1).clamp(1, 8).toInt();
+    final initialCols = (widget.initialCols ?? 2).clamp(1, 8).toInt();
+    _baseColumnCount = initialCols;
     showBlindBox = widget.initialShowBlind ?? showBlindBox;
-    cells = List<SashType>.filled(rows * cols, SashType.fixed, growable: true);
-    cellGlassColors =
-        List<Color>.filled(rows * cols, _glassColorOptions.first.color, growable: true);
+    final defaultGlass = _glassColorOptions.first.color;
+    final rowSizes = _initialSizes(widget.initialRowSizes, initialRows);
+    final columnSizes = _initialSizes(widget.initialColumnSizes, initialCols);
+    _rows = List<_RowModel>.generate(initialRows, (index) {
+      return _RowModel(
+        heightWeight: rowSizes[index],
+        columnWeights: columnSizes,
+        cells: List<_CellModel>.generate(
+          initialCols,
+          (_) => _CellModel(sash: SashType.fixed, glassColor: defaultGlass),
+        ),
+      );
+    });
     profileColor = _profileColorOptions.first;
     blindColor = _blindColorOptions.first;
-    _columnSizes = _initialSizes(widget.initialColumnSizes, cols);
-    _rowSizes = _initialSizes(widget.initialRowSizes, rows);
-
     final providedCells = widget.initialCells;
-    if (providedCells != null && providedCells.length == cells.length) {
-      cells = List<SashType>.from(providedCells, growable: true);
+    if (providedCells != null && providedCells.length == initialRows * initialCols) {
+      int idx = 0;
+      for (final row in _rows) {
+        for (int c = 0; c < row.columnCount; c++) {
+          row.cells[c].sash = providedCells[idx++];
+        }
+      }
     }
   }
-
-  void _regrid(int r, int c) {
-    setState(() {
-      rows = r.clamp(1, 8);
-      cols = c.clamp(1, 8);
-      cells = List<SashType>.filled(rows * cols, SashType.fixed, growable: true);
-      cellGlassColors =
-          List<Color>.filled(rows * cols, _glassColorOptions.first.color, growable: true);
-      selectedIndex = null;
-      _columnSizes = List<double>.filled(cols, 1.0);
-      _rowSizes = List<double>.filled(rows, 1.0);
-    });
-  }
-
-  int _xyToIndex(int r, int c) => r * cols + c;
 
   void _onTapCanvas(Offset localPos, Size size) {
     final mmToPx = _mmToPx(size.height);
     final blindHeightPx = showBlindBox ? kBlindBoxHeightMm * mmToPx : 0.0;
 
     if (showBlindBox && localPos.dy < blindHeightPx) {
-      setState(() => selectedIndex = null);
+      setState(() => _selectedCell = null);
       return;
     }
 
@@ -188,25 +228,33 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
 
     if (!opening.contains(localPos)) {
       // Tapping the frame area: just clear selection
-      setState(() => selectedIndex = null);
+      setState(() => _selectedCell = null);
       return;
     }
 
     final cellArea = opening.deflate(kRebateLip);
-    final columnFractions = _normalizedFractions(_columnSizes, cols);
-    final rowFractions = _normalizedFractions(_rowSizes, rows);
-    final c = _hitTestAxis(localPos.dx, cellArea.left, cellArea.width, columnFractions, cols);
-    final r = _hitTestAxis(localPos.dy, cellArea.top, cellArea.height, rowFractions, rows);
-    final idx = _xyToIndex(r, c);
+    final rowCount = _rows.length;
+    if (rowCount <= 0) {
+      return;
+    }
+    final rowFractions =
+        _normalizedFractions(_rows.map((row) => row.heightWeight).toList(growable: false), rowCount);
+    final r = _hitTestAxis(localPos.dy, cellArea.top, cellArea.height, rowFractions, rowCount);
+    final rowModel = _rows[r];
+    final columnFractions =
+        _normalizedFractions(rowModel.columnWeights, rowModel.columnCount);
+    final c = _hitTestAxis(localPos.dx, cellArea.left, cellArea.width, columnFractions, rowModel.columnCount);
 
     setState(() {
-      // Toggle selection if same cell tapped, otherwise select and paint active tool
-      if (selectedIndex == idx) {
-        selectedIndex = null;
+      final tapped = _CellPosition(r, c);
+      if (_selectedCell != null &&
+          _selectedCell!.row == tapped.row &&
+          _selectedCell!.column == tapped.column) {
+        _selectedCell = null;
       } else {
-        selectedIndex = idx;
+        _selectedCell = tapped;
       }
-      cells[idx] = activeTool;
+      rowModel.cells[c].sash = activeTool;
     });
   }
 
@@ -271,6 +319,87 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
       return List<double>.filled(count, 1.0 / count);
     }
     return sanitized.map((value) => value / total).toList(growable: false);
+  }
+
+  int get _rowCount => _rows.length;
+
+  _CellModel? get _selectedCellModel {
+    final sel = _selectedCell;
+    if (sel == null) {
+      return null;
+    }
+    if (sel.row < 0 || sel.row >= _rows.length) {
+      return null;
+    }
+    final row = _rows[sel.row];
+    if (sel.column < 0 || sel.column >= row.columnCount) {
+      return null;
+    }
+    return row.cells[sel.column];
+  }
+
+  void _changeRowCount(int desired) {
+    final defaultGlass = _glassColorOptions.first.color;
+    setState(() {
+      final target = desired.clamp(1, 8);
+      if (target == _rows.length) {
+        return;
+      }
+      if (target > _rows.length) {
+        final templateIndex = _rows.isNotEmpty
+            ? _columnsControlRow.clamp(0, _rows.length - 1)
+            : 0;
+        final templateColumns = _rows.isNotEmpty
+            ? _rows[templateIndex].columnCount
+            : _baseColumnCount;
+        final columnWeights = List<double>.filled(math.max(templateColumns, 1), 1.0);
+        for (int i = _rows.length; i < target; i++) {
+          _rows.add(
+            _RowModel(
+              heightWeight: 1.0,
+              columnWeights: columnWeights,
+              cells: List<_CellModel>.generate(
+                math.max(templateColumns, 1),
+                (_) => _CellModel(sash: SashType.fixed, glassColor: defaultGlass),
+              ),
+            ),
+          );
+        }
+      } else {
+        _rows.removeRange(target, _rows.length);
+        if (_selectedCell != null && _selectedCell!.row >= _rows.length) {
+          _selectedCell = null;
+        }
+        if (_columnsControlRow >= _rows.length) {
+          _columnsControlRow = _rows.length - 1;
+        }
+      }
+    });
+  }
+
+  void _setColumnsForRow(int rowIndex, int desired) {
+    if (_rows.isEmpty) {
+      return;
+    }
+    final index = rowIndex.clamp(0, _rows.length - 1);
+    final defaultGlass = _glassColorOptions.first.color;
+    setState(() {
+      final row = _rows[index];
+      final previousCount = row.columnCount;
+      row.updateColumnCount(desired, defaultGlass);
+      if (_selectedCell != null &&
+          _selectedCell!.row == index &&
+          _selectedCell!.column >= row.columnCount) {
+        _selectedCell = null;
+      }
+      if (row.columnCount > previousCount) {
+        // ensure weights list has explicit length for new columns
+        if (row.columnWeights.length < row.columnCount) {
+          row.columnWeights =
+              List<double>.from(row.columnWeights)..addAll(List<double>.filled(row.columnCount - row.columnWeights.length, 1.0));
+        }
+      }
+    });
   }
 
   int _hitTestAxis(
@@ -405,10 +534,14 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
 
   void _reset() {
     setState(() {
-      cells = List<SashType>.filled(rows * cols, SashType.fixed, growable: true);
-      cellGlassColors =
-          List<Color>.filled(rows * cols, _glassColorOptions.first.color, growable: true);
-      selectedIndex = null;
+      final defaultGlass = _glassColorOptions.first.color;
+      for (final row in _rows) {
+        for (final cell in row.cells) {
+          cell.sash = SashType.fixed;
+          cell.glassColor = defaultGlass;
+        }
+      }
+      _selectedCell = null;
       activeTool = SashType.fixed;
       outsideView = true;
       showBlindBox = false;
@@ -421,6 +554,9 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final aspectRatio = _aspectRatioFromDimensions();
+    final controlRowIndex = _rowCount > 0 ? _columnsControlRow.clamp(0, _rowCount - 1) : 0;
+    final columnsForControlRow =
+        _rowCount > 0 ? _rows[controlRowIndex].columnCount : 1;
 
     return Scaffold(
       appBar: AppBar(
@@ -439,10 +575,18 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
               runSpacing: 8,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                _RowsColsPicker(
-                  rows: rows,
-                  cols: cols,
-                  onChanged: (r, c) => _regrid(r, c),
+                _StructurePicker(
+                  rowCount: _rowCount,
+                  selectedRowIndex: controlRowIndex,
+                  columnsForSelectedRow: columnsForControlRow,
+                  onRowCountChanged: _changeRowCount,
+                  onSelectedRowChanged: (index) => setState(() {
+                    _columnsControlRow = index.clamp(0, math.max(0, _rowCount - 1));
+                  }),
+                  onColumnsChanged: (value) => _setColumnsForRow(
+                    controlRowIndex,
+                    value,
+                  ),
                 ),
                 Row(
                   mainAxisSize: MainAxisSize.min,
@@ -486,29 +630,31 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
                       );
                     }).toList(),
                   ),
-                _colorGroup(
-                  title: selectedIndex == null
-                      ? 'Glass colour (select a section)'
-                      : 'Glass colour',
-                  chips: _glassColorOptions.map((opt) {
-                    final isSelected =
-                        selectedIndex != null && cellGlassColors[selectedIndex!] == opt.color;
-                    return ChoiceChip(
-                      label: Text(opt.label),
-                      avatar: _ColorDot(color: opt.color),
-                      selected: isSelected,
-                      onSelected: selectedIndex != null
-                          ? (_) => setState(() => cellGlassColors[selectedIndex!] = opt.color)
-                          : null,
-                    );
-                  }).toList(),
-                ),
+                Builder(builder: (_) {
+                  final selectedCell = _selectedCellModel;
+                  return _colorGroup(
+                    title: selectedCell == null
+                        ? 'Glass colour (select a section)'
+                        : 'Glass colour',
+                    chips: _glassColorOptions.map((opt) {
+                      final isSelected = selectedCell?.glassColor == opt.color;
+                      return ChoiceChip(
+                        label: Text(opt.label),
+                        avatar: _ColorDot(color: opt.color),
+                        selected: isSelected,
+                        onSelected: selectedCell != null
+                            ? (_) => setState(() {
+                                  selectedCell.glassColor = opt.color;
+                                })
+                            : null,
+                      );
+                    }).toList(),
+                  );
+                }),
                 _Legend(
                   theme: theme,
                   frameColor: profileColor.base,
-                  glassColor: selectedIndex != null
-                      ? cellGlassColors[selectedIndex!]
-                      : _glassColorOptions.first.color,
+                  glassColor: _selectedCellModel?.glassColor ?? _glassColorOptions.first.color,
                 ),
               ],
             ),
@@ -528,18 +674,13 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
                         child: CustomPaint(
                           size: constraints.biggest,
                           painter: _WindowPainter(
-                            rows: rows,
-                            cols: cols,
-                            cells: cells,
-                            selectedIndex: selectedIndex,
+                            rows: _rows,
+                            selectedCell: _selectedCell,
                             outsideView: outsideView,
                             showBlindBox: showBlindBox,
                             windowHeightMm: _windowHeightMm,
-                            cellGlassColors: cellGlassColors,
                             profileColor: profileColor,
                             blindColor: blindColor,
-                            columnFractions: _normalizedFractions(_columnSizes, cols),
-                            rowFractions: _normalizedFractions(_rowSizes, rows),
                           ),
                         ),
                       ),
@@ -612,32 +753,22 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
 // ── painter ───────────────────────────────────────────────────────────────────
 
 class _WindowPainter extends CustomPainter {
-  final int rows;
-  final int cols;
-  final List<SashType> cells;
-  final List<Color> cellGlassColors;
-  final int? selectedIndex;
+  final List<_RowModel> rows;
+  final _CellPosition? selectedCell;
   final bool outsideView;
   final bool showBlindBox;
   final double windowHeightMm;
   final _ProfileColorOption profileColor;
   final _SimpleColorOption blindColor;
-  final List<double> columnFractions;
-  final List<double> rowFractions;
 
   _WindowPainter({
     required this.rows,
-    required this.cols,
-    required this.cells,
-    required this.cellGlassColors,
-    required this.selectedIndex,
+    required this.selectedCell,
     required this.outsideView,
     required this.showBlindBox,
     required this.windowHeightMm,
     required this.profileColor,
     required this.blindColor,
-    required this.columnFractions,
-    required this.rowFractions,
   });
 
   @override
@@ -712,30 +843,38 @@ class _WindowPainter extends CustomPainter {
     final glassArea = opening.deflate(kRebateLip);
 
     // 4) Draw cells (glass + glyphs) inside glassArea
-    final effectiveColumnFractions = _ensureFractions(columnFractions, cols);
-    final effectiveRowFractions = _ensureFractions(rowFractions, rows);
-    final columnOffsets = List<double>.filled(cols, glassArea.left);
-    final columnWidths = List<double>.filled(cols, 0.0);
-    double cursorX = glassArea.left;
-    for (int c = 0; c < cols; c++) {
-      final width = glassArea.width * effectiveColumnFractions[c];
-      columnOffsets[c] = cursorX;
-      columnWidths[c] = width;
-      cursorX += width;
-    }
-    final rowOffsets = List<double>.filled(rows, glassArea.top);
-    final rowHeights = List<double>.filled(rows, 0.0);
+    final rowFractions = _ensureFractions(
+      rows.map((row) => row.heightWeight).toList(growable: false),
+      rows.length,
+    );
+    final rowOffsets = List<double>.filled(rows.length, glassArea.top);
+    final rowHeights = List<double>.filled(rows.length, 0.0);
     double cursorY = glassArea.top;
-    for (int r = 0; r < rows; r++) {
-      final height = glassArea.height * effectiveRowFractions[r];
+    for (int r = 0; r < rows.length; r++) {
+      final fraction = rowFractions.isNotEmpty ? rowFractions[r] : 1.0 / math.max(rows.length, 1);
+      final height = glassArea.height * fraction;
       rowOffsets[r] = cursorY;
       rowHeights[r] = height;
       cursorY += height;
     }
 
-    for (int r = 0; r < rows; r++) {
-      for (int c = 0; c < cols; c++) {
-        final idx = r * cols + c;
+    for (int r = 0; r < rows.length; r++) {
+      final rowModel = rows[r];
+      final columnCount = math.max(rowModel.columnCount, 1);
+      final columnFractions =
+          _ensureFractions(rowModel.columnWeights, columnCount);
+      final columnOffsets = List<double>.filled(columnCount, glassArea.left);
+      final columnWidths = List<double>.filled(columnCount, 0.0);
+      double cursorX = glassArea.left;
+      for (int c = 0; c < columnCount; c++) {
+        final fraction = columnFractions.isNotEmpty ? columnFractions[c] : 1.0 / columnCount;
+        final width = glassArea.width * fraction;
+        columnOffsets[c] = cursorX;
+        columnWidths[c] = width;
+        cursorX += width;
+      }
+
+      for (int c = 0; c < columnCount; c++) {
         final rect = Rect.fromLTWH(
           columnOffsets[c],
           rowOffsets[r],
@@ -743,32 +882,34 @@ class _WindowPainter extends CustomPainter {
           rowHeights[r],
         );
 
-        // Glass
-        paintGlass.color = cellGlassColors[idx];
+        final cell = rowModel.cells[c];
+        paintGlass.color = cell.glassColor;
         canvas.drawRect(rect, paintGlass);
 
-        // Selection (non-tint dashed outline, toggle-able)
-        if (selectedIndex == idx) {
+        if (selectedCell != null &&
+            selectedCell!.row == r &&
+            selectedCell!.column == c) {
           _drawDashedRect(canvas, rect.deflate(5), kSelectOutline, kSelectDash, kSelectGap, 2.0);
         }
 
-        // Mirror L/R types when viewing from inside
-        final t = _mirrorForInside(cells[idx], outsideView);
+        final t = _mirrorForInside(cell.sash, outsideView);
         _drawGlyph(canvas, rect.deflate(8), t, paintSash);
+      }
+
+      double mullionX = glassArea.left;
+      for (int c = 0; c < columnCount - 1; c++) {
+        mullionX += columnWidths[c];
+        final x = mullionX;
+        canvas.drawLine(
+          Offset(x, rowOffsets[r]),
+          Offset(x, rowOffsets[r] + rowHeights[r]),
+          paintMullion,
+        );
       }
     }
 
-    // 5) Mullions between cells (over glass)
-    // verticals
-    double mullionX = glassArea.left;
-    for (int c = 0; c < cols - 1; c++) {
-      mullionX += columnWidths[c];
-      final x = mullionX;
-      canvas.drawLine(Offset(x, glassArea.top), Offset(x, glassArea.bottom), paintMullion);
-    }
-    // horizontals
     double mullionY = glassArea.top;
-    for (int r = 0; r < rows - 1; r++) {
+    for (int r = 0; r < rows.length - 1; r++) {
       mullionY += rowHeights[r];
       final y = mullionY;
       canvas.drawLine(Offset(glassArea.left, y), Offset(glassArea.right, y), paintMullion);
@@ -1034,24 +1175,6 @@ class _WindowPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _WindowPainter old) {
-    return rows != old.rows ||
-        cols != old.cols ||
-        outsideView != old.outsideView ||
-        showBlindBox != old.showBlindBox ||
-        windowHeightMm != old.windowHeightMm ||
-        selectedIndex != old.selectedIndex ||
-        profileColor != old.profileColor ||
-        blindColor != old.blindColor ||
-        !_listEquals(cells, old.cells) ||
-        !_listEquals(cellGlassColors, old.cellGlassColors);
-  }
-
-  bool _listEquals(List a, List b) {
-    if (identical(a, b)) return true;
-    if (a.length != b.length) return false;
-    for (int i = 0; i < a.length; i++) {
-      if (a[i] != b[i]) return false;
-    }
     return true;
   }
 }
@@ -1106,41 +1229,72 @@ class _ToolItem {
   _ToolItem(this.label, this.type);
 }
 
-class _RowsColsPicker extends StatelessWidget {
-  final int rows;
-  final int cols;
-  final void Function(int rows, int cols) onChanged;
-  const _RowsColsPicker({
-    required this.rows,
-    required this.cols,
-    required this.onChanged,
+class _StructurePicker extends StatelessWidget {
+  final int rowCount;
+  final int selectedRowIndex;
+  final int columnsForSelectedRow;
+  final ValueChanged<int> onRowCountChanged;
+  final ValueChanged<int> onSelectedRowChanged;
+  final ValueChanged<int> onColumnsChanged;
+
+  const _StructurePicker({
+    required this.rowCount,
+    required this.selectedRowIndex,
+    required this.columnsForSelectedRow,
+    required this.onRowCountChanged,
+    required this.onSelectedRowChanged,
+    required this.onColumnsChanged,
   });
 
   @override
   Widget build(BuildContext context) {
+    final clampedRow = rowCount > 0 ? selectedRowIndex.clamp(0, rowCount - 1) : 0;
+    final items = List<DropdownMenuItem<int>>.generate(rowCount, (index) {
+      return DropdownMenuItem<int>(
+        value: index,
+        child: Text('Row ${index + 1}'),
+      );
+    });
+
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        _stepper('Rows', rows, (v) => onChanged(v, cols)),
-        const SizedBox(width: 10),
-        _stepper('Cols', cols, (v) => onChanged(rows, v)),
+        _stepper('Rows', rowCount, onRowCountChanged),
+        const SizedBox(width: 12),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('Edit row: ', style: TextStyle(fontWeight: FontWeight.w600)),
+            DropdownButton<int>(
+              value: clampedRow,
+              items: items.isEmpty
+                  ? const [DropdownMenuItem(value: 0, child: Text('Row 1'))]
+                  : items,
+              onChanged: rowCount > 1 ? onSelectedRowChanged : null,
+            ),
+          ],
+        ),
+        const SizedBox(width: 12),
+        _stepper('Cols', columnsForSelectedRow, onColumnsChanged),
       ],
     );
   }
 
   Widget _stepper(String title, int value, ValueChanged<int> onVal) {
+    final clampedValue = value.clamp(1, 8);
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Text('$title: ', style: const TextStyle(fontWeight: FontWeight.w600)),
         IconButton(
           tooltip: 'Decrease $title',
-          onPressed: value > 1 ? () => onVal(value - 1) : null,
+          onPressed: clampedValue > 1 ? () => onVal(clampedValue - 1) : null,
           icon: const Icon(Icons.remove_circle_outline),
         ),
-        Text('$value'),
+        Text('$clampedValue'),
         IconButton(
           tooltip: 'Increase $title',
-          onPressed: value < 8 ? () => onVal(value + 1) : null,
+          onPressed: clampedValue < 8 ? () => onVal(clampedValue + 1) : null,
           icon: const Icon(Icons.add_circle_outline),
         ),
       ],
