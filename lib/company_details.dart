@@ -41,14 +41,14 @@ class CompanyDetails {
     ),
     'fr': CompanyInfo(
       name: 'TONI AL-PVC',
-      address: 'Rue Ilir Konushevci, n° 80, Kamenica, Kosovo, 62000',
+      address: 'Rue Ilir Konushevci, No. 80, Kamenica, Kosovo, 62000',
       phones: '+38344357639 | +38344268300',
       website: 'www.tonialpvc.com | tonialpvc@gmail.com',
       logoAsset: 'assets/logo.png',
     ),
     'it': CompanyInfo(
       name: 'TONI AL-PVC',
-      address: 'Via Ilir Konushevci, n. 80, Kamenica, Kosovo, 62000',
+      address: 'Via Ilir Konushevci, Nr. 80, Kamenica, Kosovo, 62000',
       phones: '+38344357639 | +38344268300',
       website: 'www.tonialpvc.com | tonialpvc@gmail.com',
       logoAsset: 'assets/logo.png',
