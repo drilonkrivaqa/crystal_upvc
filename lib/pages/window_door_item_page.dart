@@ -3,6 +3,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:io' show File;
+import 'dart:math' as math;
 import '../models.dart';
 import '../theme/app_colors.dart';
 import 'window_door_designer_page.dart';
@@ -225,6 +226,16 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final verticalLabel = verticalController.text.trim().isEmpty
+        ? verticalSections.toString()
+        : verticalController.text.trim();
+    final horizontalLabel = horizontalController.text.trim().isEmpty
+        ? horizontalSections.toString()
+        : horizontalController.text.trim();
+    final quantityLabel = quantityController.text.trim().isEmpty
+        ? '1'
+        : quantityController.text.trim();
+
     return WillPopScope(
         onWillPop: _onWillPop,
         child: Scaffold(
@@ -321,45 +332,43 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                         ),
                         const SizedBox(height: 12),
                         _buildPhotoPicker(context, l10n),
-                        const SizedBox(height: 16),
-                        TextField(
+                        const SizedBox(height: 20),
+                        _buildFormGrid([
+                          TextField(
                             controller: nameController,
-                            decoration: InputDecoration(labelText: l10n.name)),
-                        const SizedBox(height: 16),
-                        _buildDualFieldRow(
-                          first: TextField(
+                            decoration: InputDecoration(labelText: l10n.name),
+                          ),
+                          TextField(
+                            controller: quantityController,
+                            decoration: InputDecoration(labelText: l10n.quantity),
+                            keyboardType: TextInputType.number,
+                          ),
+                          TextField(
                             controller: widthController,
                             decoration: InputDecoration(labelText: l10n.widthMm),
                             keyboardType: TextInputType.number,
                             onChanged: (_) =>
                                 _recalculateAllWidths(showErrors: false),
                           ),
-                          second: TextField(
+                          TextField(
                             controller: heightController,
                             decoration: InputDecoration(labelText: l10n.heightMm),
                             keyboardType: TextInputType.number,
                             onChanged: (_) => _recalculateHeights(),
                           ),
-                        ),
-                        const SizedBox(height: 16),
-                        _buildDualFieldRow(
-                          first: TextField(
-                              controller: quantityController,
-                              decoration:
-                                  InputDecoration(labelText: l10n.quantity),
-                              keyboardType: TextInputType.number),
-                          second: TextField(
-                              controller: basePriceController,
-                              decoration: InputDecoration(
-                                  labelText: l10n.basePriceOptional),
-                              keyboardType: TextInputType.number),
-                        ),
-                        const SizedBox(height: 16),
-                        TextField(
+                          TextField(
+                            controller: basePriceController,
+                            decoration:
+                                InputDecoration(labelText: l10n.basePriceOptional),
+                            keyboardType: TextInputType.number,
+                          ),
+                          TextField(
                             controller: priceController,
                             decoration:
                                 InputDecoration(labelText: l10n.priceOptional),
-                            keyboardType: TextInputType.number),
+                            keyboardType: TextInputType.number,
+                          ),
+                        ]),
                       ],
                     ),
                     const SizedBox(height: 16),
@@ -370,21 +379,40 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                           l10n.pdfDimensions.replaceAll(':', '').trim(),
                           Icons.straighten,
                         ),
-                        const SizedBox(height: 16),
-                        _buildDualFieldRow(
-                          first: TextField(
+                        const SizedBox(height: 12),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            _buildInfoChip(
+                              Icons.view_column,
+                              '${l10n.verticalSections}: $verticalLabel',
+                            ),
+                            _buildInfoChip(
+                              Icons.view_stream,
+                              '${l10n.horizontalSections}: $horizontalLabel',
+                            ),
+                            _buildInfoChip(
+                              Icons.format_list_numbered,
+                              '${l10n.quantity}: $quantityLabel',
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        _buildFormGrid([
+                          TextField(
                               controller: verticalController,
                               decoration: InputDecoration(
                                   labelText: l10n.verticalSections),
                               keyboardType: TextInputType.number,
                               onChanged: (_) => _updateGrid()),
-                          second: TextField(
+                          TextField(
                               controller: horizontalController,
                               decoration: InputDecoration(
                                   labelText: l10n.horizontalSections),
                               keyboardType: TextInputType.number,
                               onChanged: (_) => _updateGrid()),
-                        ),
+                        ]),
                         const SizedBox(height: 16),
                         ClipRRect(
                           borderRadius: BorderRadius.circular(12),
@@ -410,116 +438,114 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                           Icons.view_list,
                         ),
                         const SizedBox(height: 16),
-                        DropdownButtonFormField<int>(
-                          initialValue: profileSetIndex,
-                          isExpanded: true,
-                          decoration:
-                              InputDecoration(labelText: l10n.catalogProfile),
-                          items: [
-                            for (int i = 0; i < profileSetBox.length; i++)
-                              DropdownMenuItem<int>(
-                                value: i,
-                                child: Text(
-                                  profileSetBox.getAt(i)?.name ?? '',
-                                  overflow: TextOverflow.ellipsis,
+                        _buildFormGrid([
+                          DropdownButtonFormField<int>(
+                            initialValue: profileSetIndex,
+                            isExpanded: true,
+                            decoration:
+                                InputDecoration(labelText: l10n.catalogProfile),
+                            items: [
+                              for (int i = 0; i < profileSetBox.length; i++)
+                                DropdownMenuItem<int>(
+                                  value: i,
+                                  child: Text(
+                                    profileSetBox.getAt(i)?.name ?? '',
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ),
-                              ),
-                          ],
-                          onChanged: (val) =>
-                              setState(() => profileSetIndex = val ?? 0),
-                        ),
-                        const SizedBox(height: 16),
-                        DropdownButtonFormField<int>(
-                          initialValue: glassIndex,
-                          isExpanded: true,
-                          decoration:
-                              InputDecoration(labelText: l10n.catalogGlass),
-                          items: [
-                            for (int i = 0; i < glassBox.length; i++)
-                              DropdownMenuItem<int>(
-                                value: i,
-                                child: Text(
-                                  glassBox.getAt(i)?.name ?? '',
-                                  overflow: TextOverflow.ellipsis,
+                            ],
+                            onChanged: (val) =>
+                                setState(() => profileSetIndex = val ?? 0),
+                          ),
+                          DropdownButtonFormField<int>(
+                            initialValue: glassIndex,
+                            isExpanded: true,
+                            decoration:
+                                InputDecoration(labelText: l10n.catalogGlass),
+                            items: [
+                              for (int i = 0; i < glassBox.length; i++)
+                                DropdownMenuItem<int>(
+                                  value: i,
+                                  child: Text(
+                                    glassBox.getAt(i)?.name ?? '',
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ),
-                              ),
-                          ],
-                          onChanged: (val) =>
-                              setState(() => glassIndex = val ?? 0),
-                        ),
-                        const SizedBox(height: 16),
-                        DropdownButtonFormField<int?>(
-                          initialValue: mechanismIndex,
-                          isExpanded: true,
-                          decoration: InputDecoration(
-                              labelText: l10n.mechanismOptional),
-                          items: [
-                            DropdownMenuItem<int?>(
-                                value: null,
-                                child: Text(
-                                  l10n.none,
-                                  overflow: TextOverflow.ellipsis,
-                                )),
-                            for (int i = 0; i < mechanismBox.length; i++)
-                              DropdownMenuItem<int>(
-                                value: i,
-                                child: Text(
-                                  mechanismBox.getAt(i)?.name ?? '',
-                                  overflow: TextOverflow.ellipsis,
+                            ],
+                            onChanged: (val) =>
+                                setState(() => glassIndex = val ?? 0),
+                          ),
+                          DropdownButtonFormField<int?>(
+                            initialValue: mechanismIndex,
+                            isExpanded: true,
+                            decoration: InputDecoration(
+                                labelText: l10n.mechanismOptional),
+                            items: [
+                              DropdownMenuItem<int?>(
+                                  value: null,
+                                  child: Text(
+                                    l10n.none,
+                                    overflow: TextOverflow.ellipsis,
+                                  )),
+                              for (int i = 0; i < mechanismBox.length; i++)
+                                DropdownMenuItem<int>(
+                                  value: i,
+                                  child: Text(
+                                    mechanismBox.getAt(i)?.name ?? '',
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ),
-                              ),
-                          ],
-                          onChanged: (val) => setState(() => mechanismIndex = val),
-                        ),
-                        const SizedBox(height: 16),
-                        DropdownButtonFormField<int?>(
-                          initialValue: blindIndex,
-                          isExpanded: true,
-                          decoration:
-                              InputDecoration(labelText: l10n.blindOptional),
-                          items: [
-                            DropdownMenuItem<int?>(
-                                value: null,
-                                child: Text(
-                                  l10n.none,
-                                  overflow: TextOverflow.ellipsis,
-                                )),
-                            for (int i = 0; i < blindBox.length; i++)
-                              DropdownMenuItem<int>(
-                                value: i,
-                                child: Text(
-                                  blindBox.getAt(i)?.name ?? '',
-                                  overflow: TextOverflow.ellipsis,
+                            ],
+                            onChanged: (val) => setState(() => mechanismIndex = val),
+                          ),
+                          DropdownButtonFormField<int?>(
+                            initialValue: blindIndex,
+                            isExpanded: true,
+                            decoration:
+                                InputDecoration(labelText: l10n.blindOptional),
+                            items: [
+                              DropdownMenuItem<int?>(
+                                  value: null,
+                                  child: Text(
+                                    l10n.none,
+                                    overflow: TextOverflow.ellipsis,
+                                  )),
+                              for (int i = 0; i < blindBox.length; i++)
+                                DropdownMenuItem<int>(
+                                  value: i,
+                                  child: Text(
+                                    blindBox.getAt(i)?.name ?? '',
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ),
-                              ),
-                          ],
-                          onChanged: (val) => setState(() => blindIndex = val),
-                        ),
-                        const SizedBox(height: 16),
-                        DropdownButtonFormField<int?>(
-                          initialValue: accessoryIndex,
-                          isExpanded: true,
-                          decoration:
-                              InputDecoration(labelText: l10n.accessoryOptional),
-                          items: [
-                            DropdownMenuItem<int?>(
-                                value: null,
-                                child: Text(
-                                  l10n.none,
-                                  overflow: TextOverflow.ellipsis,
-                                )),
-                            for (int i = 0; i < accessoryBox.length; i++)
-                              DropdownMenuItem<int>(
-                                value: i,
-                                child: Text(
-                                  accessoryBox.getAt(i)?.name ?? '',
-                                  overflow: TextOverflow.ellipsis,
+                            ],
+                            onChanged: (val) => setState(() => blindIndex = val),
+                          ),
+                          DropdownButtonFormField<int?>(
+                            initialValue: accessoryIndex,
+                            isExpanded: true,
+                            decoration:
+                                InputDecoration(labelText: l10n.accessoryOptional),
+                            items: [
+                              DropdownMenuItem<int?>(
+                                  value: null,
+                                  child: Text(
+                                    l10n.none,
+                                    overflow: TextOverflow.ellipsis,
+                                  )),
+                              for (int i = 0; i < accessoryBox.length; i++)
+                                DropdownMenuItem<int>(
+                                  value: i,
+                                  child: Text(
+                                    accessoryBox.getAt(i)?.name ?? '',
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ),
-                              ),
-                          ],
-                          onChanged: (val) =>
-                              setState(() => accessoryIndex = val),
-                        ),
+                            ],
+                            onChanged: (val) =>
+                                setState(() => accessoryIndex = val),
+                          ),
+                        ]),
                       ],
                     ),
                     const SizedBox(height: 16),
@@ -531,29 +557,26 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                           Icons.add_circle_outline,
                         ),
                         const SizedBox(height: 16),
-                        _buildDualFieldRow(
-                          first: TextField(
+                        _buildFormGrid([
+                          TextField(
                               controller: extra1DescController,
                               decoration:
                                   InputDecoration(labelText: l10n.extra1Name)),
-                          second: TextField(
+                          TextField(
                               controller: extra1Controller,
                               decoration:
                                   InputDecoration(labelText: l10n.extra1Price),
                               keyboardType: TextInputType.number),
-                        ),
-                        const SizedBox(height: 16),
-                        _buildDualFieldRow(
-                          first: TextField(
+                          TextField(
                               controller: extra2DescController,
                               decoration:
                                   InputDecoration(labelText: l10n.extra2Name)),
-                          second: TextField(
+                          TextField(
                               controller: extra2Controller,
                               decoration:
                                   InputDecoration(labelText: l10n.extra2Price),
                               keyboardType: TextInputType.number),
-                        ),
+                        ]),
                         const SizedBox(height: 16),
                         TextField(
                           controller: notesController,
@@ -579,6 +602,44 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                 ),
               ),
             )));
+  }
+
+  Widget _buildFormGrid(List<Widget> fields) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final bool useTwoColumns = constraints.maxWidth >= 640;
+        final double baseWidth =
+            useTwoColumns ? (constraints.maxWidth - 16) / 2 : constraints.maxWidth;
+        final double minWidth = math.min(280, constraints.maxWidth);
+        double itemWidth = baseWidth;
+        if (itemWidth < minWidth) {
+          itemWidth = minWidth;
+        }
+        itemWidth = math.min(itemWidth, constraints.maxWidth);
+
+        return Wrap(
+          spacing: 16,
+          runSpacing: 16,
+          children: fields
+              .map(
+                (field) => SizedBox(
+                  width: useTwoColumns ? itemWidth : constraints.maxWidth,
+                  child: field,
+                ),
+              )
+              .toList(),
+        );
+      },
+    );
+  }
+
+  Widget _buildInfoChip(IconData icon, String label) {
+    return Chip(
+      avatar: Icon(icon, size: 16, color: AppColors.primaryDark),
+      backgroundColor: AppColors.primaryLight.withOpacity(0.35),
+      label: Text(label),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+    );
   }
 
   Widget _buildSectionCard({required List<Widget> children}) {
@@ -692,30 +753,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildDualFieldRow({required Widget first, required Widget second}) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        if (constraints.maxWidth < 520) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              first,
-              const SizedBox(height: 12),
-              second,
-            ],
-          );
-        }
-        return Row(
-          children: [
-            Expanded(child: first),
-            const SizedBox(width: 16),
-            Expanded(child: second),
-          ],
-        );
-      },
     );
   }
 
