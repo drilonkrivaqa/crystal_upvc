@@ -74,8 +74,6 @@
   "pdfAdapter": "Adaptateur",
   "pdfDimensions": "Dimensions :",
   "pdfPieces": "Pcs :",
-  "pdfAreaPerPiece": "Surface par pièce :",
-  "pdfAreaTotalItems": "Surface totale (articles) :",
   "pdfProfileType": "Profil (Type) :",
   "pdfGlass": "Verre :",
   "pdfBlind": "Volet :",

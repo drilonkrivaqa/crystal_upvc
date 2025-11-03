@@ -74,8 +74,6 @@
   "pdfAdapter": "Adapter",
   "pdfDimensions": "Abmessungen:",
   "pdfPieces": "Stk:",
-  "pdfAreaPerPiece": "Fläche pro Stück:",
-  "pdfAreaTotalItems": "Gesamtfläche (Artikel):",
   "pdfProfileType": "Profil (Typ):",
   "pdfGlass": "Glas:",
   "pdfBlind": "Rollladen:",

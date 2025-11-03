@@ -40,8 +40,6 @@
   "pdfAdapter": "Adattatore",
   "pdfDimensions": "Dimensioni:",
   "pdfPieces": "Pz:",
-  "pdfAreaPerPiece": "Area per pezzo:",
-  "pdfAreaTotalItems": "Area totale (articoli):",
   "pdfProfileType": "Profilo (Tipo):",
   "pdfGlass": "Vetro:",
   "pdfBlind": "Tapparella:",
