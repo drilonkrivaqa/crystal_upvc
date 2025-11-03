@@ -651,6 +651,12 @@ abstract class AppLocalizations {
   /// **'Total mass:'**
   String get pdfTotalMass;
 
+  /// No description provided for @pdfTotalArea.
+  ///
+  /// In en, this message translates to:
+  /// **'Total area:'**
+  String get pdfTotalArea;
+
   /// No description provided for @pdfUf.
   ///
   /// In en, this message translates to:

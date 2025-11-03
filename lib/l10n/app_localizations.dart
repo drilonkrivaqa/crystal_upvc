@@ -109,6 +109,7 @@ class AppLocalizations {
       'pdfVDiv': 'V div:',
       'pdfHDiv': 'H div:',
       'pdfTotalMass': 'Masa totale:',
+      'pdfTotalArea': 'Sipërfaqja totale:',
       'pdfUf': 'Uf:',
       'pdfUg': 'Ug:',
       'pdfUw': 'Uw:',
@@ -319,6 +320,7 @@ class AppLocalizations {
       'pdfVDiv': 'V div:',
       'pdfHDiv': 'H div:',
       'pdfTotalMass': 'Total mass:',
+      'pdfTotalArea': 'Total area:',
       'pdfUf': 'Uf:',
       'pdfUg': 'Ug:',
       'pdfUw': 'Uw:',
@@ -523,6 +525,7 @@ class AppLocalizations {
       'pdfVDiv': 'V Div:',
       'pdfHDiv': 'H Div:',
       'pdfTotalMass': 'Gesamtmasse:',
+      'pdfTotalArea': 'Gesamtfläche:',
       'pdfUf': 'Uf:',
       'pdfUg': 'Ug:',
       'pdfUw': 'Uw:',
@@ -733,6 +736,7 @@ class AppLocalizations {
       'pdfVDiv': 'V div :',
       'pdfHDiv': 'H div :',
       'pdfTotalMass': 'Masse totale :',
+      'pdfTotalArea': 'Surface totale :',
       'pdfUf': 'Uf :',
       'pdfUg': 'Ug :',
       'pdfUw': 'Uw :',
@@ -941,6 +945,7 @@ class AppLocalizations {
       'pdfVDiv': 'V div:',
       'pdfHDiv': 'H div:',
       'pdfTotalMass': 'Massa totale:',
+      'pdfTotalArea': 'Superficie totale:',
       'pdfUf': 'Uf:',
       'pdfUg': 'Ug:',
       'pdfUw': 'Uw:',
@@ -1194,6 +1199,7 @@ class AppLocalizations {
   String get pdfVDiv => _t('pdfVDiv');
   String get pdfHDiv => _t('pdfHDiv');
   String get pdfTotalMass => _t('pdfTotalMass');
+  String get pdfTotalArea => _t('pdfTotalArea');
   String get pdfUf => _t('pdfUf');
   String get pdfUg => _t('pdfUg');
   String get pdfUw => _t('pdfUw');
