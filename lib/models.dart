@@ -789,6 +789,52 @@ class WindowDoorItem extends HiveObject {
     return total;
   }
 
+  /// Returns the total glass area for the window/door in square meters.
+  ///
+  /// This mirrors the logic from [calculateGlassMass] but without applying the
+  /// glass mass per square meter so the caller can compute areas directly.
+  double calculateGlassArea(ProfileSet set, {int boxHeight = 0}) {
+    final effectiveHeights = List<int>.from(sectionHeights);
+    if (effectiveHeights.isNotEmpty) {
+      effectiveHeights[effectiveHeights.length - 1] =
+          (effectiveHeights.last - boxHeight).clamp(0, effectiveHeights.last);
+    }
+    final l = set.lInnerThickness.toDouble();
+    final z = set.zInnerThickness.toDouble();
+    const melt = 6.0;
+    final sashAdd = set.sashValue.toDouble();
+    final fixedTakeoff = set.fixedGlassTakeoff.toDouble();
+    final sashTakeoff = set.sashGlassTakeoff.toDouble();
+
+    double total = 0;
+    for (int r = 0; r < horizontalSections; r++) {
+      final rowWidths = widthsForRow(r);
+      for (int c = 0; c < rowWidths.length; c++) {
+        final w = rowWidths[c].toDouble();
+        final h = effectiveHeights[r].toDouble();
+        final insets = sectionInsets(set, r, c);
+        if (!isFixedAt(r, c)) {
+          final sashW =
+              (w - insets.left - insets.right + sashAdd).clamp(0, w);
+          final sashH =
+              (h - insets.top - insets.bottom + sashAdd).clamp(0, h);
+          final glassW =
+              (sashW - melt - 2 * z - sashTakeoff).clamp(0, sashW);
+          final glassH =
+              (sashH - melt - 2 * z - sashTakeoff).clamp(0, sashH);
+          total += (glassW / 1000.0) * (glassH / 1000.0);
+        } else {
+          final effectiveW =
+              (w - insets.left - insets.right - fixedTakeoff).clamp(0, w);
+          final effectiveH =
+              (h - insets.top - insets.bottom - fixedTakeoff).clamp(0, h);
+          total += (effectiveW / 1000.0) * (effectiveH / 1000.0);
+        }
+      }
+    }
+    return total;
+  }
+
   /// Calculates Uw value for the window/door item. Returns null if any
   /// required parameter is missing.
   double? calculateUw(ProfileSet set, Glass glass, {int boxHeight = 0}) {

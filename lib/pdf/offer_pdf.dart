@@ -83,6 +83,8 @@ Future<void> printOfferPdf({
   );
   double itemsFinal = 0;
   int totalPcs = 0;
+  double totalMass = 0;
+  double totalArea = 0;
   for (final item in offer.items) {
     final profile = profileSetBox.getAt(item.profileSetIndex)!;
     final glass = glassBox.getAt(item.glassIndex)!;
@@ -129,6 +131,35 @@ Future<void> printOfferPdf({
 
     itemsFinal += price;
     totalPcs += item.quantity;
+
+    final profileMass = item.calculateProfileMass(profile,
+            boxHeight: blind?.boxHeight ?? 0) *
+        item.quantity;
+    final glassMass = item
+            .calculateGlassMass(profile, glass,
+                boxHeight: blind?.boxHeight ?? 0) *
+        item.quantity;
+    final blindMass = blind != null
+        ? ((item.width / 1000.0) *
+            (item.height / 1000.0) *
+            blind.massPerM2 *
+            item.quantity)
+        : 0;
+    final mechanismMass = mechanism != null
+        ? mechanism.mass * item.quantity * item.openings
+        : 0;
+    final accessoryMass = accessory != null
+        ? accessory.mass * item.quantity
+        : 0;
+    totalMass += profileMass +
+        glassMass +
+        blindMass +
+        mechanismMass +
+        accessoryMass;
+
+    totalArea += item
+            .calculateGlassArea(profile, boxHeight: blind?.boxHeight ?? 0) *
+        item.quantity;
   }
   final extrasTotal =
       offer.extraCharges.fold<double>(0.0, (p, e) => p + e.amount);
@@ -503,6 +534,28 @@ Future<void> printOfferPdf({
             pw.Padding(
                 padding: pw.EdgeInsets.all(4),
                 child: pw.Text('$totalPcs', textAlign: pw.TextAlign.right)),
+          ]),
+        );
+        summaryRows.add(
+          pw.TableRow(children: [
+            pw.Padding(
+                padding: pw.EdgeInsets.all(4),
+                child: pw.Text(l10n.pdfTotalMass)),
+            pw.Padding(
+                padding: pw.EdgeInsets.all(4),
+                child: pw.Text('${totalMass.toStringAsFixed(2)} kg',
+                    textAlign: pw.TextAlign.right)),
+          ]),
+        );
+        summaryRows.add(
+          pw.TableRow(children: [
+            pw.Padding(
+                padding: pw.EdgeInsets.all(4),
+                child: pw.Text(l10n.pdfTotalArea)),
+            pw.Padding(
+                padding: pw.EdgeInsets.all(4),
+                child: pw.Text('${totalArea.toStringAsFixed(2)} m²',
+                    textAlign: pw.TextAlign.right)),
           ]),
         );
         summaryRows.add(

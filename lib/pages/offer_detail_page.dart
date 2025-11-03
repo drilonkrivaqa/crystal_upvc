@@ -990,6 +990,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
               double itemsBase = 0;
               double itemsFinal = 0;
               int totalPcs = 0;
+              double totalMass = 0;
+              double totalArea = 0;
               for (var item in offer.items) {
                 final profileSet = profileSetBox.getAt(item.profileSetIndex)!;
                 final glass = glassBox.getAt(item.glassIndex)!;
@@ -1028,6 +1030,34 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                     blindCost +
                     mechanismCost +
                     accessoryCost;
+                final profileMass = item.calculateProfileMass(profileSet,
+                        boxHeight: blind?.boxHeight ?? 0) *
+                    item.quantity;
+                final glassMass = item
+                        .calculateGlassMass(profileSet, glass,
+                            boxHeight: blind?.boxHeight ?? 0) *
+                    item.quantity;
+                final blindMass = (blind != null)
+                    ? ((item.width / 1000.0) *
+                        (item.height / 1000.0) *
+                        blind.massPerM2 *
+                        item.quantity)
+                    : 0;
+                final mechanismMass = (mechanism != null)
+                    ? mechanism.mass * item.quantity * item.openings
+                    : 0;
+                final accessoryMass = (accessory != null)
+                    ? accessory.mass * item.quantity
+                    : 0;
+                final itemMass = profileMass +
+                    glassMass +
+                    blindMass +
+                    mechanismMass +
+                    accessoryMass;
+                final itemArea = item
+                        .calculateGlassArea(profileSet,
+                            boxHeight: blind?.boxHeight ?? 0) *
+                    item.quantity;
                 if (item.manualBasePrice != null) {
                   base = item.manualBasePrice!;
                 }
@@ -1041,6 +1071,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 itemsBase += total;
                 itemsFinal += finalPrice;
                 totalPcs += item.quantity;
+                totalMass += itemMass;
+                totalArea += itemArea;
               }
               double extrasTotal =
                   offer.extraCharges.fold(0, (p, e) => p + e.amount);
@@ -1051,6 +1083,10 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
               double finalTotal = subtotal - percentAmount;
               double profitTotal = finalTotal - baseTotal;
               String summary = '${l10n.pdfTotalItems}: $totalPcs pcs\n';
+              summary +=
+                  '${l10n.pdfTotalMass} ${totalMass.toStringAsFixed(2)} kg\n';
+              summary +=
+                  '${l10n.pdfTotalArea} ${totalArea.toStringAsFixed(2)} m²\n';
               summary +=
                   '${l10n.totalWithoutProfit}: €${baseTotal.toStringAsFixed(2)}\n';
               for (var charge in offer.extraCharges) {

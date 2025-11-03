@@ -293,6 +293,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get pdfTotalMass => 'Gesamtmasse:';
+  String get pdfTotalArea => 'Gesamtfläche:';
 
   @override
   String get pdfUf => 'Uf:';
