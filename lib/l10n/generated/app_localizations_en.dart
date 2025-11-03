@@ -245,6 +245,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pdfPieces => 'Pcs:';
 
   @override
+  String get pdfAreaPerPiece => 'Area per piece:';
+
+  @override
+  String get pdfAreaTotalItems => 'Total area (items):';
+
+  @override
   String get pdfProfileType => 'Profile (Type):';
 
   @override

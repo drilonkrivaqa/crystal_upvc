@@ -549,6 +549,18 @@ abstract class AppLocalizations {
   /// **'Pcs:'**
   String get pdfPieces;
 
+  /// No description provided for @pdfAreaPerPiece.
+  ///
+  /// In en, this message translates to:
+  /// **'Area per piece:'**
+  String get pdfAreaPerPiece;
+
+  /// No description provided for @pdfAreaTotalItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Total area (items):'**
+  String get pdfAreaTotalItems;
+
   /// No description provided for @pdfProfileType.
   ///
   /// In en, this message translates to:

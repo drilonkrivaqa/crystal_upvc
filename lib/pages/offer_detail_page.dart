@@ -824,6 +824,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
             double profitPer = finalPer - totalPer;
             double? uw = item.calculateUw(profileSet, glass,
                 boxHeight: blind?.boxHeight ?? 0);
+            double areaPerPiece = item.calculateTotalArea();
+            double totalAreaForItem = areaPerPiece * item.quantity;
 
             return GlassCard(
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -896,6 +898,10 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                   final sb = StringBuffer();
                   sb.writeln('Size: ${item.width} x ${item.height} mm');
                   sb.writeln('Pcs: ${item.quantity}');
+                  sb.writeln(
+                      'Area per piece: ${areaPerPiece.toStringAsFixed(2)} m²');
+                  sb.writeln(
+                      'Total area (${item.quantity}pcs): ${totalAreaForItem.toStringAsFixed(2)} m²');
                   sb.writeln('Profile: ${profileSet.name}');
                   sb.writeln('Glass: ${glass.name}');
                   sb.writeln(
