@@ -157,9 +157,7 @@ Future<void> printOfferPdf({
         mechanismMass +
         accessoryMass;
 
-    totalArea += item
-            .calculateGlassArea(profile, boxHeight: blind?.boxHeight ?? 0) *
-        item.quantity;
+    totalArea += item.calculateTotalArea() * item.quantity;
   }
   final extrasTotal =
       offer.extraCharges.fold<double>(0.0, (p, e) => p + e.amount);
