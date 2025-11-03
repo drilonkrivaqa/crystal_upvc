@@ -835,6 +835,12 @@ class WindowDoorItem extends HiveObject {
     return total;
   }
 
+  /// Returns the total area for the entire window/door item in square meters
+  /// using the overall width and height dimensions.
+  double calculateTotalArea() {
+    return (width / 1000.0) * (height / 1000.0);
+  }
+
   /// Calculates Uw value for the window/door item. Returns null if any
   /// required parameter is missing.
   double? calculateUw(ProfileSet set, Glass glass, {int boxHeight = 0}) {

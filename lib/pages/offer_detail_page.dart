@@ -1054,10 +1054,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                     blindMass +
                     mechanismMass +
                     accessoryMass;
-                final itemArea = item
-                        .calculateGlassArea(profileSet,
-                            boxHeight: blind?.boxHeight ?? 0) *
-                    item.quantity;
+                final itemArea =
+                    item.calculateTotalArea() * item.quantity;
                 if (item.manualBasePrice != null) {
                   base = item.manualBasePrice!;
                 }
