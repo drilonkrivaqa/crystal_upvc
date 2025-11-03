@@ -245,6 +245,12 @@ class AppLocalizationsSq extends AppLocalizations {
   String get pdfPieces => 'Pcs:';
 
   @override
+  String get pdfAreaPerPiece => 'Sipërfaqe për copë:';
+
+  @override
+  String get pdfAreaTotalItems => 'Sipërfaqe totale (artikuj):';
+
+  @override
   String get pdfProfileType => 'Profili (Lloji):';
 
   @override

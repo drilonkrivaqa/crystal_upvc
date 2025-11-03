@@ -74,6 +74,8 @@
   "pdfAdapter": "Adapter",
   "pdfDimensions": "Dimenzionet:",
   "pdfPieces": "Pcs:",
+  "pdfAreaPerPiece": "Sipërfaqe për copë:",
+  "pdfAreaTotalItems": "Sipërfaqe totale (artikuj):",
   "pdfProfileType": "Profili (Lloji):",
   "pdfGlass": "Xhami:",
   "pdfBlind": "Roleta:",
