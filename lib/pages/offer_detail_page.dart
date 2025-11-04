@@ -11,6 +11,7 @@ import 'package:flutter/foundation.dart';
 import '../pdf/offer_pdf.dart';
 import '../widgets/glass_card.dart';
 import '../l10n/app_localizations.dart';
+import 'package:flutter/services.dart';
 
 class OfferDetailPage extends StatefulWidget {
   final int offerIndex;
@@ -1296,45 +1297,229 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
         context: context,
         builder: (ctx) {
           String? errorText;
+
+          // local UI state
+          int validCount = 0;
+          int invalidCount = 0;
+          List<List<String>> previewRows = const [];
+
+          void recomputePreview() {
+            final lines = itemsController.text.split(RegExp(r'[\r\n]+'));
+            final tmpRows = <List<List<String>>>[];
+            int ok = 0, bad = 0;
+
+            final startingIndex = offer.items.length;
+            final trimmedPrefix = (prefixController.text.trim().isEmpty)
+                ? "Item"
+                : prefixController.text.trim();
+            int seq = 1;
+
+            final tmp = <List<String>>[];
+
+            for (final raw in lines) {
+              final line = raw.trim();
+              if (line.isEmpty) continue;
+
+              final nums = RegExp(r'(\d+)')
+                  .allMatches(line)
+                  .map((m) => int.parse(m.group(0)!))
+                  .toList();
+
+              final isShapeOk = nums.length >= 4 &&
+                  nums[0] > 0 &&
+                  nums[1] > 0 &&
+                  nums[2] > 0 &&
+                  nums[3] > 0 &&
+                  (nums.length < 5 || nums[4] > 0);
+
+              if (!isShapeOk) {
+                bad++;
+                tmp.add([
+                  '${startingIndex + seq}',
+                  '—',
+                  '—',
+                  '—',
+                  "Invalid line: $line",
+                ]);
+              } else {
+                ok++;
+                final width = nums[0];
+                final height = nums[1];
+                final v = nums[2];
+                final h = nums[3];
+                final qty = nums.length >= 5 ? nums[4] : 1;
+                final name = '$trimmedPrefix ${startingIndex + seq}';
+                tmp.add([
+                  '${startingIndex + seq}',
+                  '$width×$height',
+                  '${v}×$h',
+                  '$qty',
+                  name,
+                ]);
+              }
+              seq++;
+            }
+
+            validCount = ok;
+            invalidCount = bad;
+            previewRows = tmp.take(6).toList(); // show up to 6 lines
+          }
+
+          recomputePreview();
+
           return StatefulBuilder(
-            builder: (ctx, setStateDialog) {
+            builder: (context, setStateDialog) {
+              void updateAndRecompute(void Function() f) {
+                setStateDialog(() {
+                  f();
+                  errorText = null;
+                  recomputePreview();
+                });
+              }
+
               return AlertDialog(
-                title: Text(l10n.bulkAddDialogTitle),
+                title: const Text("Bulk Add Items"),
                 content: SingleChildScrollView(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        l10n.bulkAddDialogDescription(
-                          '1200,1400,2,1,pcs',
-                        ),
+                      const Text(
+                        "Enter lines like: width,height,vertical sections,horizontal sections,qty(optional)",
                       ),
+                      const SizedBox(height: 10),
+
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          OutlinedButton.icon(
+                            icon: const Icon(Icons.content_paste),
+                            label: const Text("Paste"),
+                            onPressed: () async {
+                              final data = await Clipboard.getData('text/plain');
+                              if (data?.text != null) {
+                                updateAndRecompute(() {
+                                  itemsController.text = (itemsController.text.isEmpty)
+                                      ? data!.text!
+                                      : '${itemsController.text.trim()}\n${data!.text!}';
+                                });
+                              }
+                            },
+                          ),
+                          OutlinedButton.icon(
+                            icon: const Icon(Icons.refresh),
+                            label: const Text("Clear"),
+                            onPressed: () {
+                              updateAndRecompute(() {
+                                itemsController.clear();
+                              });
+                            },
+                          ),
+                          OutlinedButton.icon(
+                            icon: const Icon(Icons.lightbulb),
+                            label: const Text("Example"),
+                            onPressed: () {
+                              updateAndRecompute(() {
+                                itemsController.text = [
+                                  '1200,1400,2,1,3',
+                                  '900,1200,1,2,2',
+                                  '1500,1500,3,2,1',
+                                ].join('\n');
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+
                       const SizedBox(height: 12),
+
                       TextField(
                         controller: prefixController,
-                        decoration: InputDecoration(
-                          labelText: l10n.bulkAddDialogNamePrefix,
+                        decoration: const InputDecoration(
+                          labelText: "Name prefix",
+                          hintText: "Item",
                         ),
+                        onChanged: (_) => updateAndRecompute(() {}),
                       ),
+
                       const SizedBox(height: 12),
+
                       TextField(
                         controller: itemsController,
-                        decoration: InputDecoration(
-                          labelText: l10n.bulkAddDialogItemsLabel,
-                          hintText: '1200,1400,2,1,pcs',
+                        decoration: const InputDecoration(
+                          labelText: "Items",
+                          hintText: "1200,1400,2,1,3",
+                          alignLabelWithHint: true,
+                          border: OutlineInputBorder(),
                         ),
-                        minLines: 4,
-                        maxLines: 10,
+                        minLines: 6,
+                        maxLines: 12,
                         keyboardType: TextInputType.multiline,
+                        style: const TextStyle(fontFamily: 'monospace'),
+                        onChanged: (_) => updateAndRecompute(() {}),
                       ),
+
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Chip(
+                            label: Text("Valid: $validCount"),
+                            avatar: const Icon(Icons.check_circle_outline),
+                          ),
+                          const SizedBox(width: 8),
+                          Chip(
+                            label: Text("Invalid: $invalidCount"),
+                            avatar: const Icon(Icons.error_outline),
+                          ),
+                        ],
+                      ),
+
+                      if (previewRows.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        const Text(
+                          "Preview",
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                        ),
+                        const SizedBox(height: 6),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Material(
+                            elevation: 0.5,
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: DataTable(
+                                columns: const [
+                                  DataColumn(label: Text("No.")),
+                                  DataColumn(label: Text("Size")),
+                                  DataColumn(label: Text("Sections (V×H)")),
+                                  DataColumn(label: Text("Pcs")),
+                                  DataColumn(label: Text("Name")),
+                                ],
+                                rows: previewRows
+                                    .map((r) => DataRow(
+                                  cells: r.map((c) => DataCell(Text(c))).toList(),
+                                ))
+                                    .toList(),
+                              ),
+                            ),
+                          ),
+                        ),
+                        if (previewRows.length == 6)
+                          const Padding(
+                            padding: EdgeInsets.only(top: 6),
+                            child: Text(
+                              "Showing first 6",
+                              style: TextStyle(fontSize: 12),
+                            ),
+                          ),
+                      ],
+
                       if (errorText != null) ...[
                         const SizedBox(height: 12),
                         Text(
                           errorText!,
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.error,
-                          ),
+                          style: TextStyle(color: Colors.red),
                         ),
                       ],
                     ],
@@ -1343,16 +1528,19 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.of(ctx).pop(),
-                    child: Text(l10n.cancel),
+                    child: const Text("Cancel"),
                   ),
-                  TextButton(
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.add),
+                    label: const Text("Add"),
                     onPressed: () {
                       try {
                         final items = _parseBulkItems(
                           offer,
                           prefixController.text,
                           itemsController.text,
-                          l10n,
+                          // <— we unused l10n now, so remove last param entirely? no—keep but pass placeholder:
+                          AppLocalizations.of(context), // keep this because _parseBulkItems needs it
                         );
                         Navigator.of(ctx).pop(items);
                       } on FormatException catch (e) {
@@ -1361,13 +1549,13 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                         });
                       }
                     },
-                    child: Text(l10n.add),
                   ),
                 ],
               );
             },
           );
         },
+
       );
     } finally {
       prefixController.dispose();
