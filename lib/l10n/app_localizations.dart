@@ -182,7 +182,7 @@ class AppLocalizations {
           'Shkruaj dimensionet dhe sektorët për t\'i krijuar menjëherë',
       'bulkAddDialogTitle': 'Shto disa dritare/dyer',
       'bulkAddDialogDescription':
-          'Shkruani gjerësinë, lartësinë, sektorët vertikal dhe horizontal dhe sasinë opsionale në çdo rresht (shembull: {example}).',
+          'Shkruani gjerësinë, lartësinë, seksionet vertikale, seksionet horizontale, copat dhe opsionalisht sasinë për çdo rresht (shembull: {example}).',
       'bulkAddDialogNamePrefix': 'Prefiksi i emrit',
       'bulkAddDialogItemsLabel': 'Artikujt (nga një për rresht)',
       'bulkAddDialogInvalidLine': 'Rreshti nuk u lexua: {line}',
@@ -198,6 +198,18 @@ class AppLocalizations {
       'widthMm': 'Gjerësia (mm)',
       'heightMm': 'Lartësia (mm)',
       'quantity': 'Sasia',
+      'windowDoorStepLabel': 'Hapi {number}',
+      'windowDoorGeneralHelp':
+          'Emërto artikullin, vendos sa njësi identike të duhen dhe, nëse është e nevojshme, bashkangjit një foto ose çmimet manuale.',
+      'windowDoorLayoutHelp':
+          'Përshtat planimetrinë e dritares apo derës. Zgjidh sa seksione vertikale dhe horizontale duhen dhe shiko paraprakisht rrjetën më poshtë.',
+      'windowDoorCatalogHelp':
+          'Zgjidh profilin, xhamin dhe opsionet shtesë që oferta të ketë materialet e sakta.',
+      'windowDoorExtrasHelp':
+          'Shto ekstra, tarifa shtesë ose shënime që duhet të shfaqen në ofertë.',
+      'windowDoorPiecesLabel': 'Copa',
+      'windowDoorPiecesHelp':
+          'Sa copa do të prodhohen për këtë artikull (p.sh. gjithsej krahë ose nën-elemente).',
       'basePriceOptional': 'Çmimi 0% (Opsional)',
       'priceOptional': 'Çmimi me fitim (Opsional)',
       'verticalSections': 'Sektorë Vertikal',
@@ -404,7 +416,7 @@ class AppLocalizations {
           'Enter sizes and sections to generate items instantly',
       'bulkAddDialogTitle': 'Add multiple windows/doors',
       'bulkAddDialogDescription':
-          'Enter width, height, vertical sections, horizontal sections, and optional quantity per line (example: {example}).',
+          'Enter width, height, vertical sections, horizontal sections, pieces, and optional quantity per line (example: {example}).',
       'bulkAddDialogNamePrefix': 'Name prefix',
       'bulkAddDialogItemsLabel': 'Items (one per line)',
       'bulkAddDialogInvalidLine': 'Could not read: {line}',
@@ -420,6 +432,18 @@ class AppLocalizations {
       'widthMm': 'Width (mm)',
       'heightMm': 'Height (mm)',
       'quantity': 'Quantity',
+      'windowDoorStepLabel': 'Step {number}',
+      'windowDoorGeneralHelp':
+          'Name the item, set how many identical units you need, and optionally attach a photo or manual prices.',
+      'windowDoorLayoutHelp':
+          'Adjust the layout of the window or door. Choose how many vertical and horizontal sections you need, then review the grid preview below.',
+      'windowDoorCatalogHelp':
+          'Pick the correct profile, glass, and optional extras so the offer reflects the right materials.',
+      'windowDoorExtrasHelp':
+          'Add optional extras, surcharges, or notes that should appear in the offer.',
+      'windowDoorPiecesLabel': 'Pieces',
+      'windowDoorPiecesHelp':
+          'How many pieces will be produced for this item (for example, total sashes or sub-elements).',
       'basePriceOptional': 'Price 0% (Optional)',
       'priceOptional': 'Price with profit (Optional)',
       'verticalSections': 'Vertical Sections',
@@ -618,6 +642,19 @@ class AppLocalizations {
       'withProfit': 'Mit Gewinn',
       'totalProfit': 'Gesamtgewinn',
       'addWindowDoor': 'Fenster/Tür hinzufügen',
+      'bulkAddAction': 'Mehrere Fenster/Türen hinzufügen',
+      'bulkAddActionSubtitle':
+          'Maße und Sektionen eingeben, um Elemente sofort zu erzeugen',
+      'bulkAddDialogTitle': 'Mehrere Fenster/Türen hinzufügen',
+      'bulkAddDialogDescription':
+          'Geben Sie Breite, Höhe, vertikale Sektionen, horizontale Sektionen, Stückzahl und optional die Menge pro Zeile ein (Beispiel: {example}).',
+      'bulkAddDialogNamePrefix': 'Namenspräfix',
+      'bulkAddDialogItemsLabel': 'Elemente (je Zeile eines)',
+      'bulkAddDialogInvalidLine': 'Konnte nicht lesen: {line}',
+      'bulkAddDialogNoItems':
+          'Bitte zuerst mindestens ein gültiges Element eingeben.',
+      'bulkAddSnackSuccess': '{count} Elemente hinzugefügt.',
+      'bulkAddDialogDefaultPrefix': 'Element',
       'editWindowDoor': 'Fenster/Tür bearbeiten',
       'designWindowDoor': 'Fenster/Tür entwerfen',
       'designImageAttached': 'Designbild angehängt',
@@ -626,6 +663,18 @@ class AppLocalizations {
       'widthMm': 'Breite (mm)',
       'heightMm': 'Höhe (mm)',
       'quantity': 'Menge',
+      'windowDoorStepLabel': 'Schritt {number}',
+      'windowDoorGeneralHelp':
+          'Benennen Sie das Element, legen Sie fest, wie viele identische Einheiten Sie benötigen, und fügen Sie bei Bedarf ein Foto oder manuelle Preise hinzu.',
+      'windowDoorLayoutHelp':
+          'Passen Sie das Layout des Fensters oder der Tür an. Wählen Sie, wie viele vertikale und horizontale Felder benötigt werden, und prüfen Sie anschließend die Rastervorschau.',
+      'windowDoorCatalogHelp':
+          'Wählen Sie das passende Profil, Glas und optionale Extras, damit das Angebot die richtigen Materialien enthält.',
+      'windowDoorExtrasHelp':
+          'Fügen Sie optionale Extras, Zuschläge oder Notizen hinzu, die im Angebot erscheinen sollen.',
+      'windowDoorPiecesLabel': 'Stücke',
+      'windowDoorPiecesHelp':
+          'Wie viele Stücke für dieses Element gefertigt werden (z. B. gesamte Flügel oder Unterelemente).',
       'basePriceOptional': 'Preis 0% (Optional)',
       'priceOptional': 'Preis mit Gewinn (Optional)',
       'verticalSections': 'Vertikale Sektoren',
@@ -827,6 +876,19 @@ class AppLocalizations {
       'totalWithoutProfit': 'Total sans bénéfice (0 %)',
       'withProfit': 'Avec bénéfice',
       'totalProfit': 'Bénéfice total',
+      'bulkAddAction': 'Ajouter plusieurs fenêtres/portes',
+      'bulkAddActionSubtitle':
+          'Saisissez les dimensions et sections pour créer instantanément des éléments',
+      'bulkAddDialogTitle': 'Ajouter plusieurs fenêtres/portes',
+      'bulkAddDialogDescription':
+          'Saisissez largeur, hauteur, sections verticales, sections horizontales, pièces et, en option, la quantité par ligne (exemple : {example}).',
+      'bulkAddDialogNamePrefix': 'Préfixe du nom',
+      'bulkAddDialogItemsLabel': 'Éléments (un par ligne)',
+      'bulkAddDialogInvalidLine': 'Lecture impossible : {line}',
+      'bulkAddDialogNoItems':
+          'Veuillez saisir au moins un élément valide.',
+      'bulkAddSnackSuccess': '{count} éléments ajoutés.',
+      'bulkAddDialogDefaultPrefix': 'Élément',
       'addWindowDoor': 'Ajouter Fenêtre/Porte',
       'editWindowDoor': 'Modifier Fenêtre/Porte',
       'designWindowDoor': 'Concevoir fenêtre/porte',
@@ -836,6 +898,18 @@ class AppLocalizations {
       'widthMm': 'Largeur (mm)',
       'heightMm': 'Hauteur (mm)',
       'quantity': 'Quantité',
+      'windowDoorStepLabel': 'Étape {number}',
+      'windowDoorGeneralHelp':
+          'Nommez l’élément, indiquez combien d’unités identiques vous souhaitez et ajoutez au besoin une photo ou des prix manuels.',
+      'windowDoorLayoutHelp':
+          'Ajustez la disposition de la fenêtre ou de la porte. Choisissez le nombre de sections verticales et horizontales, puis vérifiez l’aperçu de la grille ci-dessous.',
+      'windowDoorCatalogHelp':
+          'Sélectionnez le profil, le vitrage et les options nécessaires pour que l’offre reflète les bons matériaux.',
+      'windowDoorExtrasHelp':
+          'Ajoutez des options, suppléments ou notes à faire apparaître dans l’offre.',
+      'windowDoorPiecesLabel': 'Pièces',
+      'windowDoorPiecesHelp':
+          'Nombre de pièces à produire pour cet élément (par exemple total des ouvrants ou sous-éléments).',
       'basePriceOptional': 'Prix 0 % (Optionnel)',
       'priceOptional': 'Prix avec profit (Optionnel)',
       'verticalSections': 'Sections verticales',
@@ -1042,7 +1116,7 @@ class AppLocalizations {
           'Inserisci dimensioni e settori per generarli subito',
       'bulkAddDialogTitle': 'Aggiungi più finestre/porte',
       'bulkAddDialogDescription':
-          'Inserisci larghezza, altezza, settori verticali, settori orizzontali e quantità opzionale per riga (esempio: {example}).',
+          'Inserisci larghezza, altezza, settori verticali, settori orizzontali, pezzi e opzionalmente la quantità per riga (esempio: {example}).',
       'bulkAddDialogNamePrefix': 'Prefisso del nome',
       'bulkAddDialogItemsLabel': 'Elementi (uno per riga)',
       'bulkAddDialogInvalidLine': 'Impossibile leggere: {line}',
@@ -1057,6 +1131,18 @@ class AppLocalizations {
       'widthMm': 'Larghezza (mm)',
       'heightMm': 'Altezza (mm)',
       'quantity': 'Quantità',
+      'windowDoorStepLabel': 'Fase {number}',
+      'windowDoorGeneralHelp':
+          'Assegna un nome all’elemento, indica quante unità identiche servono e, se necessario, allega una foto o prezzi manuali.',
+      'windowDoorLayoutHelp':
+          'Configura il layout della finestra o della porta. Scegli quante sezioni verticali e orizzontali servono e controlla l’anteprima della griglia in basso.',
+      'windowDoorCatalogHelp':
+          'Seleziona il profilo, il vetro e gli extra opzionali corretti così che l’offerta riporti i materiali giusti.',
+      'windowDoorExtrasHelp':
+          'Aggiungi eventuali extra, sovrapprezzi o note da mostrare nell’offerta.',
+      'windowDoorPiecesLabel': 'Pezzi',
+      'windowDoorPiecesHelp':
+          'Quanti pezzi verranno prodotti per questo elemento (ad esempio telai o sotto-elementi totali).',
       'basePriceOptional': 'Prezzo 0% (Opzionale)',
       'priceOptional': 'Prezzo con profitto (Opzionale)',
       'verticalSections': 'Sezioni verticali',
@@ -1324,6 +1410,14 @@ class AppLocalizations {
   String get widthMm => _t('widthMm');
   String get heightMm => _t('heightMm');
   String get quantity => _t('quantity');
+  String windowDoorStepLabel(int number) =>
+      _t('windowDoorStepLabel').replaceAll('{number}', '$number');
+  String get windowDoorGeneralHelp => _t('windowDoorGeneralHelp');
+  String get windowDoorLayoutHelp => _t('windowDoorLayoutHelp');
+  String get windowDoorCatalogHelp => _t('windowDoorCatalogHelp');
+  String get windowDoorExtrasHelp => _t('windowDoorExtrasHelp');
+  String get windowDoorPiecesLabel => _t('windowDoorPiecesLabel');
+  String get windowDoorPiecesHelp => _t('windowDoorPiecesHelp');
   String get basePriceOptional => _t('basePriceOptional');
   String get priceOptional => _t('priceOptional');
   String get verticalSections => _t('verticalSections');
