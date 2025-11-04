@@ -294,6 +294,8 @@ class AppLocalizationsSq extends AppLocalizations {
 
   @override
   String get pdfTotalMass => 'Masa totale:';
+
+  @override
   String get pdfTotalArea => 'Sipërfaqja totale:';
 
   @override

@@ -1322,7 +1322,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                         controller: itemsController,
                         decoration: InputDecoration(
                           labelText: l10n.bulkAddDialogItemsLabel,
-                          hintText: '1200,1400,2,1',
+                          hintText: '1200,1400,2,1,cope',
                         ),
                         minLines: 4,
                         maxLines: 10,
