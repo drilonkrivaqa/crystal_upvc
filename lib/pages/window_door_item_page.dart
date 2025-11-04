@@ -36,7 +36,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   late TextEditingController widthController;
   late TextEditingController heightController;
   late TextEditingController quantityController;
-  late TextEditingController piecesController;
   late TextEditingController verticalController;
   late TextEditingController horizontalController;
   late TextEditingController priceController;
@@ -105,8 +104,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
         text: widget.existingItem?.height.toString() ?? '');
     quantityController = TextEditingController(
         text: widget.existingItem?.quantity.toString() ?? '1');
-    piecesController = TextEditingController(
-        text: (widget.existingItem?.pieces ?? 1).toString());
     verticalController = TextEditingController(
         text: widget.existingItem?.verticalSections.toString() ?? '1');
     horizontalController = TextEditingController(
@@ -238,9 +235,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     final quantityLabel = quantityController.text.trim().isEmpty
         ? '1'
         : quantityController.text.trim();
-    final piecesLabel = piecesController.text.trim().isEmpty
-        ? '1'
-        : piecesController.text.trim();
 
     return WillPopScope(
         onWillPop: _onWillPop,
@@ -333,11 +327,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                       children: [
                         _buildSectionTitle(
                           context,
-                          l10n,
-                          step: 1,
-                          title: l10n.catalogSectionGeneral,
-                          description: l10n.windowDoorGeneralHelp,
-                          icon: Icons.info_outline,
+                          l10n.catalogSectionGeneral,
+                          Icons.info_outline,
                         ),
                         const SizedBox(height: 12),
                         _buildPhotoPicker(context, l10n),
@@ -385,11 +376,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                       children: [
                         _buildSectionTitle(
                           context,
-                          l10n,
-                          step: 2,
-                          title: l10n.pdfDimensions.replaceAll(':', '').trim(),
-                          description: l10n.windowDoorLayoutHelp,
-                          icon: Icons.straighten,
+                          l10n.pdfDimensions.replaceAll(':', '').trim(),
+                          Icons.straighten,
                         ),
                         const SizedBox(height: 12),
                         Wrap(
@@ -403,10 +391,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                             _buildInfoChip(
                               Icons.view_stream,
                               '${l10n.horizontalSections}: $horizontalLabel',
-                            ),
-                            _buildInfoChip(
-                              Icons.widgets_outlined,
-                              '${l10n.windowDoorPiecesLabel}: $piecesLabel',
                             ),
                             _buildInfoChip(
                               Icons.format_list_numbered,
@@ -428,15 +412,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                                   labelText: l10n.horizontalSections),
                               keyboardType: TextInputType.number,
                               onChanged: (_) => _updateGrid()),
-                          TextField(
-                            controller: piecesController,
-                            decoration: InputDecoration(
-                              labelText: l10n.windowDoorPiecesLabel,
-                              helperText: l10n.windowDoorPiecesHelp,
-                              helperMaxLines: 2,
-                            ),
-                            keyboardType: TextInputType.number,
-                          ),
                         ]),
                         const SizedBox(height: 16),
                         ClipRRect(
@@ -459,11 +434,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                       children: [
                         _buildSectionTitle(
                           context,
-                          l10n,
-                          step: 3,
-                          title: l10n.catalogsTitle,
-                          description: l10n.windowDoorCatalogHelp,
-                          icon: Icons.view_list,
+                          l10n.catalogsTitle,
+                          Icons.view_list,
                         ),
                         const SizedBox(height: 16),
                         _buildFormGrid([
@@ -581,11 +553,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                       children: [
                         _buildSectionTitle(
                           context,
-                          l10n,
-                          step: 4,
-                          title: l10n.pdfExtra,
-                          description: l10n.windowDoorExtrasHelp,
-                          icon: Icons.add_circle_outline,
+                          l10n.pdfExtra,
+                          Icons.add_circle_outline,
                         ),
                         const SizedBox(height: 16),
                         _buildFormGrid([
@@ -687,55 +656,18 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     );
   }
 
-  Widget _buildSectionTitle(
-    BuildContext context,
-    AppLocalizations l10n, {
-    required int step,
-    required String title,
-    required String description,
-    required IconData icon,
-  }) {
-    final theme = Theme.of(context);
-    final titleStyle =
-        theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600);
-    final subtitleStyle =
-        theme.textTheme.bodyMedium?.copyWith(color: Colors.grey.shade700);
+  Widget _buildSectionTitle(BuildContext context, String title, IconData icon) {
+    final textStyle = Theme.of(context).textTheme.titleMedium?.copyWith(
+          fontWeight: FontWeight.w600,
+        );
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        CircleAvatar(
-          radius: 18,
-          backgroundColor: AppColors.primaryLight,
-          child: Text(
-            '$step',
-            style: theme.textTheme.titleMedium?.copyWith(
-              color: AppColors.primaryDark,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        const SizedBox(width: 12),
+        Icon(icon, color: AppColors.primaryDark),
+        const SizedBox(width: 8),
         Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      '${l10n.windowDoorStepLabel(step)} · $title',
-                      style: titleStyle,
-                    ),
-                  ),
-                  Icon(icon, color: AppColors.primaryDark),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Text(
-                description,
-                style: subtitleStyle,
-              ),
-            ],
+          child: Text(
+            title,
+            style: textStyle,
           ),
         ),
       ],
@@ -830,7 +762,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     final width = int.tryParse(widthController.text) ?? 0;
     final height = int.tryParse(heightController.text) ?? 0;
     final quantity = int.tryParse(quantityController.text) ?? 1;
-    final pieces = int.tryParse(piecesController.text) ?? 1;
     _ensureGridSize();
     final openings = rowFixedSectors.fold<int>(
         0,
@@ -839,7 +770,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     final mPrice = double.tryParse(priceController.text);
     final mBasePrice = double.tryParse(basePriceController.text);
 
-    if (name.isEmpty || width <= 0 || height <= 0 || pieces <= 0) {
+    if (name.isEmpty || width <= 0 || height <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.fillAllRequired)),
       );
@@ -878,7 +809,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
         width: width,
         height: height,
         quantity: quantity,
-        pieces: pieces,
         profileSetIndex: profileSetIndex,
         glassIndex: glassIndex,
         blindIndex: blindIndex,
@@ -1529,7 +1459,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     widthController.dispose();
     heightController.dispose();
     quantityController.dispose();
-    piecesController.dispose();
     verticalController.dispose();
     horizontalController.dispose();
     priceController.dispose();
