@@ -207,6 +207,8 @@ class WindowDoorItem extends HiveObject {
   int height; // in mm
   @HiveField(3)
   int quantity;
+  @HiveField(30)
+  int pieces;
   @HiveField(4)
   int profileSetIndex;
   @HiveField(5)
@@ -280,6 +282,7 @@ class WindowDoorItem extends HiveObject {
     this.extra1Desc,
     this.extra2Desc,
     this.notes,
+    this.pieces = 1,
     this.verticalSections = 1,
     this.horizontalSections = 1,
     List<bool>? fixedSectors,
@@ -480,6 +483,7 @@ class WindowDoorItem extends HiveObject {
       mechanismIndex: mechanismIndex,
       accessoryIndex: accessoryIndex,
       openings: openings,
+      pieces: pieces,
       photoPath: photoPath,
       photoBytes: photoBytes != null
           ? Uint8List.fromList(photoBytes!)

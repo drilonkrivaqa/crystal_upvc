@@ -363,6 +363,8 @@ Future<void> printOfferPdf({
             pw.SizedBox(height: 2),
             pw.Text('${l10n.pdfDimensions} ${item.width} x ${item.height} mm'),
             pw.Text('${l10n.pdfPieces} ${item.quantity}'),
+            if (item.pieces > 0)
+              pw.Text('${l10n.windowDoorPiecesLabel}: ${item.pieces}'),
             pw.Text('${l10n.pdfProfileType} ${profile.name}'),
             pw.Text('${l10n.pdfGlass} ${glass.name}'),
             if (blind != null) pw.Text('${l10n.pdfBlind} ${blind.name}'),
