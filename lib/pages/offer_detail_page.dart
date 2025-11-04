@@ -1296,39 +1296,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
         context: context,
         builder: (ctx) {
           String? errorText;
-          List<WindowDoorItem> previewItems = <WindowDoorItem>[];
           return StatefulBuilder(
             builder: (ctx, setStateDialog) {
-              void refreshPreview() {
-                final rawText = itemsController.text;
-                if (rawText.trim().isEmpty) {
-                  setStateDialog(() {
-                    previewItems = <WindowDoorItem>[];
-                    errorText = null;
-                  });
-                  return;
-                }
-                try {
-                  final parsed = _parseBulkItems(
-                    offer,
-                    prefixController.text,
-                    rawText,
-                    l10n,
-                  );
-                  setStateDialog(() {
-                    previewItems = parsed;
-                    errorText = null;
-                  });
-                } on FormatException catch (e) {
-                  setStateDialog(() {
-                    errorText = e.message;
-                    previewItems = <WindowDoorItem>[];
-                  });
-                }
-              }
-
-              final theme = Theme.of(ctx);
-
               return AlertDialog(
                 title: Text(l10n.bulkAddDialogTitle),
                 content: SingleChildScrollView(
@@ -1342,108 +1311,29 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      Text(
-                        l10n.bulkAddDialogFieldOrderTitle,
-                        style: theme.textTheme.titleSmall,
-                      ),
-                      const SizedBox(height: 8),
-                      _BulkFieldGuideRow(
-                        step: 1,
-                        title: l10n.widthMm,
-                        description: l10n.bulkAddDialogWidthHelp,
-                      ),
-                      _BulkFieldGuideRow(
-                        step: 2,
-                        title: l10n.heightMm,
-                        description: l10n.bulkAddDialogHeightHelp,
-                      ),
-                      _BulkFieldGuideRow(
-                        step: 3,
-                        title: l10n.verticalSections,
-                        description: l10n.bulkAddDialogVerticalHelp,
-                      ),
-                      _BulkFieldGuideRow(
-                        step: 4,
-                        title: l10n.horizontalSections,
-                        description: l10n.bulkAddDialogHorizontalHelp,
-                      ),
-                      _BulkFieldGuideRow(
-                        step: 5,
-                        title: l10n.windowDoorPiecesLabel,
-                        description: l10n.bulkAddDialogPiecesHelp,
-                      ),
-                      _BulkFieldGuideRow(
-                        step: 6,
-                        title: l10n.quantity,
-                        description: l10n.bulkAddDialogQuantityHelp,
-                      ),
-                      const SizedBox(height: 12),
-                      Card(
-                        color: theme.colorScheme.surfaceVariant,
-                        child: Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                l10n.bulkAddDialogExampleLabel,
-                                style: theme.textTheme.titleSmall,
-                              ),
-                              const SizedBox(height: 4),
-                              SelectableText(
-                                '1200,1400,2,1,6,2',
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                      fontFamily: 'monospace',
-                                      fontWeight: FontWeight.w600,
-                                    ) ??
-                                    const TextStyle(
-                                      fontFamily: 'monospace',
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
                       TextField(
                         controller: prefixController,
                         decoration: InputDecoration(
                           labelText: l10n.bulkAddDialogNamePrefix,
                         ),
-                        onChanged: (_) => refreshPreview(),
                       ),
                       const SizedBox(height: 12),
                       TextField(
                         controller: itemsController,
                         decoration: InputDecoration(
                           labelText: l10n.bulkAddDialogItemsLabel,
-                          hintText: '1200,1400,2,1,6,2',
+                          hintText: '1200,1400,2,1',
                         ),
                         minLines: 4,
                         maxLines: 10,
                         keyboardType: TextInputType.multiline,
-                        onChanged: (_) => refreshPreview(),
-                        style: const TextStyle(fontFamily: 'monospace'),
                       ),
-                      if (previewItems.isNotEmpty) ...[
-                        const SizedBox(height: 16),
-                        Text(
-                          l10n.bulkAddPreviewTitle(previewItems.length),
-                          style: theme.textTheme.titleMedium,
-                        ),
-                        const SizedBox(height: 8),
-                        _BulkItemPreviewList(
-                          items: previewItems,
-                          l10n: l10n,
-                        ),
-                      ],
                       if (errorText != null) ...[
                         const SizedBox(height: 12),
                         Text(
                           errorText!,
                           style: TextStyle(
-                            color: theme.colorScheme.error,
+                            color: Theme.of(context).colorScheme.error,
                           ),
                         ),
                       ],
@@ -1468,7 +1358,6 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                       } on FormatException catch (e) {
                         setStateDialog(() {
                           errorText = e.message;
-                          previewItems = <WindowDoorItem>[];
                         });
                       }
                     },
@@ -1628,171 +1517,5 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
       c.dispose();
     }
     super.dispose();
-  }
-}
-
-class _BulkFieldGuideRow extends StatelessWidget {
-  const _BulkFieldGuideRow({
-    required this.step,
-    required this.title,
-    required this.description,
-  });
-
-  final int step;
-  final String title;
-  final String description;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final circleColor = theme.colorScheme.primaryContainer;
-    final onCircle = theme.colorScheme.onPrimaryContainer;
-    final labelStyle = theme.textTheme.labelLarge?.copyWith(
-          fontWeight: FontWeight.w600,
-          color: onCircle,
-        ) ??
-        TextStyle(
-          fontWeight: FontWeight.w600,
-          color: onCircle,
-        );
-    final titleStyle =
-        theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600);
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CircleAvatar(
-            radius: 14,
-            backgroundColor: circleColor,
-            child: Text('$step', style: labelStyle),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: titleStyle,
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  description,
-                  style: theme.textTheme.bodySmall,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _BulkItemPreviewList extends StatelessWidget {
-  const _BulkItemPreviewList({
-    required this.items,
-    required this.l10n,
-  });
-
-  final List<WindowDoorItem> items;
-  final AppLocalizations l10n;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        for (final item in items)
-          Card(
-            margin: const EdgeInsets.only(bottom: 8),
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.name,
-                    style: theme.textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      _BulkPreviewChip(
-                        label: l10n.widthMm,
-                        value: '${item.width}',
-                      ),
-                      _BulkPreviewChip(
-                        label: l10n.heightMm,
-                        value: '${item.height}',
-                      ),
-                      _BulkPreviewChip(
-                        label: l10n.verticalSections,
-                        value: '${item.verticalSections}',
-                      ),
-                      _BulkPreviewChip(
-                        label: l10n.horizontalSections,
-                        value: '${item.horizontalSections}',
-                      ),
-                      _BulkPreviewChip(
-                        label: l10n.windowDoorPiecesLabel,
-                        value: '${item.pieces}',
-                      ),
-                      _BulkPreviewChip(
-                        label: l10n.quantity,
-                        value: '${item.quantity}',
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-class _BulkPreviewChip extends StatelessWidget {
-  const _BulkPreviewChip({
-    required this.label,
-    required this.value,
-  });
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final background = theme.colorScheme.secondaryContainer;
-    final onBackground = theme.colorScheme.onSecondaryContainer;
-    final baseStyle = theme.textTheme.bodyMedium?.copyWith(
-          color: onBackground,
-        ) ??
-        TextStyle(color: onBackground);
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: RichText(
-        text: TextSpan(
-          style: baseStyle,
-          children: [
-            TextSpan(
-              text: '$label: ',
-              style: baseStyle.copyWith(fontWeight: FontWeight.w600),
-            ),
-            TextSpan(text: value),
-          ],
-        ),
-      ),
-    );
   }
 }
