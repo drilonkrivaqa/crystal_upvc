@@ -177,6 +177,19 @@ class AppLocalizations {
       'withProfit': 'Me fitim',
       'totalProfit': 'Fitimi total',
       'addWindowDoor': 'Shto Dritare/Derë',
+      'bulkAddAction': 'Shto disa dritare/dyer',
+      'bulkAddActionSubtitle':
+          'Shkruaj dimensionet dhe sektorët për t\'i krijuar menjëherë',
+      'bulkAddDialogTitle': 'Shto disa dritare/dyer',
+      'bulkAddDialogDescription':
+          'Shkruani gjerësinë, lartësinë, sektorët vertikal dhe horizontal dhe sasinë opsionale në çdo rresht (shembull: {example}).',
+      'bulkAddDialogNamePrefix': 'Prefiksi i emrit',
+      'bulkAddDialogItemsLabel': 'Artikujt (nga një për rresht)',
+      'bulkAddDialogInvalidLine': 'Rreshti nuk u lexua: {line}',
+      'bulkAddDialogNoItems':
+          'Së pari shtoni të paktën një artikull të vlefshëm.',
+      'bulkAddSnackSuccess': 'U shtuan {count} artikuj.',
+      'bulkAddDialogDefaultPrefix': 'Element',
       'editWindowDoor': 'Ndrysho Dritaren/Derën',
       'designWindowDoor': 'Dizajno dritare/derë',
       'designImageAttached': 'Imazhi i dizajnit u bashkangjit',
@@ -386,6 +399,19 @@ class AppLocalizations {
       'withProfit': 'With Profit',
       'totalProfit': 'Total Profit',
       'addWindowDoor': 'Add Window/Door',
+      'bulkAddAction': 'Add multiple windows/doors',
+      'bulkAddActionSubtitle':
+          'Enter sizes and sections to generate items instantly',
+      'bulkAddDialogTitle': 'Add multiple windows/doors',
+      'bulkAddDialogDescription':
+          'Enter width, height, vertical sections, horizontal sections, and optional quantity per line (example: {example}).',
+      'bulkAddDialogNamePrefix': 'Name prefix',
+      'bulkAddDialogItemsLabel': 'Items (one per line)',
+      'bulkAddDialogInvalidLine': 'Could not read: {line}',
+      'bulkAddDialogNoItems':
+          'Please enter at least one valid item first.',
+      'bulkAddSnackSuccess': '{count} items added.',
+      'bulkAddDialogDefaultPrefix': 'Item',
       'editWindowDoor': 'Edit Window/Door',
       'designWindowDoor': 'Design window/door',
       'designImageAttached': 'Design image attached',
@@ -1011,6 +1037,18 @@ class AppLocalizations {
       'withProfit': 'Con profitto',
       'totalProfit': 'Profitto totale',
       'addWindowDoor': 'Aggiungi Finestra/Porta',
+      'bulkAddAction': 'Aggiungi più finestre/porte',
+      'bulkAddActionSubtitle':
+          'Inserisci dimensioni e settori per generarli subito',
+      'bulkAddDialogTitle': 'Aggiungi più finestre/porte',
+      'bulkAddDialogDescription':
+          'Inserisci larghezza, altezza, settori verticali, settori orizzontali e quantità opzionale per riga (esempio: {example}).',
+      'bulkAddDialogNamePrefix': 'Prefisso del nome',
+      'bulkAddDialogItemsLabel': 'Elementi (uno per riga)',
+      'bulkAddDialogInvalidLine': 'Impossibile leggere: {line}',
+      'bulkAddDialogNoItems': 'Inserisci almeno un elemento valido.',
+      'bulkAddSnackSuccess': '{count} elementi aggiunti.',
+      'bulkAddDialogDefaultPrefix': 'Elemento',
       'editWindowDoor': 'Modifica Finestra/Porta',
       'designWindowDoor': 'Progetta finestra/porta',
       'designImageAttached': 'Immagine del progetto allegata',
@@ -1265,6 +1303,19 @@ class AppLocalizations {
   String get withProfit => _t('withProfit');
   String get totalProfit => _t('totalProfit');
   String get addWindowDoor => _t('addWindowDoor');
+  String get bulkAddAction => _t('bulkAddAction');
+  String get bulkAddActionSubtitle => _t('bulkAddActionSubtitle');
+  String get bulkAddDialogTitle => _t('bulkAddDialogTitle');
+  String bulkAddDialogDescription(String example) =>
+      _t('bulkAddDialogDescription').replaceAll('{example}', example);
+  String get bulkAddDialogNamePrefix => _t('bulkAddDialogNamePrefix');
+  String get bulkAddDialogItemsLabel => _t('bulkAddDialogItemsLabel');
+  String bulkAddDialogInvalidLine(String line) =>
+      _t('bulkAddDialogInvalidLine').replaceAll('{line}', line);
+  String get bulkAddDialogNoItems => _t('bulkAddDialogNoItems');
+  String bulkAddSnackSuccess(int count) =>
+      _t('bulkAddSnackSuccess').replaceAll('{count}', count.toString());
+  String get bulkAddDialogDefaultPrefix => _t('bulkAddDialogDefaultPrefix');
   String get editWindowDoor => _t('editWindowDoor');
   String get designWindowDoor => _t('designWindowDoor');
   String get designImageAttached => _t('designImageAttached');
