@@ -1230,25 +1230,278 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => WindowDoorItemPage(
-                onSave: (item) {
-                  offer.items.add(item);
-                  offer.lastEdited = DateTime.now();
-                  offer.save();
-                  setState(() {});
-                },
-                defaultProfileSetIndex: offer.defaultProfileSetIndex,
-                defaultGlassIndex: offer.defaultGlassIndex,
-              ),
-            ),
-          );
-        },
+        onPressed: () => _showAddItemMenu(offer),
         child: const Icon(Icons.add),
       ),
+    );
+  }
+
+  Future<void> _showAddItemMenu(Offer offer) async {
+    final l10n = AppLocalizations.of(context);
+    await showModalBottomSheet<void>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.add_box_outlined),
+              title: Text(l10n.addWindowDoor),
+              onTap: () {
+                Navigator.of(ctx).pop();
+                _openWindowDoorEditor(offer);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.playlist_add),
+              title: Text(l10n.bulkAddAction),
+              subtitle: Text(l10n.bulkAddActionSubtitle),
+              onTap: () {
+                Navigator.of(ctx).pop();
+                _showBulkAddDialog(offer);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openWindowDoorEditor(Offer offer) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => WindowDoorItemPage(
+          onSave: (item) {
+            offer.items.add(item);
+            offer.lastEdited = DateTime.now();
+            offer.save();
+            setState(() {});
+          },
+          defaultProfileSetIndex: offer.defaultProfileSetIndex,
+          defaultGlassIndex: offer.defaultGlassIndex,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showBulkAddDialog(Offer offer) async {
+    final l10n = AppLocalizations.of(context);
+    final prefixController =
+        TextEditingController(text: l10n.bulkAddDialogDefaultPrefix);
+    final itemsController = TextEditingController();
+    List<WindowDoorItem>? createdItems;
+    try {
+      createdItems = await showDialog<List<WindowDoorItem>>(
+        context: context,
+        builder: (ctx) {
+          String? errorText;
+          return StatefulBuilder(
+            builder: (ctx, setStateDialog) {
+              return AlertDialog(
+                title: Text(l10n.bulkAddDialogTitle),
+                content: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        l10n.bulkAddDialogDescription(
+                          '1200,1400,2,1,2',
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      TextField(
+                        controller: prefixController,
+                        decoration: InputDecoration(
+                          labelText: l10n.bulkAddDialogNamePrefix,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      TextField(
+                        controller: itemsController,
+                        decoration: InputDecoration(
+                          labelText: l10n.bulkAddDialogItemsLabel,
+                          hintText: '1200,1400,2,1',
+                        ),
+                        minLines: 4,
+                        maxLines: 10,
+                        keyboardType: TextInputType.multiline,
+                      ),
+                      if (errorText != null) ...[
+                        const SizedBox(height: 12),
+                        Text(
+                          errorText!,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(ctx).pop(),
+                    child: Text(l10n.cancel),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      try {
+                        final items = _parseBulkItems(
+                          offer,
+                          prefixController.text,
+                          itemsController.text,
+                          l10n,
+                        );
+                        Navigator.of(ctx).pop(items);
+                      } on FormatException catch (e) {
+                        setStateDialog(() {
+                          errorText = e.message;
+                        });
+                      }
+                    },
+                    child: Text(l10n.add),
+                  ),
+                ],
+              );
+            },
+          );
+        },
+      );
+    } finally {
+      prefixController.dispose();
+      itemsController.dispose();
+    }
+
+    if (createdItems == null || createdItems.isEmpty) {
+      return;
+    }
+
+    offer.items.addAll(createdItems);
+    offer.lastEdited = DateTime.now();
+    await offer.save();
+    if (!mounted) return;
+    setState(() {});
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          l10n.bulkAddSnackSuccess(createdItems.length),
+        ),
+      ),
+    );
+  }
+
+  List<WindowDoorItem> _parseBulkItems(
+    Offer offer,
+    String prefix,
+    String input,
+    AppLocalizations l10n,
+  ) {
+    final lines = input.split(RegExp(r'[\r\n]+'));
+    final profileIndex = _normalizeIndex(
+        _selectedDefaultProfileSetIndex ?? offer.defaultProfileSetIndex,
+        profileSetBox.length);
+    final glassIndex = _normalizeIndex(
+        _selectedDefaultGlassIndex ?? offer.defaultGlassIndex,
+        glassBox.length);
+    final items = <WindowDoorItem>[];
+    final trimmedPrefix = prefix.trim().isEmpty
+        ? l10n.bulkAddDialogDefaultPrefix
+        : prefix.trim();
+    final startingIndex = offer.items.length;
+
+    for (final rawLine in lines) {
+      final line = rawLine.trim();
+      if (line.isEmpty) {
+        continue;
+      }
+      final numbers = RegExp(r'(\d+)')
+          .allMatches(line)
+          .map((match) => int.parse(match.group(0)!))
+          .toList();
+      if (numbers.length < 4) {
+        throw FormatException(l10n.bulkAddDialogInvalidLine(line));
+      }
+
+      final width = numbers[0];
+      final height = numbers[1];
+      final vertical = numbers[2];
+      final horizontal = numbers[3];
+      final quantity = numbers.length >= 5 ? numbers[4] : 1;
+
+      if (width <= 0 || height <= 0 || vertical <= 0 || horizontal <= 0) {
+        throw FormatException(l10n.bulkAddDialogInvalidLine(line));
+      }
+      if (quantity <= 0) {
+        throw FormatException(l10n.bulkAddDialogInvalidLine(line));
+      }
+
+      final widthSegments = _splitEvenly(width, vertical);
+      final heightSegments = _splitEvenly(height, horizontal);
+      final rowFixed = List<List<bool>>.generate(
+          horizontal, (_) => List<bool>.filled(vertical, false));
+      final flattenedFixed = <bool>[];
+      for (final row in rowFixed) {
+        flattenedFixed.addAll(row);
+      }
+      final rowVerticalAdapters = List<List<bool>>.generate(
+          horizontal, (_) => List<bool>.filled(vertical > 1 ? vertical - 1 : 0, false));
+
+      final itemIndex = startingIndex + items.length + 1;
+      final name = '$trimmedPrefix $itemIndex';
+
+      items.add(
+        WindowDoorItem(
+          name: name,
+          width: width,
+          height: height,
+          quantity: quantity,
+          profileSetIndex: profileIndex,
+          glassIndex: glassIndex,
+          openings:
+              flattenedFixed.where((isFixed) => !isFixed).length,
+          verticalSections: vertical,
+          horizontalSections: horizontal,
+          fixedSectors: flattenedFixed,
+          sectionWidths: widthSegments,
+          sectionHeights: heightSegments,
+          verticalAdapters:
+              List<bool>.filled(vertical > 1 ? vertical - 1 : 0, false),
+          horizontalAdapters:
+              List<bool>.filled(horizontal > 1 ? horizontal - 1 : 0, false),
+          perRowVerticalSections:
+              List<int>.filled(horizontal, vertical),
+          perRowSectionWidths: List<List<int>>.generate(
+            horizontal,
+            (_) => List<int>.from(widthSegments),
+          ),
+          perRowFixedSectors: rowFixed
+              .map((row) => List<bool>.from(row))
+              .toList(),
+          perRowVerticalAdapters: rowVerticalAdapters
+              .map((row) => List<bool>.from(row))
+              .toList(),
+        ),
+      );
+    }
+
+    if (items.isEmpty) {
+      throw FormatException(l10n.bulkAddDialogNoItems);
+    }
+
+    return items;
+  }
+
+  List<int> _splitEvenly(int total, int parts) {
+    if (parts <= 0) {
+      return const <int>[];
+    }
+    final base = total ~/ parts;
+    final remainder = total % parts;
+    return List<int>.generate(
+      parts,
+      (index) => base + (index < remainder ? 1 : 0),
     );
   }
 
