@@ -904,19 +904,58 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                   if (item.perRowSectionWidths != null &&
                       item.perRowSectionWidths!.isNotEmpty) {
                     final rowStrings = <String>[];
+                    final pieceRows = item.perRowSectionPieces;
                     for (int i = 0;
                         i < item.perRowSectionWidths!.length;
                         i++) {
                       final row = item.perRowSectionWidths![i];
                       if (row.isEmpty) continue;
-                      rowStrings.add('R${i + 1}: ${row.join(', ')}');
+                      final pieces = pieceRows != null && i < pieceRows.length
+                          ? pieceRows[i]
+                          : const <int>[];
+                      final cells = <String>[];
+                      for (int c = 0; c < row.length; c++) {
+                        final width = row[c];
+                        int? count;
+                        if (pieces.isNotEmpty && c < pieces.length) {
+                          count = pieces[c];
+                        }
+                        if (count != null && count > 1) {
+                          cells.add('${count}×$width');
+                        } else {
+                          cells.add('$width');
+                        }
+                      }
+                      rowStrings.add('R${i + 1}: ${cells.join(', ')}');
                     }
                     if (rowStrings.isNotEmpty) {
                       sb.writeln('Widths: ${rowStrings.join(' | ')}');
                     }
                   } else {
-                    sb.writeln(
-                        '${item.sectionWidths.length > 1 ? 'Widths' : 'Width'}: ${item.sectionWidths.join(', ')}');
+                    final hasPieces =
+                        item.perRowSectionPieces != null &&
+                            item.perRowSectionPieces!.isNotEmpty;
+                    if (hasPieces) {
+                      final pieces = item.perRowSectionPieces!.first;
+                      final cells = <String>[];
+                      for (int c = 0; c < item.sectionWidths.length; c++) {
+                        final width = item.sectionWidths[c];
+                        int? count;
+                        if (c < pieces.length) {
+                          count = pieces[c];
+                        }
+                        if (count != null && count > 1) {
+                          cells.add('${count}×$width');
+                        } else {
+                          cells.add('$width');
+                        }
+                      }
+                      sb.writeln(
+                          '${item.sectionWidths.length > 1 ? 'Widths' : 'Width'}: ${cells.join(', ')}');
+                    } else {
+                      sb.writeln(
+                          '${item.sectionWidths.length > 1 ? 'Widths' : 'Width'}: ${item.sectionWidths.join(', ')}');
+                    }
                   }
                   sb.writeln(
                       '${item.sectionHeights.length > 1 ? 'Heights' : 'Height'}: ${item.sectionHeights.join(', ')}');

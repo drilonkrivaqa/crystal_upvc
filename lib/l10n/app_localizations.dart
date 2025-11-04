@@ -193,6 +193,13 @@ class AppLocalizations {
       'editWindowDoor': 'Ndrysho Dritaren/Derën',
       'designWindowDoor': 'Dizajno dritare/derë',
       'designImageAttached': 'Imazhi i dizajnit u bashkangjit',
+      'windowDoorStepsTitle': 'Follow these steps',
+      'windowDoorStepBasic': 'Step 1 · General information',
+      'windowDoorStepLayout': 'Step 2 · Layout & dimensions',
+      'windowDoorStepCatalog': 'Step 3 · Profiles & accessories',
+      'windowDoorStepExtras': 'Step 4 · Extras & notes',
+      'windowDoorDimensionHelp':
+          'Set the grid, then enter widths and piece counts. The last column/row adjusts automatically.',
       'clickAddPhoto': 'Kliko për të \nvendosë foton',
       'name': 'Emri',
       'widthMm': 'Gjerësia (mm)',
@@ -211,6 +218,8 @@ class AppLocalizations {
       'none': 'Asnjë',
       'blindOptional': 'Roleta (Opsional)',
       'accessoryOptional': 'Aksesor (Opsional)',
+      'dimensionPieces': 'Pieces',
+      'dimensionPiecesHint': 'How many identical sections use this measurement.',
       'fillAllRequired':
           'Ju lutem plotësoni të gjitha të dhënat e kërkuara!',
       'saveChanges': 'Ruaj ndryshimet?',
@@ -415,6 +424,13 @@ class AppLocalizations {
       'editWindowDoor': 'Edit Window/Door',
       'designWindowDoor': 'Design window/door',
       'designImageAttached': 'Design image attached',
+      'windowDoorStepsTitle': 'Follow these steps',
+      'windowDoorStepBasic': 'Step 1 · General information',
+      'windowDoorStepLayout': 'Step 2 · Layout & dimensions',
+      'windowDoorStepCatalog': 'Step 3 · Profiles & accessories',
+      'windowDoorStepExtras': 'Step 4 · Extras & notes',
+      'windowDoorDimensionHelp':
+          'Set the grid, then enter widths and piece counts. The last column/row adjusts automatically.',
       'clickAddPhoto': 'Click to \nadd photo',
       'name': 'Name',
       'widthMm': 'Width (mm)',
@@ -433,6 +449,8 @@ class AppLocalizations {
       'none': 'None',
       'blindOptional': 'Roller Shutter (Optional)',
       'accessoryOptional': 'Accessory (Optional)',
+      'dimensionPieces': 'Pieces',
+      'dimensionPiecesHint': 'How many identical sections use this measurement.',
       'fillAllRequired': 'Please fill all required fields!',
       'saveChanges': 'Save changes?',
       'saveChangesQuestion': 'Do you want to save changes before exiting?',
@@ -621,6 +639,13 @@ class AppLocalizations {
       'editWindowDoor': 'Fenster/Tür bearbeiten',
       'designWindowDoor': 'Fenster/Tür entwerfen',
       'designImageAttached': 'Designbild angehängt',
+      'windowDoorStepsTitle': 'Follow these steps',
+      'windowDoorStepBasic': 'Step 1 · General information',
+      'windowDoorStepLayout': 'Step 2 · Layout & dimensions',
+      'windowDoorStepCatalog': 'Step 3 · Profiles & accessories',
+      'windowDoorStepExtras': 'Step 4 · Extras & notes',
+      'windowDoorDimensionHelp':
+          'Set the grid, then enter widths and piece counts. The last column/row adjusts automatically.',
       'clickAddPhoto': 'Klicken zum \nFoto hinzufügen',
       'name': 'Name',
       'widthMm': 'Breite (mm)',
@@ -639,6 +664,8 @@ class AppLocalizations {
       'none': 'Keiner',
       'blindOptional': 'Rollladen (Optional)',
       'accessoryOptional': 'Zubehör (Optional)',
+      'dimensionPieces': 'Pieces',
+      'dimensionPiecesHint': 'How many identical sections use this measurement.',
       'fillAllRequired':
           'Bitte füllen Sie alle erforderlichen Felder aus!',
       'saveChanges': 'Änderungen speichern?',
@@ -831,6 +858,13 @@ class AppLocalizations {
       'editWindowDoor': 'Modifier Fenêtre/Porte',
       'designWindowDoor': 'Concevoir fenêtre/porte',
       'designImageAttached': 'Image de conception ajoutée',
+      'windowDoorStepsTitle': 'Follow these steps',
+      'windowDoorStepBasic': 'Step 1 · General information',
+      'windowDoorStepLayout': 'Step 2 · Layout & dimensions',
+      'windowDoorStepCatalog': 'Step 3 · Profiles & accessories',
+      'windowDoorStepExtras': 'Step 4 · Extras & notes',
+      'windowDoorDimensionHelp':
+          'Set the grid, then enter widths and piece counts. The last column/row adjusts automatically.',
       'clickAddPhoto': 'Cliquez pour \najouter une photo',
       'name': 'Nom',
       'widthMm': 'Largeur (mm)',
@@ -849,6 +883,8 @@ class AppLocalizations {
       'none': 'Aucun',
       'blindOptional': 'Volet roulant (Optionnel)',
       'accessoryOptional': 'Accessoire (Optionnel)',
+      'dimensionPieces': 'Pieces',
+      'dimensionPiecesHint': 'How many identical sections use this measurement.',
       'fillAllRequired':
           'Veuillez remplir tous les champs requis !',
       'saveChanges': 'Enregistrer les modifications ?',
@@ -1052,6 +1088,13 @@ class AppLocalizations {
       'editWindowDoor': 'Modifica Finestra/Porta',
       'designWindowDoor': 'Progetta finestra/porta',
       'designImageAttached': 'Immagine del progetto allegata',
+      'windowDoorStepsTitle': 'Follow these steps',
+      'windowDoorStepBasic': 'Step 1 · General information',
+      'windowDoorStepLayout': 'Step 2 · Layout & dimensions',
+      'windowDoorStepCatalog': 'Step 3 · Profiles & accessories',
+      'windowDoorStepExtras': 'Step 4 · Extras & notes',
+      'windowDoorDimensionHelp':
+          'Set the grid, then enter widths and piece counts. The last column/row adjusts automatically.',
       'clickAddPhoto': 'Clicca per \naggiungere foto',
       'name': 'Nome',
       'widthMm': 'Larghezza (mm)',
@@ -1070,6 +1113,8 @@ class AppLocalizations {
       'none': 'Nessuno',
       'blindOptional': 'Tapparella (Opzionale)',
       'accessoryOptional': 'Accessorio (Opzionale)',
+      'dimensionPieces': 'Pieces',
+      'dimensionPiecesHint': 'How many identical sections use this measurement.',
       'fillAllRequired':
           'Si prega di compilare tutti i campi richiesti!',
       'saveChanges': 'Salvare le modifiche?',
@@ -1319,6 +1364,12 @@ class AppLocalizations {
   String get editWindowDoor => _t('editWindowDoor');
   String get designWindowDoor => _t('designWindowDoor');
   String get designImageAttached => _t('designImageAttached');
+  String get windowDoorStepsTitle => _t('windowDoorStepsTitle');
+  String get windowDoorStepBasic => _t('windowDoorStepBasic');
+  String get windowDoorStepLayout => _t('windowDoorStepLayout');
+  String get windowDoorStepCatalog => _t('windowDoorStepCatalog');
+  String get windowDoorStepExtras => _t('windowDoorStepExtras');
+  String get windowDoorDimensionHelp => _t('windowDoorDimensionHelp');
   String get clickAddPhoto => _t('clickAddPhoto');
   String get name => _t('name');
   String get widthMm => _t('widthMm');
@@ -1337,6 +1388,8 @@ class AppLocalizations {
   String get none => _t('none');
   String get blindOptional => _t('blindOptional');
   String get accessoryOptional => _t('accessoryOptional');
+  String get dimensionPieces => _t('dimensionPieces');
+  String get dimensionPiecesHint => _t('dimensionPiecesHint');
   String get fillAllRequired => _t('fillAllRequired');
   String get saveChanges => _t('saveChanges');
   String get saveChangesQuestion => _t('saveChangesQuestion');
@@ -1360,6 +1413,8 @@ class AppLocalizations {
   String widthLabel(int index) => '${width} $index';
   String heightAutoLabel(int index) => '${height} $index (${auto})';
   String heightLabel(int index) => '${height} $index';
+  String dimensionPiecesLabel(int row, int column) =>
+      '${dimensionPieces} (R$row · C$column)';
 
   String get localeName => locale.languageCode;
 

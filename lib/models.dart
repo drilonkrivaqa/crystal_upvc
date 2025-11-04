@@ -259,6 +259,8 @@ class WindowDoorItem extends HiveObject {
   List<List<bool>>? perRowFixedSectors; // fixed/open per cell per row
   @HiveField(29)
   List<List<bool>>? perRowVerticalAdapters; // adapter flags between vertical sections per row
+  @HiveField(30)
+  List<List<int>>? perRowSectionPieces; // number of identical pieces per cell
 
   WindowDoorItem({
     required this.name,
@@ -291,6 +293,7 @@ class WindowDoorItem extends HiveObject {
     this.perRowSectionWidths,
     this.perRowFixedSectors,
     this.perRowVerticalAdapters,
+    this.perRowSectionPieces,
   })  : fixedSectors = fixedSectors ??
             List<bool>.filled(verticalSections * horizontalSections, false),
         sectionWidths = sectionWidths ?? List<int>.filled(verticalSections, 0),
@@ -509,6 +512,9 @@ class WindowDoorItem extends HiveObject {
           : null,
       perRowVerticalAdapters: perRowVerticalAdapters != null
           ? _clone2d<bool>(perRowVerticalAdapters!)
+          : null,
+      perRowSectionPieces: perRowSectionPieces != null
+          ? _clone2d<int>(perRowSectionPieces!)
           : null,
     );
   }

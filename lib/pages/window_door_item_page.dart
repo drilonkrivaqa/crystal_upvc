@@ -71,6 +71,9 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
       [<TextEditingController>[]];
   List<List<bool>> rowFixedSectors = [<bool>[false]];
   List<List<bool>> rowVerticalAdapters = [<bool>[]];
+  List<List<int>> rowSectionPieces = [<int>[1]];
+  List<List<TextEditingController>> rowSectionPieceCtrls =
+      [<TextEditingController>[]];
   List<TextEditingController> sectionHeightCtrls = [];
 
   int _normalizeIndex(int? index, int length) {
@@ -168,6 +171,11 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
           (existingItem.perRowVerticalAdapters ?? const <List<bool>>[])
               .map((row) => List<bool>.from(row))
               .toList();
+      rowSectionPieces =
+          (existingItem.perRowSectionPieces ?? const <List<int>>[])
+              .map((row) =>
+                  row.map((value) => value > 0 ? value : 1).toList())
+              .toList();
     } else {
       rowVerticalSections =
           List<int>.filled(horizontalSections, verticalSections); // default grid
@@ -193,6 +201,9 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
           return false;
         });
       });
+      rowSectionPieces = List<List<int>>.generate(horizontalSections, (_) {
+        return List<int>.filled(verticalSections, 1);
+      });
     }
 
     if (rowVerticalSections.isEmpty) {
@@ -207,6 +218,9 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     if (rowVerticalAdapters.isEmpty) {
       rowVerticalAdapters = [List<bool>.filled(verticalSections > 1 ? verticalSections - 1 : 0, false)];
     }
+    if (rowSectionPieces.isEmpty) {
+      rowSectionPieces = [List<int>.filled(verticalSections, 1)];
+    }
 
     rowSectionWidthCtrls = List<List<TextEditingController>>.generate(
         rowSectionWidths.length,
@@ -214,6 +228,12 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
             rowSectionWidths[row].length,
             (col) => TextEditingController(
                 text: rowSectionWidths[row][col].toString())));
+    rowSectionPieceCtrls = List<List<TextEditingController>>.generate(
+        rowSectionPieces.length,
+        (row) => List<TextEditingController>.generate(
+            rowSectionPieces[row].length,
+            (col) => TextEditingController(
+                text: rowSectionPieces[row][col].toString())));
 
     verticalSections = rowVerticalSections.isNotEmpty
         ? rowVerticalSections.reduce(
@@ -235,6 +255,12 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     final quantityLabel = quantityController.text.trim().isEmpty
         ? '1'
         : quantityController.text.trim();
+    final totalPieces = rowSectionPieceCtrls
+        .expand((row) => row)
+        .map((ctrl) => int.tryParse(ctrl.text) ?? 0)
+        .where((value) => value > 0)
+        .fold<int>(0, (previousValue, element) => previousValue + element);
+    final piecesLabel = totalPieces > 0 ? totalPieces.toString() : '-';
 
     return WillPopScope(
         onWillPop: _onWillPop,
@@ -323,6 +349,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    _buildIntroCard(context, l10n),
+                    const SizedBox(height: 16),
                     _buildSectionCard(
                       children: [
                         _buildSectionTitle(
@@ -396,6 +424,10 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                               Icons.format_list_numbered,
                               '${l10n.quantity}: $quantityLabel',
                             ),
+                            _buildInfoChip(
+                              Icons.grid_view,
+                              '${l10n.dimensionPieces}: $piecesLabel',
+                            ),
                           ],
                         ),
                         const SizedBox(height: 12),
@@ -413,6 +445,11 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                               keyboardType: TextInputType.number,
                               onChanged: (_) => _updateGrid()),
                         ]),
+                        const SizedBox(height: 16),
+                        _buildInfoNotice(
+                          context,
+                          l10n.windowDoorDimensionHelp,
+                        ),
                         const SizedBox(height: 16),
                         ClipRRect(
                           borderRadius: BorderRadius.circular(12),
@@ -633,6 +670,83 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     );
   }
 
+  Widget _buildIntroCard(BuildContext context, AppLocalizations l10n) {
+    final theme = Theme.of(context);
+    final steps = [
+      l10n.windowDoorStepBasic,
+      l10n.windowDoorStepLayout,
+      l10n.windowDoorStepCatalog,
+      l10n.windowDoorStepExtras,
+    ];
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSectionTitle(
+              context,
+              l10n.windowDoorStepsTitle,
+              Icons.flag_outlined,
+            ),
+            const SizedBox(height: 12),
+            for (final step in steps)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Icons.check_circle_outline,
+                      size: 18,
+                      color: AppColors.primaryDark,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        step,
+                        style: theme.textTheme.bodyMedium,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoNotice(BuildContext context, String message) {
+    final theme = Theme.of(context);
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.primaryLight.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.primaryLight.withOpacity(0.4)),
+      ),
+      padding: const EdgeInsets.all(12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            Icons.tips_and_updates_outlined,
+            color: AppColors.primaryDark,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              message,
+              style: theme.textTheme.bodyMedium,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildInfoChip(IconData icon, String label) {
     return Chip(
       avatar: Icon(icon, size: 16, color: AppColors.primaryDark),
@@ -803,6 +917,18 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
       }
     }
 
+    final piecesPerRow = <List<int>>[];
+    for (int r = 0; r < rowSectionPieceCtrls.length; r++) {
+      final rowPieces = <int>[];
+      for (int c = 0; c < rowSectionPieceCtrls[r].length; c++) {
+        final value = int.tryParse(rowSectionPieceCtrls[r][c].text) ?? 0;
+        rowPieces.add(value > 0 ? value : 1);
+      }
+      piecesPerRow.add(rowPieces);
+    }
+    rowSectionPieces =
+        piecesPerRow.map((row) => List<int>.from(row)).toList(growable: false);
+
     widget.onSave(
       WindowDoorItem(
         name: name,
@@ -841,6 +967,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
         perRowVerticalAdapters: rowVerticalAdapters
             .map((row) => List<bool>.from(row))
             .toList(),
+        perRowSectionPieces:
+            piecesPerRow.map((row) => List<int>.from(row)).toList(),
       ),
     );
     return true;
@@ -894,6 +1022,13 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
       rowSectionWidths = [];
       rowFixedSectors = [];
       rowVerticalAdapters = [];
+      for (final rowCtrls in rowSectionPieceCtrls) {
+        for (final ctrl in rowCtrls) {
+          ctrl.dispose();
+        }
+      }
+      rowSectionPieceCtrls = [];
+      rowSectionPieces = [];
       rowVerticalSections =
           List<int>.filled(horizontalSections, verticalSections);
     }
@@ -934,6 +1069,14 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
       rowSectionWidths = rowSectionWidths.sublist(0, horizontalSections);
     }
 
+    if (rowSectionPieces.length < horizontalSections) {
+      rowSectionPieces.addAll(List<List<int>>.generate(
+          horizontalSections - rowSectionPieces.length,
+          (_) => List<int>.filled(verticalSections, 1)));
+    } else if (rowSectionPieces.length > horizontalSections) {
+      rowSectionPieces = rowSectionPieces.sublist(0, horizontalSections);
+    }
+
     if (rowSectionWidthCtrls.length < horizontalSections) {
       rowSectionWidthCtrls.addAll(List<List<TextEditingController>>.generate(
           horizontalSections - rowSectionWidthCtrls.length,
@@ -941,6 +1084,15 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     } else if (rowSectionWidthCtrls.length > horizontalSections) {
       rowSectionWidthCtrls =
           rowSectionWidthCtrls.sublist(0, horizontalSections);
+    }
+
+    if (rowSectionPieceCtrls.length < horizontalSections) {
+      rowSectionPieceCtrls.addAll(List<List<TextEditingController>>.generate(
+          horizontalSections - rowSectionPieceCtrls.length,
+          (_) => <TextEditingController>[]));
+    } else if (rowSectionPieceCtrls.length > horizontalSections) {
+      rowSectionPieceCtrls =
+          rowSectionPieceCtrls.sublist(0, horizontalSections);
     }
 
     if (rowFixedSectors.length < horizontalSections) {
@@ -988,6 +1140,26 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
       } else if (rowSectionWidthCtrls[r].length > columns) {
         rowSectionWidthCtrls[r] =
             rowSectionWidthCtrls[r].sublist(0, columns);
+      }
+
+      if (rowSectionPieces[r].length < columns) {
+        rowSectionPieces[r].addAll(
+            List<int>.filled(columns - rowSectionPieces[r].length, 1));
+      } else if (rowSectionPieces[r].length > columns) {
+        rowSectionPieces[r] = rowSectionPieces[r].sublist(0, columns);
+      }
+
+      if (rowSectionPieceCtrls[r].length < columns) {
+        for (int i = rowSectionPieceCtrls[r].length; i < columns; i++) {
+          rowSectionPieceCtrls[r].add(TextEditingController(
+              text: (i < rowSectionPieces[r].length
+                      ? rowSectionPieces[r][i]
+                      : 1)
+                  .toString()));
+        }
+      } else if (rowSectionPieceCtrls[r].length > columns) {
+        rowSectionPieceCtrls[r] =
+            rowSectionPieceCtrls[r].sublist(0, columns);
       }
 
       if (rowFixedSectors[r].length < columns) {
@@ -1311,19 +1483,40 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                     children: [
                       for (int c = 0; c < rowVerticalSections[r]; c++)
                         SizedBox(
-                          width: 180,
-                          child: TextField(
-                            controller: rowSectionWidthCtrls[r][c],
-                            decoration: InputDecoration(
-                              labelText: c == rowVerticalSections[r] - 1
-                                  ? '${l10n.widthAutoLabel(c + 1)} (row ${r + 1})'
-                                  : '${l10n.widthLabel(c + 1)} (row ${r + 1})',
-                            ),
-                            keyboardType: TextInputType.number,
-                            enabled: c < rowVerticalSections[r] - 1,
-                            onChanged: c < rowVerticalSections[r] - 1
-                                ? (_) => _recalculateRowWidths(r)
-                                : null,
+                          width: 220,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              TextField(
+                                controller: rowSectionWidthCtrls[r][c],
+                                decoration: InputDecoration(
+                                  labelText: c == rowVerticalSections[r] - 1
+                                      ? '${l10n.widthAutoLabel(c + 1)} (row ${r + 1})'
+                                      : '${l10n.widthLabel(c + 1)} (row ${r + 1})',
+                                ),
+                                keyboardType: TextInputType.number,
+                                enabled: c < rowVerticalSections[r] - 1,
+                                onChanged: c < rowVerticalSections[r] - 1
+                                    ? (_) => _recalculateRowWidths(r)
+                                    : null,
+                              ),
+                              const SizedBox(height: 8),
+                              TextField(
+                                controller: rowSectionPieceCtrls[r][c],
+                                decoration: InputDecoration(
+                                  labelText: l10n.dimensionPiecesLabel(r + 1, c + 1),
+                                  helperText:
+                                      c == 0 ? l10n.dimensionPiecesHint : null,
+                                ),
+                                keyboardType: TextInputType.number,
+                                onChanged: (value) {
+                                  final parsed = int.tryParse(value);
+                                  setState(() {
+                                    rowSectionPieces[r][c] = parsed ?? 0;
+                                  });
+                                },
+                              ),
+                            ],
                           ),
                         ),
                     ],
@@ -1472,6 +1665,11 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
       ctrl.dispose();
     }
     for (final rowCtrls in rowSectionWidthCtrls) {
+      for (final ctrl in rowCtrls) {
+        ctrl.dispose();
+      }
+    }
+    for (final rowCtrls in rowSectionPieceCtrls) {
       for (final ctrl in rowCtrls) {
         ctrl.dispose();
       }

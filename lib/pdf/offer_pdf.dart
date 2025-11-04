@@ -358,6 +358,59 @@ Future<void> printOfferPdf({
               .map((a) => a ? l10n.pdfAdapter : 'T')
               .join(', ');
 
+          final widthSummary = () {
+            if (item.perRowSectionWidths != null &&
+                item.perRowSectionWidths!.isNotEmpty) {
+              final pieceRows = item.perRowSectionPieces;
+              final rowStrings = <String>[];
+              for (int i = 0;
+                  i < item.perRowSectionWidths!.length;
+                  i++) {
+                final row = item.perRowSectionWidths![i];
+                if (row.isEmpty) continue;
+                final pieces = pieceRows != null && i < pieceRows.length
+                    ? pieceRows[i]
+                    : const <int>[];
+                final cells = <String>[];
+                for (int c = 0; c < row.length; c++) {
+                  final width = row[c];
+                  final count =
+                      pieces.isNotEmpty && c < pieces.length ? pieces[c] : null;
+                  if (count != null && count > 1) {
+                    cells.add('${count}×$width');
+                  } else {
+                    cells.add('$width');
+                  }
+                }
+                rowStrings.add('R${i + 1}: ${cells.join(', ')}');
+              }
+              if (rowStrings.isNotEmpty) {
+                return '${l10n.pdfWidths} ${rowStrings.join(' | ')}';
+              }
+            }
+            if (item.sectionWidths.isNotEmpty) {
+              final pieces = item.perRowSectionPieces != null &&
+                      item.perRowSectionPieces!.isNotEmpty
+                  ? item.perRowSectionPieces!.first
+                  : const <int>[];
+              final cells = <String>[];
+              for (int c = 0; c < item.sectionWidths.length; c++) {
+                final width = item.sectionWidths[c];
+                final count =
+                    pieces.isNotEmpty && c < pieces.length ? pieces[c] : null;
+                if (count != null && count > 1) {
+                  cells.add('${count}×$width');
+                } else {
+                  cells.add('$width');
+                }
+              }
+              final label =
+                  item.sectionWidths.length > 1 ? l10n.pdfWidths : l10n.pdfWidth;
+              return '$label ${cells.join(', ')}';
+            }
+            return '${l10n.pdfWidth} -';
+          }();
+
           final details = <pw.Widget>[
             pw.Text(item.name, style: headerStyle),
             pw.SizedBox(height: 2),
@@ -381,11 +434,7 @@ Future<void> printOfferPdf({
             pw.Text(
                 '${l10n.pdfSections} ${item.horizontalSections}x${item.verticalSections}'),
             pw.Text('${l10n.pdfOpening} ${item.openings}'),
-            pw.Text(
-                item.perRowSectionWidths != null &&
-                        item.perRowSectionWidths!.isNotEmpty
-                    ? '${l10n.pdfWidths} ${item.perRowSectionWidths!.asMap().entries.map((e) => 'R${e.key + 1}: ${e.value.join(', ')}').join(' | ')}'
-                    : '${item.sectionWidths.length > 1 ? l10n.pdfWidths : l10n.pdfWidth} ${item.sectionWidths.join(', ')}'),
+            pw.Text(widthSummary),
             pw.Text(
                 '${item.sectionHeights.length > 1 ? l10n.pdfHeights : l10n.pdfHeight} ${item.sectionHeights.join(', ')}'),
             if (item.verticalSections != 1)
