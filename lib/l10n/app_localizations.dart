@@ -179,10 +179,10 @@ class AppLocalizations {
       'addWindowDoor': 'Shto Dritare/Derë',
       'bulkAddAction': 'Shto disa dritare/dyer',
       'bulkAddActionSubtitle':
-          'Shkruaj dimensionet dhe sektorët për t\'i krijuar menjëherë',
+          'Shkruaj dimensionet, sektorët dhe copat për t\'i krijuar menjëherë',
       'bulkAddDialogTitle': 'Shto disa dritare/dyer',
       'bulkAddDialogDescription':
-          'Shkruani gjerësinë, lartësinë, seksionet vertikale, seksionet horizontale, copat dhe opsionalisht sasinë për çdo rresht (shembull: {example}).',
+          'Çdo rresht duhet të ketë gjerësinë, lartësinë, seksionet vertikale, seksionet horizontale, copat dhe opsionalisht sasinë. Shembull: {example}. Përdorni udhëzuesin më poshtë nëse ju duhet ndihmë.',
       'bulkAddDialogNamePrefix': 'Prefiksi i emrit',
       'bulkAddDialogItemsLabel': 'Artikujt (nga një për rresht)',
       'bulkAddDialogInvalidLine': 'Rreshti nuk u lexua: {line}',
@@ -190,6 +190,18 @@ class AppLocalizations {
           'Së pari shtoni të paktën një artikull të vlefshëm.',
       'bulkAddSnackSuccess': 'U shtuan {count} artikuj.',
       'bulkAddDialogDefaultPrefix': 'Element',
+      'bulkAddDialogFieldOrderTitle': 'Çfarë të shkruani në çdo rresht',
+      'bulkAddDialogWidthHelp': '1. Gjerësia në milimetra.',
+      'bulkAddDialogHeightHelp': '2. Lartësia në milimetra.',
+      'bulkAddDialogVerticalHelp':
+          '3. Sa seksione vertikale ka artikulli.',
+      'bulkAddDialogHorizontalHelp':
+          '4. Sa seksione horizontale ka artikulli.',
+      'bulkAddDialogPiecesHelp': '5. Numri i copave në këtë artikull.',
+      'bulkAddDialogQuantityHelp':
+          '6. Sasia e artikujve identikë (opsionale, parazgjedhja 1).',
+      'bulkAddPreviewTitle': 'Parapamje ({count})',
+      'bulkAddDialogExampleLabel': 'Shembull rreshti',
       'editWindowDoor': 'Ndrysho Dritaren/Derën',
       'designWindowDoor': 'Dizajno dritare/derë',
       'designImageAttached': 'Imazhi i dizajnit u bashkangjit',
@@ -413,10 +425,10 @@ class AppLocalizations {
       'addWindowDoor': 'Add Window/Door',
       'bulkAddAction': 'Add multiple windows/doors',
       'bulkAddActionSubtitle':
-          'Enter sizes and sections to generate items instantly',
+          'Enter sizes, sections, and pieces to generate items instantly',
       'bulkAddDialogTitle': 'Add multiple windows/doors',
       'bulkAddDialogDescription':
-          'Enter width, height, vertical sections, horizontal sections, pieces, and optional quantity per line (example: {example}).',
+          'Each line should contain width, height, vertical sections, horizontal sections, pieces, and optionally quantity. Example: {example}. Use the guide below if you need help.',
       'bulkAddDialogNamePrefix': 'Name prefix',
       'bulkAddDialogItemsLabel': 'Items (one per line)',
       'bulkAddDialogInvalidLine': 'Could not read: {line}',
@@ -424,6 +436,16 @@ class AppLocalizations {
           'Please enter at least one valid item first.',
       'bulkAddSnackSuccess': '{count} items added.',
       'bulkAddDialogDefaultPrefix': 'Item',
+      'bulkAddDialogFieldOrderTitle': 'What each line should contain',
+      'bulkAddDialogWidthHelp': '1. Width in millimeters.',
+      'bulkAddDialogHeightHelp': '2. Height in millimeters.',
+      'bulkAddDialogVerticalHelp': '3. Number of vertical sections.',
+      'bulkAddDialogHorizontalHelp': '4. Number of horizontal sections.',
+      'bulkAddDialogPiecesHelp': '5. Pieces inside the item.',
+      'bulkAddDialogQuantityHelp':
+          '6. Quantity of identical items (optional, defaults to 1).',
+      'bulkAddPreviewTitle': 'Preview ({count})',
+      'bulkAddDialogExampleLabel': 'Example line',
       'editWindowDoor': 'Edit Window/Door',
       'designWindowDoor': 'Design window/door',
       'designImageAttached': 'Design image attached',
@@ -644,10 +666,10 @@ class AppLocalizations {
       'addWindowDoor': 'Fenster/Tür hinzufügen',
       'bulkAddAction': 'Mehrere Fenster/Türen hinzufügen',
       'bulkAddActionSubtitle':
-          'Maße und Sektionen eingeben, um Elemente sofort zu erzeugen',
+          'Maße, Sektionen und Stücke eingeben, um Elemente sofort zu erzeugen',
       'bulkAddDialogTitle': 'Mehrere Fenster/Türen hinzufügen',
       'bulkAddDialogDescription':
-          'Geben Sie Breite, Höhe, vertikale Sektionen, horizontale Sektionen, Stückzahl und optional die Menge pro Zeile ein (Beispiel: {example}).',
+          'Jede Zeile muss Breite, Höhe, vertikale Sektionen, horizontale Sektionen, Stückzahl und optional die Menge enthalten (Beispiel: {example}). Nutzen Sie bei Bedarf die Anleitung unten.',
       'bulkAddDialogNamePrefix': 'Namenspräfix',
       'bulkAddDialogItemsLabel': 'Elemente (je Zeile eines)',
       'bulkAddDialogInvalidLine': 'Konnte nicht lesen: {line}',
@@ -655,6 +677,20 @@ class AppLocalizations {
           'Bitte zuerst mindestens ein gültiges Element eingeben.',
       'bulkAddSnackSuccess': '{count} Elemente hinzugefügt.',
       'bulkAddDialogDefaultPrefix': 'Element',
+      'bulkAddDialogFieldOrderTitle':
+          'Was jede Zeile enthalten sollte',
+      'bulkAddDialogWidthHelp': '1. Breite in Millimetern.',
+      'bulkAddDialogHeightHelp': '2. Höhe in Millimetern.',
+      'bulkAddDialogVerticalHelp':
+          '3. Anzahl der vertikalen Sektionen.',
+      'bulkAddDialogHorizontalHelp':
+          '4. Anzahl der horizontalen Sektionen.',
+      'bulkAddDialogPiecesHelp':
+          '5. Anzahl der Teile in diesem Element.',
+      'bulkAddDialogQuantityHelp':
+          '6. Anzahl identischer Elemente (optional, Standard 1).',
+      'bulkAddPreviewTitle': 'Vorschau ({count})',
+      'bulkAddDialogExampleLabel': 'Beispielzeile',
       'editWindowDoor': 'Fenster/Tür bearbeiten',
       'designWindowDoor': 'Fenster/Tür entwerfen',
       'designImageAttached': 'Designbild angehängt',
@@ -878,10 +914,10 @@ class AppLocalizations {
       'totalProfit': 'Bénéfice total',
       'bulkAddAction': 'Ajouter plusieurs fenêtres/portes',
       'bulkAddActionSubtitle':
-          'Saisissez les dimensions et sections pour créer instantanément des éléments',
+          'Saisissez dimensions, sections et pièces pour créer instantanément des éléments',
       'bulkAddDialogTitle': 'Ajouter plusieurs fenêtres/portes',
       'bulkAddDialogDescription':
-          'Saisissez largeur, hauteur, sections verticales, sections horizontales, pièces et, en option, la quantité par ligne (exemple : {example}).',
+          'Chaque ligne doit contenir la largeur, la hauteur, les sections verticales, les sections horizontales, les pièces et éventuellement la quantité (exemple : {example}). Utilisez le guide ci-dessous en cas de besoin.',
       'bulkAddDialogNamePrefix': 'Préfixe du nom',
       'bulkAddDialogItemsLabel': 'Éléments (un par ligne)',
       'bulkAddDialogInvalidLine': 'Lecture impossible : {line}',
@@ -889,6 +925,19 @@ class AppLocalizations {
           'Veuillez saisir au moins un élément valide.',
       'bulkAddSnackSuccess': '{count} éléments ajoutés.',
       'bulkAddDialogDefaultPrefix': 'Élément',
+      'bulkAddDialogFieldOrderTitle': 'Contenu de chaque ligne',
+      'bulkAddDialogWidthHelp': '1. Largeur en millimètres.',
+      'bulkAddDialogHeightHelp': '2. Hauteur en millimètres.',
+      'bulkAddDialogVerticalHelp':
+          '3. Nombre de sections verticales.',
+      'bulkAddDialogHorizontalHelp':
+          '4. Nombre de sections horizontales.',
+      'bulkAddDialogPiecesHelp':
+          '5. Nombre de pièces dans l’élément.',
+      'bulkAddDialogQuantityHelp':
+          '6. Quantité d’éléments identiques (facultatif, valeur par défaut : 1).',
+      'bulkAddPreviewTitle': 'Aperçu ({count})',
+      'bulkAddDialogExampleLabel': 'Ligne d’exemple',
       'addWindowDoor': 'Ajouter Fenêtre/Porte',
       'editWindowDoor': 'Modifier Fenêtre/Porte',
       'designWindowDoor': 'Concevoir fenêtre/porte',
@@ -1113,16 +1162,29 @@ class AppLocalizations {
       'addWindowDoor': 'Aggiungi Finestra/Porta',
       'bulkAddAction': 'Aggiungi più finestre/porte',
       'bulkAddActionSubtitle':
-          'Inserisci dimensioni e settori per generarli subito',
+          'Inserisci dimensioni, settori e pezzi per generarli subito',
       'bulkAddDialogTitle': 'Aggiungi più finestre/porte',
       'bulkAddDialogDescription':
-          'Inserisci larghezza, altezza, settori verticali, settori orizzontali, pezzi e opzionalmente la quantità per riga (esempio: {example}).',
+          'Ogni riga deve contenere larghezza, altezza, settori verticali, settori orizzontali, pezzi e facoltativamente la quantità (esempio: {example}). Usa la guida qui sotto se ti serve aiuto.',
       'bulkAddDialogNamePrefix': 'Prefisso del nome',
       'bulkAddDialogItemsLabel': 'Elementi (uno per riga)',
       'bulkAddDialogInvalidLine': 'Impossibile leggere: {line}',
       'bulkAddDialogNoItems': 'Inserisci almeno un elemento valido.',
       'bulkAddSnackSuccess': '{count} elementi aggiunti.',
       'bulkAddDialogDefaultPrefix': 'Elemento',
+      'bulkAddDialogFieldOrderTitle': 'Cosa deve contenere ogni riga',
+      'bulkAddDialogWidthHelp': '1. Larghezza in millimetri.',
+      'bulkAddDialogHeightHelp': '2. Altezza in millimetri.',
+      'bulkAddDialogVerticalHelp':
+          '3. Numero di settori verticali.',
+      'bulkAddDialogHorizontalHelp':
+          '4. Numero di settori orizzontali.',
+      'bulkAddDialogPiecesHelp':
+          '5. Numero di pezzi nell’articolo.',
+      'bulkAddDialogQuantityHelp':
+          '6. Quantità di articoli identici (opzionale, predefinita 1).',
+      'bulkAddPreviewTitle': 'Anteprima ({count})',
+      'bulkAddDialogExampleLabel': 'Riga di esempio',
       'editWindowDoor': 'Modifica Finestra/Porta',
       'designWindowDoor': 'Progetta finestra/porta',
       'designImageAttached': 'Immagine del progetto allegata',
@@ -1402,6 +1464,18 @@ class AppLocalizations {
   String bulkAddSnackSuccess(int count) =>
       _t('bulkAddSnackSuccess').replaceAll('{count}', count.toString());
   String get bulkAddDialogDefaultPrefix => _t('bulkAddDialogDefaultPrefix');
+  String get bulkAddDialogFieldOrderTitle =>
+      _t('bulkAddDialogFieldOrderTitle');
+  String get bulkAddDialogWidthHelp => _t('bulkAddDialogWidthHelp');
+  String get bulkAddDialogHeightHelp => _t('bulkAddDialogHeightHelp');
+  String get bulkAddDialogVerticalHelp => _t('bulkAddDialogVerticalHelp');
+  String get bulkAddDialogHorizontalHelp =>
+      _t('bulkAddDialogHorizontalHelp');
+  String get bulkAddDialogPiecesHelp => _t('bulkAddDialogPiecesHelp');
+  String get bulkAddDialogQuantityHelp => _t('bulkAddDialogQuantityHelp');
+  String bulkAddPreviewTitle(int count) =>
+      _t('bulkAddPreviewTitle').replaceAll('{count}', count.toString());
+  String get bulkAddDialogExampleLabel => _t('bulkAddDialogExampleLabel');
   String get editWindowDoor => _t('editWindowDoor');
   String get designWindowDoor => _t('designWindowDoor');
   String get designImageAttached => _t('designImageAttached');
