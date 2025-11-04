@@ -2,15 +2,15 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Toni Al-Pvc"
-#define MyAppVersion "1.5"
-#define MyAppPublisher "Toni Al-Pvc Sh.P.K."
+#define MyAppVersion "1.6"
+#define MyAppPublisher "Toni Al-Pvc"
 #define MyAppURL "https://www.tonialpvc.com/"
 #define MyAppExeName "crystal_upvc.exe"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
-AppId={{6DE29B44-482D-4196-9408-3608CADF3680}
+AppId={{6B620D62-60CC-41A0-AA88-5A74CA246113}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 ;AppVerName={#MyAppName} {#MyAppVersion}
@@ -31,9 +31,9 @@ ArchitecturesInstallIn64BitMode=x64compatible
 DisableProgramGroupPage=yes
 ; Uncomment the following line to run in non administrative install mode (install for current user only).
 ;PrivilegesRequired=lowest
-OutputDir=C:\Users\Drilon Krivaqa\StudioProjects\crystal_upvc\installers
+OutputDir=C:\StudioProjects\crystal_upvc\installers
 OutputBaseFilename=toni_al_pvc
-SetupIconFile=C:\Users\Drilon Krivaqa\Desktop\new\Programi\Logo Toni Al-Pvc.ico
+SetupIconFile=C:\Users\Drilon Krivaqa\Downloads\Untitled_design-removebg-preview.ico
 SolidCompression=yes
 WizardStyle=modern
 
@@ -44,12 +44,12 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "C:\Users\Drilon Krivaqa\StudioProjects\crystal_upvc\build\windows\x64\runner\Release\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\Drilon Krivaqa\StudioProjects\crystal_upvc\build\windows\x64\runner\Release\file_selector_windows_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\Drilon Krivaqa\StudioProjects\crystal_upvc\build\windows\x64\runner\Release\flutter_windows.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\Drilon Krivaqa\StudioProjects\crystal_upvc\build\windows\x64\runner\Release\pdfium.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\Drilon Krivaqa\StudioProjects\crystal_upvc\build\windows\x64\runner\Release\printing_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\Drilon Krivaqa\StudioProjects\crystal_upvc\build\windows\x64\runner\Release\data\*"; DestDir: "{app}\data"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\StudioProjects\crystal_upvc\build\windows\x64\runner\Release\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\StudioProjects\crystal_upvc\build\windows\x64\runner\Release\file_selector_windows_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\StudioProjects\crystal_upvc\build\windows\x64\runner\Release\flutter_windows.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\StudioProjects\crystal_upvc\build\windows\x64\runner\Release\pdfium.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\StudioProjects\crystal_upvc\build\windows\x64\runner\Release\printing_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\StudioProjects\crystal_upvc\build\windows\x64\runner\Release\data\*"; DestDir: "{app}\data"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

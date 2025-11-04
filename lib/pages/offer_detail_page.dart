@@ -1418,7 +1418,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                           ),
                           OutlinedButton.icon(
                             icon: const Icon(Icons.lightbulb),
-                            label: const Text("Example"),
+                            label: const Text("Poz."),
                             onPressed: () {
                               updateAndRecompute(() {
                                 itemsController.text = [
