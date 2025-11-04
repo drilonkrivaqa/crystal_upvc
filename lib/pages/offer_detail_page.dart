@@ -194,7 +194,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                           },
                           title: Text(item.name),
                           subtitle: Text(
-                              '${item.width} x ${item.height} mm • ${item.pieces} ${l10n.windowDoorPiecesLabel} • ${item.quantity} ${l10n.pcs}'),
+                              '${item.width} x ${item.height} mm • ${item.quantity} ${l10n.pcs}'),
                           controlAffinity: ListTileControlAffinity.leading,
                         );
                       },
@@ -895,8 +895,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 subtitle: Text(() {
                   final sb = StringBuffer();
                   sb.writeln('Size: ${item.width} x ${item.height} mm');
-                  sb.writeln('${l10n.pdfPieces} ${item.quantity}');
-                  sb.writeln('${l10n.windowDoorPiecesLabel}: ${item.pieces}');
+                  sb.writeln('Pcs: ${item.quantity}');
                   sb.writeln('Profile: ${profileSet.name}');
                   sb.writeln('Glass: ${glass.name}');
                   sb.writeln(
@@ -1308,7 +1307,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                     children: [
                       Text(
                         l10n.bulkAddDialogDescription(
-                          '1200,1400,2,1,6,2',
+                          '1200,1400,2,1,2',
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -1421,7 +1420,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
           .allMatches(line)
           .map((match) => int.parse(match.group(0)!))
           .toList();
-      if (numbers.length < 5) {
+      if (numbers.length < 4) {
         throw FormatException(l10n.bulkAddDialogInvalidLine(line));
       }
 
@@ -1429,16 +1428,12 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
       final height = numbers[1];
       final vertical = numbers[2];
       final horizontal = numbers[3];
-      final pieces = numbers[4];
-      final quantity = numbers.length >= 6 ? numbers[5] : 1;
+      final quantity = numbers.length >= 5 ? numbers[4] : 1;
 
       if (width <= 0 || height <= 0 || vertical <= 0 || horizontal <= 0) {
         throw FormatException(l10n.bulkAddDialogInvalidLine(line));
       }
       if (quantity <= 0) {
-        throw FormatException(l10n.bulkAddDialogInvalidLine(line));
-      }
-      if (pieces <= 0) {
         throw FormatException(l10n.bulkAddDialogInvalidLine(line));
       }
 
@@ -1462,7 +1457,6 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
           width: width,
           height: height,
           quantity: quantity,
-          pieces: pieces,
           profileSetIndex: profileIndex,
           glassIndex: glassIndex,
           openings:
