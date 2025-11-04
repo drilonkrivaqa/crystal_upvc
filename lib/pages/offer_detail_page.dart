@@ -1307,7 +1307,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                     children: [
                       Text(
                         l10n.bulkAddDialogDescription(
-                          '1200,1400,2,1,2',
+                          '1200,1400,2,1,pcs',
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -1322,7 +1322,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                         controller: itemsController,
                         decoration: InputDecoration(
                           labelText: l10n.bulkAddDialogItemsLabel,
-                          hintText: '1200,1400,2,1,cope',
+                          hintText: '1200,1400,2,1,pcs',
                         ),
                         minLines: 4,
                         maxLines: 10,
