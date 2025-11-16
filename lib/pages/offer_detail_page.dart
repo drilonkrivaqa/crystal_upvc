@@ -432,21 +432,28 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                         ],
                       ),
                     ),
-                    Wrap(
-                      spacing: 8,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [
-                        TextButton(
-                          onPressed: () => _applyVersion(offer, version),
-                          child: Text(l10n.useVersion),
+                    Flexible(
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: Wrap(
+                          spacing: 8,
+                          runSpacing: 4,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          alignment: WrapAlignment.end,
+                          children: [
+                            TextButton(
+                              onPressed: () => _applyVersion(offer, version),
+                              child: Text(l10n.useVersion),
+                            ),
+                            IconButton(
+                              tooltip: l10n.delete,
+                              onPressed: () =>
+                                  _confirmDeleteVersion(offer, index),
+                              icon: const Icon(Icons.delete),
+                            ),
+                          ],
                         ),
-                        IconButton(
-                          tooltip: l10n.delete,
-                          onPressed: () =>
-                              _confirmDeleteVersion(offer, index),
-                          icon: const Icon(Icons.delete),
-                        ),
-                      ],
+                      ),
                     ),
                   ],
                 ),
@@ -621,43 +628,71 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final isCompact = constraints.maxWidth < 520;
+
+              final headerContent = [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.pdfOffer,
+                        style: Theme.of(context)
+                            .textTheme
+                            .labelLarge
+                            ?.copyWith(color: Colors.black54),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '#${offer.offerNumber}',
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineSmall
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+                Flexible(
+                  child: Align(
+                    alignment:
+                    isCompact ? Alignment.centerLeft : Alignment.centerRight,
+                    child: Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      alignment:
+                      isCompact ? WrapAlignment.start : WrapAlignment.end,
+                      children: [
+                        _buildInfoChip('${l10n.pdfDate} $createdText'),
+                        _buildInfoChip(
+                          l10n.versionCreatedOn.replaceAll('{date}', editedText),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ];
+
+              if (isCompact) {
+                return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      l10n.pdfOffer,
-                      style: Theme.of(context)
-                          .textTheme
-                          .labelLarge
-                          ?.copyWith(color: Colors.black54),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: headerContent,
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '#${offer.offerNumber}',
-                      style: Theme.of(context)
-                          .textTheme
-                          .headlineSmall
-                          ?.copyWith(fontWeight: FontWeight.bold),
-                    ),
+                    const SizedBox(height: 8),
                   ],
-                ),
-              ),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                alignment: WrapAlignment.end,
-                children: [
-                  _buildInfoChip('${l10n.pdfDate} $createdText'),
-                  _buildInfoChip(
-                    l10n.versionCreatedOn.replaceAll('{date}', editedText),
-                  ),
-                ],
-              ),
-            ],
+                );
+              }
+
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: headerContent,
+              );
+            },
           ),
           const SizedBox(height: 20),
           LayoutBuilder(
