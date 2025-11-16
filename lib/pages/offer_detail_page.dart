@@ -382,20 +382,41 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  l10n.versionsSectionTitle,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ),
-              TextButton.icon(
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final isNarrow = constraints.maxWidth < 420;
+              final title = Text(
+                l10n.versionsSectionTitle,
+                style: Theme.of(context).textTheme.titleMedium,
+              );
+              final action = TextButton.icon(
                 onPressed: () => _showSaveVersionDialog(offer),
                 icon: const Icon(Icons.save),
                 label: Text(l10n.saveVersionAction),
-              ),
-            ],
+              );
+
+              if (isNarrow) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    title,
+                    const SizedBox(height: 8),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: action,
+                    ),
+                  ],
+                );
+              }
+
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(child: title),
+                  action,
+                ],
+              );
+            },
           ),
           if (versionIndices.isEmpty)
             Padding(
@@ -767,6 +788,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
           DropdownButtonFormField<int>(
             value: profileSetBox.isEmpty ? null : selectedProfileIndex,
             decoration: InputDecoration(labelText: l10n.defaultProfile),
+            isExpanded: true,
             items: [
               for (int i = 0; i < profileSetBox.length; i++)
                 DropdownMenuItem<int>(
@@ -792,6 +814,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
           DropdownButtonFormField<int>(
             value: glassBox.isEmpty ? null : selectedGlassIndex,
             decoration: InputDecoration(labelText: l10n.defaultGlass),
+            isExpanded: true,
             items: [
               for (int i = 0; i < glassBox.length; i++)
                 DropdownMenuItem<int>(
