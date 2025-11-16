@@ -1207,12 +1207,9 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: LayoutBuilder(
                   builder: (context, innerConstraints) {
-                    final wrapWidth = innerConstraints.maxWidth;
-                    final bool isWide = wrapWidth >= 900;
-                    final double cardWidth =
-                    isWide ? (wrapWidth - 16) / 2 : wrapWidth;
                     final cards = <Widget>[
                       _buildOverviewCard(offer),
+                      _buildVersionsCard(offer),
                       if (profileSetBox.isNotEmpty || glassBox.isNotEmpty)
                         _buildDefaultCharacteristicsCard(
                           offer,
@@ -1220,19 +1217,15 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                           selectedGlassIndex,
                           hasPendingDefaultChange,
                         ),
-                      _buildVersionsCard(offer),
                     ];
-                    return Wrap(
-                      spacing: 16,
-                      runSpacing: 16,
-                      children: cards
-                          .map(
-                            (card) => SizedBox(
-                          width: cardWidth,
-                          child: card,
-                        ),
-                      )
-                          .toList(),
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        for (int i = 0; i < cards.length; i++) ...[
+                          cards[i],
+                          if (i != cards.length - 1) const SizedBox(height: 16),
+                        ],
+                      ],
                     );
                   },
                 ),
@@ -2085,40 +2078,25 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
       return null;
     }
     final theme = Theme.of(context);
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final availableWidth = constraints.maxWidth.isFinite
-            ? constraints.maxWidth
-            : MediaQuery.of(context).size.width;
-        final width = availableWidth > 0
-            ? availableWidth
-            : MediaQuery.of(context).size.width;
-        final isWide = width >= 520;
-        final tileWidth = isWide ? (width - 12) / 2 : width;
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          section.title,
+          style:
+              theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(height: 8),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              section.title,
-              style: theme.textTheme.titleSmall
-                  ?.copyWith(fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              children: entries.map((entry) {
-                final cardWidth =
-                    entry.spanFullWidth || !isWide ? width : tileWidth;
-                return SizedBox(
-                  width: cardWidth,
-                  child: _buildDetailTile(entry),
-                );
-              }).toList(),
-            ),
+            for (int i = 0; i < entries.length; i++) ...[
+              _buildDetailTile(entries[i]),
+              if (i != entries.length - 1) const SizedBox(height: 12),
+            ],
           ],
-        );
-      },
+        ),
+      ],
     );
   }
 
