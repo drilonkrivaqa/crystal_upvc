@@ -458,6 +458,237 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
     );
   }
 
+  Widget _buildOverviewTile({
+    required IconData icon,
+    required String label,
+    required String value,
+    VoidCallback? onEdit,
+  }) {
+    final theme = Theme.of(context);
+    return ListTile(
+      leading: Icon(icon, color: theme.colorScheme.primary),
+      title: Text(
+        label,
+        style: theme.textTheme.titleSmall,
+      ),
+      subtitle: Text(
+        value.isEmpty ? '-' : value,
+        style: theme.textTheme.bodyMedium,
+      ),
+      trailing: onEdit == null
+          ? null
+          : IconButton(
+              icon: const Icon(Icons.edit_outlined),
+              onPressed: onEdit,
+            ),
+    );
+  }
+
+  Widget _buildInfoChip(String label, String value) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.primary.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: theme.textTheme.bodySmall
+                ?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.6)),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            value,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLabeledNote(String label, String value) {
+    final textStyle = Theme.of(context).textTheme.bodySmall;
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: Text.rich(
+        TextSpan(
+          children: [
+            TextSpan(
+              text: '$label ',
+              style: textStyle?.copyWith(fontWeight: FontWeight.w600),
+            ),
+            TextSpan(text: value, style: textStyle),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPriceLine(String label, double perPiece, double total,
+      {bool emphasize = false}) {
+    final theme = Theme.of(context);
+    final textStyle = emphasize
+        ? theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)
+        : theme.textTheme.bodyMedium;
+    final secondary = theme.textTheme.bodySmall
+        ?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.6));
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(label, style: textStyle),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text('€${total.toStringAsFixed(2)}', style: textStyle),
+              Text('€${perPiece.toStringAsFixed(2)} /pc', style: secondary),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSummaryValueRow(String label, String value,
+      {bool emphasize = false}) {
+    final theme = Theme.of(context);
+    final valueStyle = emphasize
+        ? theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)
+        : theme.textTheme.bodyMedium;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(label, style: theme.textTheme.bodyMedium),
+          ),
+          Text(value, style: valueStyle),
+        ],
+      ),
+    );
+  }
+
+  Widget? _buildItemPhoto(WindowDoorItem item) {
+    Widget? image;
+    if (item.photoPath != null) {
+      image = kIsWeb
+          ? Image.network(
+              item.photoPath!,
+              width: 80,
+              height: 80,
+              fit: BoxFit.cover,
+            )
+          : Image.file(
+              File(item.photoPath!),
+              width: 80,
+              height: 80,
+              fit: BoxFit.cover,
+            );
+    } else if (item.photoBytes != null) {
+      image = Image.memory(
+        item.photoBytes!,
+        width: 80,
+        height: 80,
+        fit: BoxFit.cover,
+      );
+    }
+    if (image == null) {
+      return null;
+    }
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12),
+      child: image,
+    );
+  }
+
+  Future<void> _editCustomer(Offer offer) async {
+    final l10n = AppLocalizations.of(context);
+    if (customerBox.isEmpty) return;
+    int selected = offer.customerIndex;
+    await showDialog(
+      context: context,
+      builder: (_) => StatefulBuilder(
+        builder: (context, setStateDialog) {
+          return AlertDialog(
+            title: Text(l10n.chooseCustomer),
+            content: DropdownButton<int>(
+              value: selected,
+              items: List.generate(
+                customerBox.length,
+                (i) => DropdownMenuItem(
+                  value: i,
+                  child: Text(customerBox.getAt(i)?.name ?? ''),
+                ),
+              ),
+              onChanged: (v) => setStateDialog(() => selected = v ?? selected),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(l10n.cancel),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  offer.customerIndex = selected;
+                  offer.lastEdited = DateTime.now();
+                  offer.save();
+                  setState(() {});
+                  Navigator.pop(context);
+                },
+                child: Text(l10n.save),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Future<void> _editProfit(Offer offer) async {
+    final l10n = AppLocalizations.of(context);
+    final controller =
+        TextEditingController(text: offer.profitPercent.toString());
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(l10n.setProfitPercent),
+        content: TextField(
+          controller: controller,
+          keyboardType: TextInputType.number,
+          decoration: InputDecoration(labelText: l10n.profitPercent),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(l10n.cancel),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final val = double.tryParse(controller.text) ??
+                  offer.profitPercent;
+              offer.profitPercent = val;
+              offer.lastEdited = DateTime.now();
+              offer.save();
+              setState(() {});
+              Navigator.pop(context);
+            },
+            child: Text(l10n.save),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -537,119 +768,35 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
         ],
       ),
       backgroundColor: Colors.white,
-      body: ListView(
-        children: [
-          const SizedBox(height: 16),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    '${l10n.pdfClient}: ${customerBox.getAt(offer.customerIndex)?.name ?? ''}',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.only(bottom: 96),
+          children: [
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Card(
+                child: Column(
+                  children: [
+                    _buildOverviewTile(
+                      icon: Icons.person_outline,
+                      label: l10n.pdfClient,
+                      value:
+                          customerBox.getAt(offer.customerIndex)?.name ?? '',
+                      onEdit: () => _editCustomer(offer),
+                    ),
+                    const Divider(height: 1),
+                    _buildOverviewTile(
+                      icon: Icons.percent_outlined,
+                      label: l10n.profit,
+                      value: '${offer.profitPercent.toStringAsFixed(2)}%',
+                      onEdit: () => _editProfit(offer),
+                    ),
+                  ],
                 ),
-                IconButton(
-                  icon: const Icon(Icons.edit),
-                  onPressed: () async {
-                    if (customerBox.isEmpty) return;
-                    int selected = offer.customerIndex;
-                    await showDialog(
-                      context: context,
-                      builder: (_) => StatefulBuilder(
-                        builder: (context, setStateDialog) {
-                          return AlertDialog(
-                            title: Text(l10n.chooseCustomer),
-                            content: DropdownButton<int>(
-                              value: selected,
-                              items: List.generate(
-                                customerBox.length,
-                                (i) => DropdownMenuItem(
-                                  value: i,
-                                  child: Text(customerBox.getAt(i)?.name ?? ''),
-                                ),
-                              ),
-                              onChanged: (v) => setStateDialog(
-                                  () => selected = v ?? selected),
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: Text(l10n.cancel),
-                              ),
-                              ElevatedButton(
-                                onPressed: () {
-                                  offer.customerIndex = selected;
-                                  offer.lastEdited = DateTime.now();
-                                  offer.save();
-                                  setState(() {});
-                                  Navigator.pop(context);
-                                },
-                                child: Text(l10n.save),
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                    );
-                  },
-                ),
-              ],
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    '${l10n.profit}: ${offer.profitPercent.toStringAsFixed(2)}%',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.edit),
-                  onPressed: () async {
-                    final controller = TextEditingController(
-                        text: offer.profitPercent.toString());
-                    await showDialog(
-                      context: context,
-                      builder: (_) => AlertDialog(
-                        title: Text(l10n.setProfitPercent),
-                        content: TextField(
-                          controller: controller,
-                          keyboardType: TextInputType.number,
-                          decoration:
-                              InputDecoration(labelText: l10n.profitPercent),
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context),
-                            child: Text(l10n.cancel),
-                          ),
-                          ElevatedButton(
-                            onPressed: () {
-                              final val = double.tryParse(controller.text) ??
-                                  offer.profitPercent;
-                              offer.profitPercent = val;
-                              offer.lastEdited = DateTime.now();
-                              offer.save();
-                              setState(() {});
-                              Navigator.pop(context);
-                            },
-                            child: Text(l10n.save),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
+            const SizedBox(height: 16),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: _buildVersionsCard(offer),
@@ -826,8 +973,145 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
             double? uw = item.calculateUw(profileSet, glass,
                 boxHeight: blind?.boxHeight ?? 0);
 
+            final photo = _buildItemPhoto(item);
+            final area = item.calculateTotalArea() * item.quantity;
+            final chips = <Widget>[
+              _buildInfoChip(
+                  l10n.pdfDimensions, '${item.width} x ${item.height} mm'),
+              _buildInfoChip(
+                  l10n.pdfPieces, '${item.quantity} ${l10n.pcs}'),
+              _buildInfoChip(l10n.pdfProfileType, profileSet.name),
+              _buildInfoChip(l10n.pdfGlass, glass.name),
+              _buildInfoChip(l10n.pdfSections,
+                  '${item.horizontalSections} × ${item.verticalSections}'),
+              _buildInfoChip(l10n.pdfOpening, '${item.openings}'),
+              _buildInfoChip(l10n.pdfTotalMass,
+                  '${totalMass.toStringAsFixed(2)} kg'),
+              _buildInfoChip(
+                  l10n.pdfTotalArea, '${area.toStringAsFixed(2)} m²'),
+            ];
+            if (blind != null) {
+              chips.add(_buildInfoChip(l10n.pdfBlind, blind.name));
+            }
+            if (mechanism != null) {
+              chips.add(_buildInfoChip(l10n.pdfMechanism, mechanism.name));
+            }
+            if (accessory != null) {
+              chips.add(_buildInfoChip(l10n.pdfAccessory, accessory.name));
+            }
+            if (profileSet.uf != null) {
+              chips.add(
+                  _buildInfoChip(l10n.pdfUf, profileSet.uf!.toStringAsFixed(2)));
+            }
+            if (glass.ug != null) {
+              chips.add(
+                  _buildInfoChip(l10n.pdfUg, glass.ug!.toStringAsFixed(2)));
+            }
+            if (uw != null) {
+              chips.add(_buildInfoChip(l10n.pdfUw, uw.toStringAsFixed(2)));
+            }
+
+            final infoNotes = <Widget>[];
+            if (item.perRowSectionWidths != null &&
+                item.perRowSectionWidths!.isNotEmpty) {
+              final rowStrings = <String>[];
+              for (int row = 0; row < item.perRowSectionWidths!.length; row++) {
+                final rowValues = item.perRowSectionWidths![row];
+                if (rowValues.isEmpty) continue;
+                rowStrings.add('R${row + 1}: ${rowValues.join(', ')}');
+              }
+              if (rowStrings.isNotEmpty) {
+                infoNotes.add(
+                    _buildLabeledNote(l10n.pdfWidths, rowStrings.join(' | ')));
+              }
+            } else if (item.sectionWidths.isNotEmpty) {
+              infoNotes.add(_buildLabeledNote(
+                  item.sectionWidths.length > 1
+                      ? l10n.pdfWidths
+                      : l10n.pdfWidth,
+                  item.sectionWidths.join(', ')));
+            }
+            if (item.sectionHeights.isNotEmpty) {
+              infoNotes.add(_buildLabeledNote(
+                  item.sectionHeights.length > 1
+                      ? l10n.pdfHeights
+                      : l10n.pdfHeight,
+                  item.sectionHeights.join(', ')));
+            }
+            if (item.hasPerRowLayout) {
+              final adapters = <String>[];
+              final perRow = item.perRowVerticalAdapters ?? const <List<bool>>[];
+              for (int row = 0; row < perRow.length; row++) {
+                if (perRow[row].isEmpty) continue;
+                adapters.add(
+                    'R${row + 1}: ${perRow[row].map((a) => a ? 'Adapter' : 'T').join(', ')}');
+              }
+              if (adapters.isNotEmpty) {
+                infoNotes
+                    .add(_buildLabeledNote(l10n.pdfVDiv, adapters.join(' | ')));
+              }
+            } else if (item.verticalAdapters.isNotEmpty) {
+              infoNotes.add(_buildLabeledNote(
+                  l10n.pdfVDiv,
+                  item.verticalAdapters
+                      .map((a) => a ? 'Adapter' : 'T')
+                      .join(', ')));
+            }
+            if (item.horizontalAdapters.isNotEmpty) {
+              infoNotes.add(_buildLabeledNote(
+                  l10n.pdfHDiv,
+                  item.horizontalAdapters
+                      .map((a) => a ? 'Adapter' : 'T')
+                      .join(', ')));
+            }
+            if (item.extra1Price != null) {
+              infoNotes.add(_buildLabeledNote(
+                  item.extra1Desc ?? l10n.pdfExtra1,
+                  '€${(item.extra1Price! * item.quantity).toStringAsFixed(2)}'));
+            }
+            if (item.extra2Price != null) {
+              infoNotes.add(_buildLabeledNote(
+                  item.extra2Desc ?? l10n.pdfExtra2,
+                  '€${(item.extra2Price! * item.quantity).toStringAsFixed(2)}'));
+            }
+            if (item.notes != null && item.notes!.isNotEmpty) {
+              infoNotes
+                  .add(_buildLabeledNote(l10n.pdfNotesItem, item.notes!.trim()));
+            }
+
+            final componentCosts = <Widget>[
+              _buildPriceLine(l10n.pdfProfileType, profileCostPer, profileCost),
+              _buildPriceLine(l10n.pdfGlass, glassCostPer, glassCost),
+            ];
+            if (blindCost > 0) {
+              componentCosts.add(_buildPriceLine(
+                  '${l10n.pdfBlind} ${blind != null ? '(${blind.name})' : ''}'
+                      .trim(),
+                  blindCostPer,
+                  blindCost));
+            }
+            if (mechanismCost > 0) {
+              componentCosts.add(_buildPriceLine(
+                  '${l10n.pdfMechanism} ${mechanism != null ? '(${mechanism.name})' : ''}'
+                      .trim(),
+                  mechanismCostPer,
+                  mechanismCost));
+            }
+            if (accessoryCost > 0) {
+              componentCosts.add(_buildPriceLine(
+                  '${l10n.pdfAccessory} ${accessory != null ? '(${accessory.name})' : ''}'
+                      .trim(),
+                  accessoryCostPer,
+                  accessoryCost));
+            }
+            if (extras > 0) {
+              componentCosts
+                  .add(_buildPriceLine(l10n.pdfExtra, extrasPer, extras));
+            }
+
             return GlassCard(
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.all(16),
               onTap: () async {
                 await showDialog(
                   context: context,
@@ -877,116 +1161,95 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                   ),
                 );
               },
-              child: ListTile(
-                leading: () {
-                  if (item.photoPath != null) {
-                    return kIsWeb
-                        ? Image.network(item.photoPath!,
-                            width: 60, height: 60, fit: BoxFit.contain)
-                        : Image.file(File(item.photoPath!),
-                            width: 60, height: 60, fit: BoxFit.contain);
-                  }
-                  if (item.photoBytes != null) {
-                    return Image.memory(item.photoBytes!,
-                        width: 60, height: 60, fit: BoxFit.contain);
-                  }
-                  return null;
-                }(),
-                title: Text(item.name),
-                subtitle: Text(() {
-                  final sb = StringBuffer();
-                  sb.writeln('Size: ${item.width} x ${item.height} mm');
-                  sb.writeln('Pcs: ${item.quantity}');
-                  sb.writeln('Profile: ${profileSet.name}');
-                  sb.writeln('Glass: ${glass.name}');
-                  sb.writeln(
-                      'Sections: ${item.horizontalSections}x${item.verticalSections}');
-                  sb.writeln('Openings: ${item.openings}');
-                  if (item.perRowSectionWidths != null &&
-                      item.perRowSectionWidths!.isNotEmpty) {
-                    final rowStrings = <String>[];
-                    for (int i = 0;
-                        i < item.perRowSectionWidths!.length;
-                        i++) {
-                      final row = item.perRowSectionWidths![i];
-                      if (row.isEmpty) continue;
-                      rowStrings.add('R${i + 1}: ${row.join(', ')}');
-                    }
-                    if (rowStrings.isNotEmpty) {
-                      sb.writeln('Widths: ${rowStrings.join(' | ')}');
-                    }
-                  } else {
-                    sb.writeln(
-                        '${item.sectionWidths.length > 1 ? 'Widths' : 'Width'}: ${item.sectionWidths.join(', ')}');
-                  }
-                  sb.writeln(
-                      '${item.sectionHeights.length > 1 ? 'Heights' : 'Height'}: ${item.sectionHeights.join(', ')}');
-                  if (item.hasPerRowLayout) {
-                    final adapters = <String>[];
-                    final perRow = item.perRowVerticalAdapters ?? const <List<bool>>[];
-                    for (int i = 0; i < perRow.length; i++) {
-                      if (perRow[i].isEmpty) continue;
-                      adapters.add(
-                          'R${i + 1}: ${perRow[i].map((a) => a ? 'Adapter' : 'T').join(', ')}');
-                    }
-                    if (adapters.isNotEmpty) {
-                      sb.writeln('V div: ${adapters.join(' | ')}');
-                    }
-                  } else {
-                    sb.writeln(
-                        'V div: ${item.verticalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ')}');
-                  }
-                  sb.writeln(
-                      'H div: ${item.horizontalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ')}');
-                  sb.writeln(
-                      'Profile cost per piece: €${profileCostPer.toStringAsFixed(2)}, Total profile cost (${item.quantity}pcs): €${profileCost.toStringAsFixed(2)}');
-                  sb.writeln(
-                      'Glass cost per piece: €${glassCostPer.toStringAsFixed(2)}, Total glass cost (${item.quantity}pcs): €${glassCost.toStringAsFixed(2)}');
-                  if (blind != null) {
-                    sb.writeln('Roller shutter: ${blind.name}, €${blindCost.toStringAsFixed(2)}');
-                  }
-                  if (mechanism != null) {
-                    sb.writeln(
-                        'Mechanism: ${mechanism.name}, €${mechanismCost.toStringAsFixed(2)}');
-                  }
-                  if (accessory != null) {
-                    sb.writeln(
-                        'Accessory: ${accessory.name}, €${accessoryCost.toStringAsFixed(2)}');
-                  }
-                  if (item.extra1Price != null) {
-                    sb.writeln(
-                        '${item.extra1Desc ?? 'Extra 1'}: €${(item.extra1Price! * item.quantity).toStringAsFixed(2)}');
-                  }
-                  if (item.extra2Price != null) {
-                    sb.writeln(
-                        '${item.extra2Desc ?? 'Extra 2'}: €${(item.extra2Price! * item.quantity).toStringAsFixed(2)}');
-                  }
-                  if (item.notes != null && item.notes!.isNotEmpty) {
-                    sb.writeln('Notes: ${item.notes!}');
-                  }
-                  sb.writeln(
-                      'Cost 0% per piece: €${totalPer.toStringAsFixed(2)}, Total cost 0% (${item.quantity}pcs): €${total.toStringAsFixed(2)}');
-                  sb.writeln(
-                      'Cost with profit per piece: €${finalPer.toStringAsFixed(2)}, Total cost with profit (${item.quantity}pcs): €${finalPrice.toStringAsFixed(2)}');
-                  sb.writeln(
-                      'Profit per piece: €${profitPer.toStringAsFixed(2)}, Total profit (${item.quantity}pcs): €${profitAmount.toStringAsFixed(2)}');
-                  sb.writeln('Mass: ${totalMass.toStringAsFixed(2)} kg');
-                  if (profileSet.uf != null) {
-                    sb.writeln('Uf: ${profileSet.uf!.toStringAsFixed(2)} W/m²K');
-                  }
-                  if (glass.ug != null) {
-                    sb.writeln('Ug: ${glass.ug!.toStringAsFixed(2)} W/m²K');
-                  }
-                  if (uw != null) {
-                    sb.writeln('Uw: ${uw.toStringAsFixed(2)} W/m²K');
-                  }
-                  return sb.toString();
-                }()),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (photo != null) ...[
+                        photo,
+                        const SizedBox(width: 12),
+                      ],
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    item.name,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium,
+                                  ),
+                                ),
+                                Text(
+                                  '€${finalPrice.toStringAsFixed(2)}',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium
+                                      ?.copyWith(fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '€${finalPer.toStringAsFixed(2)} /pc',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurface
+                                        .withOpacity(0.6),
+                                  ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: chips,
+                  ),
+                  if (infoNotes.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    ...infoNotes,
+                  ],
+                  const SizedBox(height: 16),
+                  Text(
+                    'Cost breakdown',
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleSmall
+                        ?.copyWith(fontWeight: FontWeight.w600),
+                  ),
+                  ...componentCosts,
+                  const Divider(height: 24),
+                  Text(
+                    'Totals',
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleSmall
+                        ?.copyWith(fontWeight: FontWeight.w600),
+                  ),
+                  _buildPriceLine('Cost 0%', totalPer, total),
+                  _buildPriceLine(l10n.withProfit, finalPer, finalPrice,
+                      emphasize: true),
+                  _buildPriceLine(l10n.totalProfit, profitPer, profitAmount),
+                ],
               ),
             ).animate().fadeIn(duration: 200.ms).slideY(begin: 0.3);
           }),
           const SizedBox(height: 16),
-          Center(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Builder(builder: (_) {
               double itemsBase = 0;
               double itemsFinal = 0;
@@ -1081,40 +1344,74 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
               double percentAmount = subtotal * (offer.discountPercent / 100);
               double finalTotal = subtotal - percentAmount;
               double profitTotal = finalTotal - baseTotal;
-              String summary = '${l10n.pdfTotalItems}: $totalPcs pcs\n';
-              summary +=
-                  '${l10n.pdfTotalMass} ${totalMass.toStringAsFixed(2)} kg\n';
-              summary +=
-                  '${l10n.pdfTotalArea} ${totalArea.toStringAsFixed(2)} m²\n';
-              summary +=
-                  '${l10n.totalWithoutProfit}: €${baseTotal.toStringAsFixed(2)}\n';
-              for (var charge in offer.extraCharges) {
-                summary +=
-                    '${charge.description.isNotEmpty ? charge.description : l10n.pdfExtra}: €${charge.amount.toStringAsFixed(2)}\n';
-              }
-              if (offer.discountAmount != 0) {
-                summary +=
-                    '${l10n.pdfDiscountAmount}: -€${offer.discountAmount.toStringAsFixed(2)}\n';
-              }
-              if (offer.discountPercent != 0) {
-                summary +=
-                    '${l10n.pdfDiscountPercent}: ${offer.discountPercent.toStringAsFixed(2)}% (-€${percentAmount.toStringAsFixed(2)})\n';
-              }
-              summary +=
-                  '${l10n.withProfit}: €${finalTotal.toStringAsFixed(2)}\n${l10n.totalProfit}: €${profitTotal.toStringAsFixed(2)}';
-              return Text(
-                summary,
-                textAlign: TextAlign.center,
-                style:
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+              
+              return GlassCard(
+                margin: EdgeInsets.zero,
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Offer summary',
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 12),
+                    _buildSummaryValueRow(
+                        l10n.pdfTotalItems, '$totalPcs ${l10n.pcs}'),
+                    _buildSummaryValueRow(l10n.pdfTotalMass,
+                        '${totalMass.toStringAsFixed(2)} kg'),
+                    _buildSummaryValueRow(l10n.pdfTotalArea,
+                        '${totalArea.toStringAsFixed(2)} m²'),
+                    _buildSummaryValueRow(
+                        l10n.totalWithoutProfit, '€${baseTotal.toStringAsFixed(2)}'),
+                    for (var charge in offer.extraCharges)
+                      _buildSummaryValueRow(
+                        charge.description.isNotEmpty
+                            ? charge.description
+                            : l10n.pdfExtra,
+                        '€${charge.amount.toStringAsFixed(2)}',
+                      ),
+                    if (offer.discountAmount != 0)
+                      _buildSummaryValueRow(
+                        l10n.pdfDiscountAmount,
+                        '-€${offer.discountAmount.toStringAsFixed(2)}',
+                      ),
+                    if (offer.discountPercent != 0)
+                      _buildSummaryValueRow(
+                        l10n.pdfDiscountPercent,
+                        '${offer.discountPercent.toStringAsFixed(2)}% (-€${percentAmount.toStringAsFixed(2)})',
+                      ),
+                    const Divider(height: 24),
+                    _buildSummaryValueRow(l10n.withProfit,
+                        '€${finalTotal.toStringAsFixed(2)}',
+                        emphasize: true),
+                    _buildSummaryValueRow(l10n.totalProfit,
+                        '€${profitTotal.toStringAsFixed(2)}'),
+                  ],
+                ),
               );
             }),
           ),
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                ...List.generate(offer.extraCharges.length, (i) {
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Adjustments & extras',
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 12),
+                    ...List.generate(offer.extraCharges.length, (i) {
                   final charge = offer.extraCharges[i];
                   if (extraDescControllers.length <= i) {
                     extraDescControllers
@@ -1126,105 +1423,114 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                   }
                   final descCtl = extraDescControllers[i];
                   final amtCtl = extraAmountControllers[i];
-                  return Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: descCtl,
-                          decoration:
-                              InputDecoration(labelText: l10n.description),
-                          onChanged: (v) {
-                            charge.description = v;
-                            offer.lastEdited = DateTime.now();
-                            offer.save();
-                          },
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: descCtl,
+                            decoration:
+                                InputDecoration(labelText: l10n.description),
+                            onChanged: (v) {
+                              charge.description = v;
+                              offer.lastEdited = DateTime.now();
+                              offer.save();
+                            },
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      SizedBox(
-                        width: 100,
-                        child: TextField(
-                          controller: amtCtl,
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(labelText: l10n.amount),
-                          onChanged: (v) {
-                            charge.amount = double.tryParse(v) ?? 0;
+                        const SizedBox(width: 8),
+                        SizedBox(
+                          width: 120,
+                          child: TextField(
+                            controller: amtCtl,
+                            keyboardType: TextInputType.number,
+                            decoration:
+                                InputDecoration(labelText: l10n.amount),
+                            onChanged: (v) {
+                              charge.amount = double.tryParse(v) ?? 0;
+                              offer.lastEdited = DateTime.now();
+                              offer.save();
+                              setState(() {});
+                            },
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete_outline),
+                          onPressed: () {
+                            offer.extraCharges.removeAt(i);
+                            if (i < extraDescControllers.length) {
+                              extraDescControllers.removeAt(i);
+                            }
+                            if (i < extraAmountControllers.length) {
+                              extraAmountControllers.removeAt(i);
+                            }
                             offer.lastEdited = DateTime.now();
                             offer.save();
                             setState(() {});
                           },
                         ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.delete),
+                      ],
+                    ),
+                  );
+                }),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton.icon(
                         onPressed: () {
-                          offer.extraCharges.removeAt(i);
-                          if (i < extraDescControllers.length) {
-                            extraDescControllers.removeAt(i);
-                          }
-                          if (i < extraAmountControllers.length) {
-                            extraAmountControllers.removeAt(i);
-                          }
+                          offer.extraCharges.add(ExtraCharge());
+                          extraDescControllers.add(TextEditingController());
+                          extraAmountControllers.add(TextEditingController());
                           offer.lastEdited = DateTime.now();
                           offer.save();
                           setState(() {});
                         },
+                        icon: const Icon(Icons.add),
+                        label: Text(l10n.addExtra),
                       ),
-                    ],
-                  );
-                }),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: TextButton.icon(
-                    onPressed: () {
-                      offer.extraCharges.add(ExtraCharge());
-                      extraDescControllers.add(TextEditingController());
-                      extraAmountControllers.add(TextEditingController());
-                      offer.lastEdited = DateTime.now();
-                      offer.save();
-                      setState(() {});
-                    },
-                    icon: const Icon(Icons.add),
-                    label: Text(l10n.addExtra),
-                  ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: discountPercentController,
+                      keyboardType: TextInputType.number,
+                      decoration:
+                          InputDecoration(labelText: l10n.pdfDiscountPercent),
+                      onChanged: (val) {
+                        offer.discountPercent = double.tryParse(val) ?? 0;
+                        offer.lastEdited = DateTime.now();
+                        offer.save();
+                        setState(() {});
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: discountAmountController,
+                      keyboardType: TextInputType.number,
+                      decoration:
+                          InputDecoration(labelText: l10n.pdfDiscountAmount),
+                      onChanged: (val) {
+                        offer.discountAmount = double.tryParse(val) ?? 0;
+                        offer.lastEdited = DateTime.now();
+                        offer.save();
+                        setState(() {});
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: notesController,
+                      decoration:
+                          InputDecoration(labelText: l10n.pdfNotes),
+                      minLines: 1,
+                      maxLines: 3,
+                      onChanged: (val) {
+                        offer.notes = val;
+                        offer.lastEdited = DateTime.now();
+                        offer.save();
+                      },
+                    ),
+                  ],
                 ),
-                TextField(
-                  controller: discountPercentController,
-                  keyboardType: TextInputType.number,
-                  decoration:
-                      InputDecoration(labelText: l10n.pdfDiscountPercent),
-                  onChanged: (val) {
-                    offer.discountPercent = double.tryParse(val) ?? 0;
-                    offer.lastEdited = DateTime.now();
-                    offer.save();
-                    setState(() {});
-                  },
-                ),
-                TextField(
-                  controller: discountAmountController,
-                  keyboardType: TextInputType.number,
-                  decoration:
-                      InputDecoration(labelText: l10n.pdfDiscountAmount),
-                  onChanged: (val) {
-                    offer.discountAmount = double.tryParse(val) ?? 0;
-                    offer.lastEdited = DateTime.now();
-                    offer.save();
-                    setState(() {});
-                  },
-                ),
-                TextField(
-                  controller: notesController,
-                  decoration:
-                      InputDecoration(labelText: l10n.pdfNotes),
-                  minLines: 1,
-                  maxLines: 3,
-                  onChanged: (val) {
-                    offer.notes = val;
-                    offer.lastEdited = DateTime.now();
-                    offer.save();
-                  },
-                ),
-              ],
+              ),
             ),
           ),
           const SizedBox(height: 24),
