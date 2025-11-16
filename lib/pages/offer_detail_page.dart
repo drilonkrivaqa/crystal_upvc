@@ -382,20 +382,41 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  l10n.versionsSectionTitle,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ),
-              TextButton.icon(
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final isNarrow = constraints.maxWidth < 420;
+              final title = Text(
+                l10n.versionsSectionTitle,
+                style: Theme.of(context).textTheme.titleMedium,
+              );
+              final action = TextButton.icon(
                 onPressed: () => _showSaveVersionDialog(offer),
                 icon: const Icon(Icons.save),
                 label: Text(l10n.saveVersionAction),
-              ),
-            ],
+              );
+
+              if (isNarrow) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    title,
+                    const SizedBox(height: 8),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: action,
+                    ),
+                  ],
+                );
+              }
+
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(child: title),
+                  action,
+                ],
+              );
+            },
           ),
           if (versionIndices.isEmpty)
             Padding(
@@ -413,28 +434,16 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
               l10n.versionCreatedOn.replaceAll('{date}', createdText);
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            version.name,
-                            style: Theme.of(context).textTheme.titleSmall,
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            subtitle,
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
-                        ],
-                      ),
-                    ),
-                    Wrap(
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final isNarrow = constraints.maxWidth < 420;
+                    final actionButtons = Wrap(
                       spacing: 8,
+                      runSpacing: 4,
                       crossAxisAlignment: WrapCrossAlignment.center,
+                      alignment: isNarrow
+                          ? WrapAlignment.start
+                          : WrapAlignment.end,
                       children: [
                         TextButton(
                           onPressed: () => _applyVersion(offer, version),
@@ -447,8 +456,42 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                           icon: const Icon(Icons.delete),
                         ),
                       ],
-                    ),
-                  ],
+                    );
+
+                    final titleSection = Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          version.name,
+                          style: Theme.of(context).textTheme.titleSmall,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          subtitle,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
+                    );
+
+                    if (isNarrow) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          titleSection,
+                          const SizedBox(height: 8),
+                          actionButtons,
+                        ],
+                      );
+                    }
+
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(child: titleSection),
+                        actionButtons,
+                      ],
+                    );
+                  },
                 ),
               );
             }),
@@ -621,10 +664,13 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final isWide = constraints.maxWidth >= 520;
+              final headerTitle = ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: math.min(constraints.maxWidth, 420),
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -645,19 +691,41 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                     ),
                   ],
                 ),
-              ),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                alignment: WrapAlignment.end,
+              );
+
+              final chips = Align(
+                alignment:
+                    isWide ? Alignment.centerRight : Alignment.centerLeft,
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  alignment:
+                      isWide ? WrapAlignment.end : WrapAlignment.start,
+                  children: [
+                    _buildInfoChip('${l10n.pdfDate} $createdText'),
+                    _buildInfoChip(
+                      l10n.versionCreatedOn.replaceAll('{date}', editedText),
+                    ),
+                  ],
+                ),
+              );
+
+              return Wrap(
+                spacing: 16,
+                runSpacing: 12,
+                crossAxisAlignment: WrapCrossAlignment.start,
+                alignment:
+                    isWide ? WrapAlignment.spaceBetween : WrapAlignment.start,
                 children: [
-                  _buildInfoChip('${l10n.pdfDate} $createdText'),
-                  _buildInfoChip(
-                    l10n.versionCreatedOn.replaceAll('{date}', editedText),
+                  headerTitle,
+                  ConstrainedBox(
+                    constraints:
+                        BoxConstraints(maxWidth: constraints.maxWidth),
+                    child: chips,
                   ),
                 ],
-              ),
-            ],
+              );
+            },
           ),
           const SizedBox(height: 20),
           LayoutBuilder(
@@ -732,6 +800,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
           DropdownButtonFormField<int>(
             value: profileSetBox.isEmpty ? null : selectedProfileIndex,
             decoration: InputDecoration(labelText: l10n.defaultProfile),
+            isExpanded: true,
             items: [
               for (int i = 0; i < profileSetBox.length; i++)
                 DropdownMenuItem<int>(
@@ -757,6 +826,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
           DropdownButtonFormField<int>(
             value: glassBox.isEmpty ? null : selectedGlassIndex,
             decoration: InputDecoration(labelText: l10n.defaultGlass),
+            isExpanded: true,
             items: [
               for (int i = 0; i < glassBox.length; i++)
                 DropdownMenuItem<int>(
