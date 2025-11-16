@@ -36,13 +36,14 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
   late List<TextEditingController> extraAmountControllers;
   int? _selectedDefaultProfileSetIndex;
   int? _selectedDefaultGlassIndex;
+  int? _selectedDefaultBlindIndex;
 
-  int _normalizeIndex(int index, int length) {
+  int _normalizeIndex(int index, int length, {bool allowNegative = false}) {
     if (length <= 0) {
-      return 0;
+      return allowNegative ? -1 : 0;
     }
     if (index < 0) {
-      return 0;
+      return allowNegative ? -1 : 0;
     }
     if (index >= length) {
       return length - 1;
@@ -67,27 +68,35 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
     return _normalizeIndex(index, length);
   }
 
+  int _effectiveSelectedBlindIndexRaw(Offer offer, int length) {
+    final index = _selectedDefaultBlindIndex ?? offer.defaultBlindIndex;
+    return _normalizeIndex(index, length, allowNegative: true);
+  }
+
   bool _hasPendingDefaultChange(
-      Offer offer, int? profileIndex, int? glassIndex) {
+      Offer offer, int? profileIndex, int? glassIndex, int blindIndex) {
     final profileChanged =
         profileIndex != null && profileIndex != offer.defaultProfileSetIndex;
     final glassChanged =
         glassIndex != null && glassIndex != offer.defaultGlassIndex;
-    return profileChanged || glassChanged;
+    final blindChanged = blindIndex != offer.defaultBlindIndex;
+    return profileChanged || glassChanged || blindChanged;
   }
 
   Future<void> _saveDefaultCharacteristics(
       Offer offer,
       int? profileIndex,
       int? glassIndex,
+      int blindIndex,
       ) async {
     final l10n = AppLocalizations.of(context);
     final profileChanged =
         profileIndex != null && profileIndex != offer.defaultProfileSetIndex;
     final glassChanged =
         glassIndex != null && glassIndex != offer.defaultGlassIndex;
+    final blindChanged = blindIndex != offer.defaultBlindIndex;
 
-    if (!profileChanged && !glassChanged) {
+    if (!profileChanged && !glassChanged && !blindChanged) {
       return;
     }
 
@@ -111,6 +120,9 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
         if (glassChanged) {
           item.glassIndex = glassIndex!;
         }
+        if (blindChanged) {
+          item.blindIndex = blindIndex >= 0 ? blindIndex : null;
+        }
         offer.items[i] = item;
       }
     }
@@ -121,6 +133,9 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
     if (glassChanged) {
       offer.defaultGlassIndex = glassIndex!;
     }
+    if (blindChanged) {
+      offer.defaultBlindIndex = blindIndex;
+    }
     offer.lastEdited = DateTime.now();
     await offer.save();
     if (!mounted) return;
@@ -130,6 +145,9 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
       }
       if (glassChanged) {
         _selectedDefaultGlassIndex = glassIndex;
+      }
+      if (blindChanged) {
+        _selectedDefaultBlindIndex = blindIndex;
       }
     });
     ScaffoldMessenger.of(context).showSnackBar(
@@ -324,6 +342,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
       _syncControllersFromOffer(offer);
       _selectedDefaultProfileSetIndex = offer.defaultProfileSetIndex;
       _selectedDefaultGlassIndex = offer.defaultGlassIndex;
+      _selectedDefaultBlindIndex = offer.defaultBlindIndex;
     });
     await offer.save();
     if (!mounted) return;
@@ -771,6 +790,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
       Offer offer,
       int? selectedProfileIndex,
       int? selectedGlassIndex,
+      int selectedBlindIndex,
       bool hasPendingDefaultChange,
       ) {
     final l10n = AppLocalizations.of(context);
@@ -836,13 +856,47 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
               });
             },
           ),
+          const SizedBox(height: 12),
+          DropdownButtonFormField<int>(
+            value: selectedBlindIndex,
+            decoration: InputDecoration(labelText: l10n.defaultBlind),
+            isExpanded: true,
+            items: [
+              DropdownMenuItem<int>(
+                value: -1,
+                child: Text(
+                  l10n.none,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              for (int i = 0; i < blindBox.length; i++)
+                DropdownMenuItem<int>(
+                  value: i,
+                  child: Text(
+                    blindBox.getAt(i)?.name ?? '',
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+            ],
+            onChanged: (val) {
+              if (val == null) {
+                return;
+              }
+              setState(() {
+                _selectedDefaultBlindIndex = val;
+              });
+            },
+          ),
           if (hasPendingDefaultChange) ...[
             const SizedBox(height: 12),
             Align(
               alignment: Alignment.centerRight,
               child: ElevatedButton.icon(
                 onPressed: () => _saveDefaultCharacteristics(
-                    offer, selectedProfileIndex, selectedGlassIndex),
+                    offer,
+                    selectedProfileIndex,
+                    selectedGlassIndex,
+                    selectedBlindIndex),
                 icon: const Icon(Icons.save),
                 label: Text(l10n.save),
               ),
@@ -1203,6 +1257,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
     ];
     _selectedDefaultProfileSetIndex = offer.defaultProfileSetIndex;
     _selectedDefaultGlassIndex = offer.defaultGlassIndex;
+    _selectedDefaultBlindIndex = offer.defaultBlindIndex;
   }
 
   @override
@@ -1213,11 +1268,16 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
     _normalizeIndex(offer.defaultProfileSetIndex, profileSetBox.length);
     final normalizedGlassIndex =
     _normalizeIndex(offer.defaultGlassIndex, glassBox.length);
+    final normalizedBlindIndex =
+    _normalizeIndex(offer.defaultBlindIndex, blindBox.length,
+        allowNegative: true);
     if (normalizedProfileIndex != offer.defaultProfileSetIndex ||
-        normalizedGlassIndex != offer.defaultGlassIndex) {
+        normalizedGlassIndex != offer.defaultGlassIndex ||
+        normalizedBlindIndex != offer.defaultBlindIndex) {
       offer
         ..defaultProfileSetIndex = normalizedProfileIndex
         ..defaultGlassIndex = normalizedGlassIndex
+        ..defaultBlindIndex = normalizedBlindIndex
         ..lastEdited = DateTime.now()
         ..save();
     }
@@ -1225,8 +1285,11 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
     _effectiveSelectedProfileIndex(offer, profileSetBox.length);
     final selectedGlassIndex =
     _effectiveSelectedGlassIndex(offer, glassBox.length);
+    final selectedBlindIndex =
+    _effectiveSelectedBlindIndexRaw(offer, blindBox.length);
     final hasPendingDefaultChange =
-    _hasPendingDefaultChange(offer, selectedProfileIndex, selectedGlassIndex);
+    _hasPendingDefaultChange(
+        offer, selectedProfileIndex, selectedGlassIndex, selectedBlindIndex);
     return Scaffold(
       appBar: AppBar(
         title: Text('${l10n.pdfOffer} ${offer.offerNumber}'),
@@ -1268,13 +1331,16 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                     final cards = <Widget>[
                       _buildOverviewCard(offer),
                       _buildVersionsCard(offer),
-                      if (profileSetBox.isNotEmpty || glassBox.isNotEmpty)
+                      if (profileSetBox.isNotEmpty ||
+                          glassBox.isNotEmpty ||
+                          blindBox.isNotEmpty)
                         _buildDefaultCharacteristicsCard(
-                          offer,
-                          selectedProfileIndex,
-                          selectedGlassIndex,
+                            offer,
+                            selectedProfileIndex,
+                            selectedGlassIndex,
+                            selectedBlindIndex,
                           hasPendingDefaultChange,
-                        ),
+                          ),
                     ];
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1469,6 +1535,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                                     offer.defaultProfileSetIndex,
                                     defaultGlassIndex:
                                     offer.defaultGlassIndex,
+                                    defaultBlindIndex:
+                                    offer.defaultBlindIndex,
                                   ),
                                 ),
                               );
@@ -1755,6 +1823,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
           },
           defaultProfileSetIndex: offer.defaultProfileSetIndex,
           defaultGlassIndex: offer.defaultGlassIndex,
+          defaultBlindIndex: offer.defaultBlindIndex,
         ),
       ),
     );

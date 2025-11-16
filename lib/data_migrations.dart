@@ -146,6 +146,21 @@ Future<bool> _migrateAccessories() async {
 Future<bool> _migrateOffers() async {
   try {
     final box = await Hive.openBox<Offer>('offers');
+    final profileBox = await Hive.openBox<ProfileSet>('profileSets');
+    final glassBox = await Hive.openBox<Glass>('glasses');
+    final blindBox = await Hive.openBox<Blind>('blinds');
+    int normalize(int value, int length, {bool allowNegative = false}) {
+      if (length <= 0) {
+        return allowNegative ? -1 : 0;
+      }
+      if (value < 0) {
+        return allowNegative ? -1 : 0;
+      }
+      if (value >= length) {
+        return length - 1;
+      }
+      return value;
+    }
     var maxNumber = 0;
     for (final key in box.keys) {
       final offer = box.get(key);
@@ -158,10 +173,58 @@ Future<bool> _migrateOffers() async {
     for (final key in box.keys) {
       final offer = box.get(key);
       if (offer == null) continue;
+      bool changed = false;
+      final normalizedProfile =
+          normalize(offer.defaultProfileSetIndex, profileBox.length);
+      final normalizedGlass = normalize(offer.defaultGlassIndex, glassBox.length);
+      final normalizedBlind =
+          normalize(offer.defaultBlindIndex, blindBox.length, allowNegative: true);
+      if (normalizedProfile != offer.defaultProfileSetIndex) {
+        offer.defaultProfileSetIndex = normalizedProfile;
+        changed = true;
+      }
+      if (normalizedGlass != offer.defaultGlassIndex) {
+        offer.defaultGlassIndex = normalizedGlass;
+        changed = true;
+      }
+      if ((offer as dynamic).defaultBlindIndex == null ||
+          normalizedBlind != offer.defaultBlindIndex) {
+        offer.defaultBlindIndex = normalizedBlind;
+        changed = true;
+      }
+      for (final version in offer.versions) {
+        final normalizedVersionProfile =
+            normalize(version.defaultProfileSetIndex, profileBox.length);
+        final normalizedVersionGlass =
+            normalize(version.defaultGlassIndex, glassBox.length);
+        final normalizedVersionBlind = normalize(
+            (version as dynamic).defaultBlindIndex ?? -1,
+            blindBox.length,
+            allowNegative: true);
+        if (normalizedVersionProfile != version.defaultProfileSetIndex) {
+          version.defaultProfileSetIndex = normalizedVersionProfile;
+          changed = true;
+        }
+        if (normalizedVersionGlass != version.defaultGlassIndex) {
+          version.defaultGlassIndex = normalizedVersionGlass;
+          changed = true;
+        }
+        if (normalizedVersionBlind != version.defaultBlindIndex) {
+          version.defaultBlindIndex = normalizedVersionBlind;
+          changed = true;
+        }
+      }
       if (offer.offerNumber <= 0) {
         nextNumber += 1;
         offer
           ..offerNumber = nextNumber
+          ..lastEdited = offer.lastEdited
+          ..save();
+        continue;
+      }
+      if (changed) {
+        offer
+          ..lastEdited = offer.lastEdited
           ..save();
       }
     }

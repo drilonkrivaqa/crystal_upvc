@@ -71,6 +71,8 @@
   "defaultCharacteristics": "Caratteristiche predefinite",
   "defaultProfile": "Profilo predefinito",
   "defaultGlass": "Vetro predefinito",
+  "defaultBlind": "Tapparella predefinita",
+  "applyDefaultsMessage": "Scegli quali finestre/porte devono usare il profilo, il vetro e la tapparella predefiniti aggiornati. Deseleziona gli elementi da escludere.",
   "catalogAddTitle": "Aggiungi {type}",
   "catalogEditTitle": "Modifica {name}",
   "catalogSectionGeneral": "Generale",
