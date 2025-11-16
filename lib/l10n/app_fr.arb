@@ -104,5 +104,7 @@
   "pdfNotes": "Notes :",
   "defaultCharacteristics": "Caractéristiques par défaut",
   "defaultProfile": "Profil par défaut",
-  "defaultGlass": "Vitrage par défaut"
+  "defaultGlass": "Vitrage par défaut",
+  "defaultBlind": "Volet par défaut",
+  "applyDefaultsMessage": "Choisissez quelles fenêtres/portes doivent utiliser le profil, le vitrage et le volet par défaut mis à jour. Décochez les éléments à exclure."
 }

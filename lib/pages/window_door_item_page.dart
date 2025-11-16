@@ -14,12 +14,14 @@ class WindowDoorItemPage extends StatefulWidget {
   final WindowDoorItem? existingItem;
   final int? defaultProfileSetIndex;
   final int? defaultGlassIndex;
+  final int? defaultBlindIndex;
   const WindowDoorItemPage(
       {super.key,
       required this.onSave,
       this.existingItem,
       this.defaultProfileSetIndex,
-      this.defaultGlassIndex});
+      this.defaultGlassIndex,
+      this.defaultBlindIndex});
 
   @override
   State<WindowDoorItemPage> createState() => _WindowDoorItemPageState();
@@ -73,13 +75,13 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   List<List<bool>> rowVerticalAdapters = [<bool>[]];
   List<TextEditingController> sectionHeightCtrls = [];
 
-  int _normalizeIndex(int? index, int length) {
+  int _normalizeIndex(int? index, int length, {bool allowNegative = false}) {
     if (length <= 0) {
-      return 0;
+      return allowNegative ? -1 : 0;
     }
     final value = index ?? 0;
     if (value < 0) {
-      return 0;
+      return allowNegative ? -1 : 0;
     }
     if (value >= length) {
       return length - 1;
@@ -130,7 +132,11 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     glassIndex = _normalizeIndex(
         widget.existingItem?.glassIndex ?? widget.defaultGlassIndex,
         glassBox.length);
-    blindIndex = widget.existingItem?.blindIndex;
+    final normalizedBlindIndex = _normalizeIndex(
+        widget.existingItem?.blindIndex ?? widget.defaultBlindIndex,
+        blindBox.length,
+        allowNegative: true);
+    blindIndex = normalizedBlindIndex >= 0 ? normalizedBlindIndex : null;
     mechanismIndex = widget.existingItem?.mechanismIndex;
     accessoryIndex = widget.existingItem?.accessoryIndex;
     photoPath = widget.existingItem?.photoPath;

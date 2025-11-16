@@ -976,6 +976,8 @@ class Offer extends HiveObject {
   List<OfferVersion> versions;
   @HiveField(13, defaultValue: 0)
   int offerNumber;
+  @HiveField(14, defaultValue: -1)
+  int defaultBlindIndex;
   Offer({
     required this.id,
     required this.customerIndex,
@@ -988,6 +990,7 @@ class Offer extends HiveObject {
     this.notes = '',
     this.defaultProfileSetIndex = 0,
     this.defaultGlassIndex = 0,
+    this.defaultBlindIndex = -1,
     List<OfferVersion>? versions,
     DateTime? lastEdited,
     this.offerNumber = 0,
@@ -1007,6 +1010,7 @@ class Offer extends HiveObject {
       notes: notes,
       defaultProfileSetIndex: defaultProfileSetIndex,
       defaultGlassIndex: defaultGlassIndex,
+      defaultBlindIndex: defaultBlindIndex,
       customerIndex: customerIndex,
     );
   }
@@ -1022,6 +1026,7 @@ class Offer extends HiveObject {
     notes = version.notes;
     defaultProfileSetIndex = version.defaultProfileSetIndex;
     defaultGlassIndex = version.defaultGlassIndex;
+    defaultBlindIndex = version.defaultBlindIndex;
   }
 }
 
@@ -1048,6 +1053,8 @@ class OfferVersion extends HiveObject {
   @HiveField(9)
   int defaultGlassIndex;
   @HiveField(10)
+  int defaultBlindIndex;
+  @HiveField(11)
   int customerIndex;
 
   OfferVersion({
@@ -1061,6 +1068,7 @@ class OfferVersion extends HiveObject {
     this.notes = '',
     this.defaultProfileSetIndex = 0,
     this.defaultGlassIndex = 0,
+    this.defaultBlindIndex = -1,
     this.customerIndex = 0,
   })  : createdAt = createdAt ?? DateTime.now(),
         items = items != null

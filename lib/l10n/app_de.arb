@@ -104,5 +104,7 @@
   "pdfNotes": "Notizen:",
   "defaultCharacteristics": "Standardmerkmale",
   "defaultProfile": "Standardprofil",
-  "defaultGlass": "Standardglas"
+  "defaultGlass": "Standardglas",
+  "defaultBlind": "Standardrollladen",
+  "applyDefaultsMessage": "Wählen Sie, welche Fenster/Türen das aktualisierte Standardprofil, Glas und den Rollladen verwenden sollen. Entfernen Sie die Auswahl bei den Elementen, die ausgeschlossen werden sollen."
 }

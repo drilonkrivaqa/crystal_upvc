@@ -145,9 +145,10 @@ class AppLocalizations {
       'defaultCharacteristics': 'Karakteristikat e paracaktuara',
       'defaultProfile': 'Profili i paracaktuar',
       'defaultGlass': 'Xhami i paracaktuar',
+      'defaultBlind': 'Roleta e paracaktuar',
       'applyDefaultsTitle': 'Aplikoni ndryshimet',
       'applyDefaultsMessage':
-          'Zgjidhni cilat dritare/dyer duhet të përdorin profilin/xhamin e ri të paracaktuar. Hiqni shenjën nga ato që dëshironi t\'i përjashtoni.',
+          'Zgjidhni cilat dritare/dyer duhet të përdorin profilin, xhamin dhe roletën e re të paracaktuar. Hiqni shenjën nga ato që dëshironi t\'i përjashtoni.',
       'selectAll': 'Zgjidh të gjitha',
       'selectNone': 'Hiq përzgjedhjet',
       'applyToSelected': 'Apliko tek të zgjedhurat',
@@ -367,9 +368,10 @@ class AppLocalizations {
       'defaultCharacteristics': 'Default characteristics',
       'defaultProfile': 'Default profile',
       'defaultGlass': 'Default glass',
+      'defaultBlind': 'Default blind',
       'applyDefaultsTitle': 'Apply changes',
       'applyDefaultsMessage':
-          'Choose which windows/doors should use the updated default profile and glass. Uncheck the items you want to exclude.',
+          'Choose which windows/doors should use the updated default profile, glass, and blind. Uncheck the items you want to exclude.',
       'selectAll': 'Select all',
       'selectNone': 'Select none',
       'applyToSelected': 'Apply to selected',
@@ -586,9 +588,10 @@ class AppLocalizations {
       'defaultCharacteristics': 'Standardmerkmale',
       'defaultProfile': 'Standardprofil',
       'defaultGlass': 'Standardglas',
+      'defaultBlind': 'Standardrollladen',
       'applyDefaultsTitle': 'Änderungen anwenden',
       'applyDefaultsMessage':
-          'Wählen Sie, welche Fenster/Türen das aktualisierte Standardprofil und Glas verwenden sollen. Entfernen Sie die Auswahl bei den Elementen, die ausgeschlossen werden sollen.',
+          'Wählen Sie, welche Fenster/Türen das aktualisierte Standardprofil, Glas und den Rollladen verwenden sollen. Entfernen Sie die Auswahl bei den Elementen, die ausgeschlossen werden sollen.',
       'selectAll': 'Alle auswählen',
       'selectNone': 'Keine auswählen',
       'applyToSelected': 'Auf Auswahl anwenden',
@@ -796,9 +799,10 @@ class AppLocalizations {
       'defaultCharacteristics': 'Caractéristiques par défaut',
       'defaultProfile': 'Profil par défaut',
       'defaultGlass': 'Vitrage par défaut',
+      'defaultBlind': 'Volet par défaut',
       'applyDefaultsTitle': 'Appliquer les modifications',
       'applyDefaultsMessage':
-          'Choisissez quelles fenêtres/portes doivent utiliser le profil et le vitrage par défaut mis à jour. Décochez les éléments à exclure.',
+          'Choisissez quelles fenêtres/portes doivent utiliser le profil, le vitrage et le volet par défaut mis à jour. Décochez les éléments à exclure.',
       'selectAll': 'Tout sélectionner',
       'selectNone': 'Ne rien sélectionner',
       'applyToSelected': 'Appliquer à la sélection',
@@ -1005,9 +1009,10 @@ class AppLocalizations {
       'defaultCharacteristics': 'Caratteristiche predefinite',
       'defaultProfile': 'Profilo predefinito',
       'defaultGlass': 'Vetro predefinito',
+      'defaultBlind': 'Tapparella predefinita',
       'applyDefaultsTitle': 'Applica le modifiche',
       'applyDefaultsMessage':
-          'Scegli quali finestre/porte devono usare il profilo e il vetro predefiniti aggiornati. Deseleziona gli elementi da escludere.',
+          'Scegli quali finestre/porte devono usare il profilo, il vetro e la tapparella predefiniti aggiornati. Deseleziona gli elementi da escludere.',
       'selectAll': 'Seleziona tutto',
       'selectNone': 'Deseleziona tutto',
       'applyToSelected': 'Applica alla selezione',
@@ -1271,6 +1276,7 @@ class AppLocalizations {
   String get defaultCharacteristics => _t('defaultCharacteristics');
   String get defaultProfile => _t('defaultProfile');
   String get defaultGlass => _t('defaultGlass');
+  String get defaultBlind => _t('defaultBlind');
   String get applyDefaultsTitle => _t('applyDefaultsTitle');
   String get applyDefaultsMessage => _t('applyDefaultsMessage');
   String get selectAll => _t('selectAll');

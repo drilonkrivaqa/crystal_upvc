@@ -104,5 +104,7 @@
   "pdfNotes": "Vërejtje/Notes:",
   "defaultCharacteristics": "Karakteristikat e paracaktuara",
   "defaultProfile": "Profili i paracaktuar",
-  "defaultGlass": "Xhami i paracaktuar"
+  "defaultGlass": "Xhami i paracaktuar",
+  "defaultBlind": "Roleta e paracaktuar",
+  "applyDefaultsMessage": "Zgjidhni cilat dritare/dyer duhet të përdorin profilin, xhamin dhe roletën e re të paracaktuar. Hiqni shenjën nga ato që dëshironi t'i përjashtoni."
 }

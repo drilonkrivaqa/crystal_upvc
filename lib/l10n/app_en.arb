@@ -104,5 +104,7 @@
   "pdfNotes": "Notes:",
   "defaultCharacteristics": "Default characteristics",
   "defaultProfile": "Default profile",
-  "defaultGlass": "Default glass"
+  "defaultGlass": "Default glass",
+  "defaultBlind": "Default blind",
+  "applyDefaultsMessage": "Choose which windows/doors should use the updated default profile, glass, and blind. Uncheck the items you want to exclude."
 }

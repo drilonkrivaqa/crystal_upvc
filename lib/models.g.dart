@@ -523,13 +523,14 @@ class OfferAdapter extends TypeAdapter<Offer> {
       versions:
           fields[12] == null ? [] : (fields[12] as List).cast<OfferVersion>(),
       offerNumber: fields[13] == null ? 0 : fields[13] as int,
+      defaultBlindIndex: fields[14] == null ? -1 : fields[14] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, Offer obj) {
     writer
-      ..writeByte(14)
+      ..writeByte(15)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -557,7 +558,9 @@ class OfferAdapter extends TypeAdapter<Offer> {
       ..writeByte(12)
       ..write(obj.versions)
       ..writeByte(13)
-      ..write(obj.offerNumber);
+      ..write(obj.offerNumber)
+      ..writeByte(14)
+      ..write(obj.defaultBlindIndex);
   }
 
   @override
@@ -595,14 +598,15 @@ class OfferVersionAdapter extends TypeAdapter<OfferVersion> {
       defaultProfileSetIndex:
           fields[8] == null ? 0 : fields[8] as int,
       defaultGlassIndex: fields[9] == null ? 0 : fields[9] as int,
-      customerIndex: fields[10] == null ? 0 : fields[10] as int,
+      defaultBlindIndex: fields[10] == null ? -1 : fields[10] as int,
+      customerIndex: fields[11] == null ? 0 : fields[11] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, OfferVersion obj) {
     writer
-      ..writeByte(11)
+      ..writeByte(12)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -624,6 +628,8 @@ class OfferVersionAdapter extends TypeAdapter<OfferVersion> {
       ..writeByte(9)
       ..write(obj.defaultGlassIndex)
       ..writeByte(10)
+      ..write(obj.defaultBlindIndex)
+      ..writeByte(11)
       ..write(obj.customerIndex);
   }
 
