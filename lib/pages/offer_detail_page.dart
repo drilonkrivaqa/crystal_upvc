@@ -1547,12 +1547,17 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  'Profit: €${profitAmount.toStringAsFixed(2)}',
+                                  'Cost: €${totalPer.toStringAsFixed(2)} / pc, €${total.toStringAsFixed(2)} total',
                                   style: theme.textTheme.bodySmall,
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  'Mass: ${totalMass.toStringAsFixed(2)} kg',
+                                  'Profit: €${profitPer.toStringAsFixed(2)} / pc, €${profitAmount.toStringAsFixed(2)} total',
+                                  style: theme.textTheme.bodySmall,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Mass: ${(totalMass / item.quantity).toStringAsFixed(2)} kg / pc, ${totalMass.toStringAsFixed(2)} kg total',
                                   style: theme.textTheme.bodySmall,
                                 ),
                               ],
