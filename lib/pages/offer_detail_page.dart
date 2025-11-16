@@ -376,84 +376,679 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
           .createdAt
           .compareTo(versions[a].createdAt));
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
+    return GlassCard(
+      margin: EdgeInsets.zero,
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  l10n.versionsSectionTitle,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ),
+              TextButton.icon(
+                onPressed: () => _showSaveVersionDialog(offer),
+                icon: const Icon(Icons.save),
+                label: Text(l10n.saveVersionAction),
+              ),
+            ],
+          ),
+          if (versionIndices.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Text(
+                l10n.versionsEmpty,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            )
+          else
+            ...versionIndices.map((index) {
+              final version = versions[index];
+              final createdText = formatter.format(version.createdAt);
+              final subtitle =
+                  l10n.versionCreatedOn.replaceAll('{date}', createdText);
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            version.name,
+                            style: Theme.of(context).textTheme.titleSmall,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            subtitle,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ],
+                      ),
+                    ),
+                    Wrap(
+                      spacing: 8,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        TextButton(
+                          onPressed: () => _applyVersion(offer, version),
+                          child: Text(l10n.useVersion),
+                        ),
+                        IconButton(
+                          tooltip: l10n.delete,
+                          onPressed: () =>
+                              _confirmDeleteVersion(offer, index),
+                          icon: const Icon(Icons.delete),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            }),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showCustomerPicker(Offer offer) async {
+    final l10n = AppLocalizations.of(context);
+    if (customerBox.isEmpty) return;
+    int selected = offer.customerIndex;
+    await showDialog(
+      context: context,
+      builder: (_) => StatefulBuilder(
+        builder: (context, setStateDialog) {
+          return AlertDialog(
+            title: Text(l10n.chooseCustomer),
+            content: DropdownButton<int>(
+              value: selected,
+              items: List.generate(
+                customerBox.length,
+                (i) => DropdownMenuItem(
+                  value: i,
+                  child: Text(customerBox.getAt(i)?.name ?? ''),
+                ),
+              ),
+              onChanged: (v) =>
+                  setStateDialog(() => selected = v ?? selected),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(l10n.cancel),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  offer.customerIndex = selected;
+                  offer.lastEdited = DateTime.now();
+                  offer.save();
+                  setState(() {});
+                  Navigator.pop(context);
+                },
+                child: Text(l10n.save),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Future<void> _showProfitDialog(Offer offer) async {
+    final l10n = AppLocalizations.of(context);
+    final controller =
+        TextEditingController(text: offer.profitPercent.toString());
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(l10n.setProfitPercent),
+        content: TextField(
+          controller: controller,
+          keyboardType: TextInputType.number,
+          decoration: InputDecoration(labelText: l10n.profitPercent),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(l10n.cancel),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final val =
+                  double.tryParse(controller.text) ?? offer.profitPercent;
+              offer.profitPercent = val;
+              offer.lastEdited = DateTime.now();
+              offer.save();
+              setState(() {});
+              Navigator.pop(context);
+            },
+            child: Text(l10n.save),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+  }
+
+  Widget _buildInfoChip(String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.8),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: Colors.black12),
+      ),
+      child: Text(
+        text,
+        style: Theme.of(context).textTheme.bodySmall,
+      ),
+    );
+  }
+
+  Widget _buildInfoTile({
+    required IconData icon,
+    required String label,
+    required String value,
+    Widget? action,
+  }) {
+    final theme = Theme.of(context);
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      leading: CircleAvatar(
+        backgroundColor: theme.colorScheme.primary.withOpacity(0.1),
+        child: Icon(icon, color: theme.colorScheme.primary),
+      ),
+      title: Text(
+        label,
+        style: theme.textTheme.bodySmall
+            ?.copyWith(color: theme.colorScheme.primary),
+      ),
+      subtitle: Padding(
+        padding: const EdgeInsets.only(top: 4.0),
+        child: Text(
+          value,
+          style: theme.textTheme.titleMedium,
+        ),
+      ),
+      trailing: action,
+    );
+  }
+
+  Widget _buildOverviewCard(Offer offer) {
+    final l10n = AppLocalizations.of(context);
+    final customer = customerBox.getAt(offer.customerIndex);
+    final localeCode = l10n.locale.countryCode == null
+        ? l10n.locale.languageCode
+        : '${l10n.locale.languageCode}_${l10n.locale.countryCode}';
+    final createdText = DateFormat.yMMMd(localeCode).format(offer.date);
+    final editedText =
+        DateFormat.yMMMd(localeCode).add_Hm().format(offer.lastEdited);
+
+    return GlassCard(
+      margin: EdgeInsets.zero,
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '${l10n.pdfOffer} ${offer.offerNumber}',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 12),
+          _buildInfoTile(
+            icon: Icons.person_outline,
+            label: l10n.pdfClient,
+            value: customer?.name ?? '-',
+            action: OutlinedButton.icon(
+              onPressed: () => _showCustomerPicker(offer),
+              icon: const Icon(Icons.edit, size: 16),
+              label: Text(l10n.edit),
+            ),
+          ),
+          const Divider(height: 32),
+          _buildInfoTile(
+            icon: Icons.trending_up,
+            label: l10n.profit,
+            value: '${offer.profitPercent.toStringAsFixed(2)}%',
+            action: OutlinedButton.icon(
+              onPressed: () => _showProfitDialog(offer),
+              icon: const Icon(Icons.edit, size: 16),
+              label: Text(l10n.edit),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _buildInfoChip('${l10n.pdfDate} $createdText'),
+              _buildInfoChip(
+                l10n.versionCreatedOn.replaceAll('{date}', editedText),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDefaultCharacteristicsCard(
+    Offer offer,
+    int? selectedProfileIndex,
+    int? selectedGlassIndex,
+    bool hasPendingDefaultChange,
+  ) {
+    final l10n = AppLocalizations.of(context);
+    return GlassCard(
+      margin: EdgeInsets.zero,
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.defaultCharacteristics,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 12),
+          DropdownButtonFormField<int>(
+            value: profileSetBox.isEmpty ? null : selectedProfileIndex,
+            decoration: InputDecoration(labelText: l10n.defaultProfile),
+            items: [
+              for (int i = 0; i < profileSetBox.length; i++)
+                DropdownMenuItem<int>(
+                  value: i,
                   child: Text(
-                    l10n.versionsSectionTitle,
-                    style: Theme.of(context).textTheme.titleMedium,
+                    profileSetBox.getAt(i)?.name ?? '',
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                TextButton.icon(
-                  onPressed: () => _showSaveVersionDialog(offer),
-                  icon: const Icon(Icons.save),
-                  label: Text(l10n.saveVersionAction),
+            ],
+            onChanged: profileSetBox.isEmpty
+                ? null
+                : (val) {
+                    if (val == null) {
+                      return;
+                    }
+                    setState(() {
+                      _selectedDefaultProfileSetIndex = val;
+                    });
+                  },
+          ),
+          const SizedBox(height: 12),
+          DropdownButtonFormField<int>(
+            value: glassBox.isEmpty ? null : selectedGlassIndex,
+            decoration: InputDecoration(labelText: l10n.defaultGlass),
+            items: [
+              for (int i = 0; i < glassBox.length; i++)
+                DropdownMenuItem<int>(
+                  value: i,
+                  child: Text(
+                    glassBox.getAt(i)?.name ?? '',
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-              ],
+            ],
+            onChanged: glassBox.isEmpty
+                ? null
+                : (val) {
+                    if (val == null) {
+                      return;
+                    }
+                    setState(() {
+                      _selectedDefaultGlassIndex = val;
+                    });
+                  },
+          ),
+          if (hasPendingDefaultChange) ...[
+            const SizedBox(height: 12),
+            Align(
+              alignment: Alignment.centerRight,
+              child: ElevatedButton.icon(
+                onPressed: () => _saveDefaultCharacteristics(
+                    offer, selectedProfileIndex, selectedGlassIndex),
+                icon: const Icon(Icons.save),
+                label: Text(l10n.save),
+              ),
             ),
-            if (versionIndices.isEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                child: Text(
-                  l10n.versionsEmpty,
-                  style: Theme.of(context).textTheme.bodyMedium,
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSummaryRow(String label, String value,
+      {bool emphasize = false}) {
+    final theme = Theme.of(context);
+    final style = emphasize
+        ? theme.textTheme.titleMedium
+            ?.copyWith(fontWeight: FontWeight.bold)
+        : theme.textTheme.bodyMedium;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              label,
+              style: style,
+            ),
+          ),
+          Text(
+            value,
+            style: style,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTotalsCard(Offer offer) {
+    final l10n = AppLocalizations.of(context);
+    return GlassCard(
+      margin: EdgeInsets.zero,
+      padding: const EdgeInsets.all(16),
+      child: Builder(
+        builder: (_) {
+          double itemsBase = 0;
+          double itemsFinal = 0;
+          int totalPcs = 0;
+          double totalMass = 0;
+          double totalArea = 0;
+          for (var item in offer.items) {
+            final profileSet = profileSetBox.getAt(item.profileSetIndex)!;
+            final glass = glassBox.getAt(item.glassIndex)!;
+            final blind =
+                (item.blindIndex != null) ? blindBox.getAt(item.blindIndex!) : null;
+            final mechanism = (item.mechanismIndex != null)
+                ? mechanismBox.getAt(item.mechanismIndex!)
+                : null;
+            final accessory = (item.accessoryIndex != null)
+                ? accessoryBox.getAt(item.accessoryIndex!)
+                : null;
+            double profileCost = item.calculateProfileCost(profileSet,
+                    boxHeight: blind?.boxHeight ?? 0) *
+                item.quantity;
+            double glassCost = item.calculateGlassCost(profileSet, glass,
+                    boxHeight: blind?.boxHeight ?? 0) *
+                item.quantity;
+            double blindCost = (blind != null)
+                ? ((item.width / 1000.0) *
+                    (item.height / 1000.0) *
+                    blind.pricePerM2 *
+                    item.quantity)
+                : 0;
+            double mechanismCost = (mechanism != null)
+                ? mechanism.price * item.quantity * item.openings
+                : 0;
+            double accessoryCost =
+                (accessory != null) ? accessory.price * item.quantity : 0;
+            double extras =
+                ((item.extra1Price ?? 0) + (item.extra2Price ?? 0)) * item.quantity;
+            double base = profileCost +
+                glassCost +
+                blindCost +
+                mechanismCost +
+                accessoryCost;
+            final profileMass = item.calculateProfileMass(profileSet,
+                    boxHeight: blind?.boxHeight ?? 0) *
+                item.quantity;
+            final glassMass = item
+                    .calculateGlassMass(profileSet, glass,
+                        boxHeight: blind?.boxHeight ?? 0) *
+                item.quantity;
+            final blindMass = (blind != null)
+                ? ((item.width / 1000.0) *
+                    (item.height / 1000.0) *
+                    blind.massPerM2 *
+                    item.quantity)
+                : 0;
+            final mechanismMass = (mechanism != null)
+                ? mechanism.mass * item.quantity * item.openings
+                : 0;
+            final accessoryMass = (accessory != null)
+                ? accessory.mass * item.quantity
+                : 0;
+            final itemMass = profileMass +
+                glassMass +
+                blindMass +
+                mechanismMass +
+                accessoryMass;
+            final itemArea = item.calculateTotalArea() * item.quantity;
+            if (item.manualBasePrice != null) {
+              base = item.manualBasePrice!;
+            }
+            double total = base + extras;
+            double finalPrice;
+            if (item.manualPrice != null) {
+              finalPrice = item.manualPrice!;
+            } else {
+              finalPrice = base * (offer.profitPercent / 100 + 1) + extras;
+            }
+            itemsBase += total;
+            itemsFinal += finalPrice;
+            totalPcs += item.quantity;
+            totalMass += itemMass;
+            totalArea += itemArea;
+          }
+          double extrasTotal =
+              offer.extraCharges.fold(0, (p, e) => p + e.amount);
+          double baseTotal = itemsBase + extrasTotal;
+          double subtotal = itemsFinal + extrasTotal;
+          subtotal -= offer.discountAmount;
+          double percentAmount = subtotal * (offer.discountPercent / 100);
+          double finalTotal = subtotal - percentAmount;
+          double profitTotal = finalTotal - baseTotal;
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l10n.pdfTotalPrice,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 12),
+              _buildSummaryRow(
+                  l10n.pdfTotalItems, '$totalPcs ${l10n.pcs}'),
+              _buildSummaryRow(l10n.pdfTotalMass,
+                  '${totalMass.toStringAsFixed(2)} kg'),
+              _buildSummaryRow(l10n.pdfTotalArea,
+                  '${totalArea.toStringAsFixed(2)} m²'),
+              const Divider(height: 32),
+              _buildSummaryRow(l10n.totalWithoutProfit,
+                  '€${baseTotal.toStringAsFixed(2)}'),
+              ...offer.extraCharges.map(
+                (charge) => _buildSummaryRow(
+                  charge.description.isNotEmpty
+                      ? charge.description
+                      : l10n.pdfExtra,
+                  '€${charge.amount.toStringAsFixed(2)}',
                 ),
-              )
-            else
-              ...versionIndices.map((index) {
-                final version = versions[index];
-                final createdText = formatter.format(version.createdAt);
-                final subtitle = l10n.versionCreatedOn
-                    .replaceAll('{date}', createdText);
+              ),
+              if (offer.discountAmount != 0)
+                _buildSummaryRow(
+                  l10n.pdfDiscountAmount,
+                  '-€${offer.discountAmount.toStringAsFixed(2)}',
+                ),
+              if (offer.discountPercent != 0)
+                _buildSummaryRow(
+                  l10n.pdfDiscountPercent,
+                  '${offer.discountPercent.toStringAsFixed(2)}% (-€${percentAmount.toStringAsFixed(2)})',
+                ),
+              const Divider(height: 32),
+              _buildSummaryRow(
+                l10n.withProfit,
+                '€${finalTotal.toStringAsFixed(2)}',
+                emphasize: true,
+              ),
+              _buildSummaryRow(
+                l10n.totalProfit,
+                '€${profitTotal.toStringAsFixed(2)}',
+                emphasize: true,
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildAdjustmentsCard(Offer offer) {
+    final l10n = AppLocalizations.of(context);
+    return GlassCard(
+      margin: EdgeInsets.zero,
+      padding: const EdgeInsets.all(16),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final bool isWide = constraints.maxWidth > 600;
+          final double fieldWidth =
+              isWide ? (constraints.maxWidth - 16) / 2 : constraints.maxWidth;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l10n.pdfExtra,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 8),
+              ...List.generate(offer.extraCharges.length, (i) {
+                final charge = offer.extraCharges[i];
+                if (extraDescControllers.length <= i) {
+                  extraDescControllers
+                      .add(TextEditingController(text: charge.description));
+                }
+                if (extraAmountControllers.length <= i) {
+                  extraAmountControllers
+                      .add(TextEditingController(text: charge.amount.toString()));
+                }
+                final descCtl = extraDescControllers[i];
+                final amtCtl = extraAmountControllers[i];
                 return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  padding: const EdgeInsets.symmetric(vertical: 6.0),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              version.name,
-                              style: Theme.of(context).textTheme.titleSmall,
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              subtitle,
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                          ],
+                        child: TextField(
+                          controller: descCtl,
+                          decoration:
+                              InputDecoration(labelText: l10n.description),
+                          onChanged: (v) {
+                            charge.description = v;
+                            offer.lastEdited = DateTime.now();
+                            offer.save();
+                          },
                         ),
                       ),
-                      Wrap(
-                        spacing: 8,
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: [
-                          TextButton(
-                            onPressed: () => _applyVersion(offer, version),
-                            child: Text(l10n.useVersion),
-                          ),
-                          IconButton(
-                            tooltip: l10n.delete,
-                            onPressed: () =>
-                                _confirmDeleteVersion(offer, index),
-                            icon: const Icon(Icons.delete),
-                          ),
-                        ],
+                      const SizedBox(width: 8),
+                      SizedBox(
+                        width: 120,
+                        child: TextField(
+                          controller: amtCtl,
+                          keyboardType: TextInputType.number,
+                          decoration:
+                              InputDecoration(labelText: l10n.amount),
+                          onChanged: (v) {
+                            charge.amount = double.tryParse(v) ?? 0;
+                            offer.lastEdited = DateTime.now();
+                            offer.save();
+                            setState(() {});
+                          },
+                        ),
+                      ),
+                      IconButton(
+                        tooltip: l10n.delete,
+                        icon: const Icon(Icons.delete),
+                        onPressed: () {
+                          offer.extraCharges.removeAt(i);
+                          if (i < extraDescControllers.length) {
+                            extraDescControllers.removeAt(i);
+                          }
+                          if (i < extraAmountControllers.length) {
+                            extraAmountControllers.removeAt(i);
+                          }
+                          offer.lastEdited = DateTime.now();
+                          offer.save();
+                          setState(() {});
+                        },
                       ),
                     ],
                   ),
                 );
               }),
-          ],
-        ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  onPressed: () {
+                    offer.extraCharges.add(ExtraCharge());
+                    extraDescControllers.add(TextEditingController());
+                    extraAmountControllers.add(TextEditingController());
+                    offer.lastEdited = DateTime.now();
+                    offer.save();
+                    setState(() {});
+                  },
+                  icon: const Icon(Icons.add),
+                  label: Text(l10n.addExtra),
+                ),
+              ),
+              const Divider(height: 32),
+              Wrap(
+                spacing: 16,
+                runSpacing: 12,
+                children: [
+                  SizedBox(
+                    width: fieldWidth,
+                    child: TextField(
+                      controller: discountPercentController,
+                      keyboardType: TextInputType.number,
+                      decoration:
+                          InputDecoration(labelText: l10n.pdfDiscountPercent),
+                      onChanged: (val) {
+                        offer.discountPercent = double.tryParse(val) ?? 0;
+                        offer.lastEdited = DateTime.now();
+                        offer.save();
+                        setState(() {});
+                      },
+                    ),
+                  ),
+                  SizedBox(
+                    width: fieldWidth,
+                    child: TextField(
+                      controller: discountAmountController,
+                      keyboardType: TextInputType.number,
+                      decoration:
+                          InputDecoration(labelText: l10n.pdfDiscountAmount),
+                      onChanged: (val) {
+                        offer.discountAmount = double.tryParse(val) ?? 0;
+                        offer.lastEdited = DateTime.now();
+                        offer.save();
+                        setState(() {});
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: notesController,
+                decoration: InputDecoration(labelText: l10n.pdfNotes),
+                minLines: 2,
+                maxLines: 4,
+                onChanged: (val) {
+                  offer.notes = val;
+                  offer.lastEdited = DateTime.now();
+                  offer.save();
+                },
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -537,212 +1132,47 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
         ],
       ),
       backgroundColor: Colors.white,
-      body: ListView(
-        children: [
-          const SizedBox(height: 16),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    '${l10n.pdfClient}: ${customerBox.getAt(offer.customerIndex)?.name ?? ''}',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.edit),
-                  onPressed: () async {
-                    if (customerBox.isEmpty) return;
-                    int selected = offer.customerIndex;
-                    await showDialog(
-                      context: context,
-                      builder: (_) => StatefulBuilder(
-                        builder: (context, setStateDialog) {
-                          return AlertDialog(
-                            title: Text(l10n.chooseCustomer),
-                            content: DropdownButton<int>(
-                              value: selected,
-                              items: List.generate(
-                                customerBox.length,
-                                (i) => DropdownMenuItem(
-                                  value: i,
-                                  child: Text(customerBox.getAt(i)?.name ?? ''),
-                                ),
-                              ),
-                              onChanged: (v) => setStateDialog(
-                                  () => selected = v ?? selected),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return ListView(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: LayoutBuilder(
+                  builder: (context, innerConstraints) {
+                    final wrapWidth = innerConstraints.maxWidth;
+                    final bool isWide = wrapWidth >= 900;
+                    final double cardWidth =
+                        isWide ? (wrapWidth - 16) / 2 : wrapWidth;
+                    final cards = <Widget>[
+                      _buildOverviewCard(offer),
+                      if (profileSetBox.isNotEmpty || glassBox.isNotEmpty)
+                        _buildDefaultCharacteristicsCard(
+                          offer,
+                          selectedProfileIndex,
+                          selectedGlassIndex,
+                          hasPendingDefaultChange,
+                        ),
+                      _buildVersionsCard(offer),
+                    ];
+                    return Wrap(
+                      spacing: 16,
+                      runSpacing: 16,
+                      children: cards
+                          .map(
+                            (card) => SizedBox(
+                              width: cardWidth,
+                              child: card,
                             ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: Text(l10n.cancel),
-                              ),
-                              ElevatedButton(
-                                onPressed: () {
-                                  offer.customerIndex = selected;
-                                  offer.lastEdited = DateTime.now();
-                                  offer.save();
-                                  setState(() {});
-                                  Navigator.pop(context);
-                                },
-                                child: Text(l10n.save),
-                              ),
-                            ],
-                          );
-                        },
-                      ),
+                          )
+                          .toList(),
                     );
                   },
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    '${l10n.profit}: ${offer.profitPercent.toStringAsFixed(2)}%',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.edit),
-                  onPressed: () async {
-                    final controller = TextEditingController(
-                        text: offer.profitPercent.toString());
-                    await showDialog(
-                      context: context,
-                      builder: (_) => AlertDialog(
-                        title: Text(l10n.setProfitPercent),
-                        content: TextField(
-                          controller: controller,
-                          keyboardType: TextInputType.number,
-                          decoration:
-                              InputDecoration(labelText: l10n.profitPercent),
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context),
-                            child: Text(l10n.cancel),
-                          ),
-                          ElevatedButton(
-                            onPressed: () {
-                              final val = double.tryParse(controller.text) ??
-                                  offer.profitPercent;
-                              offer.profitPercent = val;
-                              offer.lastEdited = DateTime.now();
-                              offer.save();
-                              setState(() {});
-                              Navigator.pop(context);
-                            },
-                            child: Text(l10n.save),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: _buildVersionsCard(offer),
-          ),
-          if (profileSetBox.isNotEmpty || glassBox.isNotEmpty) ...[
-            const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l10n.defaultCharacteristics,
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: 12),
-                      DropdownButtonFormField<int>(
-                        value: profileSetBox.isEmpty
-                            ? null
-                            : selectedProfileIndex,
-                        decoration:
-                            InputDecoration(labelText: l10n.defaultProfile),
-                        items: [
-                          for (int i = 0; i < profileSetBox.length; i++)
-                            DropdownMenuItem<int>(
-                              value: i,
-                              child: Text(
-                                profileSetBox.getAt(i)?.name ?? '',
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                        ],
-                        onChanged: profileSetBox.isEmpty
-                            ? null
-                            : (val) {
-                                if (val == null) {
-                                  return;
-                                }
-                                setState(() {
-                                  _selectedDefaultProfileSetIndex = val;
-                                });
-                              },
-                      ),
-                      const SizedBox(height: 12),
-                      DropdownButtonFormField<int>(
-                        value: glassBox.isEmpty ? null : selectedGlassIndex,
-                        decoration:
-                            InputDecoration(labelText: l10n.defaultGlass),
-                        items: [
-                          for (int i = 0; i < glassBox.length; i++)
-                            DropdownMenuItem<int>(
-                              value: i,
-                              child: Text(
-                                glassBox.getAt(i)?.name ?? '',
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                        ],
-                        onChanged: glassBox.isEmpty
-                            ? null
-                            : (val) {
-                                if (val == null) {
-                                  return;
-                                }
-                                setState(() {
-                                  _selectedDefaultGlassIndex = val;
-                                });
-                              },
-                      ),
-                      if (hasPendingDefaultChange) ...[
-                        const SizedBox(height: 12),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: ElevatedButton.icon(
-                            onPressed: () =>
-                                _saveDefaultCharacteristics(offer,
-                                    selectedProfileIndex, selectedGlassIndex),
-                            icon: const Icon(Icons.save),
-                            label: Text(l10n.save),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
                 ),
               ),
-            ),
-          ],
-          const SizedBox(height: 8),
-          ...List.generate(offer.items.length, (i) {
+              const SizedBox(height: 16),
+              ...List.generate(offer.items.length, (i) {
             final item = offer.items[i];
             final profileSet = profileSetBox.getAt(item.profileSetIndex)!;
             final glass = glassBox.getAt(item.glassIndex)!;
@@ -984,251 +1414,21 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 }()),
               ),
             ).animate().fadeIn(duration: 200.ms).slideY(begin: 0.3);
-          }),
-          const SizedBox(height: 16),
-          Center(
-            child: Builder(builder: (_) {
-              double itemsBase = 0;
-              double itemsFinal = 0;
-              int totalPcs = 0;
-              double totalMass = 0;
-              double totalArea = 0;
-              for (var item in offer.items) {
-                final profileSet = profileSetBox.getAt(item.profileSetIndex)!;
-                final glass = glassBox.getAt(item.glassIndex)!;
-                final blind = (item.blindIndex != null)
-                    ? blindBox.getAt(item.blindIndex!)
-                    : null;
-                final mechanism = (item.mechanismIndex != null)
-                    ? mechanismBox.getAt(item.mechanismIndex!)
-                    : null;
-                final accessory = (item.accessoryIndex != null)
-                    ? accessoryBox.getAt(item.accessoryIndex!)
-                    : null;
-                double profileCost = item.calculateProfileCost(profileSet,
-                        boxHeight: blind?.boxHeight ?? 0) *
-                    item.quantity;
-                double glassCost =
-                    item.calculateGlassCost(profileSet, glass,
-                            boxHeight: blind?.boxHeight ?? 0) *
-                        item.quantity;
-                double blindCost = (blind != null)
-                    ? ((item.width / 1000.0) *
-                        (item.height / 1000.0) *
-                        blind.pricePerM2 *
-                        item.quantity)
-                    : 0;
-                double mechanismCost = (mechanism != null)
-                    ? mechanism.price * item.quantity * item.openings
-                    : 0;
-                double accessoryCost =
-                    (accessory != null) ? accessory.price * item.quantity : 0;
-                double extras =
-                    ((item.extra1Price ?? 0) + (item.extra2Price ?? 0)) *
-                        item.quantity;
-                double base = profileCost +
-                    glassCost +
-                    blindCost +
-                    mechanismCost +
-                    accessoryCost;
-                final profileMass = item.calculateProfileMass(profileSet,
-                        boxHeight: blind?.boxHeight ?? 0) *
-                    item.quantity;
-                final glassMass = item
-                        .calculateGlassMass(profileSet, glass,
-                            boxHeight: blind?.boxHeight ?? 0) *
-                    item.quantity;
-                final blindMass = (blind != null)
-                    ? ((item.width / 1000.0) *
-                        (item.height / 1000.0) *
-                        blind.massPerM2 *
-                        item.quantity)
-                    : 0;
-                final mechanismMass = (mechanism != null)
-                    ? mechanism.mass * item.quantity * item.openings
-                    : 0;
-                final accessoryMass = (accessory != null)
-                    ? accessory.mass * item.quantity
-                    : 0;
-                final itemMass = profileMass +
-                    glassMass +
-                    blindMass +
-                    mechanismMass +
-                    accessoryMass;
-                final itemArea =
-                    item.calculateTotalArea() * item.quantity;
-                if (item.manualBasePrice != null) {
-                  base = item.manualBasePrice!;
-                }
-                double total = base + extras;
-                double finalPrice;
-                if (item.manualPrice != null) {
-                  finalPrice = item.manualPrice!;
-                } else {
-                  finalPrice = base * (offer.profitPercent / 100 + 1) + extras;
-                }
-                itemsBase += total;
-                itemsFinal += finalPrice;
-                totalPcs += item.quantity;
-                totalMass += itemMass;
-                totalArea += itemArea;
-              }
-              double extrasTotal =
-                  offer.extraCharges.fold(0, (p, e) => p + e.amount);
-              double baseTotal = itemsBase + extrasTotal;
-              double subtotal = itemsFinal + extrasTotal;
-              subtotal -= offer.discountAmount;
-              double percentAmount = subtotal * (offer.discountPercent / 100);
-              double finalTotal = subtotal - percentAmount;
-              double profitTotal = finalTotal - baseTotal;
-              String summary = '${l10n.pdfTotalItems}: $totalPcs pcs\n';
-              summary +=
-                  '${l10n.pdfTotalMass} ${totalMass.toStringAsFixed(2)} kg\n';
-              summary +=
-                  '${l10n.pdfTotalArea} ${totalArea.toStringAsFixed(2)} m²\n';
-              summary +=
-                  '${l10n.totalWithoutProfit}: €${baseTotal.toStringAsFixed(2)}\n';
-              for (var charge in offer.extraCharges) {
-                summary +=
-                    '${charge.description.isNotEmpty ? charge.description : l10n.pdfExtra}: €${charge.amount.toStringAsFixed(2)}\n';
-              }
-              if (offer.discountAmount != 0) {
-                summary +=
-                    '${l10n.pdfDiscountAmount}: -€${offer.discountAmount.toStringAsFixed(2)}\n';
-              }
-              if (offer.discountPercent != 0) {
-                summary +=
-                    '${l10n.pdfDiscountPercent}: ${offer.discountPercent.toStringAsFixed(2)}% (-€${percentAmount.toStringAsFixed(2)})\n';
-              }
-              summary +=
-                  '${l10n.withProfit}: €${finalTotal.toStringAsFixed(2)}\n${l10n.totalProfit}: €${profitTotal.toStringAsFixed(2)}';
-              return Text(
-                summary,
-                textAlign: TextAlign.center,
-                style:
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-              );
-            }),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                ...List.generate(offer.extraCharges.length, (i) {
-                  final charge = offer.extraCharges[i];
-                  if (extraDescControllers.length <= i) {
-                    extraDescControllers
-                        .add(TextEditingController(text: charge.description));
-                  }
-                  if (extraAmountControllers.length <= i) {
-                    extraAmountControllers.add(
-                        TextEditingController(text: charge.amount.toString()));
-                  }
-                  final descCtl = extraDescControllers[i];
-                  final amtCtl = extraAmountControllers[i];
-                  return Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: descCtl,
-                          decoration:
-                              InputDecoration(labelText: l10n.description),
-                          onChanged: (v) {
-                            charge.description = v;
-                            offer.lastEdited = DateTime.now();
-                            offer.save();
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      SizedBox(
-                        width: 100,
-                        child: TextField(
-                          controller: amtCtl,
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(labelText: l10n.amount),
-                          onChanged: (v) {
-                            charge.amount = double.tryParse(v) ?? 0;
-                            offer.lastEdited = DateTime.now();
-                            offer.save();
-                            setState(() {});
-                          },
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.delete),
-                        onPressed: () {
-                          offer.extraCharges.removeAt(i);
-                          if (i < extraDescControllers.length) {
-                            extraDescControllers.removeAt(i);
-                          }
-                          if (i < extraAmountControllers.length) {
-                            extraAmountControllers.removeAt(i);
-                          }
-                          offer.lastEdited = DateTime.now();
-                          offer.save();
-                          setState(() {});
-                        },
-                      ),
-                    ],
-                  );
-                }),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: TextButton.icon(
-                    onPressed: () {
-                      offer.extraCharges.add(ExtraCharge());
-                      extraDescControllers.add(TextEditingController());
-                      extraAmountControllers.add(TextEditingController());
-                      offer.lastEdited = DateTime.now();
-                      offer.save();
-                      setState(() {});
-                    },
-                    icon: const Icon(Icons.add),
-                    label: Text(l10n.addExtra),
-                  ),
-                ),
-                TextField(
-                  controller: discountPercentController,
-                  keyboardType: TextInputType.number,
-                  decoration:
-                      InputDecoration(labelText: l10n.pdfDiscountPercent),
-                  onChanged: (val) {
-                    offer.discountPercent = double.tryParse(val) ?? 0;
-                    offer.lastEdited = DateTime.now();
-                    offer.save();
-                    setState(() {});
-                  },
-                ),
-                TextField(
-                  controller: discountAmountController,
-                  keyboardType: TextInputType.number,
-                  decoration:
-                      InputDecoration(labelText: l10n.pdfDiscountAmount),
-                  onChanged: (val) {
-                    offer.discountAmount = double.tryParse(val) ?? 0;
-                    offer.lastEdited = DateTime.now();
-                    offer.save();
-                    setState(() {});
-                  },
-                ),
-                TextField(
-                  controller: notesController,
-                  decoration:
-                      InputDecoration(labelText: l10n.pdfNotes),
-                  minLines: 1,
-                  maxLines: 3,
-                  onChanged: (val) {
-                    offer.notes = val;
-                    offer.lastEdited = DateTime.now();
-                    offer.save();
-                  },
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
-        ],
+              }),
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: _buildTotalsCard(offer),
+              ),
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: _buildAdjustmentsCard(offer),
+              ),
+              const SizedBox(height: 24),
+            ],
+          );
+        },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddItemMenu(offer),
