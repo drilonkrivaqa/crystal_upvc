@@ -54,7 +54,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
     if (length <= 0) {
       return null;
     }
-    final index = _selectedDefaultProfileSetIndex ?? offer.defaultProfileSetIndex;
+    final index =
+        _selectedDefaultProfileSetIndex ?? offer.defaultProfileSetIndex;
     return _normalizeIndex(index, length);
   }
 
@@ -76,10 +77,10 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
   }
 
   Future<void> _saveDefaultCharacteristics(
-    Offer offer,
-    int? profileIndex,
-    int? glassIndex,
-  ) async {
+      Offer offer,
+      int? profileIndex,
+      int? glassIndex,
+      ) async {
     final l10n = AppLocalizations.of(context);
     final profileChanged =
         profileIndex != null && profileIndex != offer.defaultProfileSetIndex;
@@ -137,8 +138,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
   }
 
   Future<List<bool>?> _showApplyDefaultsDialog(
-    Offer offer,
-  ) {
+      Offer offer,
+      ) {
     final l10n = AppLocalizations.of(context);
     return showDialog<List<bool>>(
       context: context,
@@ -160,7 +161,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                         onPressed: () {
                           setStateDialog(() {
                             selection =
-                                List<bool>.filled(offer.items.length, true);
+                            List<bool>.filled(offer.items.length, true);
                           });
                         },
                         child: Text(l10n.selectAll),
@@ -170,7 +171,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                         onPressed: () {
                           setStateDialog(() {
                             selection =
-                                List<bool>.filled(offer.items.length, false);
+                            List<bool>.filled(offer.items.length, false);
                           });
                         },
                         child: Text(l10n.selectNone),
@@ -372,9 +373,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
         : '${l10n.locale.languageCode}_${l10n.locale.countryCode}';
     final formatter = DateFormat.yMMMd(localeCode).add_Hm();
     final versionIndices = List<int>.generate(versions.length, (i) => i)
-      ..sort((a, b) => versions[b]
-          .createdAt
-          .compareTo(versions[a].createdAt));
+      ..sort(
+              (a, b) => versions[b].createdAt.compareTo(versions[a].createdAt));
 
     return GlassCard(
       margin: EdgeInsets.zero,
@@ -410,7 +410,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
               final version = versions[index];
               final createdText = formatter.format(version.createdAt);
               final subtitle =
-                  l10n.versionCreatedOn.replaceAll('{date}', createdText);
+              l10n.versionCreatedOn.replaceAll('{date}', createdText);
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: Row(
@@ -471,7 +471,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
               value: selected,
               items: List.generate(
                 customerBox.length,
-                (i) => DropdownMenuItem(
+                    (i) => DropdownMenuItem(
                   value: i,
                   child: Text(customerBox.getAt(i)?.name ?? ''),
                 ),
@@ -504,7 +504,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
   Future<void> _showProfitDialog(Offer offer) async {
     final l10n = AppLocalizations.of(context);
     final controller =
-        TextEditingController(text: offer.profitPercent.toString());
+    TextEditingController(text: offer.profitPercent.toString());
     await showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -589,7 +589,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
         : '${l10n.locale.languageCode}_${l10n.locale.countryCode}';
     final createdText = DateFormat.yMMMd(localeCode).format(offer.date);
     final editedText =
-        DateFormat.yMMMd(localeCode).add_Hm().format(offer.lastEdited);
+    DateFormat.yMMMd(localeCode).add_Hm().format(offer.lastEdited);
 
     return GlassCard(
       margin: EdgeInsets.zero,
@@ -640,11 +640,11 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
   }
 
   Widget _buildDefaultCharacteristicsCard(
-    Offer offer,
-    int? selectedProfileIndex,
-    int? selectedGlassIndex,
-    bool hasPendingDefaultChange,
-  ) {
+      Offer offer,
+      int? selectedProfileIndex,
+      int? selectedGlassIndex,
+      bool hasPendingDefaultChange,
+      ) {
     final l10n = AppLocalizations.of(context);
     return GlassCard(
       margin: EdgeInsets.zero,
@@ -673,13 +673,13 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
             onChanged: profileSetBox.isEmpty
                 ? null
                 : (val) {
-                    if (val == null) {
-                      return;
-                    }
-                    setState(() {
-                      _selectedDefaultProfileSetIndex = val;
-                    });
-                  },
+              if (val == null) {
+                return;
+              }
+              setState(() {
+                _selectedDefaultProfileSetIndex = val;
+              });
+            },
           ),
           const SizedBox(height: 12),
           DropdownButtonFormField<int>(
@@ -698,13 +698,13 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
             onChanged: glassBox.isEmpty
                 ? null
                 : (val) {
-                    if (val == null) {
-                      return;
-                    }
-                    setState(() {
-                      _selectedDefaultGlassIndex = val;
-                    });
-                  },
+              if (val == null) {
+                return;
+              }
+              setState(() {
+                _selectedDefaultGlassIndex = val;
+              });
+            },
           ),
           if (hasPendingDefaultChange) ...[
             const SizedBox(height: 12),
@@ -728,7 +728,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
     final theme = Theme.of(context);
     final style = emphasize
         ? theme.textTheme.titleMedium
-            ?.copyWith(fontWeight: FontWeight.bold)
+        ?.copyWith(fontWeight: FontWeight.bold)
         : theme.textTheme.bodyMedium;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
@@ -764,62 +764,56 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
           for (var item in offer.items) {
             final profileSet = profileSetBox.getAt(item.profileSetIndex)!;
             final glass = glassBox.getAt(item.glassIndex)!;
-            final blind =
-                (item.blindIndex != null) ? blindBox.getAt(item.blindIndex!) : null;
+            final blind = (item.blindIndex != null)
+                ? blindBox.getAt(item.blindIndex!)
+                : null;
             final mechanism = (item.mechanismIndex != null)
                 ? mechanismBox.getAt(item.mechanismIndex!)
                 : null;
             final accessory = (item.accessoryIndex != null)
                 ? accessoryBox.getAt(item.accessoryIndex!)
                 : null;
-            double profileCost = item.calculateProfileCost(profileSet,
-                    boxHeight: blind?.boxHeight ?? 0) *
-                item.quantity;
-            double glassCost = item.calculateGlassCost(profileSet, glass,
-                    boxHeight: blind?.boxHeight ?? 0) *
-                item.quantity;
+            double profileCost =
+                item.calculateProfileCost(profileSet, boxHeight: blind?.boxHeight ?? 0) *
+                    item.quantity;
+            double glassCost =
+                item.calculateGlassCost(profileSet, glass, boxHeight: blind?.boxHeight ?? 0) *
+                    item.quantity;
             double blindCost = (blind != null)
                 ? ((item.width / 1000.0) *
-                    (item.height / 1000.0) *
-                    blind.pricePerM2 *
-                    item.quantity)
+                (item.height / 1000.0) *
+                blind.pricePerM2 *
+                item.quantity)
                 : 0;
             double mechanismCost = (mechanism != null)
                 ? mechanism.price * item.quantity * item.openings
                 : 0;
             double accessoryCost =
-                (accessory != null) ? accessory.price * item.quantity : 0;
+            (accessory != null) ? accessory.price * item.quantity : 0;
             double extras =
                 ((item.extra1Price ?? 0) + (item.extra2Price ?? 0)) * item.quantity;
-            double base = profileCost +
-                glassCost +
-                blindCost +
-                mechanismCost +
-                accessoryCost;
-            final profileMass = item.calculateProfileMass(profileSet,
-                    boxHeight: blind?.boxHeight ?? 0) *
-                item.quantity;
+            double base =
+                profileCost + glassCost + blindCost + mechanismCost + accessoryCost;
+            final profileMass =
+                item.calculateProfileMass(profileSet, boxHeight: blind?.boxHeight ?? 0) *
+                    item.quantity;
             final glassMass = item
-                    .calculateGlassMass(profileSet, glass,
-                        boxHeight: blind?.boxHeight ?? 0) *
+                .calculateGlassMass(profileSet, glass,
+                boxHeight: blind?.boxHeight ?? 0) *
                 item.quantity;
             final blindMass = (blind != null)
                 ? ((item.width / 1000.0) *
-                    (item.height / 1000.0) *
-                    blind.massPerM2 *
-                    item.quantity)
+                (item.height / 1000.0) *
+                blind.massPerM2 *
+                item.quantity)
                 : 0;
             final mechanismMass = (mechanism != null)
                 ? mechanism.mass * item.quantity * item.openings
                 : 0;
-            final accessoryMass = (accessory != null)
-                ? accessory.mass * item.quantity
-                : 0;
-            final itemMass = profileMass +
-                glassMass +
-                blindMass +
-                mechanismMass +
-                accessoryMass;
+            final accessoryMass =
+            (accessory != null) ? accessory.mass * item.quantity : 0;
+            final itemMass =
+                profileMass + glassMass + blindMass + mechanismMass + accessoryMass;
             final itemArea = item.calculateTotalArea() * item.quantity;
             if (item.manualBasePrice != null) {
               base = item.manualBasePrice!;
@@ -838,7 +832,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
             totalArea += itemArea;
           }
           double extrasTotal =
-              offer.extraCharges.fold(0, (p, e) => p + e.amount);
+          offer.extraCharges.fold(0, (p, e) => p + e.amount);
           double baseTotal = itemsBase + extrasTotal;
           double subtotal = itemsFinal + extrasTotal;
           subtotal -= offer.discountAmount;
@@ -856,15 +850,15 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
               const SizedBox(height: 12),
               _buildSummaryRow(
                   l10n.pdfTotalItems, '$totalPcs ${l10n.pcs}'),
-              _buildSummaryRow(l10n.pdfTotalMass,
-                  '${totalMass.toStringAsFixed(2)} kg'),
-              _buildSummaryRow(l10n.pdfTotalArea,
-                  '${totalArea.toStringAsFixed(2)} m²'),
+              _buildSummaryRow(
+                  l10n.pdfTotalMass, '${totalMass.toStringAsFixed(2)} kg'),
+              _buildSummaryRow(
+                  l10n.pdfTotalArea, '${totalArea.toStringAsFixed(2)} m²'),
               const Divider(height: 32),
               _buildSummaryRow(l10n.totalWithoutProfit,
                   '€${baseTotal.toStringAsFixed(2)}'),
               ...offer.extraCharges.map(
-                (charge) => _buildSummaryRow(
+                    (charge) => _buildSummaryRow(
                   charge.description.isNotEmpty
                       ? charge.description
                       : l10n.pdfExtra,
@@ -908,7 +902,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
         builder: (context, constraints) {
           final bool isWide = constraints.maxWidth > 600;
           final double fieldWidth =
-              isWide ? (constraints.maxWidth - 16) / 2 : constraints.maxWidth;
+          isWide ? (constraints.maxWidth - 16) / 2 : constraints.maxWidth;
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -924,8 +918,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                       .add(TextEditingController(text: charge.description));
                 }
                 if (extraAmountControllers.length <= i) {
-                  extraAmountControllers
-                      .add(TextEditingController(text: charge.amount.toString()));
+                  extraAmountControllers.add(
+                      TextEditingController(text: charge.amount.toString()));
                 }
                 final descCtl = extraDescControllers[i];
                 final amtCtl = extraAmountControllers[i];
@@ -938,7 +932,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                         child: TextField(
                           controller: descCtl,
                           decoration:
-                              InputDecoration(labelText: l10n.description),
+                          InputDecoration(labelText: l10n.description),
                           onChanged: (v) {
                             charge.description = v;
                             offer.lastEdited = DateTime.now();
@@ -953,7 +947,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                           controller: amtCtl,
                           keyboardType: TextInputType.number,
                           decoration:
-                              InputDecoration(labelText: l10n.amount),
+                          InputDecoration(labelText: l10n.amount),
                           onChanged: (v) {
                             charge.amount = double.tryParse(v) ?? 0;
                             offer.lastEdited = DateTime.now();
@@ -1007,8 +1001,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                     child: TextField(
                       controller: discountPercentController,
                       keyboardType: TextInputType.number,
-                      decoration:
-                          InputDecoration(labelText: l10n.pdfDiscountPercent),
+                      decoration: InputDecoration(
+                          labelText: l10n.pdfDiscountPercent),
                       onChanged: (val) {
                         offer.discountPercent = double.tryParse(val) ?? 0;
                         offer.lastEdited = DateTime.now();
@@ -1023,7 +1017,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                       controller: discountAmountController,
                       keyboardType: TextInputType.number,
                       decoration:
-                          InputDecoration(labelText: l10n.pdfDiscountAmount),
+                      InputDecoration(labelText: l10n.pdfDiscountAmount),
                       onChanged: (val) {
                         offer.discountAmount = double.tryParse(val) ?? 0;
                         offer.lastEdited = DateTime.now();
@@ -1086,9 +1080,9 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
     final l10n = AppLocalizations.of(context);
     Offer offer = offerBox.getAt(widget.offerIndex)!;
     final normalizedProfileIndex =
-        _normalizeIndex(offer.defaultProfileSetIndex, profileSetBox.length);
+    _normalizeIndex(offer.defaultProfileSetIndex, profileSetBox.length);
     final normalizedGlassIndex =
-        _normalizeIndex(offer.defaultGlassIndex, glassBox.length);
+    _normalizeIndex(offer.defaultGlassIndex, glassBox.length);
     if (normalizedProfileIndex != offer.defaultProfileSetIndex ||
         normalizedGlassIndex != offer.defaultGlassIndex) {
       offer
@@ -1098,11 +1092,11 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
         ..save();
     }
     final selectedProfileIndex =
-        _effectiveSelectedProfileIndex(offer, profileSetBox.length);
+    _effectiveSelectedProfileIndex(offer, profileSetBox.length);
     final selectedGlassIndex =
-        _effectiveSelectedGlassIndex(offer, glassBox.length);
+    _effectiveSelectedGlassIndex(offer, glassBox.length);
     final hasPendingDefaultChange =
-        _hasPendingDefaultChange(offer, selectedProfileIndex, selectedGlassIndex);
+    _hasPendingDefaultChange(offer, selectedProfileIndex, selectedGlassIndex);
     return Scaffold(
       appBar: AppBar(
         title: Text('${l10n.pdfOffer} ${offer.offerNumber}'),
@@ -1144,7 +1138,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                     final wrapWidth = innerConstraints.maxWidth;
                     final bool isWide = wrapWidth >= 900;
                     final double cardWidth =
-                        isWide ? (wrapWidth - 16) / 2 : wrapWidth;
+                    isWide ? (wrapWidth - 16) / 2 : wrapWidth;
                     final cards = <Widget>[
                       _buildOverviewCard(offer),
                       if (profileSetBox.isNotEmpty || glassBox.isNotEmpty)
@@ -1162,10 +1156,10 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                       children: cards
                           .map(
                             (card) => SizedBox(
-                              width: cardWidth,
-                              child: card,
-                            ),
-                          )
+                          width: cardWidth,
+                          child: card,
+                        ),
+                      )
                           .toList(),
                     );
                   },
@@ -1173,247 +1167,366 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
               ),
               const SizedBox(height: 16),
               ...List.generate(offer.items.length, (i) {
-            final item = offer.items[i];
-            final profileSet = profileSetBox.getAt(item.profileSetIndex)!;
-            final glass = glassBox.getAt(item.glassIndex)!;
-            final blind = (item.blindIndex != null)
-                ? blindBox.getAt(item.blindIndex!)
-                : null;
-            final mechanism = (item.mechanismIndex != null)
-                ? mechanismBox.getAt(item.mechanismIndex!)
-                : null;
-            final accessory = (item.accessoryIndex != null)
-                ? accessoryBox.getAt(item.accessoryIndex!)
-                : null;
+                final item = offer.items[i];
+                final profileSet = profileSetBox.getAt(item.profileSetIndex)!;
+                final glass = glassBox.getAt(item.glassIndex)!;
+                final blind = (item.blindIndex != null)
+                    ? blindBox.getAt(item.blindIndex!)
+                    : null;
+                final mechanism = (item.mechanismIndex != null)
+                    ? mechanismBox.getAt(item.mechanismIndex!)
+                    : null;
+                final accessory = (item.accessoryIndex != null)
+                    ? accessoryBox.getAt(item.accessoryIndex!)
+                    : null;
 
-            double profileCostPer = item.calculateProfileCost(profileSet,
-                boxHeight: blind?.boxHeight ?? 0);
-            double profileCost = profileCostPer * item.quantity;
-            double glassCostPer = item.calculateGlassCost(profileSet, glass,
-                boxHeight: blind?.boxHeight ?? 0);
-            double glassCost = glassCostPer * item.quantity;
-            double blindCostPer = (blind != null)
-                ? ((item.width / 1000.0) *
+                double profileCostPer = item.calculateProfileCost(profileSet,
+                    boxHeight: blind?.boxHeight ?? 0);
+                double profileCost = profileCostPer * item.quantity;
+                double glassCostPer = item.calculateGlassCost(profileSet, glass,
+                    boxHeight: blind?.boxHeight ?? 0);
+                double glassCost = glassCostPer * item.quantity;
+                double blindCostPer = (blind != null)
+                    ? ((item.width / 1000.0) *
                     (item.height / 1000.0) *
                     blind.pricePerM2)
-                : 0;
-            double blindCost = blindCostPer * item.quantity;
-            double mechanismCostPer = (mechanism != null)
-                ? mechanism.price * item.openings
-                : 0;
-            double mechanismCost = mechanismCostPer * item.quantity;
-            double accessoryCostPer =
+                    : 0;
+                double blindCost = blindCostPer * item.quantity;
+                double mechanismCostPer = (mechanism != null)
+                    ? mechanism.price * item.openings
+                    : 0;
+                double mechanismCost = mechanismCostPer * item.quantity;
+                double accessoryCostPer =
                 (accessory != null) ? accessory.price : 0;
-            double accessoryCost = accessoryCostPer * item.quantity;
-            double extrasPer =
-                (item.extra1Price ?? 0) + (item.extra2Price ?? 0);
-            double extras = extrasPer * item.quantity;
+                double accessoryCost = accessoryCostPer * item.quantity;
+                double extrasPer =
+                    (item.extra1Price ?? 0) + (item.extra2Price ?? 0);
+                double extras = extrasPer * item.quantity;
 
-            double profileMassPer = item.calculateProfileMass(profileSet,
-                boxHeight: blind?.boxHeight ?? 0);
-            double glassMassPer = item.calculateGlassMass(profileSet, glass,
-                boxHeight: blind?.boxHeight ?? 0);
-            double blindMassPer = (blind != null)
-                ? ((item.width / 1000.0) *
+                double profileMassPer = item.calculateProfileMass(profileSet,
+                    boxHeight: blind?.boxHeight ?? 0);
+                double glassMassPer = item.calculateGlassMass(profileSet, glass,
+                    boxHeight: blind?.boxHeight ?? 0);
+                double blindMassPer = (blind != null)
+                    ? ((item.width / 1000.0) *
                     (item.height / 1000.0) *
                     blind.massPerM2)
-                : 0;
-            double mechanismMassPer = (mechanism != null)
-                ? mechanism.mass * item.openings
-                : 0;
-            double accessoryMassPer =
+                    : 0;
+                double mechanismMassPer = (mechanism != null)
+                    ? mechanism.mass * item.openings
+                    : 0;
+                double accessoryMassPer =
                 (accessory != null) ? accessory.mass : 0;
-            double totalMass = (profileMassPer +
+                double totalMass = (profileMassPer +
                     glassMassPer +
                     blindMassPer +
                     mechanismMassPer +
                     accessoryMassPer) *
-                item.quantity;
+                    item.quantity;
 
-            double basePer = profileCostPer +
-                glassCostPer +
-                blindCostPer +
-                mechanismCostPer +
-                accessoryCostPer;
-            double base = basePer * item.quantity;
-            if (item.manualBasePrice != null) {
-              base = item.manualBasePrice!;
-              basePer = base / item.quantity;
-            }
-            double totalPer = basePer + extrasPer;
-            double total = base + extras;
-            double finalPrice;
-            double finalPer;
-            if (item.manualPrice != null) {
-              finalPrice = item.manualPrice!;
-              finalPer = finalPrice / item.quantity;
-            } else {
-              finalPrice = base * (1 + offer.profitPercent / 100) + extras;
-              finalPer = finalPrice / item.quantity;
-            }
-            double profitAmount = finalPrice - total;
-            double profitPer = finalPer - totalPer;
-            double? uw = item.calculateUw(profileSet, glass,
-                boxHeight: blind?.boxHeight ?? 0);
+                double basePer = profileCostPer +
+                    glassCostPer +
+                    blindCostPer +
+                    mechanismCostPer +
+                    accessoryCostPer;
+                double base = basePer * item.quantity;
+                if (item.manualBasePrice != null) {
+                  base = item.manualBasePrice!;
+                  basePer = base / item.quantity;
+                }
+                double totalPer = basePer + extrasPer;
+                double total = base + extras;
+                double finalPrice;
+                double finalPer;
+                if (item.manualPrice != null) {
+                  finalPrice = item.manualPrice!;
+                  finalPer = finalPrice / item.quantity;
+                } else {
+                  finalPrice =
+                      base * (1 + offer.profitPercent / 100) + extras;
+                  finalPer = finalPrice / item.quantity;
+                }
+                double profitAmount = finalPrice - total;
+                double profitPer = finalPer - totalPer;
+                double? uw = item.calculateUw(profileSet, glass,
+                    boxHeight: blind?.boxHeight ?? 0);
 
-            return GlassCard(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              onTap: () async {
-                await showDialog(
-                  context: context,
-                  builder: (_) => AlertDialog(
-                    title: Text(l10n.editDeleteWindowDoor),
-                    content: Text(l10n.confirmDeleteQuestion),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          offer.items.removeAt(i);
-                          offer.lastEdited = DateTime.now();
-                          offer.save();
-                          setState(() {});
-                          Navigator.pop(context);
-                        },
-                        child: Text(l10n.delete,
-                            style: const TextStyle(color: AppColors.delete)),
-                      ),
-                      TextButton(
-                        onPressed: () async {
-                          Navigator.pop(context);
-                          await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => WindowDoorItemPage(
-                                existingItem: item,
-                                onSave: (editedItem) {
-                                  offer.items[i] = editedItem;
-                                  offer.lastEdited = DateTime.now();
-                                  offer.save();
-                                  setState(() {});
-                                },
-                                defaultProfileSetIndex:
-                                    offer.defaultProfileSetIndex,
-                                defaultGlassIndex: offer.defaultGlassIndex,
-                              ),
-                            ),
-                          );
-                        },
-                        child: Text(l10n.edit),
-                      ),
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: Text(l10n.cancel),
-                      ),
-                    ],
-                  ),
+                final detailsText = _buildItemDetailsText(
+                  item: item,
+                  profileSet: profileSet,
+                  glass: glass,
+                  blind: blind,
+                  mechanism: mechanism,
+                  accessory: accessory,
+                  profileCostPer: profileCostPer,
+                  profileCost: profileCost,
+                  glassCostPer: glassCostPer,
+                  glassCost: glassCost,
+                  blindCost: blindCost,
+                  mechanismCost: mechanismCost,
+                  accessoryCost: accessoryCost,
+                  extrasPer: extrasPer,
+                  extras: extras,
+                  totalPer: totalPer,
+                  total: total,
+                  finalPer: finalPer,
+                  finalPrice: finalPrice,
+                  profitPer: profitPer,
+                  profitAmount: profitAmount,
+                  totalMass: totalMass,
+                  uw: uw,
                 );
-              },
-              child: ListTile(
-                leading: () {
+
+                final theme = Theme.of(context);
+                final imageWidget = () {
                   if (item.photoPath != null) {
                     return kIsWeb
-                        ? Image.network(item.photoPath!,
-                            width: 60, height: 60, fit: BoxFit.contain)
-                        : Image.file(File(item.photoPath!),
-                            width: 60, height: 60, fit: BoxFit.contain);
+                        ? Image.network(
+                      item.photoPath!,
+                      width: 72,
+                      height: 72,
+                      fit: BoxFit.contain,
+                    )
+                        : Image.file(
+                      File(item.photoPath!),
+                      width: 72,
+                      height: 72,
+                      fit: BoxFit.contain,
+                    );
                   }
                   if (item.photoBytes != null) {
-                    return Image.memory(item.photoBytes!,
-                        width: 60, height: 60, fit: BoxFit.contain);
+                    return Image.memory(
+                      item.photoBytes!,
+                      width: 72,
+                      height: 72,
+                      fit: BoxFit.contain,
+                    );
                   }
                   return null;
-                }(),
-                title: Text(item.name),
-                subtitle: Text(() {
-                  final sb = StringBuffer();
-                  sb.writeln('Size: ${item.width} x ${item.height} mm');
-                  sb.writeln('Pcs: ${item.quantity}');
-                  sb.writeln('Profile: ${profileSet.name}');
-                  sb.writeln('Glass: ${glass.name}');
-                  sb.writeln(
-                      'Sections: ${item.horizontalSections}x${item.verticalSections}');
-                  sb.writeln('Openings: ${item.openings}');
-                  if (item.perRowSectionWidths != null &&
-                      item.perRowSectionWidths!.isNotEmpty) {
-                    final rowStrings = <String>[];
-                    for (int i = 0;
-                        i < item.perRowSectionWidths!.length;
-                        i++) {
-                      final row = item.perRowSectionWidths![i];
-                      if (row.isEmpty) continue;
-                      rowStrings.add('R${i + 1}: ${row.join(', ')}');
-                    }
-                    if (rowStrings.isNotEmpty) {
-                      sb.writeln('Widths: ${rowStrings.join(' | ')}');
-                    }
-                  } else {
-                    sb.writeln(
-                        '${item.sectionWidths.length > 1 ? 'Widths' : 'Width'}: ${item.sectionWidths.join(', ')}');
-                  }
-                  sb.writeln(
-                      '${item.sectionHeights.length > 1 ? 'Heights' : 'Height'}: ${item.sectionHeights.join(', ')}');
-                  if (item.hasPerRowLayout) {
-                    final adapters = <String>[];
-                    final perRow = item.perRowVerticalAdapters ?? const <List<bool>>[];
-                    for (int i = 0; i < perRow.length; i++) {
-                      if (perRow[i].isEmpty) continue;
-                      adapters.add(
-                          'R${i + 1}: ${perRow[i].map((a) => a ? 'Adapter' : 'T').join(', ')}');
-                    }
-                    if (adapters.isNotEmpty) {
-                      sb.writeln('V div: ${adapters.join(' | ')}');
-                    }
-                  } else {
-                    sb.writeln(
-                        'V div: ${item.verticalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ')}');
-                  }
-                  sb.writeln(
-                      'H div: ${item.horizontalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ')}');
-                  sb.writeln(
-                      'Profile cost per piece: €${profileCostPer.toStringAsFixed(2)}, Total profile cost (${item.quantity}pcs): €${profileCost.toStringAsFixed(2)}');
-                  sb.writeln(
-                      'Glass cost per piece: €${glassCostPer.toStringAsFixed(2)}, Total glass cost (${item.quantity}pcs): €${glassCost.toStringAsFixed(2)}');
-                  if (blind != null) {
-                    sb.writeln('Roller shutter: ${blind.name}, €${blindCost.toStringAsFixed(2)}');
-                  }
-                  if (mechanism != null) {
-                    sb.writeln(
-                        'Mechanism: ${mechanism.name}, €${mechanismCost.toStringAsFixed(2)}');
-                  }
-                  if (accessory != null) {
-                    sb.writeln(
-                        'Accessory: ${accessory.name}, €${accessoryCost.toStringAsFixed(2)}');
-                  }
-                  if (item.extra1Price != null) {
-                    sb.writeln(
-                        '${item.extra1Desc ?? 'Extra 1'}: €${(item.extra1Price! * item.quantity).toStringAsFixed(2)}');
-                  }
-                  if (item.extra2Price != null) {
-                    sb.writeln(
-                        '${item.extra2Desc ?? 'Extra 2'}: €${(item.extra2Price! * item.quantity).toStringAsFixed(2)}');
-                  }
-                  if (item.notes != null && item.notes!.isNotEmpty) {
-                    sb.writeln('Notes: ${item.notes!}');
-                  }
-                  sb.writeln(
-                      'Cost 0% per piece: €${totalPer.toStringAsFixed(2)}, Total cost 0% (${item.quantity}pcs): €${total.toStringAsFixed(2)}');
-                  sb.writeln(
-                      'Cost with profit per piece: €${finalPer.toStringAsFixed(2)}, Total cost with profit (${item.quantity}pcs): €${finalPrice.toStringAsFixed(2)}');
-                  sb.writeln(
-                      'Profit per piece: €${profitPer.toStringAsFixed(2)}, Total profit (${item.quantity}pcs): €${profitAmount.toStringAsFixed(2)}');
-                  sb.writeln('Mass: ${totalMass.toStringAsFixed(2)} kg');
-                  if (profileSet.uf != null) {
-                    sb.writeln('Uf: ${profileSet.uf!.toStringAsFixed(2)} W/m²K');
-                  }
-                  if (glass.ug != null) {
-                    sb.writeln('Ug: ${glass.ug!.toStringAsFixed(2)} W/m²K');
-                  }
-                  if (uw != null) {
-                    sb.writeln('Uw: ${uw.toStringAsFixed(2)} W/m²K');
-                  }
-                  return sb.toString();
-                }()),
-              ),
-            ).animate().fadeIn(duration: 200.ms).slideY(begin: 0.3);
+                }();
+
+                return GlassCard(
+                  margin:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  onTap: () async {
+                    await showDialog(
+                      context: context,
+                      builder: (_) => AlertDialog(
+                        title: Text(l10n.editDeleteWindowDoor),
+                        content: Text(l10n.confirmDeleteQuestion),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              offer.items.removeAt(i);
+                              offer.lastEdited = DateTime.now();
+                              offer.save();
+                              setState(() {});
+                              Navigator.pop(context);
+                            },
+                            child: Text(
+                              l10n.delete,
+                              style: const TextStyle(color: AppColors.delete),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () async {
+                              Navigator.pop(context);
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => WindowDoorItemPage(
+                                    existingItem: item,
+                                    onSave: (editedItem) {
+                                      offer.items[i] = editedItem;
+                                      offer.lastEdited = DateTime.now();
+                                      offer.save();
+                                      setState(() {});
+                                    },
+                                    defaultProfileSetIndex:
+                                    offer.defaultProfileSetIndex,
+                                    defaultGlassIndex:
+                                    offer.defaultGlassIndex,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Text(l10n.edit),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: Text(l10n.cancel),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (imageWidget != null)
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: imageWidget,
+                              ),
+                            if (imageWidget != null)
+                              const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    crossAxisAlignment:
+                                    CrossAxisAlignment.start,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          item.name,
+                                          style: theme
+                                              .textTheme.titleMedium
+                                              ?.copyWith(
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 10, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                          BorderRadius.circular(999),
+                                          color: theme.colorScheme.primary
+                                              .withOpacity(0.08),
+                                        ),
+                                        child: Text(
+                                          '${item.quantity} ${l10n.pcs}',
+                                          style: theme.textTheme.bodySmall
+                                              ?.copyWith(
+                                            color:
+                                            theme.colorScheme.primary,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Size: ${item.width} x ${item.height} mm',
+                                    style: theme.textTheme.bodySmall,
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    'Profile: ${profileSet.name}',
+                                    style: theme.textTheme.bodySmall,
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    'Glass: ${glass.name}',
+                                    style: theme.textTheme.bodySmall,
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    'Sections: ${item.horizontalSections}x${item.verticalSections}',
+                                    style: theme.textTheme.bodySmall,
+                                  ),
+                                  if (uw != null ||
+                                      profileSet.uf != null ||
+                                      glass.ug != null) ...[
+                                    const SizedBox(height: 4),
+                                    Wrap(
+                                      spacing: 6,
+                                      runSpacing: 4,
+                                      children: [
+                                        if (profileSet.uf != null)
+                                          _buildInfoChip(
+                                            'Uf: ${profileSet.uf!.toStringAsFixed(2)} W/m²K',
+                                          ),
+                                        if (glass.ug != null)
+                                          _buildInfoChip(
+                                            'Ug: ${glass.ug!.toStringAsFixed(2)} W/m²K',
+                                          ),
+                                        if (uw != null)
+                                          _buildInfoChip(
+                                            'Uw: ${uw.toStringAsFixed(2)} W/m²K',
+                                          ),
+                                      ],
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  '€${finalPrice.toStringAsFixed(2)}',
+                                  style: theme.textTheme.titleMedium
+                                      ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '€${finalPer.toStringAsFixed(2)} / pc',
+                                  style: theme.textTheme.bodySmall
+                                      ?.copyWith(
+                                    color: theme.colorScheme.secondary,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Profit: €${profitAmount.toStringAsFixed(2)}',
+                                  style: theme.textTheme.bodySmall,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Mass: ${totalMass.toStringAsFixed(2)} kg',
+                                  style: theme.textTheme.bodySmall,
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Theme(
+                          data: theme.copyWith(
+                            dividerColor: Colors.transparent,
+                          ),
+                          child: ExpansionTile(
+                            tilePadding: EdgeInsets.zero,
+                            childrenPadding:
+                            const EdgeInsets.only(top: 8.0),
+                            title: Text(
+                              'Details',
+                              style: theme.textTheme.bodyMedium
+                                  ?.copyWith(fontWeight: FontWeight.w600),
+                            ),
+                            children: [
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  detailsText,
+                                  style: theme.textTheme.bodySmall
+                                      ?.copyWith(
+                                    fontFamily: 'monospace',
+                                    height: 1.25,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ).animate().fadeIn(duration: 200.ms).slideY(begin: 0.3);
               }),
               const SizedBox(height: 16),
               Padding(
@@ -1489,7 +1602,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
   Future<void> _showBulkAddDialog(Offer offer) async {
     final l10n = AppLocalizations.of(context);
     final prefixController =
-        TextEditingController(text: l10n.bulkAddDialogDefaultPrefix);
+    TextEditingController(text: l10n.bulkAddDialogDefaultPrefix);
     final itemsController = TextEditingController();
     List<WindowDoorItem>? createdItems;
     try {
@@ -1505,7 +1618,6 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
 
           void recomputePreview() {
             final lines = itemsController.text.split(RegExp(r'[\r\n]+'));
-            final tmpRows = <List<List<String>>>[];
             int ok = 0, bad = 0;
 
             final startingIndex = offer.items.length;
@@ -1588,7 +1700,6 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                         "Enter lines like: width,height,vertical sections,horizontal sections,qty(optional)",
                       ),
                       const SizedBox(height: 10),
-
                       Wrap(
                         spacing: 8,
                         runSpacing: 8,
@@ -1597,10 +1708,12 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                             icon: const Icon(Icons.content_paste),
                             label: const Text("Paste"),
                             onPressed: () async {
-                              final data = await Clipboard.getData('text/plain');
+                              final data =
+                              await Clipboard.getData('text/plain');
                               if (data?.text != null) {
                                 updateAndRecompute(() {
-                                  itemsController.text = (itemsController.text.isEmpty)
+                                  itemsController.text =
+                                  (itemsController.text.isEmpty)
                                       ? data!.text!
                                       : '${itemsController.text.trim()}\n${data!.text!}';
                                 });
@@ -1631,9 +1744,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                           ),
                         ],
                       ),
-
                       const SizedBox(height: 12),
-
                       TextField(
                         controller: prefixController,
                         decoration: const InputDecoration(
@@ -1642,9 +1753,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                         ),
                         onChanged: (_) => updateAndRecompute(() {}),
                       ),
-
                       const SizedBox(height: 12),
-
                       TextField(
                         controller: itemsController,
                         decoration: const InputDecoration(
@@ -1659,7 +1768,6 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                         style: const TextStyle(fontFamily: 'monospace'),
                         onChanged: (_) => updateAndRecompute(() {}),
                       ),
-
                       const SizedBox(height: 10),
                       Row(
                         children: [
@@ -1674,12 +1782,12 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                           ),
                         ],
                       ),
-
                       if (previewRows.isNotEmpty) ...[
                         const SizedBox(height: 8),
                         const Text(
                           "Preview",
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.w600),
                         ),
                         const SizedBox(height: 6),
                         ClipRRect(
@@ -1692,14 +1800,19 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                                 columns: const [
                                   DataColumn(label: Text("No.")),
                                   DataColumn(label: Text("Size")),
-                                  DataColumn(label: Text("Sections (V×H)")),
+                                  DataColumn(
+                                      label: Text("Sections (V×H)")),
                                   DataColumn(label: Text("Pcs")),
                                   DataColumn(label: Text("Name")),
                                 ],
                                 rows: previewRows
-                                    .map((r) => DataRow(
-                                  cells: r.map((c) => DataCell(Text(c))).toList(),
-                                ))
+                                    .map(
+                                      (r) => DataRow(
+                                    cells: r
+                                        .map((c) => DataCell(Text(c)))
+                                        .toList(),
+                                  ),
+                                )
                                     .toList(),
                               ),
                             ),
@@ -1714,12 +1827,11 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                             ),
                           ),
                       ],
-
                       if (errorText != null) ...[
                         const SizedBox(height: 12),
                         Text(
                           errorText!,
-                          style: TextStyle(color: Colors.red),
+                          style: const TextStyle(color: Colors.red),
                         ),
                       ],
                     ],
@@ -1739,8 +1851,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                           offer,
                           prefixController.text,
                           itemsController.text,
-                          // <— we unused l10n now, so remove last param entirely? no—keep but pass placeholder:
-                          AppLocalizations.of(context), // keep this because _parseBulkItems needs it
+                          AppLocalizations.of(context),
                         );
                         Navigator.of(ctx).pop(items);
                       } on FormatException catch (e) {
@@ -1755,7 +1866,6 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
             },
           );
         },
-
       );
     } finally {
       prefixController.dispose();
@@ -1781,11 +1891,11 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
   }
 
   List<WindowDoorItem> _parseBulkItems(
-    Offer offer,
-    String prefix,
-    String input,
-    AppLocalizations l10n,
-  ) {
+      Offer offer,
+      String prefix,
+      String input,
+      AppLocalizations l10n,
+      ) {
     final lines = input.split(RegExp(r'[\r\n]+'));
     final profileIndex = _normalizeIndex(
         _selectedDefaultProfileSetIndex ?? offer.defaultProfileSetIndex,
@@ -1834,7 +1944,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
         flattenedFixed.addAll(row);
       }
       final rowVerticalAdapters = List<List<bool>>.generate(
-          horizontal, (_) => List<bool>.filled(vertical > 1 ? vertical - 1 : 0, false));
+          horizontal,
+              (_) => List<bool>.filled(vertical > 1 ? vertical - 1 : 0, false));
 
       final itemIndex = startingIndex + items.length + 1;
       final name = '$trimmedPrefix $itemIndex';
@@ -1847,26 +1958,23 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
           quantity: quantity,
           profileSetIndex: profileIndex,
           glassIndex: glassIndex,
-          openings:
-              flattenedFixed.where((isFixed) => !isFixed).length,
+          openings: flattenedFixed.where((isFixed) => !isFixed).length,
           verticalSections: vertical,
           horizontalSections: horizontal,
           fixedSectors: flattenedFixed,
           sectionWidths: widthSegments,
           sectionHeights: heightSegments,
           verticalAdapters:
-              List<bool>.filled(vertical > 1 ? vertical - 1 : 0, false),
+          List<bool>.filled(vertical > 1 ? vertical - 1 : 0, false),
           horizontalAdapters:
-              List<bool>.filled(horizontal > 1 ? horizontal - 1 : 0, false),
-          perRowVerticalSections:
-              List<int>.filled(horizontal, vertical),
+          List<bool>.filled(horizontal > 1 ? horizontal - 1 : 0, false),
+          perRowVerticalSections: List<int>.filled(horizontal, vertical),
           perRowSectionWidths: List<List<int>>.generate(
             horizontal,
-            (_) => List<int>.from(widthSegments),
+                (_) => List<int>.from(widthSegments),
           ),
-          perRowFixedSectors: rowFixed
-              .map((row) => List<bool>.from(row))
-              .toList(),
+          perRowFixedSectors:
+          rowFixed.map((row) => List<bool>.from(row)).toList(),
           perRowVerticalAdapters: rowVerticalAdapters
               .map((row) => List<bool>.from(row))
               .toList(),
@@ -1889,8 +1997,119 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
     final remainder = total % parts;
     return List<int>.generate(
       parts,
-      (index) => base + (index < remainder ? 1 : 0),
+          (index) => base + (index < remainder ? 1 : 0),
     );
+  }
+
+  String _buildItemDetailsText({
+    required WindowDoorItem item,
+    required ProfileSet profileSet,
+    required Glass glass,
+    Blind? blind,
+    Mechanism? mechanism,
+    Accessory? accessory,
+    required double profileCostPer,
+    required double profileCost,
+    required double glassCostPer,
+    required double glassCost,
+    required double blindCost,
+    required double mechanismCost,
+    required double accessoryCost,
+    required double extrasPer,
+    required double extras,
+    required double totalPer,
+    required double total,
+    required double finalPer,
+    required double finalPrice,
+    required double profitPer,
+    required double profitAmount,
+    required double totalMass,
+    double? uw,
+  }) {
+    final sb = StringBuffer();
+    sb.writeln('Size: ${item.width} x ${item.height} mm');
+    sb.writeln('Pcs: ${item.quantity}');
+    sb.writeln('Profile: ${profileSet.name}');
+    sb.writeln('Glass: ${glass.name}');
+    sb.writeln('Sections: ${item.horizontalSections}x${item.verticalSections}');
+    if (item.perRowSectionWidths != null &&
+        item.perRowSectionWidths!.isNotEmpty) {
+      final rowStrings = <String>[];
+      for (int i = 0; i < item.perRowSectionWidths!.length; i++) {
+        final row = item.perRowSectionWidths![i];
+        if (row.isEmpty) continue;
+        rowStrings.add('R${i + 1}: ${row.join(', ')}');
+      }
+      if (rowStrings.isNotEmpty) {
+        sb.writeln('Widths: ${rowStrings.join(' | ')}');
+      }
+    } else {
+      sb.writeln(
+          '${item.sectionWidths.length > 1 ? 'Widths' : 'Width'}: ${item.sectionWidths.join(', ')}');
+    }
+    sb.writeln(
+        '${item.sectionHeights.length > 1 ? 'Heights' : 'Height'}: ${item.sectionHeights.join(', ')}');
+    if (item.hasPerRowLayout) {
+      final adapters = <String>[];
+      final perRow = item.perRowVerticalAdapters ?? const <List<bool>>[];
+      for (int i = 0; i < perRow.length; i++) {
+        if (perRow[i].isEmpty) continue;
+        adapters.add(
+            'R${i + 1}: ${perRow[i].map((a) => a ? 'Adapter' : 'T').join(', ')}');
+      }
+      if (adapters.isNotEmpty) {
+        sb.writeln('V div: ${adapters.join(' | ')}');
+      }
+    } else {
+      sb.writeln(
+          'V div: ${item.verticalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ')}');
+    }
+    sb.writeln(
+        'H div: ${item.horizontalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ')}');
+    sb.writeln(
+        'Profile cost per piece: €${profileCostPer.toStringAsFixed(2)}, Total profile cost (${item.quantity}pcs): €${profileCost.toStringAsFixed(2)}');
+    sb.writeln(
+        'Glass cost per piece: €${glassCostPer.toStringAsFixed(2)}, Total glass cost (${item.quantity}pcs): €${glassCost.toStringAsFixed(2)}');
+    if (blind != null) {
+      sb.writeln(
+          'Roller shutter: ${blind.name}, €${blindCost.toStringAsFixed(2)}');
+    }
+    if (mechanism != null) {
+      sb.writeln(
+          'Mechanism: ${mechanism.name}, €${mechanismCost.toStringAsFixed(2)}');
+    }
+    if (accessory != null) {
+      sb.writeln(
+          'Accessory: ${accessory.name}, €${accessoryCost.toStringAsFixed(2)}');
+    }
+    if (item.extra1Price != null) {
+      sb.writeln(
+          '${item.extra1Desc ?? 'Extra 1'}: €${(item.extra1Price! * item.quantity).toStringAsFixed(2)}');
+    }
+    if (item.extra2Price != null) {
+      sb.writeln(
+          '${item.extra2Desc ?? 'Extra 2'}: €${(item.extra2Price! * item.quantity).toStringAsFixed(2)}');
+    }
+    if (item.notes != null && item.notes!.isNotEmpty) {
+      sb.writeln('Notes: ${item.notes!}');
+    }
+    sb.writeln(
+        'Cost 0% per piece: €${totalPer.toStringAsFixed(2)}, Total cost 0% (${item.quantity}pcs): €${total.toStringAsFixed(2)}');
+    sb.writeln(
+        'Cost with profit per piece: €${finalPer.toStringAsFixed(2)}, Total cost with profit (${item.quantity}pcs): €${finalPrice.toStringAsFixed(2)}');
+    sb.writeln(
+        'Profit per piece: €${profitPer.toStringAsFixed(2)}, Total profit (${item.quantity}pcs): €${profitAmount.toStringAsFixed(2)}');
+    sb.writeln('Mass: ${totalMass.toStringAsFixed(2)} kg');
+    if (profileSet.uf != null) {
+      sb.writeln('Uf: ${profileSet.uf!.toStringAsFixed(2)} W/m²K');
+    }
+    if (glass.ug != null) {
+      sb.writeln('Ug: ${glass.ug!.toStringAsFixed(2)} W/m²K');
+    }
+    if (uw != null) {
+      sb.writeln('Uw: ${uw.toStringAsFixed(2)} W/m²K');
+    }
+    return sb.toString();
   }
 
   @override
