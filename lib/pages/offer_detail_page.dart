@@ -559,25 +559,49 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
     Widget? action,
   }) {
     final theme = Theme.of(context);
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      leading: CircleAvatar(
-        backgroundColor: theme.colorScheme.primary.withOpacity(0.1),
-        child: Icon(icon, color: theme.colorScheme.primary),
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        color: Colors.white.withOpacity(0.9),
+        border: Border.all(color: Colors.black12),
       ),
-      title: Text(
-        label,
-        style: theme.textTheme.bodySmall
-            ?.copyWith(color: theme.colorScheme.primary),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CircleAvatar(
+            backgroundColor: theme.colorScheme.primary.withOpacity(0.12),
+            foregroundColor: theme.colorScheme.primary,
+            child: Icon(icon),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: theme.textTheme.bodySmall
+                      ?.copyWith(color: theme.colorScheme.primary),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  value,
+                  style: theme.textTheme.titleMedium
+                      ?.copyWith(fontWeight: FontWeight.w600),
+                ),
+                if (action != null) ...[
+                  const SizedBox(height: 12),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: action,
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
       ),
-      subtitle: Padding(
-        padding: const EdgeInsets.only(top: 4.0),
-        child: Text(
-          value,
-          style: theme.textTheme.titleMedium,
-        ),
-      ),
-      trailing: action,
     );
   }
 
@@ -597,42 +621,90 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '${l10n.pdfOffer} ${offer.offerNumber}',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 12),
-          _buildInfoTile(
-            icon: Icons.person_outline,
-            label: l10n.pdfClient,
-            value: customer?.name ?? '-',
-            action: OutlinedButton.icon(
-              onPressed: () => _showCustomerPicker(offer),
-              icon: const Icon(Icons.edit, size: 16),
-              label: Text(l10n.edit),
-            ),
-          ),
-          const Divider(height: 32),
-          _buildInfoTile(
-            icon: Icons.trending_up,
-            label: l10n.profit,
-            value: '${offer.profitPercent.toStringAsFixed(2)}%',
-            action: OutlinedButton.icon(
-              onPressed: () => _showProfitDialog(offer),
-              icon: const Icon(Icons.edit, size: 16),
-              label: Text(l10n.edit),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildInfoChip('${l10n.pdfDate} $createdText'),
-              _buildInfoChip(
-                l10n.versionCreatedOn.replaceAll('{date}', editedText),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.pdfOffer,
+                      style: Theme.of(context)
+                          .textTheme
+                          .labelLarge
+                          ?.copyWith(color: Colors.black54),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '#${offer.offerNumber}',
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineSmall
+                          ?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                alignment: WrapAlignment.end,
+                children: [
+                  _buildInfoChip('${l10n.pdfDate} $createdText'),
+                  _buildInfoChip(
+                    l10n.versionCreatedOn.replaceAll('{date}', editedText),
+                  ),
+                ],
               ),
             ],
+          ),
+          const SizedBox(height: 20),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final availableWidth = constraints.maxWidth.isFinite
+                  ? constraints.maxWidth
+                  : MediaQuery.of(context).size.width;
+              final width = availableWidth > 0
+                  ? availableWidth
+                  : MediaQuery.of(context).size.width;
+              final isWide = width >= 520;
+              final tileWidth = isWide ? (width - 12) / 2 : width;
+              final tiles = [
+                _buildInfoTile(
+                  icon: Icons.person_outline,
+                  label: l10n.pdfClient,
+                  value: customer?.name ?? '-',
+                  action: OutlinedButton.icon(
+                    onPressed: () => _showCustomerPicker(offer),
+                    icon: const Icon(Icons.edit, size: 16),
+                    label: Text(l10n.edit),
+                  ),
+                ),
+                _buildInfoTile(
+                  icon: Icons.trending_up,
+                  label: l10n.profit,
+                  value: '${offer.profitPercent.toStringAsFixed(2)}%',
+                  action: OutlinedButton.icon(
+                    onPressed: () => _showProfitDialog(offer),
+                    icon: const Icon(Icons.edit, size: 16),
+                    label: Text(l10n.edit),
+                  ),
+                ),
+              ];
+              return Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                children: tiles
+                    .map(
+                      (tile) => SizedBox(
+                        width: tileWidth,
+                        child: tile,
+                      ),
+                    )
+                    .toList(),
+              );
+            },
           ),
         ],
       ),
@@ -1251,7 +1323,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 double? uw = item.calculateUw(profileSet, glass,
                     boxHeight: blind?.boxHeight ?? 0);
 
-                final detailsText = _buildItemDetailsText(
+                final detailSections = _buildItemDetailSections(
                   item: item,
                   profileSet: profileSet,
                   glass: glass,
@@ -1509,17 +1581,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                                   ?.copyWith(fontWeight: FontWeight.w600),
                             ),
                             children: [
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  detailsText,
-                                  style: theme.textTheme.bodySmall
-                                      ?.copyWith(
-                                    fontFamily: 'monospace',
-                                    height: 1.25,
-                                  ),
-                                ),
-                              ),
+                              ..._buildDetailSectionWidgets(detailSections),
                             ],
                           ),
                         ),
@@ -2001,7 +2063,95 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
     );
   }
 
-  String _buildItemDetailsText({
+  List<Widget> _buildDetailSectionWidgets(List<_DetailSection> sections) {
+    final widgets = sections
+        .map(_buildSingleDetailSection)
+        .whereType<Widget>()
+        .toList();
+    final result = <Widget>[];
+    for (int i = 0; i < widgets.length; i++) {
+      result.add(Padding(
+        padding: EdgeInsets.only(bottom: i == widgets.length - 1 ? 0 : 16.0),
+        child: widgets[i],
+      ));
+    }
+    return result;
+  }
+
+  Widget? _buildSingleDetailSection(_DetailSection section) {
+    final entries =
+        section.entries.where((entry) => entry.value.trim().isNotEmpty).toList();
+    if (entries.isEmpty) {
+      return null;
+    }
+    final theme = Theme.of(context);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final availableWidth = constraints.maxWidth.isFinite
+            ? constraints.maxWidth
+            : MediaQuery.of(context).size.width;
+        final width = availableWidth > 0
+            ? availableWidth
+            : MediaQuery.of(context).size.width;
+        final isWide = width >= 520;
+        final tileWidth = isWide ? (width - 12) / 2 : width;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              section.title,
+              style: theme.textTheme.titleSmall
+                  ?.copyWith(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              children: entries.map((entry) {
+                final cardWidth =
+                    entry.spanFullWidth || !isWide ? width : tileWidth;
+                return SizedBox(
+                  width: cardWidth,
+                  child: _buildDetailTile(entry),
+                );
+              }).toList(),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildDetailTile(_DetailEntry entry) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.95),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.black12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            entry.label,
+            style: theme.textTheme.bodySmall
+                ?.copyWith(color: Colors.black54, fontWeight: FontWeight.w500),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            entry.value,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontWeight: entry.highlight ? FontWeight.bold : FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  List<_DetailSection> _buildItemDetailSections({
     required WindowDoorItem item,
     required ProfileSet profileSet,
     required Glass glass,
@@ -2026,12 +2176,25 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
     required double totalMass,
     double? uw,
   }) {
-    final sb = StringBuffer();
-    sb.writeln('Size: ${item.width} x ${item.height} mm');
-    sb.writeln('Pcs: ${item.quantity}');
-    sb.writeln('Profile: ${profileSet.name}');
-    sb.writeln('Glass: ${glass.name}');
-    sb.writeln('Sections: ${item.horizontalSections}x${item.verticalSections}');
+    final sections = <_DetailSection>[];
+
+    final generalEntries = <_DetailEntry>[
+      _DetailEntry('Size', '${item.width} x ${item.height} mm'),
+      _DetailEntry('Quantity', '${item.quantity} pcs'),
+      _DetailEntry('Profile', profileSet.name),
+      _DetailEntry('Glass', glass.name),
+      _DetailEntry(
+          'Sections', '${item.horizontalSections}x${item.verticalSections}'),
+      _DetailEntry('Mass', '${totalMass.toStringAsFixed(2)} kg'),
+    ];
+    if (item.notes != null && item.notes!.isNotEmpty) {
+      generalEntries.add(
+        _DetailEntry('Notes', item.notes!, spanFullWidth: true),
+      );
+    }
+    sections.add(_DetailSection(title: 'General', entries: generalEntries));
+
+    final layoutEntries = <_DetailEntry>[];
     if (item.perRowSectionWidths != null &&
         item.perRowSectionWidths!.isNotEmpty) {
       final rowStrings = <String>[];
@@ -2041,14 +2204,24 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
         rowStrings.add('R${i + 1}: ${row.join(', ')}');
       }
       if (rowStrings.isNotEmpty) {
-        sb.writeln('Widths: ${rowStrings.join(' | ')}');
+        layoutEntries.add(
+          _DetailEntry('Widths', rowStrings.join('  •  '), spanFullWidth: true),
+        );
       }
     } else {
-      sb.writeln(
-          '${item.sectionWidths.length > 1 ? 'Widths' : 'Width'}: ${item.sectionWidths.join(', ')}');
+      layoutEntries.add(
+        _DetailEntry(
+          item.sectionWidths.length > 1 ? 'Widths' : 'Width',
+          item.sectionWidths.join(', '),
+        ),
+      );
     }
-    sb.writeln(
-        '${item.sectionHeights.length > 1 ? 'Heights' : 'Height'}: ${item.sectionHeights.join(', ')}');
+    layoutEntries.add(
+      _DetailEntry(
+        item.sectionHeights.length > 1 ? 'Heights' : 'Height',
+        item.sectionHeights.join(', '),
+      ),
+    );
     if (item.hasPerRowLayout) {
       final adapters = <String>[];
       final perRow = item.perRowVerticalAdapters ?? const <List<bool>>[];
@@ -2058,58 +2231,124 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
             'R${i + 1}: ${perRow[i].map((a) => a ? 'Adapter' : 'T').join(', ')}');
       }
       if (adapters.isNotEmpty) {
-        sb.writeln('V div: ${adapters.join(' | ')}');
+        layoutEntries.add(
+          _DetailEntry('V dividers', adapters.join('  •  '),
+              spanFullWidth: true),
+        );
       }
     } else {
-      sb.writeln(
-          'V div: ${item.verticalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ')}');
+      layoutEntries.add(
+        _DetailEntry(
+          'V dividers',
+          item.verticalAdapters.map((a) => a ? 'Adapter' : 'T').join(', '),
+        ),
+      );
     }
-    sb.writeln(
-        'H div: ${item.horizontalAdapters.map((a) => a ? 'Adapter' : 'T').join(', ')}');
-    sb.writeln(
-        'Profile cost per piece: €${profileCostPer.toStringAsFixed(2)}, Total profile cost (${item.quantity}pcs): €${profileCost.toStringAsFixed(2)}');
-    sb.writeln(
-        'Glass cost per piece: €${glassCostPer.toStringAsFixed(2)}, Total glass cost (${item.quantity}pcs): €${glassCost.toStringAsFixed(2)}');
+    layoutEntries.add(
+      _DetailEntry(
+        'H dividers',
+        item.horizontalAdapters.map((a) => a ? 'Adapter' : 'T').join(', '),
+      ),
+    );
+    sections.add(_DetailSection(title: 'Layout', entries: layoutEntries));
+
+    final componentEntries = <_DetailEntry>[
+      _DetailEntry(
+        'Profile cost',
+        '€${profileCostPer.toStringAsFixed(2)} / pc · €${profileCost.toStringAsFixed(2)} (${item.quantity}pcs)',
+      ),
+      _DetailEntry(
+        'Glass cost',
+        '€${glassCostPer.toStringAsFixed(2)} / pc · €${glassCost.toStringAsFixed(2)} (${item.quantity}pcs)',
+      ),
+    ];
     if (blind != null) {
-      sb.writeln(
-          'Roller shutter: ${blind.name}, €${blindCost.toStringAsFixed(2)}');
+      componentEntries.add(
+        _DetailEntry('Roller shutter', '${blind.name} · €${blindCost.toStringAsFixed(2)}'),
+      );
     }
     if (mechanism != null) {
-      sb.writeln(
-          'Mechanism: ${mechanism.name}, €${mechanismCost.toStringAsFixed(2)}');
+      componentEntries.add(
+        _DetailEntry('Mechanism', '${mechanism.name} · €${mechanismCost.toStringAsFixed(2)}'),
+      );
     }
     if (accessory != null) {
-      sb.writeln(
-          'Accessory: ${accessory.name}, €${accessoryCost.toStringAsFixed(2)}');
+      componentEntries.add(
+        _DetailEntry('Accessory', '${accessory.name} · €${accessoryCost.toStringAsFixed(2)}'),
+      );
     }
     if (item.extra1Price != null) {
-      sb.writeln(
-          '${item.extra1Desc ?? 'Extra 1'}: €${(item.extra1Price! * item.quantity).toStringAsFixed(2)}');
+      componentEntries.add(
+        _DetailEntry(
+          item.extra1Desc ?? 'Extra 1',
+          '€${(item.extra1Price! * item.quantity).toStringAsFixed(2)}',
+        ),
+      );
     }
     if (item.extra2Price != null) {
-      sb.writeln(
-          '${item.extra2Desc ?? 'Extra 2'}: €${(item.extra2Price! * item.quantity).toStringAsFixed(2)}');
+      componentEntries.add(
+        _DetailEntry(
+          item.extra2Desc ?? 'Extra 2',
+          '€${(item.extra2Price! * item.quantity).toStringAsFixed(2)}',
+        ),
+      );
     }
-    if (item.notes != null && item.notes!.isNotEmpty) {
-      sb.writeln('Notes: ${item.notes!}');
+    if (extras != 0) {
+      componentEntries.add(
+        _DetailEntry(
+          'Extras (per pc €${extrasPer.toStringAsFixed(2)})',
+          '€${extras.toStringAsFixed(2)} total',
+        ),
+      );
     }
-    sb.writeln(
-        'Cost 0% per piece: €${totalPer.toStringAsFixed(2)}, Total cost 0% (${item.quantity}pcs): €${total.toStringAsFixed(2)}');
-    sb.writeln(
-        'Cost with profit per piece: €${finalPer.toStringAsFixed(2)}, Total cost with profit (${item.quantity}pcs): €${finalPrice.toStringAsFixed(2)}');
-    sb.writeln(
-        'Profit per piece: €${profitPer.toStringAsFixed(2)}, Total profit (${item.quantity}pcs): €${profitAmount.toStringAsFixed(2)}');
-    sb.writeln('Mass: ${totalMass.toStringAsFixed(2)} kg');
+    sections.add(
+      _DetailSection(title: 'Components & Extras', entries: componentEntries),
+    );
+
+    final financialEntries = <_DetailEntry>[
+      _DetailEntry(
+        'Cost 0%',
+        '€${totalPer.toStringAsFixed(2)} / pc · €${total.toStringAsFixed(2)} (${item.quantity}pcs)',
+        highlight: true,
+      ),
+      _DetailEntry(
+        'Cost with profit',
+        '€${finalPer.toStringAsFixed(2)} / pc · €${finalPrice.toStringAsFixed(2)} (${item.quantity}pcs)',
+        highlight: true,
+      ),
+      _DetailEntry(
+        'Profit',
+        '€${profitPer.toStringAsFixed(2)} / pc · €${profitAmount.toStringAsFixed(2)} (${item.quantity}pcs)',
+        highlight: true,
+      ),
+    ];
+    sections.add(
+      _DetailSection(title: 'Financials', entries: financialEntries),
+    );
+
+    final performanceEntries = <_DetailEntry>[];
     if (profileSet.uf != null) {
-      sb.writeln('Uf: ${profileSet.uf!.toStringAsFixed(2)} W/m²K');
+      performanceEntries.add(
+        _DetailEntry('Uf', '${profileSet.uf!.toStringAsFixed(2)} W/m²K'),
+      );
     }
     if (glass.ug != null) {
-      sb.writeln('Ug: ${glass.ug!.toStringAsFixed(2)} W/m²K');
+      performanceEntries.add(
+        _DetailEntry('Ug', '${glass.ug!.toStringAsFixed(2)} W/m²K'),
+      );
     }
     if (uw != null) {
-      sb.writeln('Uw: ${uw.toStringAsFixed(2)} W/m²K');
+      performanceEntries.add(
+        _DetailEntry('Uw', '${uw.toStringAsFixed(2)} W/m²K'),
+      );
     }
-    return sb.toString();
+    if (performanceEntries.isNotEmpty) {
+      sections.add(
+        _DetailSection(title: 'Performance', entries: performanceEntries),
+      );
+    }
+
+    return sections;
   }
 
   @override
@@ -2125,4 +2364,23 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
     }
     super.dispose();
   }
+}
+
+class _DetailSection {
+  final String title;
+  final List<_DetailEntry> entries;
+  const _DetailSection({required this.title, required this.entries});
+}
+
+class _DetailEntry {
+  final String label;
+  final String value;
+  final bool highlight;
+  final bool spanFullWidth;
+  const _DetailEntry(
+    this.label,
+    this.value, {
+    this.highlight = false,
+    this.spanFullWidth = false,
+  });
 }
