@@ -1430,139 +1430,182 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (imageWidget != null)
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(12),
-                                child: imageWidget,
-                              ),
-                            if (imageWidget != null)
-                              const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                        LayoutBuilder(
+                          builder: (context, constraints) {
+                            final isCompact = constraints.maxWidth < 640;
+
+                            Widget buildPriceColumn(CrossAxisAlignment alignment,
+                                TextAlign textAlign) {
+                              return Column(
+                                crossAxisAlignment: alignment,
                                 children: [
-                                  Row(
-                                    crossAxisAlignment:
-                                    CrossAxisAlignment.start,
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          item.name,
-                                          style: theme
-                                              .textTheme.titleMedium
-                                              ?.copyWith(
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 10, vertical: 4),
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                          BorderRadius.circular(999),
-                                          color: theme.colorScheme.primary
-                                              .withOpacity(0.08),
-                                        ),
-                                        child: Text(
-                                          '${item.quantity} ${l10n.pcs}',
-                                          style: theme.textTheme.bodySmall
-                                              ?.copyWith(
-                                            color:
-                                            theme.colorScheme.primary,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
+                                  Text(
+                                    '€${finalPrice.toStringAsFixed(2)}',
+                                    textAlign: textAlign,
+                                    style: theme.textTheme.titleMedium?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    'Size: ${item.width} x ${item.height} mm',
-                                    style: theme.textTheme.bodySmall,
+                                    '€${finalPer.toStringAsFixed(2)} / pc',
+                                    textAlign: textAlign,
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: theme.colorScheme.secondary,
+                                    ),
                                   ),
-                                  const SizedBox(height: 2),
+                                  const SizedBox(height: 4),
                                   Text(
-                                    'Profile: ${profileSet.name}',
+                                    'Cost: €${totalPer.toStringAsFixed(2)} / pc, €${total.toStringAsFixed(2)} total',
+                                    textAlign: textAlign,
                                     style: theme.textTheme.bodySmall,
                                   ),
-                                  const SizedBox(height: 2),
+                                  const SizedBox(height: 4),
                                   Text(
-                                    'Glass: ${glass.name}',
+                                    'Profit: €${profitPer.toStringAsFixed(2)} / pc, €${profitAmount.toStringAsFixed(2)} total',
+                                    textAlign: textAlign,
                                     style: theme.textTheme.bodySmall,
                                   ),
-                                  const SizedBox(height: 2),
+                                  const SizedBox(height: 4),
                                   Text(
-                                    'Sections: ${item.horizontalSections}x${item.verticalSections}',
+                                    'Mass: ${(totalMass / item.quantity).toStringAsFixed(2)} kg / pc, ${totalMass.toStringAsFixed(2)} kg total',
+                                    textAlign: textAlign,
                                     style: theme.textTheme.bodySmall,
                                   ),
-                                  if (uw != null ||
-                                      profileSet.uf != null ||
-                                      glass.ug != null) ...[
-                                    const SizedBox(height: 4),
-                                    Wrap(
-                                      spacing: 6,
-                                      runSpacing: 4,
+                                ],
+                              );
+                            }
+
+                            final priceColumn = buildPriceColumn(
+                              CrossAxisAlignment.end,
+                              TextAlign.right,
+                            );
+
+                            final leadingSection = <Widget>[
+                              if (imageWidget != null)
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: imageWidget,
+                                ),
+                              if (imageWidget != null) const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        if (profileSet.uf != null)
-                                          _buildInfoChip(
-                                            'Uf: ${profileSet.uf!.toStringAsFixed(2)} W/m²K',
+                                        Expanded(
+                                          child: Text(
+                                            item.name,
+                                            style: theme.textTheme.titleMedium
+                                                ?.copyWith(
+                                                  fontWeight: FontWeight.w600,
+                                                ),
                                           ),
-                                        if (glass.ug != null)
-                                          _buildInfoChip(
-                                            'Ug: ${glass.ug!.toStringAsFixed(2)} W/m²K',
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 10, vertical: 4),
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(999),
+                                            color: theme.colorScheme.primary
+                                                .withOpacity(0.08),
                                           ),
-                                        if (uw != null)
-                                          _buildInfoChip(
-                                            'Uw: ${uw.toStringAsFixed(2)} W/m²K',
+                                          child: Text(
+                                            '${item.quantity} ${l10n.pcs}',
+                                            style: theme.textTheme.bodySmall?.copyWith(
+                                              color: theme.colorScheme.primary,
+                                              fontWeight: FontWeight.w600,
+                                            ),
                                           ),
+                                        ),
                                       ],
                                     ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      'Size: ${item.width} x ${item.height} mm',
+                                      style: theme.textTheme.bodySmall,
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      'Profile: ${profileSet.name}',
+                                      style: theme.textTheme.bodySmall,
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      'Glass: ${glass.name}',
+                                      style: theme.textTheme.bodySmall,
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      'Sections: ${item.horizontalSections}x${item.verticalSections}',
+                                      style: theme.textTheme.bodySmall,
+                                    ),
+                                    if (uw != null ||
+                                        profileSet.uf != null ||
+                                        glass.ug != null) ...[
+                                      const SizedBox(height: 4),
+                                      Wrap(
+                                        spacing: 6,
+                                        runSpacing: 4,
+                                        children: [
+                                          if (profileSet.uf != null)
+                                            _buildInfoChip(
+                                              'Uf: ${profileSet.uf!.toStringAsFixed(2)} W/m²K',
+                                            ),
+                                          if (glass.ug != null)
+                                            _buildInfoChip(
+                                              'Ug: ${glass.ug!.toStringAsFixed(2)} W/m²K',
+                                            ),
+                                          if (uw != null)
+                                            _buildInfoChip(
+                                              'Uw: ${uw.toStringAsFixed(2)} W/m²K',
+                                            ),
+                                        ],
+                                      ),
+                                    ],
                                   ],
-                                ],
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 12),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
+                            ];
+
+                            if (isCompact) {
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: leadingSection,
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Align(
+                                    alignment: Alignment.centerRight,
+                                    child: ConstrainedBox(
+                                      constraints: BoxConstraints(
+                                        maxWidth: constraints.maxWidth,
+                                      ),
+                                      child: buildPriceColumn(
+                                        CrossAxisAlignment.end,
+                                        TextAlign.right,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }
+
+                            return Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  '€${finalPrice.toStringAsFixed(2)}',
-                                  style: theme.textTheme.titleMedium
-                                      ?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  '€${finalPer.toStringAsFixed(2)} / pc',
-                                  style: theme.textTheme.bodySmall
-                                      ?.copyWith(
-                                    color: theme.colorScheme.secondary,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  'Cost: €${totalPer.toStringAsFixed(2)} / pc, €${total.toStringAsFixed(2)} total',
-                                  style: theme.textTheme.bodySmall,
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  'Profit: €${profitPer.toStringAsFixed(2)} / pc, €${profitAmount.toStringAsFixed(2)} total',
-                                  style: theme.textTheme.bodySmall,
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  'Mass: ${(totalMass / item.quantity).toStringAsFixed(2)} kg / pc, ${totalMass.toStringAsFixed(2)} kg total',
-                                  style: theme.textTheme.bodySmall,
-                                ),
+                                ...leadingSection,
+                                const SizedBox(width: 12),
+                                Flexible(child: priceColumn),
                               ],
-                            ),
-                          ],
+                            );
+                          },
                         ),
                         const SizedBox(height: 8),
                         Theme(
