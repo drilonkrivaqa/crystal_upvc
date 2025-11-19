@@ -734,6 +734,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Default glass'**
   String get defaultGlass;
+
+  /// No description provided for @defaultBlind.
+  ///
+  /// In en, this message translates to:
+  /// **'Default blind'**
+  String get defaultBlind;
+
+  /// No description provided for @applyDefaultsMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose which windows/doors should use the updated default profile, glass, and blind. Uncheck the items you want to exclude.'**
+  String get applyDefaultsMessage;
 }
 
 class _AppLocalizationsDelegate

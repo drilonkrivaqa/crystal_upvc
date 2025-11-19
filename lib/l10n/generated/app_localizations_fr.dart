@@ -336,4 +336,11 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get defaultGlass => 'Vitrage par défaut';
+
+  @override
+  String get defaultBlind => 'Volet par défaut';
+
+  @override
+  String get applyDefaultsMessage =>
+      'Choisissez quelles fenêtres/portes doivent utiliser le profil, le vitrage et le volet par défaut mis à jour. Décochez les éléments à exclure.';
 }

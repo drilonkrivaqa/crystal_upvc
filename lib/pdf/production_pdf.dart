@@ -27,14 +27,14 @@ int _barTotalWithSaw(List<ProductionPieceDetail> bar, int sawWidth) {
 }
 
 String _barCombinationWithSaw(
-  List<ProductionPieceDetail> bar,
-  int sawWidth, {
-  required bool includeLetters,
-}) {
+    List<ProductionPieceDetail> bar,
+    int sawWidth, {
+      required bool includeLetters,
+    }) {
   final combination = bar
       .map((piece) => !includeLetters || piece.offerLetter.isEmpty
-          ? '${piece.length}'
-          : '${piece.length} (${piece.offerLetter})')
+      ? '${piece.length}'
+      : '${piece.length} (${piece.offerLetter})')
       .join(' + ');
   if (sawWidth > 0 && bar.length > 1) {
     final cuts = bar.length - 1;
@@ -57,8 +57,10 @@ List<List<T>> _chunkList<T>(List<T> items, int chunkSize) {
 }
 
 Future<pw.ThemeData> _loadPdfTheme() async {
-  final baseFontData = await rootBundle.load('assets/fonts/Montserrat-Regular.ttf');
-  final boldFontData = await rootBundle.load('assets/fonts/Montserrat-Bold.ttf');
+  final baseFontData =
+  await rootBundle.load('assets/fonts/Montserrat-Regular.ttf');
+  final boldFontData =
+  await rootBundle.load('assets/fonts/Montserrat-Bold.ttf');
   final baseFont = pw.Font.ttf(baseFontData);
   final boldFont = pw.Font.ttf(boldFontData);
   return pw.ThemeData.withFont(base: baseFont, bold: boldFont);
@@ -88,48 +90,48 @@ Future<pw.MemoryImage?> _loadCompanyLogo(String assetPath) async {
 }
 
 pw.Widget _buildDocumentHeader(
-  AppLocalizations l10n,
-  String title, {
-  required pw.MemoryImage? logoImage,
-  required List<Customer> customers,
-}) {
+    AppLocalizations l10n,
+    String title, {
+      required pw.MemoryImage? logoImage,
+      required List<Customer> customers,
+    }) {
   final dateFormatter = DateFormat.yMMMMd(l10n.localeName).add_Hm();
   final now = DateTime.now();
   final customerWidgets = customers.isNotEmpty
       ? customers
-          .map(
-            (customer) => pw.Padding(
-              padding: const pw.EdgeInsets.only(top: 6),
-              child: pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                children: [
-                  pw.Text(
-                    customer.name,
-                    style: pw.TextStyle(
-                      fontWeight: pw.FontWeight.bold,
-                      color: PdfColors.blueGrey900,
-                    ),
-                  ),
-                  if (customer.address.isNotEmpty)
-                    pw.Text(
-                      customer.address,
-                      style: pw.TextStyle(color: PdfColors.blueGrey600),
-                    ),
-                  if (customer.phone.isNotEmpty)
-                    pw.Text(
-                      customer.phone,
-                      style: pw.TextStyle(color: PdfColors.blueGrey600),
-                    ),
-                  if ((customer.email ?? '').isNotEmpty)
-                    pw.Text(
-                      customer.email!,
-                      style: pw.TextStyle(color: PdfColors.blueGrey600),
-                    ),
-                ],
-              ),
+      .map(
+        (customer) => pw.Padding(
+      padding: const pw.EdgeInsets.only(top: 6),
+      child: pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Text(
+            customer.name,
+            style: pw.TextStyle(
+              fontWeight: pw.FontWeight.bold,
+              color: PdfColors.blueGrey900,
             ),
-          )
-          .toList()
+          ),
+          if (customer.address.isNotEmpty)
+            pw.Text(
+              customer.address,
+              style: pw.TextStyle(color: PdfColors.blueGrey600),
+            ),
+          if (customer.phone.isNotEmpty)
+            pw.Text(
+              customer.phone,
+              style: pw.TextStyle(color: PdfColors.blueGrey600),
+            ),
+          if ((customer.email ?? '').isNotEmpty)
+            pw.Text(
+              customer.email!,
+              style: pw.TextStyle(color: PdfColors.blueGrey600),
+            ),
+        ],
+      ),
+    ),
+  )
+      .toList()
       : <pw.Widget>[];
 
   return pw.Column(
@@ -233,6 +235,7 @@ pw.BoxDecoration _sectionDecoration() {
   );
 }
 
+// NOTE: Keep this for small sections only (few children).
 pw.Widget _sectionCard({
   required String title,
   required List<pw.Widget> content,
@@ -255,6 +258,27 @@ pw.Widget _sectionCard({
         pw.SizedBox(height: 10),
         ...content,
       ],
+    ),
+  );
+}
+
+// NEW: header that is small and splittable with content below.
+pw.Widget _sectionHeader(String title) {
+  return pw.Container(
+    margin: const pw.EdgeInsets.only(top: 8, bottom: 4),
+    padding: const pw.EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+    decoration: pw.BoxDecoration(
+      color: PdfColors.blue100,
+      borderRadius: pw.BorderRadius.circular(8),
+      border: pw.Border.all(color: PdfColors.blueGrey300, width: 0.8),
+    ),
+    child: pw.Text(
+      title,
+      style: pw.TextStyle(
+        fontWeight: pw.FontWeight.bold,
+        fontSize: 16,
+        color: PdfColors.blueGrey900,
+      ),
     ),
   );
 }
@@ -319,6 +343,7 @@ Future<void> exportGlassResultsPdf({
             ..sort((a, b) => a.key.compareTo(b.key));
           final rowChunks = _chunkList(rows, 25);
           final chunkedTables = <pw.Widget>[];
+
           for (var i = 0; i < rowChunks.length; i++) {
             final chunkRows = rowChunks[i];
             chunkedTables.add(
@@ -346,18 +371,20 @@ Future<void> exportGlassResultsPdf({
                     final breakdown = letterEntries.isEmpty
                         ? ''
                         : letterEntries
-                            .map((entry) => entry.key.isEmpty
-                                ? '${entry.value}'
-                                : '${entry.key} = ${entry.value}')
-                            .join(', ');
+                        .map((entry) => entry.key.isEmpty
+                        ? '${entry.value}'
+                        : '${entry.key} = ${entry.value}')
+                        .join(', ');
                     final dimensionText = breakdown.isEmpty
                         ? row.key
                         : '${row.key} ($breakdown)';
                     return pw.TableRow(
                       children: [
                         _tableCell(dimensionText),
-                        _tableCell(total.toString(),
-                            alignment: pw.TextAlign.right),
+                        _tableCell(
+                          total.toString(),
+                          alignment: pw.TextAlign.right,
+                        ),
                       ],
                     );
                   }),
@@ -369,10 +396,15 @@ Future<void> exportGlassResultsPdf({
             }
           }
 
+          // CHANGED: use header + tables instead of single decorated card.
           widgets.add(
-            _sectionCard(
-              title: glass?.name ?? l10n.catalogGlass,
-              content: chunkedTables,
+            pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                _sectionHeader(glass?.name ?? l10n.catalogGlass),
+                ...chunkedTables,
+                pw.SizedBox(height: 12),
+              ],
             ),
           );
         }
@@ -434,6 +466,7 @@ Future<void> exportBlindResultsPdf({
             ..sort((a, b) => a.key.compareTo(b.key));
           final rowChunks = _chunkList(rows, 25);
           final chunkedTables = <pw.Widget>[];
+
           for (var i = 0; i < rowChunks.length; i++) {
             final chunkRows = rowChunks[i];
             chunkedTables.add(
@@ -461,18 +494,20 @@ Future<void> exportBlindResultsPdf({
                     final breakdown = letterEntries.isEmpty
                         ? ''
                         : letterEntries
-                            .map((entry) => entry.key.isEmpty
-                                ? '${entry.value}'
-                                : '${entry.key} = ${entry.value}')
-                            .join(', ');
+                        .map((entry) => entry.key.isEmpty
+                        ? '${entry.value}'
+                        : '${entry.key} = ${entry.value}')
+                        .join(', ');
                     final dimensionText = breakdown.isEmpty
                         ? row.key
                         : '${row.key} ($breakdown)';
                     return pw.TableRow(
                       children: [
                         _tableCell(dimensionText),
-                        _tableCell(total.toString(),
-                            alignment: pw.TextAlign.right),
+                        _tableCell(
+                          total.toString(),
+                          alignment: pw.TextAlign.right,
+                        ),
                       ],
                     );
                   }),
@@ -484,10 +519,15 @@ Future<void> exportBlindResultsPdf({
             }
           }
 
+          // CHANGED: header + tables
           widgets.add(
-            _sectionCard(
-              title: blind?.name ?? l10n.catalogBlind,
-              content: chunkedTables,
+            pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                _sectionHeader(blind?.name ?? l10n.catalogBlind),
+                ...chunkedTables,
+                pw.SizedBox(height: 12),
+              ],
             ),
           );
         }
@@ -554,10 +594,12 @@ Future<void> exportHekriResultsPdf({
           final totalLen = bars.length * pipeLen;
           final waste = totalLen - needed;
 
+          // CHANGED: header + summary + per-bar rows, without wrapping in one big card.
           widgets.add(
-            _sectionCard(
-              title: profile?.name ?? l10n.catalogProfile,
-              content: [
+            pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                _sectionHeader(profile?.name ?? l10n.catalogProfile),
                 pw.Text(
                   l10n.productionCutSummary(
                     needed / 1000,
@@ -593,6 +635,7 @@ Future<void> exportHekriResultsPdf({
                     ),
                   );
                 }),
+                pw.SizedBox(height: 12),
               ],
             ),
           );
@@ -657,92 +700,88 @@ Future<void> exportCuttingResultsPdf<T>({
           final pipeLen = profile?.pipeLength ?? 6500;
           final typeMap = entry.value;
 
-          widgets.add(
-            _sectionCard(
-              title: profile?.name ?? l10n.catalogProfile,
-              content: [
-                for (final type in typeOrder)
-                  if (typeMap[type]?.isNotEmpty ?? false)
-                    pw.Container(
-                      margin: const pw.EdgeInsets.only(bottom: 12),
-                      padding: const pw.EdgeInsets.all(12),
-                      decoration: pw.BoxDecoration(
-                        color: PdfColors.blue50,
-                        borderRadius: pw.BorderRadius.circular(8),
-                      ),
-                      child: pw.Column(
-                        crossAxisAlignment: pw.CrossAxisAlignment.start,
-                        children: [
-                          pw.Text(
-                            pieceLabels[type] ?? '',
-                            style: pw.TextStyle(
-                              fontWeight: pw.FontWeight.bold,
-                              color: PdfColors.blueGrey900,
-                            ),
-                          ),
-                          pw.SizedBox(height: 6),
-                          () {
-                            final bars = typeMap[type]!;
-                            final needed = bars
-                                .map((bar) => _barTotalWithSaw(bar, sawWidth))
-                                .fold<int>(0, (a, b) => a + b);
-                            final totalLen = bars.length * pipeLen;
-                            final waste = totalLen - needed;
-                            return pw.Column(
-                              crossAxisAlignment: pw.CrossAxisAlignment.start,
-                              children: [
-                                pw.Text(
-                                  l10n.productionCutSummary(
-                                    needed / 1000,
-                                    bars.length,
-                                    waste / 1000,
-                                  ),
-                                  style: pw.TextStyle(color: PdfColors.blueGrey800),
-                                ),
-                                pw.SizedBox(height: 6),
-                                ...List.generate(bars.length, (index) {
-                                  final bar = bars[index];
-                                  final combination = _barCombinationWithSaw(
-                                    bar,
-                                    sawWidth,
-                                    includeLetters: true,
-                                  );
-                                  final total =
-                                      _barTotalWithSaw(bar, sawWidth);
-                                  return pw.Container(
-                                    margin:
-                                        const pw.EdgeInsets.symmetric(vertical: 3),
-                                    padding: const pw.EdgeInsets.all(8),
-                                    decoration: pw.BoxDecoration(
-                                      color: PdfColors.white,
-                                      borderRadius: pw.BorderRadius.circular(6),
-                                      border: pw.Border.all(
-                                        color: PdfColors.blueGrey200,
-                                        width: 0.6,
-                                      ),
-                                    ),
-                                    child: pw.Text(
-                                      l10n.productionBarDetail(
-                                        index + 1,
-                                        combination,
-                                        total,
-                                        pipeLen,
-                                      ),
-                                      style: pw.TextStyle(
-                                        color: PdfColors.blueGrey900,
-                                      ),
-                                    ),
-                                  );
-                                }),
-                              ],
-                            );
-                          }(),
-                        ],
-                      ),
+          // Profile header
+          widgets.add(_sectionHeader(profile?.name ?? l10n.catalogProfile));
+
+          // Each type (L, Z, T, Adapter, Llajsne, etc.)
+          for (final type in typeOrder) {
+            final bars = typeMap[type];
+            if (bars == null || bars.isEmpty) continue;
+
+            // Type title (small, splittable)
+            widgets.add(
+              pw.Padding(
+                padding: const pw.EdgeInsets.only(top: 6, bottom: 2),
+                child: pw.Text(
+                  pieceLabels[type] ?? '',
+                  style: pw.TextStyle(
+                    fontWeight: pw.FontWeight.bold,
+                    color: PdfColors.blueGrey900,
+                  ),
+                ),
+              ),
+            );
+
+            // Summary
+            final needed = bars
+                .map((bar) => _barTotalWithSaw(bar, sawWidth))
+                .fold<int>(0, (a, b) => a + b);
+            final totalLen = bars.length * pipeLen;
+            final waste = totalLen - needed;
+
+            widgets.add(
+              pw.Padding(
+                padding: const pw.EdgeInsets.only(bottom: 4),
+                child: pw.Text(
+                  l10n.productionCutSummary(
+                    needed / 1000,
+                    bars.length,
+                    waste / 1000,
+                  ),
+                  style: pw.TextStyle(color: PdfColors.blueGrey700),
+                ),
+              ),
+            );
+
+            // Each bar as its own small container (splittable between rows)
+            for (var i = 0; i < bars.length; i++) {
+              final bar = bars[i];
+              final combination = _barCombinationWithSaw(
+                bar,
+                sawWidth,
+                includeLetters: true,
+              );
+              final total = _barTotalWithSaw(bar, sawWidth);
+
+              widgets.add(
+                pw.Container(
+                  margin: const pw.EdgeInsets.symmetric(vertical: 2),
+                  padding: const pw.EdgeInsets.all(8),
+                  decoration: pw.BoxDecoration(
+                    color: PdfColors.white,
+                    borderRadius: pw.BorderRadius.circular(6),
+                    border: pw.Border.all(
+                      color: PdfColors.blueGrey200,
+                      width: 0.6,
                     ),
-              ],
-            ),
-          );
+                  ),
+                  child: pw.Text(
+                    l10n.productionBarDetail(
+                      i + 1,
+                      combination,
+                      total,
+                      pipeLen,
+                    ),
+                    style: pw.TextStyle(color: PdfColors.blueGrey900),
+                  ),
+                ),
+              );
+            }
+
+            widgets.add(pw.SizedBox(height: 8));
+          }
+
+          widgets.add(pw.SizedBox(height: 12));
         }
 
         return widgets;
@@ -750,7 +789,14 @@ Future<void> exportCuttingResultsPdf<T>({
     ),
   );
 
-  final pdfBytes = await doc.save();
+  // Wrap save() in try/catch as well, in case layout fails
+  Uint8List pdfBytes;
+  try {
+    pdfBytes = await doc.save();
+  } catch (e, st) {
+    debugPrint('Error saving cutting_results PDF: $e\n$st');
+    return;
+  }
 
   try {
     await Printing.layoutPdf(
@@ -758,7 +804,10 @@ Future<void> exportCuttingResultsPdf<T>({
       name: 'cutting_results.pdf',
     );
   } catch (e) {
-    debugPrint('Error printing PDF: $e');
-    await Printing.sharePdf(bytes: pdfBytes, filename: 'cutting_results.pdf');
+    debugPrint('Error printing cutting_results PDF: $e');
+    await Printing.sharePdf(
+      bytes: pdfBytes,
+      filename: 'cutting_results.pdf',
+    );
   }
 }

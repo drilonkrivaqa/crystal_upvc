@@ -335,4 +335,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get defaultGlass => 'Standardglas';
+
+  @override
+  String get defaultBlind => 'Standardrollladen';
+
+  @override
+  String get applyDefaultsMessage =>
+      'Wählen Sie, welche Fenster/Türen das aktualisierte Standardprofil, Glas und den Rollladen verwenden sollen. Entfernen Sie die Auswahl bei den Elementen, die ausgeschlossen werden sollen.';
 }

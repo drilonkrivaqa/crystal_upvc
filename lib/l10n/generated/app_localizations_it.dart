@@ -336,4 +336,11 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get defaultGlass => 'Vetro predefinito';
+
+  @override
+  String get defaultBlind => 'Tapparella predefinita';
+
+  @override
+  String get applyDefaultsMessage =>
+      'Scegli quali finestre/porte devono usare il profilo, il vetro e la tapparella predefiniti aggiornati. Deseleziona gli elementi da escludere.';
 }

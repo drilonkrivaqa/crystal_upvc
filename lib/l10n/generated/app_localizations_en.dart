@@ -336,4 +336,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get defaultGlass => 'Default glass';
+
+  @override
+  String get defaultBlind => 'Default blind';
+
+  @override
+  String get applyDefaultsMessage =>
+      'Choose which windows/doors should use the updated default profile, glass, and blind. Uncheck the items you want to exclude.';
 }
