@@ -359,13 +359,16 @@ Future<void> exportGlassResultsPdf({
     ),
   );
 
+  final pdfBytes = await doc.save();
+
   try {
     await Printing.layoutPdf(
-      onLayout: (PdfPageFormat format) async => doc.save(),
+      onLayout: (PdfPageFormat format) async => pdfBytes,
       name: 'glass_results.pdf',
     );
   } catch (e) {
     debugPrint('Error printing PDF: $e');
+    await Printing.sharePdf(bytes: pdfBytes, filename: 'glass_results.pdf');
   }
 }
 
@@ -461,13 +464,16 @@ Future<void> exportBlindResultsPdf({
     ),
   );
 
+  final pdfBytes = await doc.save();
+
   try {
     await Printing.layoutPdf(
-      onLayout: (PdfPageFormat format) async => doc.save(),
+      onLayout: (PdfPageFormat format) async => pdfBytes,
       name: 'blind_results.pdf',
     );
   } catch (e) {
     debugPrint('Error printing PDF: $e');
+    await Printing.sharePdf(bytes: pdfBytes, filename: 'blind_results.pdf');
   }
 }
 
@@ -564,13 +570,16 @@ Future<void> exportHekriResultsPdf({
     ),
   );
 
+  final pdfBytes = await doc.save();
+
   try {
     await Printing.layoutPdf(
-      onLayout: (PdfPageFormat format) async => doc.save(),
+      onLayout: (PdfPageFormat format) async => pdfBytes,
       name: 'hekri_results.pdf',
     );
   } catch (e) {
     debugPrint('Error printing PDF: $e');
+    await Printing.sharePdf(bytes: pdfBytes, filename: 'hekri_results.pdf');
   }
 }
 
@@ -708,12 +717,15 @@ Future<void> exportCuttingResultsPdf<T>({
     ),
   );
 
+  final pdfBytes = await doc.save();
+
   try {
     await Printing.layoutPdf(
-      onLayout: (PdfPageFormat format) async => doc.save(),
+      onLayout: (PdfPageFormat format) async => pdfBytes,
       name: 'cutting_results.pdf',
     );
   } catch (e) {
     debugPrint('Error printing PDF: $e');
+    await Printing.sharePdf(bytes: pdfBytes, filename: 'cutting_results.pdf');
   }
 }
