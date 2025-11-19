@@ -43,6 +43,19 @@ String _barCombinationWithSaw(
   return combination;
 }
 
+List<List<T>> _chunkList<T>(List<T> items, int chunkSize) {
+  if (chunkSize <= 0) return [items];
+  final chunks = <List<T>>[];
+  for (var i = 0; i < items.length; i += chunkSize) {
+    var end = i + chunkSize;
+    if (end > items.length) {
+      end = items.length;
+    }
+    chunks.add(items.sublist(i, end));
+  }
+  return chunks;
+}
+
 Future<pw.ThemeData> _loadPdfTheme() async {
   final baseFontData = await rootBundle.load('assets/fonts/Montserrat-Regular.ttf');
   final boldFontData = await rootBundle.load('assets/fonts/Montserrat-Bold.ttf');
@@ -304,52 +317,62 @@ Future<void> exportGlassResultsPdf({
           final glass = glassBox.getAt(entry.key);
           final rows = entry.value.entries.toList()
             ..sort((a, b) => a.key.compareTo(b.key));
+          final rowChunks = _chunkList(rows, 25);
+          final chunkedTables = <pw.Widget>[];
+          for (var i = 0; i < rowChunks.length; i++) {
+            final chunkRows = rowChunks[i];
+            chunkedTables.add(
+              pw.Table(
+                border: pw.TableBorder.all(
+                  color: PdfColors.blueGrey200,
+                  width: 0.8,
+                ),
+                columnWidths: const {
+                  0: pw.FlexColumnWidth(3),
+                  1: pw.FlexColumnWidth(1),
+                },
+                children: [
+                  pw.TableRow(
+                    children: [
+                      _tableHeaderCell('${l10n.width} x ${l10n.height} (mm)'),
+                      _tableHeaderCell(l10n.pcs),
+                    ],
+                  ),
+                  ...chunkRows.map((row) {
+                    final letterEntries = row.value.entries.toList()
+                      ..sort((a, b) => a.key.compareTo(b.key));
+                    final total = letterEntries
+                        .fold<int>(0, (sum, value) => sum + value.value);
+                    final breakdown = letterEntries.isEmpty
+                        ? ''
+                        : letterEntries
+                            .map((entry) => entry.key.isEmpty
+                                ? '${entry.value}'
+                                : '${entry.key} = ${entry.value}')
+                            .join(', ');
+                    final dimensionText = breakdown.isEmpty
+                        ? row.key
+                        : '${row.key} ($breakdown)';
+                    return pw.TableRow(
+                      children: [
+                        _tableCell(dimensionText),
+                        _tableCell(total.toString(),
+                            alignment: pw.TextAlign.right),
+                      ],
+                    );
+                  }),
+                ],
+              ),
+            );
+            if (i != rowChunks.length - 1) {
+              chunkedTables.add(pw.SizedBox(height: 10));
+            }
+          }
+
           widgets.add(
             _sectionCard(
               title: glass?.name ?? l10n.catalogGlass,
-              content: [
-                pw.Table(
-                  border: pw.TableBorder.all(
-                    color: PdfColors.blueGrey200,
-                    width: 0.8,
-                  ),
-                  columnWidths: const {
-                    0: pw.FlexColumnWidth(3),
-                    1: pw.FlexColumnWidth(1),
-                  },
-                  children: [
-                    pw.TableRow(
-                      children: [
-                        _tableHeaderCell('${l10n.width} x ${l10n.height} (mm)'),
-                        _tableHeaderCell(l10n.pcs),
-                      ],
-                    ),
-                    ...rows.map((row) {
-                      final letterEntries = row.value.entries.toList()
-                        ..sort((a, b) => a.key.compareTo(b.key));
-                      final total = letterEntries
-                          .fold<int>(0, (sum, value) => sum + value.value);
-                      final breakdown = letterEntries.isEmpty
-                          ? ''
-                          : letterEntries
-                              .map((entry) => entry.key.isEmpty
-                                  ? '${entry.value}'
-                                  : '${entry.key} = ${entry.value}')
-                              .join(', ');
-                      final dimensionText = breakdown.isEmpty
-                          ? row.key
-                          : '${row.key} ($breakdown)';
-                      return pw.TableRow(
-                        children: [
-                          _tableCell(dimensionText),
-                          _tableCell(total.toString(),
-                              alignment: pw.TextAlign.right),
-                        ],
-                      );
-                    }),
-                  ],
-                ),
-              ],
+              content: chunkedTables,
             ),
           );
         }
@@ -409,52 +432,62 @@ Future<void> exportBlindResultsPdf({
           final blind = blindBox.getAt(entry.key);
           final rows = entry.value.entries.toList()
             ..sort((a, b) => a.key.compareTo(b.key));
+          final rowChunks = _chunkList(rows, 25);
+          final chunkedTables = <pw.Widget>[];
+          for (var i = 0; i < rowChunks.length; i++) {
+            final chunkRows = rowChunks[i];
+            chunkedTables.add(
+              pw.Table(
+                border: pw.TableBorder.all(
+                  color: PdfColors.blueGrey200,
+                  width: 0.8,
+                ),
+                columnWidths: const {
+                  0: pw.FlexColumnWidth(3),
+                  1: pw.FlexColumnWidth(1),
+                },
+                children: [
+                  pw.TableRow(
+                    children: [
+                      _tableHeaderCell('${l10n.width} x ${l10n.height} (mm)'),
+                      _tableHeaderCell(l10n.pcs),
+                    ],
+                  ),
+                  ...chunkRows.map((row) {
+                    final letterEntries = row.value.entries.toList()
+                      ..sort((a, b) => a.key.compareTo(b.key));
+                    final total = letterEntries
+                        .fold<int>(0, (sum, value) => sum + value.value);
+                    final breakdown = letterEntries.isEmpty
+                        ? ''
+                        : letterEntries
+                            .map((entry) => entry.key.isEmpty
+                                ? '${entry.value}'
+                                : '${entry.key} = ${entry.value}')
+                            .join(', ');
+                    final dimensionText = breakdown.isEmpty
+                        ? row.key
+                        : '${row.key} ($breakdown)';
+                    return pw.TableRow(
+                      children: [
+                        _tableCell(dimensionText),
+                        _tableCell(total.toString(),
+                            alignment: pw.TextAlign.right),
+                      ],
+                    );
+                  }),
+                ],
+              ),
+            );
+            if (i != rowChunks.length - 1) {
+              chunkedTables.add(pw.SizedBox(height: 10));
+            }
+          }
+
           widgets.add(
             _sectionCard(
               title: blind?.name ?? l10n.catalogBlind,
-              content: [
-                pw.Table(
-                  border: pw.TableBorder.all(
-                    color: PdfColors.blueGrey200,
-                    width: 0.8,
-                  ),
-                  columnWidths: const {
-                    0: pw.FlexColumnWidth(3),
-                    1: pw.FlexColumnWidth(1),
-                  },
-                  children: [
-                    pw.TableRow(
-                      children: [
-                        _tableHeaderCell('${l10n.width} x ${l10n.height} (mm)'),
-                        _tableHeaderCell(l10n.pcs),
-                      ],
-                    ),
-                    ...rows.map((row) {
-                      final letterEntries = row.value.entries.toList()
-                        ..sort((a, b) => a.key.compareTo(b.key));
-                      final total = letterEntries
-                          .fold<int>(0, (sum, value) => sum + value.value);
-                      final breakdown = letterEntries.isEmpty
-                          ? ''
-                          : letterEntries
-                              .map((entry) => entry.key.isEmpty
-                                  ? '${entry.value}'
-                                  : '${entry.key} = ${entry.value}')
-                              .join(', ');
-                      final dimensionText = breakdown.isEmpty
-                          ? row.key
-                          : '${row.key} ($breakdown)';
-                      return pw.TableRow(
-                        children: [
-                          _tableCell(dimensionText),
-                          _tableCell(total.toString(),
-                              alignment: pw.TextAlign.right),
-                        ],
-                      );
-                    }),
-                  ],
-                ),
-              ],
+              content: chunkedTables,
             ),
           );
         }
