@@ -6,6 +6,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:flutter/services.dart' show rootBundle;
 import 'dart:math' as math;
 import 'package:printing/printing.dart';
+import 'package:image/image.dart' as img;
 import '../models.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../l10n/app_localizations.dart';
@@ -70,7 +71,7 @@ Future<void> printOfferPdf({
             : await File(item.photoPath!).readAsBytes();
       }
       if (bytes != null) {
-        img = pw.MemoryImage(bytes);
+        img = await _preparePdfImage(bytes);
       }
     } catch (_) {}
     itemImages.add(img);
@@ -654,4 +655,38 @@ Future<void> printOfferPdf({
   } catch (e) {
     debugPrint('Error printing PDF: $e');
   }
+}
+
+Future<pw.MemoryImage?> _preparePdfImage(Uint8List bytes) async {
+  try {
+    final optimizedBytes = kIsWeb
+        ? _resizeImageBytes(bytes)
+        : await compute(_resizeImageBytes, bytes);
+    return pw.MemoryImage(optimizedBytes);
+  } catch (_) {
+    return pw.MemoryImage(bytes);
+  }
+}
+
+Uint8List _resizeImageBytes(Uint8List bytes) {
+  final image = img.decodeImage(bytes);
+  if (image == null) return bytes;
+
+  const maxDimension = 1400;
+  final needsResize =
+      image.width > maxDimension || image.height > maxDimension;
+
+  final resized = needsResize
+      ? img.copyResize(
+          image,
+          width: image.width >= image.height
+              ? maxDimension
+              : (image.width * maxDimension / image.height).round(),
+          height: image.height > image.width
+              ? maxDimension
+              : (image.height * maxDimension / image.width).round(),
+        )
+      : image;
+
+  return img.encodeJpg(resized, quality: 80);
 }
