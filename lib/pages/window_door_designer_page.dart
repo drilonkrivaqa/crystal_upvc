@@ -126,6 +126,9 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
   bool outsideView = true;
   bool showBlindBox = false;
 
+  late double windowWidthMm;
+  late double windowHeightMm;
+
   SashType activeTool = SashType.fixed;
   int? selectedIndex;
 
@@ -136,6 +139,9 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
   late List<double> _columnSizes;
   late List<double> _rowSizes;
 
+  late final TextEditingController _widthController;
+  late final TextEditingController _heightController;
+
   final _repaintKey = GlobalKey();
 
   @override
@@ -144,6 +150,12 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     rows = (widget.initialRows ?? rows).clamp(1, 8).toInt();
     cols = (widget.initialCols ?? cols).clamp(1, 8).toInt();
     showBlindBox = widget.initialShowBlind ?? showBlindBox;
+    windowHeightMm = _initialHeightMm(widget.initialHeight);
+    windowWidthMm = _initialWidthMm(widget.initialWidth, windowHeightMm);
+    _widthController =
+        TextEditingController(text: windowWidthMm.toStringAsFixed(0));
+    _heightController =
+        TextEditingController(text: windowHeightMm.toStringAsFixed(0));
     cells = List<SashType>.filled(rows * cols, SashType.fixed, growable: true);
     cellGlassColors =
         List<Color>.filled(rows * cols, _glassColorOptions.first.color, growable: true);
@@ -158,6 +170,13 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     }
   }
 
+  @override
+  void dispose() {
+    _widthController.dispose();
+    _heightController.dispose();
+    super.dispose();
+  }
+
   void _regrid(int r, int c) {
     setState(() {
       rows = r.clamp(1, 8);
@@ -168,6 +187,22 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
       selectedIndex = null;
       _columnSizes = List<double>.filled(cols, 1.0);
       _rowSizes = List<double>.filled(rows, 1.0);
+    });
+  }
+
+  void _applyToolToAll() {
+    setState(() {
+      cells = List<SashType>.filled(rows * cols, activeTool, growable: true);
+      selectedIndex = null;
+    });
+  }
+
+  void _applyGlassToAll() {
+    if (selectedIndex == null) return;
+    final color = cellGlassColors[selectedIndex!];
+    setState(() {
+      cellGlassColors = List<Color>.filled(rows * cols, color, growable: true);
+      selectedIndex = null;
     });
   }
 
@@ -414,6 +449,10 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
       showBlindBox = false;
       profileColor = _profileColorOptions.first;
       blindColor = _blindColorOptions.first;
+      windowHeightMm = _initialHeightMm(widget.initialHeight);
+      windowWidthMm = _initialWidthMm(widget.initialWidth, windowHeightMm);
+      _widthController.text = windowWidthMm.toStringAsFixed(0);
+      _heightController.text = windowHeightMm.toStringAsFixed(0);
     });
   }
 
@@ -538,6 +577,16 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
             cols: cols,
             onChanged: (r, c) => _regrid(r, c),
           ),
+          const SizedBox(height: 8),
+          _GridPresets(onTap: (r, c) => _regrid(r, c)),
+          const SizedBox(height: 16),
+          _DimensionsPanel(
+            widthController: _widthController,
+            heightController: _heightController,
+            onWidthChanged: _setWidthMm,
+            onHeightChanged: _setHeightMm,
+            totalCells: rows * cols,
+          ),
           const SizedBox(height: 16),
           SwitchListTile.adaptive(
             contentPadding: EdgeInsets.zero,
@@ -554,6 +603,15 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
             onChanged: (v) => setState(() => showBlindBox = v),
           ),
           const SizedBox(height: 20),
+          _TipCard(
+            headline: 'Quick tips',
+            tips: const [
+              'Tap a cell to paint it with the active sash preset.',
+              'Toggle Outside view to preview interior vs exterior handing.',
+              'Use Copy glass to all after picking a cell colour.',
+            ],
+          ),
+          const SizedBox(height: 16),
           _colorGroup(
             title: 'Profile colour',
             chips: _profileColorOptions.map((opt) {
@@ -622,14 +680,32 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
             onChanged: (t) => setState(() => activeTool = t),
             padding: EdgeInsets.zero,
           ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: FilledButton.tonal(
+                  onPressed: _applyToolToAll,
+                  child: const Text('Apply to entire layout'),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: FilledButton.tonal(
+                  onPressed: selectedIndex != null ? _applyGlassToAll : null,
+                  child: const Text('Copy glass to all'),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
   }
 
   double _aspectRatioFromDimensions() {
-    final w = widget.initialWidth ?? 0;
-    final h = widget.initialHeight ?? 0;
+    final w = windowWidthMm;
+    final h = windowHeightMm;
 
     if (w > 0 && h > 0) {
       final totalHeight = h + (showBlindBox ? kBlindBoxHeightMm : 0);
@@ -647,11 +723,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
   }
 
   double get _windowHeightMm {
-    final h = widget.initialHeight;
-    if (h != null && h > 0) {
-      return h;
-    }
-    return kFallbackWindowHeightMm;
+    return windowHeightMm;
   }
 
   double _mmToPx(double canvasHeightPx) {
@@ -677,6 +749,39 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
       ],
     );
   }
+
+  double _initialHeightMm(double? providedHeight) {
+    if (providedHeight != null && providedHeight.isFinite && providedHeight > 0) {
+      return providedHeight;
+    }
+    return kFallbackWindowHeightMm;
+  }
+
+  double _initialWidthMm(double? providedWidth, double heightMm) {
+    if (providedWidth != null && providedWidth.isFinite && providedWidth > 0) {
+      return providedWidth;
+    }
+    const defaultAspect = 1.6;
+    return heightMm * defaultAspect;
+  }
+
+  void _setWidthMm(double value) {
+    final clamped = _clampDimension(value);
+    setState(() {
+      windowWidthMm = clamped;
+      _widthController.text = clamped.toStringAsFixed(0);
+    });
+  }
+
+  void _setHeightMm(double value) {
+    final clamped = _clampDimension(value);
+    setState(() {
+      windowHeightMm = clamped;
+      _heightController.text = clamped.toStringAsFixed(0);
+    });
+  }
+
+  double _clampDimension(double value) => value.clamp(300.0, 4000.0);
 }
 
 // ── painter ───────────────────────────────────────────────────────────────────
@@ -1222,6 +1327,183 @@ class _RowsColsPicker extends StatelessWidget {
           icon: const Icon(Icons.add_circle_outline),
         ),
       ],
+    );
+  }
+}
+
+class _GridPresets extends StatelessWidget {
+  final void Function(int rows, int cols) onTap;
+  const _GridPresets({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    const presets = <(String, int, int)>[
+      ('1 × 1', 1, 1),
+      ('2 × 2', 2, 2),
+      ('3 × 2', 3, 2),
+      ('4 × 2', 4, 2),
+      ('2 × 3', 2, 3),
+    ];
+
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: presets
+          .map(
+            (p) => ActionChip(
+              label: Text(p.$1),
+              visualDensity: VisualDensity.compact,
+              onPressed: () => onTap(p.$2, p.$3),
+            ),
+          )
+          .toList(),
+    );
+  }
+}
+
+class _DimensionsPanel extends StatelessWidget {
+  final TextEditingController widthController;
+  final TextEditingController heightController;
+  final ValueChanged<double> onWidthChanged;
+  final ValueChanged<double> onHeightChanged;
+  final int totalCells;
+
+  const _DimensionsPanel({
+    required this.widthController,
+    required this.heightController,
+    required this.onWidthChanged,
+    required this.onHeightChanged,
+    required this.totalCells,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final textStyle = Theme.of(context).textTheme.labelLarge;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: _NumberField(
+                label: 'Width (mm)',
+                controller: widthController,
+                onChanged: onWidthChanged,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _NumberField(
+                label: 'Height (mm)',
+                controller: heightController,
+                onChanged: onHeightChanged,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        Text(
+          'The preview scales to your chosen size. ${totalCells.toString()} pane(s) are currently in use.',
+          style: textStyle,
+        ),
+      ],
+    );
+  }
+}
+
+class _NumberField extends StatelessWidget {
+  final String label;
+  final TextEditingController controller;
+  final ValueChanged<double> onChanged;
+
+  const _NumberField({
+    required this.label,
+    required this.controller,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: controller,
+      keyboardType: const TextInputType.numberWithOptions(decimal: false, signed: false),
+      decoration: InputDecoration(
+        labelText: label,
+        suffixIcon: _NumberFieldActions(
+          onChange: (delta) {
+            final current = double.tryParse(controller.text) ?? 0;
+            onChanged((current + delta).clamp(0, double.infinity));
+          },
+        ),
+      ),
+      onSubmitted: (value) {
+        final parsed = double.tryParse(value);
+        if (parsed != null) {
+          onChanged(parsed);
+        }
+      },
+    );
+  }
+}
+
+class _NumberFieldActions extends StatelessWidget {
+  final ValueChanged<double> onChange;
+  const _NumberFieldActions({required this.onChange});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 90,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          IconButton(
+            tooltip: 'Decrease by 50mm',
+            icon: const Icon(Icons.remove),
+            onPressed: () => onChange(-50),
+          ),
+          IconButton(
+            tooltip: 'Increase by 50mm',
+            icon: const Icon(Icons.add),
+            onPressed: () => onChange(50),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TipCard extends StatelessWidget {
+  final String headline;
+  final List<String> tips;
+
+  const _TipCard({required this.headline, required this.tips});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 0,
+      color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.8),
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(headline, style: const TextStyle(fontWeight: FontWeight.w700)),
+            const SizedBox(height: 6),
+            ...tips.map((t) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2.0),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.check_circle_outline, size: 16),
+                      const SizedBox(width: 8),
+                      Expanded(child: Text(t)),
+                    ],
+                  ),
+                )),
+          ],
+        ),
+      ),
     );
   }
 }
