@@ -205,76 +205,50 @@ class HomePage extends StatelessWidget {
                       GlassCard(
                         width: cardWidth,
                         padding: const EdgeInsets.all(20),
-                        child: LayoutBuilder(
-                          builder: (context, cardConstraints) {
-                            final isStacked = cardConstraints.maxWidth < 520;
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Flex(
-                                  direction:
-                                      isStacked ? Axis.vertical : Axis.horizontal,
-                                  crossAxisAlignment:
-                                      isStacked
-                                          ? CrossAxisAlignment.start
-                                          : CrossAxisAlignment.center,
-                                  children: [
-                                    Expanded(
-                                      flex: 2,
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            l10n.appTitle,
-                                            style: const TextStyle(
-                                              fontSize: 24,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 10),
-                                          Text(
-                                            l10n.welcomeWebsite,
-                                            style:
-                                                const TextStyle(fontSize: 14),
-                                          ),
-                                          const SizedBox(height: 6),
-                                          Text(
-                                            l10n.welcomeAddress,
-                                            style:
-                                                const TextStyle(fontSize: 14),
-                                          ),
-                                          const SizedBox(height: 6),
-                                          Text(
-                                            l10n.welcomePhones,
-                                            style:
-                                                const TextStyle(fontSize: 14),
-                                          ),
-                                        ],
-                                      ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    l10n.appTitle,
+                                    style: const TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
                                     ),
-                                    SizedBox(height: isStacked ? 16 : 0),
-                                    SizedBox(width: isStacked ? 0 : 16),
-                                    Flexible(
-                                      child: Align(
-                                        alignment: isStacked
-                                            ? Alignment.centerLeft
-                                            : Alignment.centerRight,
-                                        child: Image.asset(
-                                          l10n.companyLogoAsset,
-                                          height: isStacked ? 100 : 120,
-                                          fit: BoxFit.contain,
-                                        )
-                                            .animate()
-                                            .fadeIn(duration: 500.ms)
-                                            .slideY(begin: 0.2),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            );
-                          },
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Text(
+                                    l10n.welcomeWebsite,
+                                    style: const TextStyle(fontSize: 14),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    l10n.welcomeAddress,
+                                    style: const TextStyle(fontSize: 14),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    l10n.welcomePhones,
+                                    style: const TextStyle(fontSize: 14),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Image.asset(
+                                l10n.companyLogoAsset,
+                                height: 120,
+                              )
+                                  .animate()
+                                  .fadeIn(duration: 500.ms)
+                                  .slideY(begin: 0.2),
+                            ),
+                          ],
                         ),
                       ),
                       const SizedBox(height: 20),
