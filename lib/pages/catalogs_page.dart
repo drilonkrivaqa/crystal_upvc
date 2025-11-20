@@ -13,7 +13,7 @@ class CatalogsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final entries = [
-      (l10n.catalogProfile, Icons.window, CatalogType.profileSet),
+      (l10n.catalogProfile, Icons.window_rounded, CatalogType.profileSet),
       (l10n.catalogGlass, Icons.texture, CatalogType.glass),
       (l10n.catalogBlind, Icons.view_day_outlined, CatalogType.blind),
       (l10n.catalogMechanism, Icons.settings_applications_outlined,

@@ -51,15 +51,15 @@ class AppScaffold extends StatelessWidget {
                   child: Row(
                     children: [
                       if (showBackButton)
-                        Container(
-                          decoration: BoxDecoration(
-                            color: AppColors.primaryLight,
-                            borderRadius: BorderRadius.circular(12),
+                        IconButton(
+                          style: IconButton.styleFrom(
+                            backgroundColor: AppColors.primaryLight,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
-                          child: IconButton(
-                            onPressed: () => Navigator.maybePop(context),
-                            icon: const Icon(Icons.chevron_left, size: 26),
-                          ),
+                          onPressed: () => Navigator.maybePop(context),
+                          icon: const Icon(Icons.chevron_left, size: 26),
                         ),
                       if (showBackButton) const SizedBox(width: 8),
                       Expanded(
