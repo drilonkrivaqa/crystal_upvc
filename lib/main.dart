@@ -119,74 +119,193 @@ class HomePage extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final settingsBox = Hive.box('settings');
     final items = [
-      _NavItem(Icons.auto_awesome_motion_outlined, l10n.homeCatalogs,
-          const CatalogsPage()),
-      _NavItem(Icons.people_outline, l10n.homeCustomers, const CustomersPage()),
-      _NavItem(Icons.description_outlined, l10n.homeOffers, const OffersPage()),
-      _NavItem(Icons.precision_manufacturing, l10n.homeProduction,
-          const ProductionPage()),
+      _NavItem(
+        Icons.auto_awesome_motion_outlined,
+        l10n.homeCatalogs,
+        l10n.catalogsTitle,
+        const CatalogsPage(),
+      ),
+      _NavItem(
+        Icons.people_outline,
+        l10n.homeCustomers,
+        l10n.searchCustomer,
+        const CustomersPage(),
+      ),
+      _NavItem(
+        Icons.description_outlined,
+        l10n.homeOffers,
+        l10n.createOffer,
+        const OffersPage(),
+      ),
+      _NavItem(
+        Icons.precision_manufacturing,
+        l10n.homeProduction,
+        l10n.productionTitle,
+        const ProductionPage(),
+      ),
     ];
 
     return Scaffold(
       body: AppBackground(
         child: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
-              child: Column(
-                children: [
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: ValueListenableBuilder(
-                      valueListenable:
-                          settingsBox.listenable(keys: ['locale']),
-                      builder: (context, Box box, _) {
-                        final code =
-                            box.get('locale', defaultValue: 'sq') as String;
-                        return DropdownButton<String>(
-                          value: code,
-                          onChanged: (val) {
-                            if (val != null) {
-                              box.put('locale', val);
-                            }
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final isWide = constraints.maxWidth > 960;
+              final double cardWidth = isWide
+                  ? (constraints.maxWidth / 2) - 60
+                  : constraints.maxWidth - 60;
+              return Center(
+                child: SingleChildScrollView(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.9),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: ValueListenableBuilder(
+                            valueListenable:
+                                settingsBox.listenable(keys: ['locale']),
+                            builder: (context, Box box, _) {
+                              final code =
+                                  box.get('locale', defaultValue: 'sq') as String;
+                              return DropdownButton<String>(
+                                value: code,
+                                underline: const SizedBox.shrink(),
+                                onChanged: (val) {
+                                  if (val != null) {
+                                    box.put('locale', val);
+                                  }
+                                },
+                                items: const [
+                                  DropdownMenuItem(
+                                      value: 'sq', child: Text('Shqip')),
+                                  DropdownMenuItem(
+                                      value: 'en', child: Text('English')),
+                                  DropdownMenuItem(
+                                      value: 'de', child: Text('Deutsch')),
+                                  DropdownMenuItem(
+                                      value: 'fr', child: Text('Français')),
+                                  DropdownMenuItem(
+                                      value: 'it', child: Text('Italiano')),
+                                ],
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      GlassCard(
+                        width: cardWidth,
+                        padding: const EdgeInsets.all(20),
+                        child: LayoutBuilder(
+                          builder: (context, cardConstraints) {
+                            final isStacked = cardConstraints.maxWidth < 520;
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Flex(
+                                  direction:
+                                      isStacked ? Axis.vertical : Axis.horizontal,
+                                  crossAxisAlignment:
+                                      isStacked
+                                          ? CrossAxisAlignment.start
+                                          : CrossAxisAlignment.center,
+                                  children: [
+                                    Expanded(
+                                      flex: 2,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            l10n.appTitle,
+                                            style: const TextStyle(
+                                              fontSize: 24,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 10),
+                                          Text(
+                                            l10n.welcomeWebsite,
+                                            style:
+                                                const TextStyle(fontSize: 14),
+                                          ),
+                                          const SizedBox(height: 6),
+                                          Text(
+                                            l10n.welcomeAddress,
+                                            style:
+                                                const TextStyle(fontSize: 14),
+                                          ),
+                                          const SizedBox(height: 6),
+                                          Text(
+                                            l10n.welcomePhones,
+                                            style:
+                                                const TextStyle(fontSize: 14),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(height: isStacked ? 16 : 0),
+                                    SizedBox(width: isStacked ? 0 : 16),
+                                    Flexible(
+                                      child: Align(
+                                        alignment: isStacked
+                                            ? Alignment.centerLeft
+                                            : Alignment.centerRight,
+                                        child: Image.asset(
+                                          l10n.companyLogoAsset,
+                                          height: isStacked ? 100 : 120,
+                                          fit: BoxFit.contain,
+                                        )
+                                            .animate()
+                                            .fadeIn(duration: 500.ms)
+                                            .slideY(begin: 0.2),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            );
                           },
-                          items: const [
-                            DropdownMenuItem(value: 'sq', child: Text('Shqip')),
-                            DropdownMenuItem(value: 'en', child: Text('English')),
-                            DropdownMenuItem(value: 'de', child: Text('Deutsch')),
-                            DropdownMenuItem(
-                                value: 'fr', child: Text('Français')),
-                            DropdownMenuItem(value: 'it', child: Text('Italiano')),
-                          ],
-                        );
-                      },
-                    ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Wrap(
+                        spacing: 16,
+                        runSpacing: 16,
+                        alignment: WrapAlignment.center,
+                        children: items
+                            .map(
+                              (item) => _FrostedMenuCard(
+                                width: isWide ? 280 : cardWidth,
+                                icon: item.icon,
+                                label: item.label,
+                                subtitle: item.subtitle,
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => item.page,
+                                    ),
+                                  );
+                                },
+                              ),
+                            )
+                            .toList(),
+                      ),
+                    ],
                   ),
-                  Image.asset(
-                    l10n.companyLogoAsset,
-                    width: 200,
-                  ).animate().fadeIn(duration: 500.ms).slideY(begin: 0.3),
-                  const SizedBox(height: 24),
-                  Wrap(
-                    spacing: 0,
-                    runSpacing: 0,
-                    alignment: WrapAlignment.center,
-                    children: items
-                        .map((item) => _FrostedMenuCard(
-                              icon: item.icon,
-                              label: item.label,
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (_) => item.page),
-                                );
-                              },
-                            ))
-                        .toList(),
-                  ),
-                ],
-              ),
-            ),
+                ),
+              );
+            },
           ),
         ),
       ),
@@ -197,31 +316,46 @@ class HomePage extends StatelessWidget {
 class _FrostedMenuCard extends StatelessWidget {
   final IconData icon;
   final String label;
+  final String subtitle;
   final VoidCallback onTap;
+  final double? width;
 
   const _FrostedMenuCard({
     required this.icon,
     required this.label,
+    required this.subtitle,
     required this.onTap,
+    this.width,
   });
 
   @override
   Widget build(BuildContext context) {
     return GlassCard(
-      width: 110,
-      height: 140,
-      padding: const EdgeInsets.all(16),
+      width: width,
+      padding: const EdgeInsets.all(18),
       onTap: onTap,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 40, color: AppColors.primaryDark),
-          const SizedBox(height: 16),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Icon(icon, size: 40, color: AppColors.primaryDark),
+          ),
+          const SizedBox(height: 12),
           Text(
             label,
             style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            subtitle,
+            style: TextStyle(
+              fontSize: 13,
+              color: Colors.grey.shade800,
             ),
           ),
         ],
@@ -233,7 +367,8 @@ class _FrostedMenuCard extends StatelessWidget {
 class _NavItem {
   final IconData icon;
   final String label;
+  final String subtitle;
   final Widget page;
 
-  const _NavItem(this.icon, this.label, this.page);
+  const _NavItem(this.icon, this.label, this.subtitle, this.page);
 }
