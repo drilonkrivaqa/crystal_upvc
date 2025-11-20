@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'catalog_tab_page.dart';
+import '../theme/app_background.dart';
 import '../widgets/glass_card.dart';
 import '../l10n/app_localizations.dart';
-import '../widgets/app_scaffold.dart';
-import '../theme/app_colors.dart';
 
 class CatalogsPage extends StatelessWidget {
   const CatalogsPage({super.key});
@@ -12,51 +11,52 @@ class CatalogsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final entries = [
-      (l10n.catalogProfile, Icons.window_rounded, CatalogType.profileSet),
-      (l10n.catalogGlass, Icons.texture, CatalogType.glass),
-      (l10n.catalogBlind, Icons.view_day_outlined, CatalogType.blind),
-      (l10n.catalogMechanism, Icons.settings_applications_outlined,
-          CatalogType.mechanism),
-      (l10n.catalogAccessory, Icons.extension_outlined, CatalogType.accessory),
-    ];
-    return AppScaffold(
-      title: l10n.catalogsTitle,
-      subtitle: l10n.catalogProfile,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            l10n.welcomeWebsite,
-            style: Theme.of(context)
-                .textTheme
-                .bodyMedium
-                ?.copyWith(color: AppColors.muted),
-          ),
-          const SizedBox(height: 12),
-          Expanded(
-            child: GridView.count(
-              crossAxisCount: 2,
-              mainAxisSpacing: 10,
-              crossAxisSpacing: 10,
-              childAspectRatio: 1.25,
-              children: [
-                for (final entry in entries)
-                  _CatalogButton(
-                    label: entry.$1,
-                    icon: entry.$2,
-                    description: l10n.catalogsTitle,
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => CatalogTabPage(type: entry.$3),
-                      ),
-                    ),
-                  ),
-              ],
+    return Scaffold(
+      appBar: AppBar(title: Text(l10n.catalogsTitle)),
+      body: AppBackground(
+        child: ListView(
+          children: [
+            const SizedBox(height: 20),
+            _CatalogButton(
+              label: l10n.catalogProfile,
+              onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) =>
+                          CatalogTabPage(type: CatalogType.profileSet))),
             ),
-          ),
-        ],
+            _CatalogButton(
+              label: l10n.catalogGlass,
+              onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => CatalogTabPage(type: CatalogType.glass))),
+            ),
+            _CatalogButton(
+              label: l10n.catalogBlind,
+              onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => CatalogTabPage(type: CatalogType.blind))),
+            ),
+            _CatalogButton(
+              label: l10n.catalogMechanism,
+              onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) =>
+                          CatalogTabPage(type: CatalogType.mechanism))),
+            ),
+            _CatalogButton(
+              label: l10n.catalogAccessory,
+              onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) =>
+                          CatalogTabPage(type: CatalogType.accessory))),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -66,48 +66,24 @@ enum CatalogType { profileSet, glass, blind, mechanism, accessory }
 
 class _CatalogButton extends StatelessWidget {
   final String label;
-  final IconData icon;
-  final String description;
   final VoidCallback onTap;
-  const _CatalogButton({
-    required this.label,
-    required this.onTap,
-    required this.icon,
-    required this.description,
-  });
+  const _CatalogButton({required this.label, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return GlassCard(
-      margin: const EdgeInsets.all(4),
+      margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       padding: const EdgeInsets.all(20),
       onTap: onTap,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+      child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.08),
-              borderRadius: BorderRadius.circular(14),
+          Expanded(
+            child: Text(
+              label,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
             ),
-            child: Icon(icon, size: 32, color: AppColors.primaryDark),
           ),
-          const SizedBox(height: 14),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            description,
-            style: Theme.of(context)
-                .textTheme
-                .bodyMedium
-                ?.copyWith(color: AppColors.muted),
-            textAlign: TextAlign.center,
-          ),
+          const Icon(Icons.chevron_right),
         ],
       ),
     ).animate().fadeIn(duration: 200.ms).slideY(begin: 0.3);
