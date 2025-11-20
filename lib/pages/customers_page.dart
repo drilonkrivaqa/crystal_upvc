@@ -3,9 +3,9 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../models.dart';
 import '../theme/app_colors.dart';
-import '../theme/app_background.dart';
 import '../widgets/glass_card.dart';
 import '../l10n/app_localizations.dart';
+import '../widgets/app_scaffold.dart';
 
 class CustomersPage extends StatefulWidget {
   const CustomersPage({super.key});
@@ -142,36 +142,64 @@ class _CustomersPageState extends State<CustomersPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.homeCustomers)),
-      body: AppBackground(
-        child: ValueListenableBuilder(
-          valueListenable: customerBox.listenable(),
-          builder: (context, Box<Customer> box, _) {
-            return ListView.builder(
-              itemCount: box.length,
-              itemBuilder: (context, i) {
-                final index = box.length - 1 - i;
-                final customer = box.getAt(index);
-                return GlassCard(
-                  onTap: () => _editCustomer(index),
-                  child: ListTile(
-                    title: Text(customer?.name ?? ""),
-                    subtitle: Text(
-                      '${l10n.address}: ${customer?.address ?? ""}\n'
-                      '${l10n.phone}: ${customer?.phone ?? ""}\n'
-                      '${l10n.email}: ${customer?.email ?? ""}',
-                    ),
-                  ),
-                ).animate().fadeIn(duration: 200.ms).slideY(begin: 0.3);
-              },
-            );
-          },
-        ),
-      ),
+    return AppScaffold(
+      title: l10n.homeCustomers,
+      subtitle: l10n.addCustomer,
       floatingActionButton: FloatingActionButton(
         onPressed: _addCustomer,
         child: const Icon(Icons.add),
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.welcomeEnter,
+            style: Theme.of(context)
+                .textTheme
+                .bodyMedium
+                ?.copyWith(color: AppColors.muted),
+          ),
+          const SizedBox(height: 12),
+          Expanded(
+            child: ValueListenableBuilder(
+              valueListenable: customerBox.listenable(),
+              builder: (context, Box<Customer> box, _) {
+                return ListView.builder(
+                  itemCount: box.length,
+                  padding: const EdgeInsets.only(bottom: 12),
+                  itemBuilder: (context, i) {
+                    final index = box.length - 1 - i;
+                    final customer = box.getAt(index);
+                    return GlassCard(
+                      onTap: () => _editCustomer(index),
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: AppColors.primaryLight,
+                          child: const Icon(Icons.person_outline,
+                              color: AppColors.primaryDark),
+                        ),
+                        title: Text(
+                          customer?.name ?? "",
+                          style: const TextStyle(fontWeight: FontWeight.w700),
+                        ),
+                        subtitle: Text(
+                          '${l10n.address}: ${customer?.address ?? ""}\n'
+                          '${l10n.phone}: ${customer?.phone ?? ""}\n'
+                          '${l10n.email}: ${customer?.email ?? ""}',
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium
+                              ?.copyWith(color: AppColors.muted),
+                        ),
+                        trailing: const Icon(Icons.chevron_right),
+                      ),
+                    ).animate().fadeIn(duration: 200.ms).slideY(begin: 0.3);
+                  },
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
