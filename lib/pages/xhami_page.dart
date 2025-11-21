@@ -5,7 +5,6 @@ import '../models.dart';
 import '../pdf/production_pdf.dart';
 import '../theme/app_background.dart';
 import '../utils/offer_letters.dart';
-import '../utils/data_sync_service.dart';
 import '../widgets/glass_card.dart';
 import '../widgets/offer_letters_table.dart';
 import '../widgets/offer_multi_select.dart';
@@ -24,7 +23,6 @@ class _XhamiPageState extends State<XhamiPage> {
   late Box<Blind> blindBox;
   late Box<ProfileSet> profileBox;
   late Box<Customer> customerBox;
-  late DataSyncService _dataSyncService;
   final Set<int> selectedOffers = <int>{};
   Map<int, String> offerLetters = <int, String>{};
   Map<int, Map<String, Map<String, int>>>?
@@ -33,12 +31,11 @@ class _XhamiPageState extends State<XhamiPage> {
   @override
   void initState() {
     super.initState();
-    _dataSyncService = DataSyncService.instance;
-    offerBox = _dataSyncService.offerBox;
-    glassBox = _dataSyncService.glassBox;
-    blindBox = _dataSyncService.blindBox;
-    profileBox = _dataSyncService.profileSetBox;
-    customerBox = _dataSyncService.customerBox;
+    offerBox = Hive.box<Offer>('offers');
+    glassBox = Hive.box<Glass>('glasses');
+    blindBox = Hive.box<Blind>('blinds');
+    profileBox = Hive.box<ProfileSet>('profileSets');
+    customerBox = Hive.box<Customer>('customers');
   }
 
   void _calculate() {

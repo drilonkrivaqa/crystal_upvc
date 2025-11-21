@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../models.dart';
-import '../utils/data_sync_service.dart';
 import 'catalogs_page.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_background.dart';
@@ -19,27 +18,25 @@ class CatalogTabPage extends StatefulWidget {
 
 class _CatalogTabPageState extends State<CatalogTabPage> {
   late Box box;
-  late DataSyncService _dataSyncService;
 
   @override
   void initState() {
     super.initState();
-    _dataSyncService = DataSyncService.instance;
     switch (widget.type) {
       case CatalogType.profileSet:
-        box = _dataSyncService.profileSetBox;
+        box = Hive.box<ProfileSet>('profileSets');
         break;
       case CatalogType.glass:
-        box = _dataSyncService.glassBox;
+        box = Hive.box<Glass>('glasses');
         break;
       case CatalogType.blind:
-        box = _dataSyncService.blindBox;
+        box = Hive.box<Blind>('blinds');
         break;
       case CatalogType.mechanism:
-        box = _dataSyncService.mechanismBox;
+        box = Hive.box<Mechanism>('mechanisms');
         break;
       case CatalogType.accessory:
-        box = _dataSyncService.accessoryBox;
+        box = Hive.box<Accessory>('accessories');
         break;
     }
   }

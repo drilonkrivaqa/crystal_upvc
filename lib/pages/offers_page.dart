@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../models.dart';
-import '../utils/data_sync_service.dart';
 import 'offer_detail_page.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_background.dart';
@@ -18,15 +17,13 @@ class OffersPage extends StatefulWidget {
 class _OffersPageState extends State<OffersPage> {
   late Box<Offer> offerBox;
   late Box<Customer> customerBox;
-  late DataSyncService _dataSyncService;
   String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
-    _dataSyncService = DataSyncService.instance;
-    offerBox = _dataSyncService.offerBox;
-    customerBox = _dataSyncService.customerBox;
+    offerBox = Hive.box<Offer>('offers');
+    customerBox = Hive.box<Customer>('customers');
   }
 
   int _nextOfferNumber() {

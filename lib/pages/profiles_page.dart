@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../l10n/app_localizations.dart';
 import '../models.dart';
-import '../utils/data_sync_service.dart';
 import '../theme/app_background.dart';
 import '../widgets/glass_card.dart';
 
@@ -15,13 +14,11 @@ class HekriProfilesPage extends StatefulWidget {
 
 class _HekriProfilesPageState extends State<HekriProfilesPage> {
   late Box<ProfileSet> profileBox;
-  late DataSyncService _dataSyncService;
 
   @override
   void initState() {
     super.initState();
-    _dataSyncService = DataSyncService.instance;
-    profileBox = _dataSyncService.profileSetBox;
+    profileBox = Hive.box<ProfileSet>('profileSets');
   }
 
   void _editProfile(int index) {

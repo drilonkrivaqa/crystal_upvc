@@ -21,14 +21,13 @@ class CustomerAdapter extends TypeAdapter<Customer> {
       address: fields[1] as String,
       phone: fields[2] as String,
       email: fields[3] as String?,
-      updatedAt: fields[4] as DateTime?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Customer obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(4)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -36,9 +35,7 @@ class CustomerAdapter extends TypeAdapter<Customer> {
       ..writeByte(2)
       ..write(obj.phone)
       ..writeByte(3)
-      ..write(obj.email)
-      ..writeByte(4)
-      ..write(obj.updatedAt);
+      ..write(obj.email);
   }
 
   @override

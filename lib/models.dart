@@ -13,15 +13,12 @@ class Customer extends HiveObject {
   String phone;
   @HiveField(3)
   String? email;
-  @HiveField(4, defaultValue: null)
-  DateTime? updatedAt;
   Customer({
     required this.name,
     required this.address,
     required this.phone,
     this.email = '',
-    DateTime? updatedAt,
-  }) : updatedAt = updatedAt ?? DateTime.now();
+  });
 }
 
 // ProfileSet: full profile system (Trocal 88, Salamander, etc)
