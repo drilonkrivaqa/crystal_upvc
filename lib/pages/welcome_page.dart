@@ -21,6 +21,8 @@ class WelcomePage extends StatefulWidget {
 class _WelcomePageState extends State<WelcomePage> {
   late Box settingsBox;
   String localeCode = 'sq';
+  final TextEditingController _passwordController = TextEditingController();
+  static const String _requiredPassword = '1234';
 
   @override
   void initState() {
@@ -46,6 +48,24 @@ class _WelcomePageState extends State<WelcomePage> {
         );
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  void _handleEnter(AppLocalizations l10n) {
+    final enteredPassword = _passwordController.text.trim();
+    if (enteredPassword == _requiredPassword) {
+      Navigator.pushReplacementNamed(context, '/home');
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.welcomeInvalidPassword)),
+    );
   }
 
   @override
@@ -153,12 +173,21 @@ class _WelcomePageState extends State<WelcomePage> {
 
                     const SizedBox(height: 26),
 
+                    TextField(
+                      controller: _passwordController,
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        labelText: l10n.welcomePasswordLabel,
+                        hintText: l10n.welcomePasswordHint,
+                      ),
+                      onSubmitted: (_) => _handleEnter(l10n),
+                    ),
+
                     // Enter button
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: () =>
-                            Navigator.pushReplacementNamed(context, '/home'),
+                        onPressed: () => _handleEnter(l10n),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: colors.surface.withOpacity(0.85),
                           elevation: 8,

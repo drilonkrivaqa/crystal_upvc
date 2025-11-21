@@ -34,6 +34,9 @@ class AppLocalizations {
       'cuttingPieceAdapter': 'Adapter',
       'cuttingPieceBead': 'Llajsne',
       'welcomeEnter': 'Hyr',
+      'welcomePasswordLabel': 'Fjalëkalimi',
+      'welcomePasswordHint': 'Shkruani fjalëkalimin',
+      'welcomeInvalidPassword': 'Fjalëkalim i pasaktë',
       'catalogsTitle': 'Çmimorja',
       'catalogProfile': 'Profili',
       'catalogGlass': 'Xhami',
@@ -253,6 +256,9 @@ class AppLocalizations {
       'cuttingPieceAdapter': 'Adapter',
       'cuttingPieceBead': 'Bead',
       'welcomeEnter': 'Enter',
+      'welcomePasswordLabel': 'Password',
+      'welcomePasswordHint': 'Enter password',
+      'welcomeInvalidPassword': 'Incorrect password',
       'catalogsTitle': 'Price List',
       'catalogProfile': 'Profile',
       'catalogGlass': 'Glass',
@@ -469,6 +475,9 @@ class AppLocalizations {
       'cuttingPieceAdapter': 'Adapter',
       'cuttingPieceBead': 'Glasleiste',
       'welcomeEnter': 'Eintreten',
+      'welcomePasswordLabel': 'Passwort',
+      'welcomePasswordHint': 'Passwort eingeben',
+      'welcomeInvalidPassword': 'Falsches Passwort',
       'catalogsTitle': 'Preisliste',
       'catalogProfile': 'Profil',
       'catalogGlass': 'Glas',
@@ -675,6 +684,9 @@ class AppLocalizations {
       'cuttingPieceAdapter': 'Adaptateur',
       'cuttingPieceBead': 'Parclose',
       'welcomeEnter': 'Entrer',
+      'welcomePasswordLabel': 'Mot de passe',
+      'welcomePasswordHint': 'Saisissez le mot de passe',
+      'welcomeInvalidPassword': 'Mot de passe incorrect',
       'catalogsTitle': 'Liste de prix',
       'catalogProfile': 'Profil',
       'catalogGlass': 'Verre',
@@ -883,6 +895,9 @@ class AppLocalizations {
       'cuttingPieceAdapter': 'Adattatore',
       'cuttingPieceBead': 'Fermavetro',
       'welcomeEnter': 'Entra',
+      'welcomePasswordLabel': 'Password',
+      'welcomePasswordHint': 'Inserisci la password',
+      'welcomeInvalidPassword': 'Password errata',
       'catalogsTitle': 'Listino prezzi',
       'catalogProfile': 'Profilo',
       'catalogGlass': 'Vetro',
@@ -1133,6 +1148,9 @@ class AppLocalizations {
   String get welcomeWebsite => CompanyDetails.ofLocale(locale).website;
   String get companyLogoAsset => CompanyDetails.ofLocale(locale).logoAsset;
   String get welcomeEnter => _t('welcomeEnter');
+  String get welcomePasswordLabel => _t('welcomePasswordLabel');
+  String get welcomePasswordHint => _t('welcomePasswordHint');
+  String get welcomeInvalidPassword => _t('welcomeInvalidPassword');
   String get catalogsTitle => _t('catalogsTitle');
   String get catalogProfile => _t('catalogProfile');
   String get catalogGlass => _t('catalogGlass');
