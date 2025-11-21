@@ -49,74 +49,86 @@ class _OffersPageState extends State<OffersPage> {
     int? selectedCustomer = customerBox.length - 1;
     String customerSearch = '';
     final TextEditingController profitController =
-        TextEditingController(text: '0');
+    TextEditingController(text: '0');
+
     showDialog(
       context: context,
       builder: (_) => StatefulBuilder(
         builder: (context, setStateDialog) => AlertDialog(
           title: Text(l10n.createOffer),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                decoration: InputDecoration(
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  decoration: InputDecoration(
                     icon: const Icon(Icons.search),
-                    labelText: l10n.searchCustomer),
-                onChanged: (val) =>
-                    setStateDialog(() => customerSearch = val.toLowerCase()),
-              ),
-              Builder(
-                builder: (_) {
-                  final filtered = <int>[];
-                  for (int i = 0; i < customerBox.length; i++) {
-                    final name = customerBox.getAt(i)?.name.toLowerCase() ?? '';
-                    if (customerSearch.isEmpty ||
-                        name.contains(customerSearch)) {
-                      filtered.add(i);
+                    labelText: l10n.searchCustomer,
+                  ),
+                  onChanged: (val) => setStateDialog(
+                        () => customerSearch = val.toLowerCase(),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Builder(
+                  builder: (_) {
+                    final filtered = <int>[];
+                    for (int i = 0; i < customerBox.length; i++) {
+                      final name =
+                          customerBox.getAt(i)?.name.toLowerCase() ?? '';
+                      if (customerSearch.isEmpty ||
+                          name.contains(customerSearch)) {
+                        filtered.add(i);
+                      }
                     }
-                  }
-                  int? value = selectedCustomer;
-                  if (value != null && !filtered.contains(value)) {
-                    value = filtered.isNotEmpty ? filtered.first : null;
-                  }
-                  return DropdownButton<int?>(
-                    value: value,
-                    items: filtered.isNotEmpty
-                        ? [
-                            for (final i in filtered)
-                              DropdownMenuItem(
-                                value: i,
-                                child: Text(customerBox.getAt(i)?.name ?? ''),
-                              ),
-                          ]
-                        : [
-                            DropdownMenuItem(
-                              value: null,
-                              enabled: false,
-                              child: Text(l10n.noResults),
-                            ),
-                          ],
-                    onChanged: filtered.isEmpty
-                        ? null
-                        : (val) {
-                            setStateDialog(() {
-                              selectedCustomer = val;
-                            });
-                          },
-                  );
-                },
-              ),
-              TextField(
-                controller: profitController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(labelText: l10n.profitPercent),
-              ),
-            ],
+                    int? value = selectedCustomer;
+                    if (value != null && !filtered.contains(value)) {
+                      value = filtered.isNotEmpty ? filtered.first : null;
+                    }
+                    return DropdownButton<int?>(
+                      value: value,
+                      isExpanded: true,
+                      items: filtered.isNotEmpty
+                          ? [
+                        for (final i in filtered)
+                          DropdownMenuItem(
+                            value: i,
+                            child:
+                            Text(customerBox.getAt(i)?.name ?? ''),
+                          ),
+                      ]
+                          : [
+                        DropdownMenuItem(
+                          value: null,
+                          enabled: false,
+                          child: Text(l10n.noResults),
+                        ),
+                      ],
+                      onChanged: filtered.isEmpty
+                          ? null
+                          : (val) {
+                        setStateDialog(() {
+                          selectedCustomer = val;
+                        });
+                      },
+                    );
+                  },
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: profitController,
+                  keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+                  decoration: InputDecoration(labelText: l10n.profitPercent),
+                ),
+              ],
+            ),
           ),
           actions: [
             TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(l10n.cancel)),
+              onPressed: () => Navigator.pop(context),
+              child: Text(l10n.cancel),
+            ),
             ElevatedButton(
               onPressed: () {
                 final newOfferNumber = _nextOfferNumber();
@@ -127,7 +139,8 @@ class _OffersPageState extends State<OffersPage> {
                     date: DateTime.now(),
                     lastEdited: DateTime.now(),
                     items: [],
-                    profitPercent: double.tryParse(profitController.text) ?? 0,
+                    profitPercent:
+                    double.tryParse(profitController.text) ?? 0,
                     offerNumber: newOfferNumber,
                   ),
                 );
@@ -145,126 +158,262 @@ class _OffersPageState extends State<OffersPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       appBar: AppBar(title: Text(l10n.homeOffers)),
       body: AppBackground(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TextField(
-                decoration: InputDecoration(
-                  labelText: l10n.offerSearchHint,
-                  prefixIcon: const Icon(Icons.search),
-                ),
-                onChanged: (val) => setState(() => _searchQuery = val.trim()),
-              ),
-            ),
-            ValueListenableBuilder(
-              valueListenable: offerBox.listenable(),
-              builder: (context, Box<Offer> box, _) => Padding(
+        child: SafeArea(
+          child: Column(
+            children: [
+              // Search inside a glass card for a cleaner look
+              Padding(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    '${l10n.homeOffers}: ${box.length}',
-                    style: Theme.of(context).textTheme.titleSmall,
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: GlassCard(
+                  padding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+                  child: TextField(
+                    decoration: InputDecoration(
+                      labelText: l10n.offerSearchHint,
+                      prefixIcon: const Icon(Icons.search),
+                      border: InputBorder.none,
+                    ),
+                    onChanged: (val) =>
+                        setState(() => _searchQuery = val.trim()),
                   ),
                 ),
               ),
-            ),
-            Expanded(
-              child: ValueListenableBuilder(
+
+              // Count label
+              ValueListenableBuilder(
                 valueListenable: offerBox.listenable(),
-                builder: (context, Box<Offer> box, _) {
-                  final results = <int>[];
-                  final query = _searchQuery.toLowerCase();
-                  for (int i = 0; i < box.length; i++) {
-                    final offer = box.getAt(i);
-                    final customer = offer != null &&
-                            offer.customerIndex < customerBox.length
-                        ? customerBox.getAt(offer.customerIndex)
-                        : null;
-                    final offerNumber = offer?.offerNumber ?? i + 1;
-                    final numStr = offerNumber.toString();
-                    if (query.isEmpty ||
-                        numStr.contains(query) ||
-                        (customer != null &&
-                            customer.name.toLowerCase().contains(query))) {
-                      results.add(i);
-                    }
-                  }
-                  // Order results so the most recently updated offers appear first
-                  results.sort((a, b) {
-                    final offerA = box.getAt(a);
-                    final offerB = box.getAt(b);
-                    final dateA = offerA?.lastEdited ??
-                        offerA?.date ??
-                        DateTime.fromMillisecondsSinceEpoch(0);
-                    final dateB = offerB?.lastEdited ??
-                        offerB?.date ??
-                        DateTime.fromMillisecondsSinceEpoch(0);
-                    return dateB.compareTo(dateA);
-                  });
-                  return ListView.builder(
-                    itemCount: results.length,
-                    itemBuilder: (context, idx) {
-                      final i = results[idx];
+                builder: (context, Box<Offer> box, _) => Padding(
+                  padding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      '${l10n.homeOffers}: ${box.length}',
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleSmall
+                          ?.copyWith(color: colorScheme.onSurfaceVariant),
+                    ),
+                  ),
+                ),
+              ),
+
+              // List of offers
+              Expanded(
+                child: ValueListenableBuilder(
+                  valueListenable: offerBox.listenable(),
+                  builder: (context, Box<Offer> box, _) {
+                    final results = <int>[];
+                    final query = _searchQuery.toLowerCase();
+
+                    for (int i = 0; i < box.length; i++) {
                       final offer = box.getAt(i);
                       final customer = offer != null &&
-                              offer.customerIndex < customerBox.length
+                          offer.customerIndex < customerBox.length
                           ? customerBox.getAt(offer.customerIndex)
                           : null;
-                      return GlassCard(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => OfferDetailPage(offerIndex: i)),
-                          );
-                        },
-                        onLongPress: () async {
-                          final confirm = await showDialog<bool>(
-                            context: context,
-                            builder: (_) => AlertDialog(
-                              title: Text(l10n.deleteOffer),
-                              content: Text(l10n.deleteOfferConfirm),
-                              actions: [
-                                TextButton(
-                                  onPressed: () =>
-                                      Navigator.pop(context, false),
-                                  child: Text(l10n.cancel),
-                                ),
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context, true),
-                                  child: Text(l10n.delete,
-                                      style: const TextStyle(
-                                          color: AppColors.delete)),
-                                ),
-                              ],
+                      final offerNumber = offer?.offerNumber ?? i + 1;
+                      final numStr = offerNumber.toString();
+                      if (query.isEmpty ||
+                          numStr.contains(query) ||
+                          (customer != null &&
+                              customer.name
+                                  .toLowerCase()
+                                  .contains(query))) {
+                        results.add(i);
+                      }
+                    }
+
+                    // Most recently updated first
+                    results.sort((a, b) {
+                      final offerA = box.getAt(a);
+                      final offerB = box.getAt(b);
+                      final dateA = offerA?.lastEdited ??
+                          offerA?.date ??
+                          DateTime.fromMillisecondsSinceEpoch(0);
+                      final dateB = offerB?.lastEdited ??
+                          offerB?.date ??
+                          DateTime.fromMillisecondsSinceEpoch(0);
+                      return dateB.compareTo(dateA);
+                    });
+
+                    if (results.isEmpty) {
+                      return Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.insert_drive_file_outlined,
+                              size: 40,
+                              color: colorScheme.onSurfaceVariant,
                             ),
-                          );
-                          if (confirm == true) {
-                            offerBox.deleteAt(i);
-                            setState(() {});
-                          }
-                        },
-                        child: ListTile(
-                          title: Text(
-                            '${l10n.pdfOffer} ${offer?.offerNumber ?? i + 1}',
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          subtitle: Text(
-                              '${l10n.pdfClient}: ${customer?.name ?? "-"}\n${l10n.pdfDate} ${offer?.date.toString().split(' ').first ?? "-"}'),
+                            const SizedBox(height: 12),
+                            Text(
+                              _searchQuery.isEmpty
+                                  ? l10n.createOffer
+                                  : l10n.noResults,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge
+                                  ?.copyWith(
+                                color: colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
                         ),
-                      ).animate().fadeIn(duration: 200.ms).slideY(begin: 0.3);
-                    },
-                  );
-                },
+                      );
+                    }
+
+                    return ListView.builder(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 80),
+                      itemCount: results.length,
+                      itemBuilder: (context, idx) {
+                        final i = results[idx];
+                        final offer = box.getAt(i);
+                        final customer = offer != null &&
+                            offer.customerIndex < customerBox.length
+                            ? customerBox.getAt(offer.customerIndex)
+                            : null;
+
+                        final offerNumber = offer?.offerNumber ?? i + 1;
+                        final dateStr =
+                            offer?.date.toString().split(' ').first ?? '-';
+
+                        return GlassCard(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 12,
+                          ),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    OfferDetailPage(offerIndex: i),
+                              ),
+                            );
+                          },
+                          onLongPress: () async {
+                            final confirm = await showDialog<bool>(
+                              context: context,
+                              builder: (_) => AlertDialog(
+                                title: Text(l10n.deleteOffer),
+                                content: Text(l10n.deleteOfferConfirm),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.pop(context, false),
+                                    child: Text(l10n.cancel),
+                                  ),
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.pop(context, true),
+                                    child: Text(
+                                      l10n.delete,
+                                      style: const TextStyle(
+                                        color: AppColors.delete,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                            if (confirm == true) {
+                              offerBox.deleteAt(i);
+                              setState(() {});
+                            }
+                          },
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Number badge
+                              Container(
+                                width: 34,
+                                height: 34,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: colorScheme.primary.withOpacity(0.12),
+                                ),
+                                alignment: Alignment.center,
+                                child: Text(
+                                  offerNumber.toString(),
+                                  style: TextStyle(
+                                    color: colorScheme.primary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              // Text content
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            '${l10n.pdfOffer} $offerNumber',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .titleMedium
+                                                ?.copyWith(
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          dateStr,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall
+                                              ?.copyWith(
+                                            color: colorScheme
+                                                .onSurfaceVariant,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      '${l10n.pdfClient}: ${customer?.name ?? "-"}',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall
+                                          ?.copyWith(
+                                        color: colorScheme.onSurfaceVariant,
+                                        height: 1.25,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Icon(
+                                Icons.chevron_right_rounded,
+                                color: colorScheme.onSurfaceVariant,
+                              ),
+                            ],
+                          ),
+                        )
+                            .animate()
+                            .fadeIn(duration: 200.ms)
+                            .slideY(begin: 0.3);
+                      },
+                    );
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
