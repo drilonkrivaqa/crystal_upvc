@@ -41,86 +41,139 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
     }
   }
 
+  IconData _iconForType() {
+    switch (widget.type) {
+      case CatalogType.profileSet:
+        return Icons.border_all_rounded;
+      case CatalogType.glass:
+        return Icons.crop_square_rounded;
+      case CatalogType.blind:
+        return Icons.blinds_closed_rounded;
+      case CatalogType.mechanism:
+        return Icons.settings_applications_outlined;
+      case CatalogType.accessory:
+        return Icons.layers_outlined;
+    }
+  }
+
   void _editItem(int index) {
     final item = box.getAt(index);
     final l10n = AppLocalizations.of(context);
+
     final nameController = TextEditingController(text: item.name);
     final priceLController = TextEditingController(
-        text: item is ProfileSet ? item.priceL.toString() : "");
+      text: item is ProfileSet ? item.priceL.toString() : "",
+    );
     final priceZController = TextEditingController(
-        text: item is ProfileSet ? item.priceZ.toString() : "");
+      text: item is ProfileSet ? item.priceZ.toString() : "",
+    );
     final priceTController = TextEditingController(
-        text: item is ProfileSet ? item.priceT.toString() : "");
+      text: item is ProfileSet ? item.priceT.toString() : "",
+    );
     final priceAdapterController = TextEditingController(
-        text: item is ProfileSet ? item.priceAdapter.toString() : "");
+      text: item is ProfileSet ? item.priceAdapter.toString() : "",
+    );
     final priceLlajsneController = TextEditingController(
-        text: item is ProfileSet ? item.priceLlajsne.toString() : "");
+      text: item is ProfileSet ? item.priceLlajsne.toString() : "",
+    );
     final pipeLengthController = TextEditingController(
-        text: item is ProfileSet ? item.pipeLength.toString() : "");
+      text: item is ProfileSet ? item.pipeLength.toString() : "",
+    );
     final massLController = TextEditingController(
-        text: item is ProfileSet ? item.massL.toString() : "");
+      text: item is ProfileSet ? item.massL.toString() : "",
+    );
     final massZController = TextEditingController(
-        text: item is ProfileSet ? item.massZ.toString() : "");
+      text: item is ProfileSet ? item.massZ.toString() : "",
+    );
     final massTController = TextEditingController(
-        text: item is ProfileSet ? item.massT.toString() : "");
+      text: item is ProfileSet ? item.massT.toString() : "",
+    );
     final massAdapterController = TextEditingController(
-        text: item is ProfileSet ? item.massAdapter.toString() : "");
+      text: item is ProfileSet ? item.massAdapter.toString() : "",
+    );
     final massLlajsneController = TextEditingController(
-        text: item is ProfileSet ? item.massLlajsne.toString() : "");
+      text: item is ProfileSet ? item.massLlajsne.toString() : "",
+    );
     final lInnerController = TextEditingController(
-        text: item is ProfileSet ? item.lInnerThickness.toString() : "");
+      text: item is ProfileSet ? item.lInnerThickness.toString() : "",
+    );
     final zInnerController = TextEditingController(
-        text: item is ProfileSet ? item.zInnerThickness.toString() : "");
+      text: item is ProfileSet ? item.zInnerThickness.toString() : "",
+    );
     final tInnerController = TextEditingController(
-        text: item is ProfileSet ? item.tInnerThickness.toString() : "");
+      text: item is ProfileSet ? item.tInnerThickness.toString() : "",
+    );
     final ufController = TextEditingController(
-        text: item is ProfileSet ? (item.uf?.toString() ?? '') : '');
+      text: item is ProfileSet ? (item.uf?.toString() ?? '') : '',
+    );
     final lOuterController = TextEditingController(
-        text: item is ProfileSet ? item.lOuterThickness.toString() : "");
+      text: item is ProfileSet ? item.lOuterThickness.toString() : "",
+    );
     final zOuterController = TextEditingController(
-        text: item is ProfileSet ? item.zOuterThickness.toString() : "");
+      text: item is ProfileSet ? item.zOuterThickness.toString() : "",
+    );
     final tOuterController = TextEditingController(
-        text: item is ProfileSet ? item.tOuterThickness.toString() : "");
+      text: item is ProfileSet ? item.tOuterThickness.toString() : "",
+    );
     final adapterOuterController = TextEditingController(
-        text: item is ProfileSet ? item.adapterOuterThickness.toString() : "");
+      text: item is ProfileSet ? item.adapterOuterThickness.toString() : "",
+    );
     final fixedGlassController = TextEditingController(
-        text: item is ProfileSet ? item.fixedGlassTakeoff.toString() : "");
+      text: item is ProfileSet ? item.fixedGlassTakeoff.toString() : "",
+    );
     final sashGlassController = TextEditingController(
-        text: item is ProfileSet ? item.sashGlassTakeoff.toString() : "");
+      text: item is ProfileSet ? item.sashGlassTakeoff.toString() : "",
+    );
     final sashValueController = TextEditingController(
-        text: item is ProfileSet ? item.sashValue.toString() : "");
+      text: item is ProfileSet ? item.sashValue.toString() : "",
+    );
     final pricePerM2Controller = TextEditingController(
-        text:
-            (item is Glass || item is Blind) ? item.pricePerM2.toString() : "");
+      text:
+      (item is Glass || item is Blind) ? item.pricePerM2.toString() : "",
+    );
     final massPerM2Controller = TextEditingController(
-        text:
-            (item is Glass || item is Blind) ? item.massPerM2.toString() : "");
+      text:
+      (item is Glass || item is Blind) ? item.massPerM2.toString() : "",
+    );
     final ugController = TextEditingController(
-        text: item is Glass ? (item.ug?.toString() ?? '') : '');
+      text: item is Glass ? (item.ug?.toString() ?? '') : '',
+    );
     final psiController = TextEditingController(
-        text: item is Glass ? (item.psi?.toString() ?? '') : '');
+      text: item is Glass ? (item.psi?.toString() ?? '') : '',
+    );
     final boxHeightController = TextEditingController(
-        text: item is Blind ? item.boxHeight.toString() : "");
+      text: item is Blind ? item.boxHeight.toString() : "",
+    );
     final priceController = TextEditingController(
-        text: (item is Mechanism || item is Accessory)
-            ? item.price.toString()
-            : "");
+      text: (item is Mechanism || item is Accessory)
+          ? item.price.toString()
+          : "",
+    );
     final massController = TextEditingController(
-        text: (item is Mechanism || item is Accessory)
-            ? item.mass.toString()
-            : "");
+      text: (item is Mechanism || item is Accessory)
+          ? item.mass.toString()
+          : "",
+    );
 
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
         title: Text(l10n.catalogEditTitle(item.name)),
+        contentPadding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
         content: SingleChildScrollView(
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (widget.type == CatalogType.profileSet) ...[
                 ExpansionTile(
-                  title: Text(l10n.catalogSectionGeneral),
+                  tilePadding: EdgeInsets.zero,
+                  childrenPadding: const EdgeInsets.only(bottom: 8),
+                  title: Text(
+                    l10n.catalogSectionGeneral,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
                   children: [
+                    const SizedBox(height: 4),
                     TextField(
                       controller: nameController,
                       decoration: InputDecoration(labelText: l10n.name),
@@ -128,123 +181,161 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                     TextField(
                       controller: priceLController,
                       decoration: InputDecoration(
-                          labelText: l10n.catalogFieldPriceFrame),
+                        labelText: l10n.catalogFieldPriceFrame,
+                      ),
                     ),
                     TextField(
                       controller: priceZController,
                       decoration: InputDecoration(
-                          labelText: l10n.catalogFieldPriceSash),
+                        labelText: l10n.catalogFieldPriceSash,
+                      ),
                     ),
                     TextField(
                       controller: priceTController,
-                      decoration:
-                          InputDecoration(labelText: l10n.catalogFieldPriceT),
+                      decoration: InputDecoration(
+                        labelText: l10n.catalogFieldPriceT,
+                      ),
                     ),
                     TextField(
                       controller: priceAdapterController,
                       decoration: InputDecoration(
-                          labelText: l10n.catalogFieldPriceAdapter),
+                        labelText: l10n.catalogFieldPriceAdapter,
+                      ),
                     ),
                     TextField(
                       controller: priceLlajsneController,
                       decoration: InputDecoration(
-                          labelText: l10n.catalogFieldPriceBead),
+                        labelText: l10n.catalogFieldPriceBead,
+                      ),
                     ),
+                    const SizedBox(height: 4),
                   ],
                 ),
                 ExpansionTile(
-                  title: Text(l10n.catalogSectionUw),
+                  tilePadding: EdgeInsets.zero,
+                  childrenPadding: const EdgeInsets.only(bottom: 8),
+                  title: Text(
+                    l10n.catalogSectionUw,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
                   children: [
+                    const SizedBox(height: 4),
                     TextField(
                       controller: lOuterController,
                       decoration: InputDecoration(
-                          labelText: l10n.catalogFieldOuterThicknessL),
+                        labelText: l10n.catalogFieldOuterThicknessL,
+                      ),
                     ),
                     TextField(
                       controller: zOuterController,
                       decoration: InputDecoration(
-                          labelText: l10n.catalogFieldOuterThicknessZ),
+                        labelText: l10n.catalogFieldOuterThicknessZ,
+                      ),
                     ),
                     TextField(
                       controller: tOuterController,
                       decoration: InputDecoration(
-                          labelText: l10n.catalogFieldOuterThicknessT),
+                        labelText: l10n.catalogFieldOuterThicknessT,
+                      ),
                     ),
                     TextField(
                       controller: adapterOuterController,
                       decoration: InputDecoration(
-                          labelText: l10n.catalogFieldOuterThicknessAdapter),
+                        labelText:
+                        l10n.catalogFieldOuterThicknessAdapter,
+                      ),
                     ),
                     TextField(
                       controller: ufController,
-                      decoration:
-                          InputDecoration(labelText: l10n.catalogFieldUf),
+                      decoration: InputDecoration(
+                        labelText: l10n.catalogFieldUf,
+                      ),
                     ),
+                    const SizedBox(height: 4),
                   ],
                 ),
                 ExpansionTile(
-                  title: Text(l10n.catalogSectionProduction),
+                  tilePadding: EdgeInsets.zero,
+                  childrenPadding: const EdgeInsets.only(bottom: 8),
+                  title: Text(
+                    l10n.catalogSectionProduction,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
                   children: [
+                    const SizedBox(height: 4),
                     TextField(
                       controller: massLController,
-                      decoration:
-                          InputDecoration(labelText: l10n.catalogFieldMassL),
+                      decoration: InputDecoration(
+                        labelText: l10n.catalogFieldMassL,
+                      ),
                     ),
                     TextField(
                       controller: massZController,
-                      decoration:
-                          InputDecoration(labelText: l10n.catalogFieldMassZ),
+                      decoration: InputDecoration(
+                        labelText: l10n.catalogFieldMassZ,
+                      ),
                     ),
                     TextField(
                       controller: massTController,
-                      decoration:
-                          InputDecoration(labelText: l10n.catalogFieldMassT),
+                      decoration: InputDecoration(
+                        labelText: l10n.catalogFieldMassT,
+                      ),
                     ),
                     TextField(
                       controller: massAdapterController,
                       decoration: InputDecoration(
-                          labelText: l10n.catalogFieldMassAdapter),
+                        labelText: l10n.catalogFieldMassAdapter,
+                      ),
                     ),
                     TextField(
                       controller: massLlajsneController,
-                      decoration:
-                          InputDecoration(labelText: l10n.catalogFieldMassBead),
+                      decoration: InputDecoration(
+                        labelText: l10n.catalogFieldMassBead,
+                      ),
                     ),
                     TextField(
                       controller: lInnerController,
                       decoration: InputDecoration(
-                          labelText: l10n.catalogFieldInnerThicknessL),
+                        labelText: l10n.catalogFieldInnerThicknessL,
+                      ),
                     ),
                     TextField(
                       controller: zInnerController,
                       decoration: InputDecoration(
-                          labelText: l10n.catalogFieldInnerThicknessZ),
+                        labelText: l10n.catalogFieldInnerThicknessZ,
+                      ),
                     ),
                     TextField(
                       controller: tInnerController,
                       decoration: InputDecoration(
-                          labelText: l10n.catalogFieldInnerThicknessT),
+                        labelText: l10n.catalogFieldInnerThicknessT,
+                      ),
                     ),
                     TextField(
                       controller: fixedGlassController,
                       decoration: InputDecoration(
-                          labelText: l10n.catalogFieldFixedGlassLoss),
+                        labelText: l10n.catalogFieldFixedGlassLoss,
+                      ),
                     ),
                     TextField(
                       controller: sashGlassController,
                       decoration: InputDecoration(
-                          labelText: l10n.catalogFieldSashGlassLoss),
+                        labelText: l10n.catalogFieldSashGlassLoss,
+                      ),
                     ),
                     TextField(
                       controller: sashValueController,
                       decoration: InputDecoration(
-                          labelText: l10n.catalogFieldSashValue),
+                        labelText: l10n.catalogFieldSashValue,
+                      ),
                     ),
                     TextField(
                       controller: pipeLengthController,
                       decoration: InputDecoration(
-                          labelText: l10n.catalogFieldProfileLength),
+                        labelText: l10n.catalogFieldProfileLength,
+                      ),
                     ),
+                    const SizedBox(height: 4),
                   ],
                 ),
               ] else ...[
@@ -256,46 +347,54 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                     widget.type == CatalogType.blind)
                   TextField(
                     controller: pricePerM2Controller,
-                    decoration:
-                        InputDecoration(labelText: l10n.catalogFieldPricePerM2),
+                    decoration: InputDecoration(
+                      labelText: l10n.catalogFieldPricePerM2,
+                    ),
                   ),
                 if (widget.type == CatalogType.glass ||
                     widget.type == CatalogType.blind)
                   TextField(
                     controller: massPerM2Controller,
-                    decoration:
-                        InputDecoration(labelText: l10n.catalogFieldMassPerM2),
+                    decoration: InputDecoration(
+                      labelText: l10n.catalogFieldMassPerM2,
+                    ),
                   ),
                 if (widget.type == CatalogType.glass)
                   TextField(
                     controller: ugController,
-                    decoration: InputDecoration(labelText: l10n.catalogFieldUg),
+                    decoration: InputDecoration(
+                      labelText: l10n.catalogFieldUg,
+                    ),
                   ),
                 if (widget.type == CatalogType.glass)
                   TextField(
                     controller: psiController,
-                    decoration:
-                        InputDecoration(labelText: l10n.catalogFieldPsi),
+                    decoration: InputDecoration(
+                      labelText: l10n.catalogFieldPsi,
+                    ),
                   ),
                 if (widget.type == CatalogType.blind)
                   TextField(
                     controller: boxHeightController,
-                    decoration:
-                        InputDecoration(labelText: l10n.catalogFieldBoxHeight),
+                    decoration: InputDecoration(
+                      labelText: l10n.catalogFieldBoxHeight,
+                    ),
                   ),
                 if (widget.type == CatalogType.mechanism ||
                     widget.type == CatalogType.accessory)
                   TextField(
                     controller: priceController,
-                    decoration:
-                        InputDecoration(labelText: l10n.catalogFieldPrice),
+                    decoration: InputDecoration(
+                      labelText: l10n.catalogFieldPrice,
+                    ),
                   ),
                 if (widget.type == CatalogType.mechanism ||
                     widget.type == CatalogType.accessory)
                   TextField(
                     controller: massController,
-                    decoration:
-                        InputDecoration(labelText: l10n.catalogFieldMass),
+                    decoration: InputDecoration(
+                      labelText: l10n.catalogFieldMass,
+                    ),
                   ),
               ],
             ],
@@ -323,93 +422,122 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
               switch (widget.type) {
                 case CatalogType.profileSet:
                   box.putAt(
-                      index,
-                      ProfileSet(
-                        name: nameController.text,
-                        priceL: double.tryParse(priceLController.text) ?? 0,
-                        priceZ: double.tryParse(priceZController.text) ?? 0,
-                        priceT: double.tryParse(priceTController.text) ?? 0,
-                        priceAdapter:
-                            double.tryParse(priceAdapterController.text) ?? 0,
-                        priceLlajsne:
-                            double.tryParse(priceLlajsneController.text) ?? 0,
-                        pipeLength:
-                            int.tryParse(pipeLengthController.text) ?? 6500,
-                        hekriPipeLength: item.hekriPipeLength,
-                        hekriOffsetL: item.hekriOffsetL,
-                        hekriOffsetZ: item.hekriOffsetZ,
-                        hekriOffsetT: item.hekriOffsetT,
-                        massL: double.tryParse(massLController.text) ?? 0,
-                        massZ: double.tryParse(massZController.text) ?? 0,
-                        massT: double.tryParse(massTController.text) ?? 0,
-                        massAdapter:
-                            double.tryParse(massAdapterController.text) ?? 0,
-                        massLlajsne:
-                            double.tryParse(massLlajsneController.text) ?? 0,
-                        lInnerThickness:
-                            int.tryParse(lInnerController.text) ?? 40,
-                        zInnerThickness:
-                            int.tryParse(zInnerController.text) ?? 40,
-                        tInnerThickness:
-                            int.tryParse(tInnerController.text) ?? 40,
-                        lOuterThickness:
-                            int.tryParse(lOuterController.text) ?? 0,
-                        zOuterThickness:
-                            int.tryParse(zOuterController.text) ?? 0,
-                        tOuterThickness:
-                            int.tryParse(tOuterController.text) ?? 0,
-                        adapterOuterThickness:
-                            int.tryParse(adapterOuterController.text) ?? 0,
-                        uf: double.tryParse(ufController.text),
-                        fixedGlassTakeoff:
-                            int.tryParse(fixedGlassController.text) ?? 15,
-                        sashGlassTakeoff:
-                            int.tryParse(sashGlassController.text) ?? 10,
-                        sashValue: int.tryParse(sashValueController.text) ?? 22,
-                      ));
+                    index,
+                    ProfileSet(
+                      name: nameController.text,
+                      priceL:
+                      double.tryParse(priceLController.text) ?? 0,
+                      priceZ:
+                      double.tryParse(priceZController.text) ?? 0,
+                      priceT:
+                      double.tryParse(priceTController.text) ?? 0,
+                      priceAdapter:
+                      double.tryParse(priceAdapterController.text) ??
+                          0,
+                      priceLlajsne:
+                      double.tryParse(priceLlajsneController.text) ??
+                          0,
+                      pipeLength:
+                      int.tryParse(pipeLengthController.text) ??
+                          6500,
+                      hekriPipeLength: item.hekriPipeLength,
+                      hekriOffsetL: item.hekriOffsetL,
+                      hekriOffsetZ: item.hekriOffsetZ,
+                      hekriOffsetT: item.hekriOffsetT,
+                      massL:
+                      double.tryParse(massLController.text) ?? 0,
+                      massZ:
+                      double.tryParse(massZController.text) ?? 0,
+                      massT:
+                      double.tryParse(massTController.text) ?? 0,
+                      massAdapter:
+                      double.tryParse(massAdapterController.text) ??
+                          0,
+                      massLlajsne:
+                      double.tryParse(
+                          massLlajsneController.text) ??
+                          0,
+                      lInnerThickness:
+                      int.tryParse(lInnerController.text) ?? 40,
+                      zInnerThickness:
+                      int.tryParse(zInnerController.text) ?? 40,
+                      tInnerThickness:
+                      int.tryParse(tInnerController.text) ?? 40,
+                      lOuterThickness:
+                      int.tryParse(lOuterController.text) ?? 0,
+                      zOuterThickness:
+                      int.tryParse(zOuterController.text) ?? 0,
+                      tOuterThickness:
+                      int.tryParse(tOuterController.text) ?? 0,
+                      adapterOuterThickness:
+                      int.tryParse(adapterOuterController.text) ??
+                          0,
+                      uf: double.tryParse(ufController.text),
+                      fixedGlassTakeoff:
+                      int.tryParse(fixedGlassController.text) ??
+                          15,
+                      sashGlassTakeoff:
+                      int.tryParse(sashGlassController.text) ?? 10,
+                      sashValue:
+                      int.tryParse(sashValueController.text) ?? 22,
+                    ),
+                  );
                   break;
                 case CatalogType.glass:
                   box.putAt(
-                      index,
-                      Glass(
-                        name: nameController.text,
-                        pricePerM2:
-                            double.tryParse(pricePerM2Controller.text) ?? 0,
-                        massPerM2:
-                            double.tryParse(massPerM2Controller.text) ?? 0,
-                        ug: double.tryParse(ugController.text),
-                        psi: double.tryParse(psiController.text),
-                      ));
+                    index,
+                    Glass(
+                      name: nameController.text,
+                      pricePerM2:
+                      double.tryParse(pricePerM2Controller.text) ??
+                          0,
+                      massPerM2:
+                      double.tryParse(massPerM2Controller.text) ??
+                          0,
+                      ug: double.tryParse(ugController.text),
+                      psi: double.tryParse(psiController.text),
+                    ),
+                  );
                   break;
                 case CatalogType.blind:
                   box.putAt(
-                      index,
-                      Blind(
-                        name: nameController.text,
-                        pricePerM2:
-                            double.tryParse(pricePerM2Controller.text) ?? 0,
-                        boxHeight: int.tryParse(boxHeightController.text) ?? 0,
-                        massPerM2:
-                            double.tryParse(massPerM2Controller.text) ?? 0,
-                      ));
+                    index,
+                    Blind(
+                      name: nameController.text,
+                      pricePerM2:
+                      double.tryParse(pricePerM2Controller.text) ??
+                          0,
+                      boxHeight:
+                      int.tryParse(boxHeightController.text) ?? 0,
+                      massPerM2:
+                      double.tryParse(massPerM2Controller.text) ??
+                          0,
+                    ),
+                  );
                   break;
                 case CatalogType.mechanism:
                   box.putAt(
-                      index,
-                      Mechanism(
-                        name: nameController.text,
-                        price: double.tryParse(priceController.text) ?? 0,
-                        mass: double.tryParse(massController.text) ?? 0,
-                      ));
+                    index,
+                    Mechanism(
+                      name: nameController.text,
+                      price:
+                      double.tryParse(priceController.text) ?? 0,
+                      mass:
+                      double.tryParse(massController.text) ?? 0,
+                    ),
+                  );
                   break;
                 case CatalogType.accessory:
                   box.putAt(
-                      index,
-                      Accessory(
-                        name: nameController.text,
-                        price: double.tryParse(priceController.text) ?? 0,
-                        mass: double.tryParse(massController.text) ?? 0,
-                      ));
+                    index,
+                    Accessory(
+                      name: nameController.text,
+                      price:
+                      double.tryParse(priceController.text) ?? 0,
+                      mass:
+                      double.tryParse(massController.text) ?? 0,
+                    ),
+                  );
                   break;
               }
               Navigator.pop(context);
@@ -424,6 +552,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
 
   void _addItem() {
     final l10n = AppLocalizations.of(context);
+
     final nameController = TextEditingController();
     final priceLController = TextEditingController();
     final priceZController = TextEditingController();
@@ -459,13 +588,21 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
       context: context,
       builder: (_) => AlertDialog(
         title: Text(l10n.catalogAddTitle(_typeLabel(l10n))),
+        contentPadding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
         content: SingleChildScrollView(
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (widget.type == CatalogType.profileSet) ...[
                 ExpansionTile(
-                  title: Text(l10n.catalogSectionGeneral),
+                  tilePadding: EdgeInsets.zero,
+                  childrenPadding: const EdgeInsets.only(bottom: 8),
+                  title: Text(
+                    l10n.catalogSectionGeneral,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
                   children: [
+                    const SizedBox(height: 4),
                     TextField(
                       controller: nameController,
                       decoration: InputDecoration(labelText: l10n.name),
@@ -473,123 +610,161 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                     TextField(
                       controller: priceLController,
                       decoration: InputDecoration(
-                          labelText: l10n.catalogFieldPriceFrame),
+                        labelText: l10n.catalogFieldPriceFrame,
+                      ),
                     ),
                     TextField(
                       controller: priceZController,
                       decoration: InputDecoration(
-                          labelText: l10n.catalogFieldPriceSash),
+                        labelText: l10n.catalogFieldPriceSash,
+                      ),
                     ),
                     TextField(
                       controller: priceTController,
-                      decoration:
-                          InputDecoration(labelText: l10n.catalogFieldPriceT),
+                      decoration: InputDecoration(
+                        labelText: l10n.catalogFieldPriceT,
+                      ),
                     ),
                     TextField(
                       controller: priceAdapterController,
                       decoration: InputDecoration(
-                          labelText: l10n.catalogFieldPriceAdapter),
+                        labelText: l10n.catalogFieldPriceAdapter,
+                      ),
                     ),
                     TextField(
                       controller: priceLlajsneController,
                       decoration: InputDecoration(
-                          labelText: l10n.catalogFieldPriceBead),
+                        labelText: l10n.catalogFieldPriceBead,
+                      ),
                     ),
+                    const SizedBox(height: 4),
                   ],
                 ),
                 ExpansionTile(
-                  title: Text(l10n.catalogSectionUw),
+                  tilePadding: EdgeInsets.zero,
+                  childrenPadding: const EdgeInsets.only(bottom: 8),
+                  title: Text(
+                    l10n.catalogSectionUw,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
                   children: [
+                    const SizedBox(height: 4),
                     TextField(
                       controller: lOuterController,
                       decoration: InputDecoration(
-                          labelText: l10n.catalogFieldOuterThicknessL),
+                        labelText: l10n.catalogFieldOuterThicknessL,
+                      ),
                     ),
                     TextField(
                       controller: zOuterController,
                       decoration: InputDecoration(
-                          labelText: l10n.catalogFieldOuterThicknessZ),
+                        labelText: l10n.catalogFieldOuterThicknessZ,
+                      ),
                     ),
                     TextField(
                       controller: tOuterController,
                       decoration: InputDecoration(
-                          labelText: l10n.catalogFieldOuterThicknessT),
+                        labelText: l10n.catalogFieldOuterThicknessT,
+                      ),
                     ),
                     TextField(
                       controller: adapterOuterController,
                       decoration: InputDecoration(
-                          labelText: l10n.catalogFieldOuterThicknessAdapter),
+                        labelText:
+                        l10n.catalogFieldOuterThicknessAdapter,
+                      ),
                     ),
                     TextField(
                       controller: ufController,
-                      decoration:
-                          InputDecoration(labelText: l10n.catalogFieldUf),
+                      decoration: InputDecoration(
+                        labelText: l10n.catalogFieldUf,
+                      ),
                     ),
+                    const SizedBox(height: 4),
                   ],
                 ),
                 ExpansionTile(
-                  title: Text(l10n.catalogSectionProduction),
+                  tilePadding: EdgeInsets.zero,
+                  childrenPadding: const EdgeInsets.only(bottom: 8),
+                  title: Text(
+                    l10n.catalogSectionProduction,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
                   children: [
+                    const SizedBox(height: 4),
                     TextField(
                       controller: massLController,
-                      decoration:
-                          InputDecoration(labelText: l10n.catalogFieldMassL),
+                      decoration: InputDecoration(
+                        labelText: l10n.catalogFieldMassL,
+                      ),
                     ),
                     TextField(
                       controller: massZController,
-                      decoration:
-                          InputDecoration(labelText: l10n.catalogFieldMassZ),
+                      decoration: InputDecoration(
+                        labelText: l10n.catalogFieldMassZ,
+                      ),
                     ),
                     TextField(
                       controller: massTController,
-                      decoration:
-                          InputDecoration(labelText: l10n.catalogFieldMassT),
+                      decoration: InputDecoration(
+                        labelText: l10n.catalogFieldMassT,
+                      ),
                     ),
                     TextField(
                       controller: massAdapterController,
                       decoration: InputDecoration(
-                          labelText: l10n.catalogFieldMassAdapter),
+                        labelText: l10n.catalogFieldMassAdapter,
+                      ),
                     ),
                     TextField(
                       controller: massLlajsneController,
-                      decoration:
-                          InputDecoration(labelText: l10n.catalogFieldMassBead),
+                      decoration: InputDecoration(
+                        labelText: l10n.catalogFieldMassBead,
+                      ),
                     ),
                     TextField(
                       controller: lInnerController,
                       decoration: InputDecoration(
-                          labelText: l10n.catalogFieldInnerThicknessL),
+                        labelText: l10n.catalogFieldInnerThicknessL,
+                      ),
                     ),
                     TextField(
                       controller: zInnerController,
                       decoration: InputDecoration(
-                          labelText: l10n.catalogFieldInnerThicknessZ),
+                        labelText: l10n.catalogFieldInnerThicknessZ,
+                      ),
                     ),
                     TextField(
                       controller: tInnerController,
                       decoration: InputDecoration(
-                          labelText: l10n.catalogFieldInnerThicknessT),
+                        labelText: l10n.catalogFieldInnerThicknessT,
+                      ),
                     ),
                     TextField(
                       controller: fixedGlassController,
                       decoration: InputDecoration(
-                          labelText: l10n.catalogFieldFixedGlassLoss),
+                        labelText: l10n.catalogFieldFixedGlassLoss,
+                      ),
                     ),
                     TextField(
                       controller: sashGlassController,
                       decoration: InputDecoration(
-                          labelText: l10n.catalogFieldSashGlassLoss),
+                        labelText: l10n.catalogFieldSashGlassLoss,
+                      ),
                     ),
                     TextField(
                       controller: sashValueController,
                       decoration: InputDecoration(
-                          labelText: l10n.catalogFieldSashValue),
+                        labelText: l10n.catalogFieldSashValue,
+                      ),
                     ),
                     TextField(
                       controller: pipeLengthController,
                       decoration: InputDecoration(
-                          labelText: l10n.catalogFieldProfileLength),
+                        labelText: l10n.catalogFieldProfileLength,
+                      ),
                     ),
+                    const SizedBox(height: 4),
                   ],
                 ),
               ] else ...[
@@ -601,46 +776,54 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                     widget.type == CatalogType.blind)
                   TextField(
                     controller: pricePerM2Controller,
-                    decoration:
-                        InputDecoration(labelText: l10n.catalogFieldPricePerM2),
+                    decoration: InputDecoration(
+                      labelText: l10n.catalogFieldPricePerM2,
+                    ),
                   ),
                 if (widget.type == CatalogType.glass ||
                     widget.type == CatalogType.blind)
                   TextField(
                     controller: massPerM2Controller,
-                    decoration:
-                        InputDecoration(labelText: l10n.catalogFieldMassPerM2),
+                    decoration: InputDecoration(
+                      labelText: l10n.catalogFieldMassPerM2,
+                    ),
                   ),
                 if (widget.type == CatalogType.glass)
                   TextField(
                     controller: ugController,
-                    decoration: InputDecoration(labelText: l10n.catalogFieldUg),
+                    decoration: InputDecoration(
+                      labelText: l10n.catalogFieldUg,
+                    ),
                   ),
                 if (widget.type == CatalogType.glass)
                   TextField(
                     controller: psiController,
-                    decoration:
-                        InputDecoration(labelText: l10n.catalogFieldPsi),
+                    decoration: InputDecoration(
+                      labelText: l10n.catalogFieldPsi,
+                    ),
                   ),
                 if (widget.type == CatalogType.blind)
                   TextField(
                     controller: boxHeightController,
-                    decoration:
-                        InputDecoration(labelText: l10n.catalogFieldBoxHeight),
+                    decoration: InputDecoration(
+                      labelText: l10n.catalogFieldBoxHeight,
+                    ),
                   ),
                 if (widget.type == CatalogType.mechanism ||
                     widget.type == CatalogType.accessory)
                   TextField(
                     controller: priceController,
-                    decoration:
-                        InputDecoration(labelText: l10n.catalogFieldPrice),
+                    decoration: InputDecoration(
+                      labelText: l10n.catalogFieldPrice,
+                    ),
                   ),
                 if (widget.type == CatalogType.mechanism ||
                     widget.type == CatalogType.accessory)
                   TextField(
                     controller: massController,
-                    decoration:
-                        InputDecoration(labelText: l10n.catalogFieldMass),
+                    decoration: InputDecoration(
+                      labelText: l10n.catalogFieldMass,
+                    ),
                   ),
               ],
             ],
@@ -656,70 +839,115 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
               if (nameController.text.isEmpty) return;
               switch (widget.type) {
                 case CatalogType.profileSet:
-                  box.add(ProfileSet(
-                    name: nameController.text,
-                    priceL: double.tryParse(priceLController.text) ?? 0,
-                    priceZ: double.tryParse(priceZController.text) ?? 0,
-                    priceT: double.tryParse(priceTController.text) ?? 0,
-                    priceAdapter:
-                        double.tryParse(priceAdapterController.text) ?? 0,
-                    priceLlajsne:
-                        double.tryParse(priceLlajsneController.text) ?? 0,
-                    pipeLength: int.tryParse(pipeLengthController.text) ?? 6500,
-                    hekriPipeLength: 6000,
-                    massL: double.tryParse(massLController.text) ?? 0,
-                    massZ: double.tryParse(massZController.text) ?? 0,
-                    massT: double.tryParse(massTController.text) ?? 0,
-                    massAdapter:
-                        double.tryParse(massAdapterController.text) ?? 0,
-                    massLlajsne:
-                        double.tryParse(massLlajsneController.text) ?? 0,
-                    lInnerThickness: int.tryParse(lInnerController.text) ?? 40,
-                    zInnerThickness: int.tryParse(zInnerController.text) ?? 40,
-                    tInnerThickness: int.tryParse(tInnerController.text) ?? 40,
-                    lOuterThickness: int.tryParse(lOuterController.text) ?? 0,
-                    zOuterThickness: int.tryParse(zOuterController.text) ?? 0,
-                    tOuterThickness: int.tryParse(tOuterController.text) ?? 0,
-                    adapterOuterThickness:
-                        int.tryParse(adapterOuterController.text) ?? 0,
-                    uf: double.tryParse(ufController.text),
-                    fixedGlassTakeoff:
-                        int.tryParse(fixedGlassController.text) ?? 15,
-                    sashGlassTakeoff:
-                        int.tryParse(sashGlassController.text) ?? 10,
-                    sashValue: int.tryParse(sashValueController.text) ?? 22,
-                  ));
+                  box.add(
+                    ProfileSet(
+                      name: nameController.text,
+                      priceL:
+                      double.tryParse(priceLController.text) ?? 0,
+                      priceZ:
+                      double.tryParse(priceZController.text) ?? 0,
+                      priceT:
+                      double.tryParse(priceTController.text) ?? 0,
+                      priceAdapter:
+                      double.tryParse(priceAdapterController.text) ??
+                          0,
+                      priceLlajsne:
+                      double.tryParse(priceLlajsneController.text) ??
+                          0,
+                      pipeLength:
+                      int.tryParse(pipeLengthController.text) ??
+                          6500,
+                      hekriPipeLength: 6000,
+                      massL:
+                      double.tryParse(massLController.text) ?? 0,
+                      massZ:
+                      double.tryParse(massZController.text) ?? 0,
+                      massT:
+                      double.tryParse(massTController.text) ?? 0,
+                      massAdapter:
+                      double.tryParse(massAdapterController.text) ??
+                          0,
+                      massLlajsne:
+                      double.tryParse(
+                          massLlajsneController.text) ??
+                          0,
+                      lInnerThickness:
+                      int.tryParse(lInnerController.text) ?? 40,
+                      zInnerThickness:
+                      int.tryParse(zInnerController.text) ?? 40,
+                      tInnerThickness:
+                      int.tryParse(tInnerController.text) ?? 40,
+                      lOuterThickness:
+                      int.tryParse(lOuterController.text) ?? 0,
+                      zOuterThickness:
+                      int.tryParse(zOuterController.text) ?? 0,
+                      tOuterThickness:
+                      int.tryParse(tOuterController.text) ?? 0,
+                      adapterOuterThickness:
+                      int.tryParse(adapterOuterController.text) ??
+                          0,
+                      uf: double.tryParse(ufController.text),
+                      fixedGlassTakeoff:
+                      int.tryParse(fixedGlassController.text) ??
+                          15,
+                      sashGlassTakeoff:
+                      int.tryParse(sashGlassController.text) ?? 10,
+                      sashValue:
+                      int.tryParse(sashValueController.text) ?? 22,
+                    ),
+                  );
                   break;
                 case CatalogType.glass:
-                  box.add(Glass(
-                    name: nameController.text,
-                    pricePerM2: double.tryParse(pricePerM2Controller.text) ?? 0,
-                    massPerM2: double.tryParse(massPerM2Controller.text) ?? 0,
-                    ug: double.tryParse(ugController.text),
-                    psi: double.tryParse(psiController.text),
-                  ));
+                  box.add(
+                    Glass(
+                      name: nameController.text,
+                      pricePerM2:
+                      double.tryParse(pricePerM2Controller.text) ??
+                          0,
+                      massPerM2:
+                      double.tryParse(massPerM2Controller.text) ??
+                          0,
+                      ug: double.tryParse(ugController.text),
+                      psi: double.tryParse(psiController.text),
+                    ),
+                  );
                   break;
                 case CatalogType.blind:
-                  box.add(Blind(
-                    name: nameController.text,
-                    pricePerM2: double.tryParse(pricePerM2Controller.text) ?? 0,
-                    boxHeight: int.tryParse(boxHeightController.text) ?? 0,
-                    massPerM2: double.tryParse(massPerM2Controller.text) ?? 0,
-                  ));
+                  box.add(
+                    Blind(
+                      name: nameController.text,
+                      pricePerM2:
+                      double.tryParse(pricePerM2Controller.text) ??
+                          0,
+                      boxHeight:
+                      int.tryParse(boxHeightController.text) ?? 0,
+                      massPerM2:
+                      double.tryParse(massPerM2Controller.text) ??
+                          0,
+                    ),
+                  );
                   break;
                 case CatalogType.mechanism:
-                  box.add(Mechanism(
-                    name: nameController.text,
-                    price: double.tryParse(priceController.text) ?? 0,
-                    mass: double.tryParse(massController.text) ?? 0,
-                  ));
+                  box.add(
+                    Mechanism(
+                      name: nameController.text,
+                      price:
+                      double.tryParse(priceController.text) ?? 0,
+                      mass:
+                      double.tryParse(massController.text) ?? 0,
+                    ),
+                  );
                   break;
                 case CatalogType.accessory:
-                  box.add(Accessory(
-                    name: nameController.text,
-                    price: double.tryParse(priceController.text) ?? 0,
-                    mass: double.tryParse(massController.text) ?? 0,
-                  ));
+                  box.add(
+                    Accessory(
+                      name: nameController.text,
+                      price:
+                      double.tryParse(priceController.text) ?? 0,
+                      mass:
+                      double.tryParse(massController.text) ?? 0,
+                    ),
+                  );
                   break;
               }
               Navigator.pop(context);
@@ -750,44 +978,108 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final icon = _iconForType();
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      appBar: AppBar(title: Text(_typeLabel(l10n))),
+      appBar: AppBar(
+        title: Row(
+          children: [
+            Icon(
+              icon,
+              color: AppColors.primaryLight,
+            ),
+            const SizedBox(width: 8),
+            Text(_typeLabel(l10n)),
+          ],
+        ),
+      ),
       body: AppBackground(
-        child: ValueListenableBuilder(
-          valueListenable: box.listenable(),
-          builder: (context, Box<dynamic> box, _) {
-            return ListView.builder(
-              itemCount: box.length,
-              itemBuilder: (context, i) {
-                final item = box.getAt(i);
-                return GlassCard(
-                  onTap: () => _editItem(i),
-                  child: ListTile(
-                    title: Text(item.name),
-                    subtitle: widget.type == CatalogType.profileSet
-                        ? Text(
-                            "Frame (L): €${item.priceL.toStringAsFixed(2)}/m, ${item.massL.toStringAsFixed(2)}kg/m\n"
-                            "Sash (Z): €${item.priceZ.toStringAsFixed(2)}/m, ${item.massZ.toStringAsFixed(2)}kg/m\n"
-                            "T Profile: €${item.priceT.toStringAsFixed(2)}/m, ${item.massT.toStringAsFixed(2)}kg/m\n"
-                            "Adapter: €${item.priceAdapter.toStringAsFixed(2)}/m, ${item.massAdapter.toStringAsFixed(2)}kg/m\n"
-                            "Bead: €${item.priceLlajsne.toStringAsFixed(2)}/m, ${item.massLlajsne.toStringAsFixed(2)}kg/m\n"
-                            "Length: ${item.pipeLength}mm")
-                        : widget.type == CatalogType.glass
-                            ? Text(
-                                "Price: €${item.pricePerM2.toStringAsFixed(2)}/m², Mass: ${item.massPerM2.toStringAsFixed(2)}kg/m²")
-                            : widget.type == CatalogType.blind
-                                ? Text(
-                                    "Price: €${item.pricePerM2.toStringAsFixed(2)}/m², Mass: ${item.massPerM2.toStringAsFixed(2)}kg/m², Box: ${item.boxHeight}mm")
-                                : widget.type == CatalogType.mechanism ||
-                                        widget.type == CatalogType.accessory
-                                    ? Text(
-                                        "Price: €${item.price.toStringAsFixed(2)}, Mass: ${item.mass.toStringAsFixed(2)}kg")
-                                    : null,
+        child: SafeArea(
+          child: ValueListenableBuilder(
+            valueListenable: box.listenable(),
+            builder: (context, Box<dynamic> box, _) {
+              if (box.isEmpty) {
+                return Center(
+                  child: Text(
+                    'No items yet',
+                    style: Theme.of(context).textTheme.bodyLarge,
                   ),
-                ).animate().fadeIn(duration: 200.ms).slideY(begin: 0.3);
-              },
-            );
-          },
+                );
+              }
+
+              return ListView.builder(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
+                itemCount: box.length,
+                itemBuilder: (context, i) {
+                  final item = box.getAt(i);
+
+                  final subtitle = widget.type == CatalogType.profileSet
+                      ? "Frame (L): €${item.priceL.toStringAsFixed(2)}/m, ${item.massL.toStringAsFixed(2)}kg/m\n"
+                      "Sash (Z): €${item.priceZ.toStringAsFixed(2)}/m, ${item.massZ.toStringAsFixed(2)}kg/m\n"
+                      "T Profile: €${item.priceT.toStringAsFixed(2)}/m, ${item.massT.toStringAsFixed(2)}kg/m\n"
+                      "Adapter: €${item.priceAdapter.toStringAsFixed(2)}/m, ${item.massAdapter.toStringAsFixed(2)}kg/m\n"
+                      "Bead: €${item.priceLlajsne.toStringAsFixed(2)}/m, ${item.massLlajsne.toStringAsFixed(2)}kg/m\n"
+                      "Length: ${item.pipeLength}mm"
+                      : widget.type == CatalogType.glass
+                      ? "Price: €${item.pricePerM2.toStringAsFixed(2)}/m², Mass: ${item.massPerM2.toStringAsFixed(2)}kg/m²"
+                      : widget.type == CatalogType.blind
+                      ? "Price: €${item.pricePerM2.toStringAsFixed(2)}/m², Mass: ${item.massPerM2.toStringAsFixed(2)}kg/m², Box: ${item.boxHeight}mm"
+                      : widget.type == CatalogType.mechanism ||
+                      widget.type == CatalogType.accessory
+                      ? "Price: €${item.price.toStringAsFixed(2)}, Mass: ${item.mass.toStringAsFixed(2)}kg"
+                      : null;
+
+                  return GlassCard(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
+                    onTap: () => _editItem(i),
+                    child: ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: CircleAvatar(
+                        backgroundColor:
+                        colorScheme.primary.withOpacity(0.12),
+                        child: Icon(
+                          icon,
+                          color: colorScheme.primary,
+                        ),
+                      ),
+                      title: Text(
+                        item.name,
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w600),
+                      ),
+                      subtitle: subtitle != null
+                          ? Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Text(
+                          subtitle,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(height: 1.25),
+                        ),
+                      )
+                          : null,
+                      trailing: Icon(
+                        Icons.edit_rounded,
+                        color: colorScheme.primary,
+                      ),
+                      isThreeLine: widget.type == CatalogType.profileSet,
+                    ),
+                  )
+                      .animate()
+                      .fadeIn(duration: 200.ms)
+                      .slideY(begin: 0.3);
+                },
+              );
+            },
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(

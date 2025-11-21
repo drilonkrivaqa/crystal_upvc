@@ -94,7 +94,7 @@ class CatalogsPage extends StatelessWidget {
 
                   _CatalogButton(
                     label: l10n.catalogMechanism,
-                    icon: Icons.settings_suggest_rounded,
+                    icon: Icons.settings_applications_outlined,
                     index: 3,
                     onTap: () {
                       Navigator.push(
@@ -110,7 +110,7 @@ class CatalogsPage extends StatelessWidget {
 
                   _CatalogButton(
                     label: l10n.catalogAccessory,
-                    icon: Icons.build_rounded,
+                    icon: Icons.layers_outlined,
                     index: 4,
                     onTap: () {
                       Navigator.push(
