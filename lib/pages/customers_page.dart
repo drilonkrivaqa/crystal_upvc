@@ -9,6 +9,7 @@ import '../l10n/app_localizations.dart';
 
 class CustomersPage extends StatefulWidget {
   const CustomersPage({super.key});
+
   @override
   State<CustomersPage> createState() => _CustomersPageState();
 }
@@ -35,35 +36,45 @@ class _CustomersPageState extends State<CustomersPage> {
         title: Text(l10n.addCustomer),
         content: SingleChildScrollView(
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
-                  controller: nameController,
-                  decoration: InputDecoration(labelText: l10n.nameSurname)),
+                controller: nameController,
+                decoration: InputDecoration(labelText: l10n.nameSurname),
+              ),
               TextField(
-                  controller: addressController,
-                  decoration: InputDecoration(labelText: l10n.address)),
+                controller: addressController,
+                decoration: InputDecoration(labelText: l10n.address),
+              ),
               TextField(
-                  controller: phoneController,
-                  decoration: InputDecoration(labelText: l10n.phone)),
+                controller: phoneController,
+                decoration: InputDecoration(labelText: l10n.phone),
+                keyboardType: TextInputType.phone,
+              ),
               TextField(
-                  controller: emailController,
-                  decoration: InputDecoration(labelText: l10n.email)),
+                controller: emailController,
+                decoration: InputDecoration(labelText: l10n.email),
+                keyboardType: TextInputType.emailAddress,
+              ),
             ],
           ),
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(l10n.cancel)),
+            onPressed: () => Navigator.pop(context),
+            child: Text(l10n.cancel),
+          ),
           ElevatedButton(
             onPressed: () {
               if (nameController.text.isEmpty) return;
-              customerBox.add(Customer(
-                name: nameController.text,
-                address: addressController.text,
-                phone: phoneController.text,
-                email: emailController.text,
-              ));
+              customerBox.add(
+                Customer(
+                  name: nameController.text,
+                  address: addressController.text,
+                  phone: phoneController.text,
+                  email: emailController.text,
+                ),
+              );
               Navigator.pop(context);
               setState(() {});
             },
@@ -77,9 +88,10 @@ class _CustomersPageState extends State<CustomersPage> {
   void _editCustomer(int index) {
     final l10n = AppLocalizations.of(context);
     final customer = customerBox.getAt(index);
+
     final nameController = TextEditingController(text: customer?.name ?? "");
     final addressController =
-        TextEditingController(text: customer?.address ?? "");
+    TextEditingController(text: customer?.address ?? "");
     final phoneController = TextEditingController(text: customer?.phone ?? "");
     final emailController = TextEditingController(text: customer?.email ?? "");
 
@@ -89,19 +101,26 @@ class _CustomersPageState extends State<CustomersPage> {
         title: Text(l10n.editCustomer),
         content: SingleChildScrollView(
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
-                  controller: nameController,
-                  decoration: InputDecoration(labelText: l10n.nameSurname)),
+                controller: nameController,
+                decoration: InputDecoration(labelText: l10n.nameSurname),
+              ),
               TextField(
-                  controller: addressController,
-                  decoration: InputDecoration(labelText: l10n.address)),
+                controller: addressController,
+                decoration: InputDecoration(labelText: l10n.address),
+              ),
               TextField(
-                  controller: phoneController,
-                  decoration: InputDecoration(labelText: l10n.phone)),
+                controller: phoneController,
+                decoration: InputDecoration(labelText: l10n.phone),
+                keyboardType: TextInputType.phone,
+              ),
               TextField(
-                  controller: emailController,
-                  decoration: InputDecoration(labelText: l10n.email)),
+                controller: emailController,
+                decoration: InputDecoration(labelText: l10n.email),
+                keyboardType: TextInputType.emailAddress,
+              ),
             ],
           ),
         ),
@@ -112,23 +131,27 @@ class _CustomersPageState extends State<CustomersPage> {
               Navigator.pop(context);
               setState(() {});
             },
-            child: Text(l10n.delete,
-                style: const TextStyle(color: AppColors.delete)),
+            child: Text(
+              l10n.delete,
+              style: const TextStyle(color: AppColors.delete),
+            ),
           ),
           TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(l10n.cancel)),
+            onPressed: () => Navigator.pop(context),
+            child: Text(l10n.cancel),
+          ),
           ElevatedButton(
             onPressed: () {
               if (nameController.text.isEmpty) return;
               customerBox.putAt(
-                  index,
-                  Customer(
-                    name: nameController.text,
-                    address: addressController.text,
-                    phone: phoneController.text,
-                    email: emailController.text,
-                  ));
+                index,
+                Customer(
+                  name: nameController.text,
+                  address: addressController.text,
+                  phone: phoneController.text,
+                  email: emailController.text,
+                ),
+              );
               Navigator.pop(context);
               setState(() {});
             },
@@ -142,31 +165,103 @@ class _CustomersPageState extends State<CustomersPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       appBar: AppBar(title: Text(l10n.homeCustomers)),
       body: AppBackground(
-        child: ValueListenableBuilder(
-          valueListenable: customerBox.listenable(),
-          builder: (context, Box<Customer> box, _) {
-            return ListView.builder(
-              itemCount: box.length,
-              itemBuilder: (context, i) {
-                final index = box.length - 1 - i;
-                final customer = box.getAt(index);
-                return GlassCard(
-                  onTap: () => _editCustomer(index),
-                  child: ListTile(
-                    title: Text(customer?.name ?? ""),
-                    subtitle: Text(
-                      '${l10n.address}: ${customer?.address ?? ""}\n'
-                      '${l10n.phone}: ${customer?.phone ?? ""}\n'
-                      '${l10n.email}: ${customer?.email ?? ""}',
-                    ),
+        child: SafeArea(
+          child: ValueListenableBuilder(
+            valueListenable: customerBox.listenable(),
+            builder: (context, Box<Customer> box, _) {
+              if (box.isEmpty) {
+                return Center(
+                  child: Text(
+                    l10n.addCustomer,
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyLarge
+                        ?.copyWith(color: colorScheme.onSurfaceVariant),
                   ),
-                ).animate().fadeIn(duration: 200.ms).slideY(begin: 0.3);
-              },
-            );
-          },
+                );
+              }
+
+              return ListView.builder(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
+                itemCount: box.length,
+                itemBuilder: (context, i) {
+                  // keep newest first
+                  final index = box.length - 1 - i;
+                  final customer = box.getAt(index);
+                  final name = customer?.name ?? "";
+                  final initials = name.isNotEmpty
+                      ? name.trim().split(' ').map((p) => p[0]).take(2).join().toUpperCase()
+                      : '?';
+
+                  final address = customer?.address ?? "";
+                  final phone = customer?.phone ?? "";
+                  final email = customer?.email ?? "";
+
+                  final subtitleBuffer = StringBuffer();
+                  if (address.isNotEmpty) {
+                    subtitleBuffer.writeln('${l10n.address}: $address');
+                  }
+                  if (phone.isNotEmpty) {
+                    subtitleBuffer.writeln('${l10n.phone}: $phone');
+                  }
+                  if (email.isNotEmpty) {
+                    subtitleBuffer.write('${l10n.email}: $email');
+                  }
+
+                  return GlassCard(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    onTap: () => _editCustomer(index),
+                    child: ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: CircleAvatar(
+                        backgroundColor: colorScheme.primary.withOpacity(0.12),
+                        child: Text(
+                          initials,
+                          style: TextStyle(
+                            color: colorScheme.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      title: Text(
+                        name,
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w600),
+                      ),
+                      subtitle: subtitleBuffer.isNotEmpty
+                          ? Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Text(
+                          subtitleBuffer.toString(),
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(height: 1.25),
+                        ),
+                      )
+                          : null,
+                      trailing: Icon(
+                        Icons.edit_rounded,
+                        color: colorScheme.primary,
+                      ),
+                    ),
+                  )
+                      .animate()
+                      .fadeIn(duration: 200.ms)
+                      .slideY(begin: 0.3);
+                },
+              );
+            },
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
