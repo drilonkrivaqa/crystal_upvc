@@ -13,7 +13,6 @@ class AppLocalizations {
       'homeCustomers': 'Klientët',
       'homeOffers': 'Ofertat',
       'homeProduction': 'Prodhimi',
-      'homeEnter': 'Hyr',
       'productionTitle': 'Prodhimi',
       'productionCutting': 'Prerja',
       'productionGlass': 'Xhami',
@@ -241,7 +240,6 @@ class AppLocalizations {
       'homeCustomers': 'Customers',
       'homeOffers': 'Offers',
       'homeProduction': 'Production',
-      'homeEnter': 'Enter',
       'productionTitle': 'Production',
       'productionCutting': 'Cutting',
       'productionGlass': 'Glass',
@@ -461,7 +459,6 @@ class AppLocalizations {
       'homeCustomers': 'Kunden',
       'homeOffers': 'Angebote',
       'homeProduction': 'Produktion',
-      'homeEnter': 'Eintreten',
       'productionTitle': 'Produktion',
       'productionCutting': 'Zuschnitt',
       'productionGlass': 'Glas',
@@ -673,7 +670,6 @@ class AppLocalizations {
       'homeCustomers': 'Clients',
       'homeOffers': 'Offres',
       'homeProduction': 'Production',
-      'homeEnter': 'Entrer',
       'productionTitle': 'Production',
       'productionCutting': 'Découpe',
       'productionGlass': 'Verre',
@@ -885,7 +881,6 @@ class AppLocalizations {
       'homeCustomers': 'Clienti',
       'homeOffers': 'Offerte',
       'homeProduction': 'Produzione',
-      'homeEnter': 'Entra',
       'productionTitle': 'Produzione',
       'productionCutting': 'Taglio',
       'productionGlass': 'Vetro',
@@ -1112,7 +1107,6 @@ class AppLocalizations {
   String get homeCustomers => _t('homeCustomers');
   String get homeOffers => _t('homeOffers');
   String get homeProduction => _t('homeProduction');
-  String get homeEnter => _t('homeEnter');
   String get productionTitle => _t('productionTitle');
   String get productionCutting => _t('productionCutting');
   String get productionGlass => _t('productionGlass');
