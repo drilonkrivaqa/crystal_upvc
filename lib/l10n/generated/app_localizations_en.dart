@@ -78,6 +78,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get welcomeEnter => 'Enter';
 
   @override
+  String get welcomePasswordLabel => 'Password';
+
+  @override
+  String get welcomePasswordHint => 'Enter password';
+
+  @override
+  String get welcomeInvalidPassword => 'Incorrect password';
+
+  @override
   String get catalogsTitle => 'Price List';
 
   @override

@@ -78,6 +78,15 @@ class AppLocalizationsDe extends AppLocalizations {
   String get welcomeEnter => 'Eintreten';
 
   @override
+  String get welcomePasswordLabel => 'Passwort';
+
+  @override
+  String get welcomePasswordHint => 'Passwort eingeben';
+
+  @override
+  String get welcomeInvalidPassword => 'Falsches Passwort';
+
+  @override
   String get catalogsTitle => 'Preisliste';
 
   @override

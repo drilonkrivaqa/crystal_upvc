@@ -225,6 +225,24 @@ abstract class AppLocalizations {
   /// **'Enter'**
   String get welcomeEnter;
 
+  /// No description provided for @welcomePasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get welcomePasswordLabel;
+
+  /// No description provided for @welcomePasswordHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter password'**
+  String get welcomePasswordHint;
+
+  /// No description provided for @welcomeInvalidPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Incorrect password'**
+  String get welcomeInvalidPassword;
+
   /// No description provided for @catalogsTitle.
   ///
   /// In en, this message translates to:

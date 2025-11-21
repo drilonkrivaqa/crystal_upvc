@@ -78,6 +78,15 @@ class AppLocalizationsIt extends AppLocalizations {
   String get welcomeEnter => 'Entra';
 
   @override
+  String get welcomePasswordLabel => 'Password';
+
+  @override
+  String get welcomePasswordHint => 'Inserisci la password';
+
+  @override
+  String get welcomeInvalidPassword => 'Password errata';
+
+  @override
   String get catalogsTitle => 'Listino prezzi';
 
   @override

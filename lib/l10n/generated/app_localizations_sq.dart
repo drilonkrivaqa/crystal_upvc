@@ -78,6 +78,15 @@ class AppLocalizationsSq extends AppLocalizations {
   String get welcomeEnter => 'Hyr';
 
   @override
+  String get welcomePasswordLabel => 'Fjalëkalimi';
+
+  @override
+  String get welcomePasswordHint => 'Shkruani fjalëkalimin';
+
+  @override
+  String get welcomeInvalidPassword => 'Fjalëkalim i pasaktë';
+
+  @override
   String get catalogsTitle => 'Çmimorja';
 
   @override
