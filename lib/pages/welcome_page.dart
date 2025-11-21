@@ -22,7 +22,6 @@ class _WelcomePageState extends State<WelcomePage> {
   late Box settingsBox;
   String localeCode = 'sq';
   final TextEditingController _passwordController = TextEditingController();
-  static const String _requiredPassword = '1234';
 
   @override
   void initState() {
@@ -58,7 +57,9 @@ class _WelcomePageState extends State<WelcomePage> {
 
   void _handleEnter(AppLocalizations l10n) {
     final enteredPassword = _passwordController.text.trim();
-    if (enteredPassword == _requiredPassword) {
+    final requiredPassword = l10n.companyAppPassword;
+
+    if (enteredPassword == requiredPassword) {
       Navigator.pushReplacementNamed(context, '/home');
       return;
     }
