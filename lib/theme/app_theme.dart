@@ -16,7 +16,7 @@ class AppTheme {
           centerTitle: true,
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
-          titleTextStyle: TextStyle(
+          titleTextStyle: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
             color: Colors.white,

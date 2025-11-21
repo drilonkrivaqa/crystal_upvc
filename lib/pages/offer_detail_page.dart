@@ -964,10 +964,9 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 item.calculateGlassCost(profileSet, glass, boxHeight: blind?.boxHeight ?? 0) *
                     item.quantity;
             double blindCost = (blind != null)
-                ? ((item.width / 1000.0) *
-                (item.height / 1000.0) *
-                blind.pricePerM2 *
-                item.quantity)
+                ? (item.calculateBlindPricingArea() *
+                    blind.pricePerM2 *
+                    item.quantity)
                 : 0;
             double mechanismCost = (mechanism != null)
                 ? mechanism.price * item.quantity * item.openings
@@ -1376,9 +1375,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                     boxHeight: blind?.boxHeight ?? 0);
                 double glassCost = glassCostPer * item.quantity;
                 double blindCostPer = (blind != null)
-                    ? ((item.width / 1000.0) *
-                    (item.height / 1000.0) *
-                    blind.pricePerM2)
+                    ? (item.calculateBlindPricingArea() * blind.pricePerM2)
                     : 0;
                 double blindCost = blindCostPer * item.quantity;
                 double mechanismCostPer = (mechanism != null)

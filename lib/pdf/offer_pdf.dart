@@ -105,10 +105,7 @@ Future<void> printOfferPdf({
             .calculateGlassCost(profile, glass, boxHeight: blind?.boxHeight ?? 0) *
         item.quantity;
     final blindCost = blind != null
-        ? ((item.width / 1000.0) *
-            (item.height / 1000.0) *
-            blind.pricePerM2 *
-            item.quantity)
+        ? (item.calculateBlindPricingArea() * blind.pricePerM2 * item.quantity)
         : 0;
     final mechanismCost =
         mechanism != null ? mechanism.price * item.quantity * item.openings : 0;
@@ -295,8 +292,7 @@ Future<void> printOfferPdf({
                       boxHeight: blind?.boxHeight ?? 0) *
                   item.quantity;
           final blindCost = blind != null
-              ? ((item.width / 1000.0) *
-                  (item.height / 1000.0) *
+              ? (item.calculateBlindPricingArea() *
                   blind.pricePerM2 *
                   item.quantity)
               : 0;
