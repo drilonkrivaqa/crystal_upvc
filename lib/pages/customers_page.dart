@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../models.dart';
-import '../utils/data_sync_service.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_background.dart';
 import '../widgets/glass_card.dart';
@@ -17,13 +16,11 @@ class CustomersPage extends StatefulWidget {
 
 class _CustomersPageState extends State<CustomersPage> {
   late Box<Customer> customerBox;
-  late DataSyncService _dataSyncService;
 
   @override
   void initState() {
     super.initState();
-    _dataSyncService = DataSyncService.instance;
-    customerBox = _dataSyncService.customerBox;
+    customerBox = Hive.box<Customer>('customers');
   }
 
   void _addCustomer() {
@@ -76,7 +73,6 @@ class _CustomersPageState extends State<CustomersPage> {
                   address: addressController.text,
                   phone: phoneController.text,
                   email: emailController.text,
-                  updatedAt: DateTime.now(),
                 ),
               );
               Navigator.pop(context);
@@ -154,7 +150,6 @@ class _CustomersPageState extends State<CustomersPage> {
                   address: addressController.text,
                   phone: phoneController.text,
                   email: emailController.text,
-                  updatedAt: DateTime.now(),
                 ),
               );
               Navigator.pop(context);
