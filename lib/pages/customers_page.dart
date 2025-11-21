@@ -112,8 +112,8 @@ class _CustomersPageState extends State<CustomersPage> {
               Navigator.pop(context);
               setState(() {});
             },
-            child:
-                Text(l10n.delete, style: const TextStyle(color: AppColors.delete)),
+            child: Text(l10n.delete,
+                style: const TextStyle(color: AppColors.delete)),
           ),
           TextButton(
               onPressed: () => Navigator.pop(context),

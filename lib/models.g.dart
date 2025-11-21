@@ -517,8 +517,7 @@ class OfferAdapter extends TypeAdapter<Offer> {
       discountAmount: fields[7] == null ? 0 : fields[7] as double,
       notes: fields[8] == null ? '' : fields[8] as String,
       lastEdited: fields[9] as DateTime?,
-      defaultProfileSetIndex:
-          fields[10] == null ? 0 : fields[10] as int,
+      defaultProfileSetIndex: fields[10] == null ? 0 : fields[10] as int,
       defaultGlassIndex: fields[11] == null ? 0 : fields[11] as int,
       versions:
           fields[12] == null ? [] : (fields[12] as List).cast<OfferVersion>(),
@@ -595,8 +594,7 @@ class OfferVersionAdapter extends TypeAdapter<OfferVersion> {
       discountPercent: fields[5] == null ? 0 : fields[5] as double,
       discountAmount: fields[6] == null ? 0 : fields[6] as double,
       notes: fields[7] == null ? '' : fields[7] as String,
-      defaultProfileSetIndex:
-          fields[8] == null ? 0 : fields[8] as int,
+      defaultProfileSetIndex: fields[8] == null ? 0 : fields[8] as int,
       defaultGlassIndex: fields[9] == null ? 0 : fields[9] as int,
       defaultBlindIndex: fields[10] == null ? -1 : fields[10] as int,
       customerIndex: fields[11] == null ? 0 : fields[11] as int,

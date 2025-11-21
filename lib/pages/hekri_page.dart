@@ -88,8 +88,7 @@ class _HekriPageState extends State<HekriPage> {
     for (final offerIndex in selectedOffers) {
       final offer = offerBox.getAt(offerIndex);
       if (offer == null) continue;
-      final offerLabel =
-          buildOfferLabel(l10n, customerBox, offerIndex, offer);
+      final offerLabel = buildOfferLabel(l10n, customerBox, offerIndex, offer);
 
       for (final item in offer.items) {
         final profile = profileBox.getAt(item.profileSetIndex);
@@ -232,12 +231,10 @@ class _HekriPageState extends State<HekriPage> {
         }
         final insets = item.sectionInsets(set, r, c);
         if (!item.isFixedAt(r, c)) {
-          final sashW =
-              (w - insets.left - insets.right + sashAdd).clamp(0, w);
-          final sashH =
-              (h - insets.top - insets.bottom + sashAdd).clamp(0, h);
-          map[PieceType.z]!
-              .addAll([sashH.round(), sashH.round(), sashW.round(), sashW.round()]);
+          final sashW = (w - insets.left - insets.right + sashAdd).clamp(0, w);
+          final sashH = (h - insets.top - insets.bottom + sashAdd).clamp(0, h);
+          map[PieceType.z]!.addAll(
+              [sashH.round(), sashH.round(), sashW.round(), sashW.round()]);
         }
       }
     }
@@ -300,9 +297,8 @@ class _HekriPageState extends State<HekriPage> {
 
   List<int> _bestSubset(
       List<ProductionPieceDetail> pieces, int capacity, int sawWidth) {
-    final kerf = sawWidth <= 0
-        ? 0
-        : (sawWidth > capacity ? capacity : sawWidth);
+    final kerf =
+        sawWidth <= 0 ? 0 : (sawWidth > capacity ? capacity : sawWidth);
     final capacityWithKerf = kerf > 0 ? capacity + kerf : capacity;
     final reachable = List<bool>.filled(capacityWithKerf + 1, false);
     final parent = List<int?>.filled(capacityWithKerf + 1, null);

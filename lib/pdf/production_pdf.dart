@@ -27,14 +27,14 @@ int _barTotalWithSaw(List<ProductionPieceDetail> bar, int sawWidth) {
 }
 
 String _barCombinationWithSaw(
-    List<ProductionPieceDetail> bar,
-    int sawWidth, {
-      required bool includeLetters,
-    }) {
+  List<ProductionPieceDetail> bar,
+  int sawWidth, {
+  required bool includeLetters,
+}) {
   final combination = bar
       .map((piece) => !includeLetters || piece.offerLetter.isEmpty
-      ? '${piece.length}'
-      : '${piece.length} (${piece.offerLetter})')
+          ? '${piece.length}'
+          : '${piece.length} (${piece.offerLetter})')
       .join(' + ');
   if (sawWidth > 0 && bar.length > 1) {
     final cuts = bar.length - 1;
@@ -58,9 +58,9 @@ List<List<T>> _chunkList<T>(List<T> items, int chunkSize) {
 
 Future<pw.ThemeData> _loadPdfTheme() async {
   final baseFontData =
-  await rootBundle.load('assets/fonts/Montserrat-Regular.ttf');
+      await rootBundle.load('assets/fonts/Montserrat-Regular.ttf');
   final boldFontData =
-  await rootBundle.load('assets/fonts/Montserrat-Bold.ttf');
+      await rootBundle.load('assets/fonts/Montserrat-Bold.ttf');
   final baseFont = pw.Font.ttf(baseFontData);
   final boldFont = pw.Font.ttf(boldFontData);
   return pw.ThemeData.withFont(base: baseFont, bold: boldFont);
@@ -90,48 +90,48 @@ Future<pw.MemoryImage?> _loadCompanyLogo(String assetPath) async {
 }
 
 pw.Widget _buildDocumentHeader(
-    AppLocalizations l10n,
-    String title, {
-      required pw.MemoryImage? logoImage,
-      required List<Customer> customers,
-    }) {
+  AppLocalizations l10n,
+  String title, {
+  required pw.MemoryImage? logoImage,
+  required List<Customer> customers,
+}) {
   final dateFormatter = DateFormat.yMMMMd(l10n.localeName).add_Hm();
   final now = DateTime.now();
   final customerWidgets = customers.isNotEmpty
       ? customers
-      .map(
-        (customer) => pw.Padding(
-      padding: const pw.EdgeInsets.only(top: 6),
-      child: pw.Column(
-        crossAxisAlignment: pw.CrossAxisAlignment.start,
-        children: [
-          pw.Text(
-            customer.name,
-            style: pw.TextStyle(
-              fontWeight: pw.FontWeight.bold,
-              color: PdfColors.blueGrey900,
+          .map(
+            (customer) => pw.Padding(
+              padding: const pw.EdgeInsets.only(top: 6),
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  pw.Text(
+                    customer.name,
+                    style: pw.TextStyle(
+                      fontWeight: pw.FontWeight.bold,
+                      color: PdfColors.blueGrey900,
+                    ),
+                  ),
+                  if (customer.address.isNotEmpty)
+                    pw.Text(
+                      customer.address,
+                      style: pw.TextStyle(color: PdfColors.blueGrey600),
+                    ),
+                  if (customer.phone.isNotEmpty)
+                    pw.Text(
+                      customer.phone,
+                      style: pw.TextStyle(color: PdfColors.blueGrey600),
+                    ),
+                  if ((customer.email ?? '').isNotEmpty)
+                    pw.Text(
+                      customer.email!,
+                      style: pw.TextStyle(color: PdfColors.blueGrey600),
+                    ),
+                ],
+              ),
             ),
-          ),
-          if (customer.address.isNotEmpty)
-            pw.Text(
-              customer.address,
-              style: pw.TextStyle(color: PdfColors.blueGrey600),
-            ),
-          if (customer.phone.isNotEmpty)
-            pw.Text(
-              customer.phone,
-              style: pw.TextStyle(color: PdfColors.blueGrey600),
-            ),
-          if ((customer.email ?? '').isNotEmpty)
-            pw.Text(
-              customer.email!,
-              style: pw.TextStyle(color: PdfColors.blueGrey600),
-            ),
-        ],
-      ),
-    ),
-  )
-      .toList()
+          )
+          .toList()
       : <pw.Widget>[];
 
   return pw.Column(
@@ -297,7 +297,8 @@ pw.Widget _tableHeaderCell(String text) {
   );
 }
 
-pw.Widget _tableCell(String text, {pw.TextAlign alignment = pw.TextAlign.left}) {
+pw.Widget _tableCell(String text,
+    {pw.TextAlign alignment = pw.TextAlign.left}) {
   return pw.Padding(
     padding: const pw.EdgeInsets.symmetric(vertical: 6, horizontal: 8),
     child: pw.Text(text, textAlign: alignment),
@@ -366,18 +367,17 @@ Future<void> exportGlassResultsPdf({
                   ...chunkRows.map((row) {
                     final letterEntries = row.value.entries.toList()
                       ..sort((a, b) => a.key.compareTo(b.key));
-                    final total = letterEntries
-                        .fold<int>(0, (sum, value) => sum + value.value);
+                    final total = letterEntries.fold<int>(
+                        0, (sum, value) => sum + value.value);
                     final breakdown = letterEntries.isEmpty
                         ? ''
                         : letterEntries
-                        .map((entry) => entry.key.isEmpty
-                        ? '${entry.value}'
-                        : '${entry.key} = ${entry.value}')
-                        .join(', ');
-                    final dimensionText = breakdown.isEmpty
-                        ? row.key
-                        : '${row.key} ($breakdown)';
+                            .map((entry) => entry.key.isEmpty
+                                ? '${entry.value}'
+                                : '${entry.key} = ${entry.value}')
+                            .join(', ');
+                    final dimensionText =
+                        breakdown.isEmpty ? row.key : '${row.key} ($breakdown)';
                     return pw.TableRow(
                       children: [
                         _tableCell(dimensionText),
@@ -489,18 +489,17 @@ Future<void> exportBlindResultsPdf({
                   ...chunkRows.map((row) {
                     final letterEntries = row.value.entries.toList()
                       ..sort((a, b) => a.key.compareTo(b.key));
-                    final total = letterEntries
-                        .fold<int>(0, (sum, value) => sum + value.value);
+                    final total = letterEntries.fold<int>(
+                        0, (sum, value) => sum + value.value);
                     final breakdown = letterEntries.isEmpty
                         ? ''
                         : letterEntries
-                        .map((entry) => entry.key.isEmpty
-                        ? '${entry.value}'
-                        : '${entry.key} = ${entry.value}')
-                        .join(', ');
-                    final dimensionText = breakdown.isEmpty
-                        ? row.key
-                        : '${row.key} ($breakdown)';
+                            .map((entry) => entry.key.isEmpty
+                                ? '${entry.value}'
+                                : '${entry.key} = ${entry.value}')
+                            .join(', ');
+                    final dimensionText =
+                        breakdown.isEmpty ? row.key : '${row.key} ($breakdown)';
                     return pw.TableRow(
                       children: [
                         _tableCell(dimensionText),

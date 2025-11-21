@@ -106,7 +106,9 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
             ? item.price.toString()
             : "");
     final massController = TextEditingController(
-        text: (item is Mechanism || item is Accessory) ? item.mass.toString() : "");
+        text: (item is Mechanism || item is Accessory)
+            ? item.mass.toString()
+            : "");
 
     showDialog(
       context: context,
@@ -125,13 +127,13 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                     ),
                     TextField(
                       controller: priceLController,
-                      decoration:
-                          InputDecoration(labelText: l10n.catalogFieldPriceFrame),
+                      decoration: InputDecoration(
+                          labelText: l10n.catalogFieldPriceFrame),
                     ),
                     TextField(
                       controller: priceZController,
-                      decoration:
-                          InputDecoration(labelText: l10n.catalogFieldPriceSash),
+                      decoration: InputDecoration(
+                          labelText: l10n.catalogFieldPriceSash),
                     ),
                     TextField(
                       controller: priceTController,
@@ -145,8 +147,8 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                     ),
                     TextField(
                       controller: priceLlajsneController,
-                      decoration:
-                          InputDecoration(labelText: l10n.catalogFieldPriceBead),
+                      decoration: InputDecoration(
+                          labelText: l10n.catalogFieldPriceBead),
                     ),
                   ],
                 ),
@@ -235,8 +237,8 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                     ),
                     TextField(
                       controller: sashValueController,
-                      decoration:
-                          InputDecoration(labelText: l10n.catalogFieldSashValue),
+                      decoration: InputDecoration(
+                          labelText: l10n.catalogFieldSashValue),
                     ),
                     TextField(
                       controller: pipeLengthController,
@@ -267,8 +269,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                 if (widget.type == CatalogType.glass)
                   TextField(
                     controller: ugController,
-                    decoration:
-                        InputDecoration(labelText: l10n.catalogFieldUg),
+                    decoration: InputDecoration(labelText: l10n.catalogFieldUg),
                   ),
                 if (widget.type == CatalogType.glass)
                   TextField(
@@ -317,10 +318,10 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
             child: Text(l10n.cancel),
           ),
           ElevatedButton(
-              onPressed: () {
-                if (nameController.text.isEmpty) return;
-                switch (widget.type) {
-                  case CatalogType.profileSet:
+            onPressed: () {
+              if (nameController.text.isEmpty) return;
+              switch (widget.type) {
+                case CatalogType.profileSet:
                   box.putAt(
                       index,
                       ProfileSet(
@@ -364,8 +365,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                             int.tryParse(fixedGlassController.text) ?? 15,
                         sashGlassTakeoff:
                             int.tryParse(sashGlassController.text) ?? 10,
-                        sashValue:
-                            int.tryParse(sashValueController.text) ?? 22,
+                        sashValue: int.tryParse(sashValueController.text) ?? 22,
                       ));
                   break;
                 case CatalogType.glass:
@@ -421,6 +421,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
       ),
     );
   }
+
   void _addItem() {
     final l10n = AppLocalizations.of(context);
     final nameController = TextEditingController();
@@ -471,13 +472,13 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                     ),
                     TextField(
                       controller: priceLController,
-                      decoration:
-                          InputDecoration(labelText: l10n.catalogFieldPriceFrame),
+                      decoration: InputDecoration(
+                          labelText: l10n.catalogFieldPriceFrame),
                     ),
                     TextField(
                       controller: priceZController,
-                      decoration:
-                          InputDecoration(labelText: l10n.catalogFieldPriceSash),
+                      decoration: InputDecoration(
+                          labelText: l10n.catalogFieldPriceSash),
                     ),
                     TextField(
                       controller: priceTController,
@@ -491,8 +492,8 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                     ),
                     TextField(
                       controller: priceLlajsneController,
-                      decoration:
-                          InputDecoration(labelText: l10n.catalogFieldPriceBead),
+                      decoration: InputDecoration(
+                          labelText: l10n.catalogFieldPriceBead),
                     ),
                   ],
                 ),
@@ -581,8 +582,8 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                     ),
                     TextField(
                       controller: sashValueController,
-                      decoration:
-                          InputDecoration(labelText: l10n.catalogFieldSashValue),
+                      decoration: InputDecoration(
+                          labelText: l10n.catalogFieldSashValue),
                     ),
                     TextField(
                       controller: pipeLengthController,
@@ -613,8 +614,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                 if (widget.type == CatalogType.glass)
                   TextField(
                     controller: ugController,
-                    decoration:
-                        InputDecoration(labelText: l10n.catalogFieldUg),
+                    decoration: InputDecoration(labelText: l10n.catalogFieldUg),
                   ),
                 if (widget.type == CatalogType.glass)
                   TextField(
@@ -653,50 +653,43 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
           ),
           ElevatedButton(
             onPressed: () {
-                if (nameController.text.isEmpty) return;
-                switch (widget.type) {
-                  case CatalogType.profileSet:
-                    box.add(ProfileSet(
-                      name: nameController.text,
-                      priceL: double.tryParse(priceLController.text) ?? 0,
-                      priceZ: double.tryParse(priceZController.text) ?? 0,
-                      priceT: double.tryParse(priceTController.text) ?? 0,
-                      priceAdapter:
-                          double.tryParse(priceAdapterController.text) ?? 0,
-                      priceLlajsne:
-                          double.tryParse(priceLlajsneController.text) ?? 0,
-                      pipeLength:
-                          int.tryParse(pipeLengthController.text) ?? 6500,
-                      hekriPipeLength: 6000,
-                      massL: double.tryParse(massLController.text) ?? 0,
-                      massZ: double.tryParse(massZController.text) ?? 0,
-                      massT: double.tryParse(massTController.text) ?? 0,
-                      massAdapter:
-                          double.tryParse(massAdapterController.text) ?? 0,
-                      massLlajsne:
-                          double.tryParse(massLlajsneController.text) ?? 0,
-                      lInnerThickness:
-                          int.tryParse(lInnerController.text) ?? 40,
-                      zInnerThickness:
-                          int.tryParse(zInnerController.text) ?? 40,
-                      tInnerThickness:
-                          int.tryParse(tInnerController.text) ?? 40,
-                      lOuterThickness:
-                          int.tryParse(lOuterController.text) ?? 0,
-                      zOuterThickness:
-                          int.tryParse(zOuterController.text) ?? 0,
-                      tOuterThickness:
-                          int.tryParse(tOuterController.text) ?? 0,
-                      adapterOuterThickness:
-                          int.tryParse(adapterOuterController.text) ?? 0,
-                      uf: double.tryParse(ufController.text),
-                      fixedGlassTakeoff:
-                          int.tryParse(fixedGlassController.text) ?? 15,
-                      sashGlassTakeoff:
-                          int.tryParse(sashGlassController.text) ?? 10,
-                      sashValue: int.tryParse(sashValueController.text) ?? 22,
-                    ));
-                    break;
+              if (nameController.text.isEmpty) return;
+              switch (widget.type) {
+                case CatalogType.profileSet:
+                  box.add(ProfileSet(
+                    name: nameController.text,
+                    priceL: double.tryParse(priceLController.text) ?? 0,
+                    priceZ: double.tryParse(priceZController.text) ?? 0,
+                    priceT: double.tryParse(priceTController.text) ?? 0,
+                    priceAdapter:
+                        double.tryParse(priceAdapterController.text) ?? 0,
+                    priceLlajsne:
+                        double.tryParse(priceLlajsneController.text) ?? 0,
+                    pipeLength: int.tryParse(pipeLengthController.text) ?? 6500,
+                    hekriPipeLength: 6000,
+                    massL: double.tryParse(massLController.text) ?? 0,
+                    massZ: double.tryParse(massZController.text) ?? 0,
+                    massT: double.tryParse(massTController.text) ?? 0,
+                    massAdapter:
+                        double.tryParse(massAdapterController.text) ?? 0,
+                    massLlajsne:
+                        double.tryParse(massLlajsneController.text) ?? 0,
+                    lInnerThickness: int.tryParse(lInnerController.text) ?? 40,
+                    zInnerThickness: int.tryParse(zInnerController.text) ?? 40,
+                    tInnerThickness: int.tryParse(tInnerController.text) ?? 40,
+                    lOuterThickness: int.tryParse(lOuterController.text) ?? 0,
+                    zOuterThickness: int.tryParse(zOuterController.text) ?? 0,
+                    tOuterThickness: int.tryParse(tOuterController.text) ?? 0,
+                    adapterOuterThickness:
+                        int.tryParse(adapterOuterController.text) ?? 0,
+                    uf: double.tryParse(ufController.text),
+                    fixedGlassTakeoff:
+                        int.tryParse(fixedGlassController.text) ?? 15,
+                    sashGlassTakeoff:
+                        int.tryParse(sashGlassController.text) ?? 10,
+                    sashValue: int.tryParse(sashValueController.text) ?? 22,
+                  ));
+                  break;
                 case CatalogType.glass:
                   box.add(Glass(
                     name: nameController.text,
@@ -738,6 +731,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
       ),
     );
   }
+
   String _typeLabel(AppLocalizations l10n) {
     switch (widget.type) {
       case CatalogType.profileSet:

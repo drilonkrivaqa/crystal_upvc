@@ -127,20 +127,16 @@ class _XhamiPageState extends State<XhamiPage> {
         final sashTakeoff = set.sashGlassTakeoff.toDouble();
         final insets = item.sectionInsets(set, r, c);
         if (!item.isFixedAt(r, c)) {
-          final sashW =
-              (w - insets.left - insets.right + sashAdd).clamp(0, w);
-          final sashH =
-              (h - insets.top - insets.bottom + sashAdd).clamp(0, h);
-          final glassW =
-              (sashW - melt - 2 * z - sashTakeoff).clamp(0, sashW);
-          final glassH =
-              (sashH - melt - 2 * z - sashTakeoff).clamp(0, sashH);
+          final sashW = (w - insets.left - insets.right + sashAdd).clamp(0, w);
+          final sashH = (h - insets.top - insets.bottom + sashAdd).clamp(0, h);
+          final glassW = (sashW - melt - 2 * z - sashTakeoff).clamp(0, sashW);
+          final glassH = (sashH - melt - 2 * z - sashTakeoff).clamp(0, sashH);
           sizes.add([glassW.round(), glassH.round()]);
         } else {
-          final glassW = (w - insets.left - insets.right - fixedTakeoff)
-              .clamp(0, w);
-          final glassH = (h - insets.top - insets.bottom - fixedTakeoff)
-              .clamp(0, h);
+          final glassW =
+              (w - insets.left - insets.right - fixedTakeoff).clamp(0, w);
+          final glassH =
+              (h - insets.top - insets.bottom - fixedTakeoff).clamp(0, h);
           sizes.add([glassW.round(), glassH.round()]);
         }
       }
@@ -220,13 +216,12 @@ class _XhamiPageState extends State<XhamiPage> {
                                 ? '${letter.value}'
                                 : '${letter.key} = ${letter.value}')
                             .join(', ');
-                        final total = letterEntries
-                            .fold<int>(0, (sum, value) => sum + value.value);
+                        final total = letterEntries.fold<int>(
+                            0, (sum, value) => sum + value.value);
                         final dimensionText = breakdown.isEmpty
                             ? '${entry.key} mm'
                             : '${entry.key} mm ($breakdown)';
-                        return Text(
-                            '$dimensionText - $total ${l10n.pcs}');
+                        return Text('$dimensionText - $total ${l10n.pcs}');
                       }),
                     ],
                   ),

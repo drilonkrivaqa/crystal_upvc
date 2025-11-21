@@ -141,12 +141,13 @@ class _OfferSelectorContent extends StatelessWidget {
               final filteredIndices = <int>[];
               for (int i = 0; i < offerBox.length; i++) {
                 final offer = offerBox.getAt(i);
-                final customerName = (offer != null &&
-                        offer.customerIndex < customerBox.length)
-                    ? customerBox.getAt(offer.customerIndex)?.name ?? ''
-                    : '';
+                final customerName =
+                    (offer != null && offer.customerIndex < customerBox.length)
+                        ? customerBox.getAt(offer.customerIndex)?.name ?? ''
+                        : '';
                 final label = buildOfferLabel(l10n, customerBox, i, offer);
-                final combinedText = '$label $customerName ${offer?.notes ?? ''}';
+                final combinedText =
+                    '$label $customerName ${offer?.notes ?? ''}';
                 if (query.isEmpty ||
                     combinedText.toLowerCase().contains(query)) {
                   filteredIndices.add(i);
@@ -211,7 +212,8 @@ class _OfferSelectorContent extends StatelessWidget {
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodyMedium
-                                    ?.copyWith(color: Theme.of(context).hintColor),
+                                    ?.copyWith(
+                                        color: Theme.of(context).hintColor),
                               ),
                             )
                           : ListView.separated(
@@ -241,10 +243,10 @@ class _OfferSelectorContent extends StatelessWidget {
                                   title: Text(label),
                                   subtitle: Column(
                                     mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      if (customer != null)
-                                        Text(customer.name),
+                                      if (customer != null) Text(customer.name),
                                       if (offer?.date != null)
                                         Text(offer!.date
                                             .toString()
@@ -254,7 +256,8 @@ class _OfferSelectorContent extends StatelessWidget {
                                   ),
                                 );
                               },
-                              separatorBuilder: (_, __) => const Divider(height: 1),
+                              separatorBuilder: (_, __) =>
+                                  const Divider(height: 1),
                               itemCount: filteredIndices.length,
                             ),
                     ),

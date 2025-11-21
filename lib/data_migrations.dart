@@ -161,6 +161,7 @@ Future<bool> _migrateOffers() async {
       }
       return value;
     }
+
     var maxNumber = 0;
     for (final key in box.keys) {
       final offer = box.get(key);
@@ -176,9 +177,11 @@ Future<bool> _migrateOffers() async {
       bool changed = false;
       final normalizedProfile =
           normalize(offer.defaultProfileSetIndex, profileBox.length);
-      final normalizedGlass = normalize(offer.defaultGlassIndex, glassBox.length);
-      final normalizedBlind =
-          normalize(offer.defaultBlindIndex, blindBox.length, allowNegative: true);
+      final normalizedGlass =
+          normalize(offer.defaultGlassIndex, glassBox.length);
+      final normalizedBlind = normalize(
+          offer.defaultBlindIndex, blindBox.length,
+          allowNegative: true);
       if (normalizedProfile != offer.defaultProfileSetIndex) {
         offer.defaultProfileSetIndex = normalizedProfile;
         changed = true;
@@ -198,8 +201,7 @@ Future<bool> _migrateOffers() async {
         final normalizedVersionGlass =
             normalize(version.defaultGlassIndex, glassBox.length);
         final normalizedVersionBlind = normalize(
-            (version as dynamic).defaultBlindIndex ?? -1,
-            blindBox.length,
+            (version as dynamic).defaultBlindIndex ?? -1, blindBox.length,
             allowNegative: true);
         if (normalizedVersionProfile != version.defaultProfileSetIndex) {
           version.defaultProfileSetIndex = normalizedVersionProfile;

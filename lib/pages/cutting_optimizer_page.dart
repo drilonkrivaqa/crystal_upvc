@@ -101,7 +101,8 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
           final target = piecesMap.putIfAbsent(
               item.profileSetIndex,
               () => {
-                    for (var t in PieceType.values) t: <ProductionPieceDetail>[],
+                    for (var t in PieceType.values)
+                      t: <ProductionPieceDetail>[],
                   });
           itemPieces.forEach((type, list) {
             for (final length in list) {
@@ -212,23 +213,19 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
         }
         final insets = item.sectionInsets(set, r, c);
         if (!item.isFixedAt(r, c)) {
-          final sashW =
-              (w - insets.left - insets.right + sashAdd).clamp(0, w);
-          final sashH =
-              (h - insets.top - insets.bottom + sashAdd).clamp(0, h);
-          map[PieceType.z]!
-              .addAll([sashH.round(), sashH.round(), sashW.round(), sashW.round()]);
+          final sashW = (w - insets.left - insets.right + sashAdd).clamp(0, w);
+          final sashH = (h - insets.top - insets.bottom + sashAdd).clamp(0, h);
+          map[PieceType.z]!.addAll(
+              [sashH.round(), sashH.round(), sashW.round(), sashW.round()]);
           final beadW = (sashW - melt - 2 * z).clamp(0, sashW);
           final beadH = (sashH - melt - 2 * z).clamp(0, sashH);
-          map[PieceType.llajsne]!
-              .addAll([beadH.round(), beadH.round(), beadW.round(), beadW.round()]);
+          map[PieceType.llajsne]!.addAll(
+              [beadH.round(), beadH.round(), beadW.round(), beadW.round()]);
         } else {
-          final beadW =
-              (w - insets.left - insets.right).clamp(0, w);
-          final beadH =
-              (h - insets.top - insets.bottom).clamp(0, h);
-          map[PieceType.llajsne]!
-              .addAll([beadH.round(), beadH.round(), beadW.round(), beadW.round()]);
+          final beadW = (w - insets.left - insets.right).clamp(0, w);
+          final beadH = (h - insets.top - insets.bottom).clamp(0, h);
+          map[PieceType.llajsne]!.addAll(
+              [beadH.round(), beadH.round(), beadW.round(), beadW.round()]);
         }
       }
     }
@@ -249,8 +246,7 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
     } else {
       for (int i = 0; i < item.verticalSections - 1; i++) {
         final type = item.verticalAdapters[i] ? PieceType.adapter : PieceType.t;
-        final len =
-            (effectiveHeight - 2 * l).clamp(0, effectiveHeight).round();
+        final len = (effectiveHeight - 2 * l).clamp(0, effectiveHeight).round();
         map[type]!.add(len);
       }
     }
@@ -289,9 +285,8 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
 
   List<int> _bestSubset(
       List<ProductionPieceDetail> pieces, int capacity, int sawWidth) {
-    final kerf = sawWidth <= 0
-        ? 0
-        : (sawWidth > capacity ? capacity : sawWidth);
+    final kerf =
+        sawWidth <= 0 ? 0 : (sawWidth > capacity ? capacity : sawWidth);
     final capacityWithKerf = kerf > 0 ? capacity + kerf : capacity;
     final reachable = List<bool>.filled(capacityWithKerf + 1, false);
     final parent = List<int?>.filled(capacityWithKerf + 1, null);

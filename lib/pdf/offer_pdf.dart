@@ -101,8 +101,8 @@ Future<void> printOfferPdf({
     final profileCost =
         item.calculateProfileCost(profile, boxHeight: blind?.boxHeight ?? 0) *
             item.quantity;
-    final glassCost = item
-            .calculateGlassCost(profile, glass, boxHeight: blind?.boxHeight ?? 0) *
+    final glassCost = item.calculateGlassCost(profile, glass,
+            boxHeight: blind?.boxHeight ?? 0) *
         item.quantity;
     final blindCost = blind != null
         ? (item.calculateBlindPricingArea() * blind.pricePerM2 * item.quantity)
@@ -130,12 +130,11 @@ Future<void> printOfferPdf({
     itemsFinal += price;
     totalPcs += item.quantity;
 
-    final profileMass = item.calculateProfileMass(profile,
+    final profileMass =
+        item.calculateProfileMass(profile, boxHeight: blind?.boxHeight ?? 0) *
+            item.quantity;
+    final glassMass = item.calculateGlassMass(profile, glass,
             boxHeight: blind?.boxHeight ?? 0) *
-        item.quantity;
-    final glassMass = item
-            .calculateGlassMass(profile, glass,
-                boxHeight: blind?.boxHeight ?? 0) *
         item.quantity;
     final blindMass = blind != null
         ? ((item.width / 1000.0) *
@@ -143,17 +142,12 @@ Future<void> printOfferPdf({
             blind.massPerM2 *
             item.quantity)
         : 0;
-    final mechanismMass = mechanism != null
-        ? mechanism.mass * item.quantity * item.openings
-        : 0;
-    final accessoryMass = accessory != null
-        ? accessory.mass * item.quantity
-        : 0;
-    totalMass += profileMass +
-        glassMass +
-        blindMass +
-        mechanismMass +
-        accessoryMass;
+    final mechanismMass =
+        mechanism != null ? mechanism.mass * item.quantity * item.openings : 0;
+    final accessoryMass =
+        accessory != null ? accessory.mass * item.quantity : 0;
+    totalMass +=
+        profileMass + glassMass + blindMass + mechanismMass + accessoryMass;
 
     totalArea += item.calculateTotalArea() * item.quantity;
   }
@@ -287,10 +281,9 @@ Future<void> printOfferPdf({
           final profileCost = item.calculateProfileCost(profile,
                   boxHeight: blind?.boxHeight ?? 0) *
               item.quantity;
-          final glassCost =
-              item.calculateGlassCost(profile, glass,
-                      boxHeight: blind?.boxHeight ?? 0) *
-                  item.quantity;
+          final glassCost = item.calculateGlassCost(profile, glass,
+                  boxHeight: blind?.boxHeight ?? 0) *
+              item.quantity;
           final blindCost = blind != null
               ? (item.calculateBlindPricingArea() *
                   blind.pricePerM2 *
@@ -307,9 +300,8 @@ Future<void> printOfferPdf({
           final profileMass = item.calculateProfileMass(profile,
                   boxHeight: blind?.boxHeight ?? 0) *
               item.quantity;
-          final glassMass = item
-                  .calculateGlassMass(profile, glass,
-                      boxHeight: blind?.boxHeight ?? 0) *
+          final glassMass = item.calculateGlassMass(profile, glass,
+                  boxHeight: blind?.boxHeight ?? 0) *
               item.quantity;
           final blindMass = blind != null
               ? ((item.width / 1000.0) *
@@ -320,16 +312,15 @@ Future<void> printOfferPdf({
           final mechanismMass = mechanism != null
               ? mechanism.mass * item.quantity * item.openings
               : 0;
-          final accessoryMass = accessory != null
-              ? accessory.mass * item.quantity
-              : 0;
+          final accessoryMass =
+              accessory != null ? accessory.mass * item.quantity : 0;
           final totalMass = profileMass +
               glassMass +
               blindMass +
               mechanismMass +
               accessoryMass;
-          final uw =
-              item.calculateUw(profile, glass, boxHeight: blind?.boxHeight ?? 0);
+          final uw = item.calculateUw(profile, glass,
+              boxHeight: blind?.boxHeight ?? 0);
 
           double base = profileCost +
               glassCost +
@@ -378,19 +369,19 @@ Future<void> printOfferPdf({
             pw.Text(
                 '${l10n.pdfSections} ${item.horizontalSections}x${item.verticalSections}'),
             pw.Text('${l10n.pdfOpening} ${item.openings}'),
-            pw.Text(
-                item.perRowSectionWidths != null &&
-                        item.perRowSectionWidths!.isNotEmpty
-                    ? '${l10n.pdfWidths} ${item.perRowSectionWidths!.asMap().entries.map((e) => 'R${e.key + 1}: ${e.value.join(', ')}').join(' | ')}'
-                    : '${item.sectionWidths.length > 1 ? l10n.pdfWidths : l10n.pdfWidth} ${item.sectionWidths.join(', ')}'),
+            pw.Text(item.perRowSectionWidths != null &&
+                    item.perRowSectionWidths!.isNotEmpty
+                ? '${l10n.pdfWidths} ${item.perRowSectionWidths!.asMap().entries.map((e) => 'R${e.key + 1}: ${e.value.join(', ')}').join(' | ')}'
+                : '${item.sectionWidths.length > 1 ? l10n.pdfWidths : l10n.pdfWidth} ${item.sectionWidths.join(', ')}'),
             pw.Text(
                 '${item.sectionHeights.length > 1 ? l10n.pdfHeights : l10n.pdfHeight} ${item.sectionHeights.join(', ')}'),
             if (item.verticalSections != 1)
               pw.Text('${l10n.pdfVDiv} $vAdapters'),
             if (item.horizontalSections != 1)
               pw.Text('${l10n.pdfHDiv} $hAdapters'),
-            if(totalMass!=0)
-              pw.Text('${l10n.pdfTotalMass} ${totalMass.toStringAsFixed(2)} kg'),
+            if (totalMass != 0)
+              pw.Text(
+                  '${l10n.pdfTotalMass} ${totalMass.toStringAsFixed(2)} kg'),
             if (profile.uf != null)
               pw.Text('${l10n.pdfUf} ${profile.uf!.toStringAsFixed(2)} W/m²K',
                   style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
@@ -570,8 +561,9 @@ Future<void> printOfferPdf({
               pw.TableRow(children: [
                 pw.Padding(
                     padding: pw.EdgeInsets.all(4),
-                    child: pw.Text(
-                        c.description.isNotEmpty ? c.description : l10n.pdfExtra)),
+                    child: pw.Text(c.description.isNotEmpty
+                        ? c.description
+                        : l10n.pdfExtra)),
                 pw.Padding(
                     padding: pw.EdgeInsets.all(4),
                     child: pw.Text(currency.format(c.amount),
@@ -597,7 +589,8 @@ Future<void> printOfferPdf({
           summaryRows.add(
             pw.TableRow(children: [
               pw.Padding(
-                  padding: pw.EdgeInsets.all(4), child: pw.Text(l10n.pdfDiscountPercent)),
+                  padding: pw.EdgeInsets.all(4),
+                  child: pw.Text(l10n.pdfDiscountPercent)),
               pw.Padding(
                   padding: pw.EdgeInsets.all(4),
                   child: pw.Text(
@@ -669,8 +662,7 @@ Uint8List _resizeImageBytes(Uint8List bytes) {
   if (image == null) return bytes;
 
   const maxDimension = 1400;
-  final needsResize =
-      image.width > maxDimension || image.height > maxDimension;
+  final needsResize = image.width > maxDimension || image.height > maxDimension;
 
   final resized = needsResize
       ? img.copyResize(

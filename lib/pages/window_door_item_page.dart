@@ -68,10 +68,15 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   List<int> sectionHeights = [0];
   List<bool> horizontalAdapters = [];
   List<int> rowVerticalSections = [1];
-  List<List<int>> rowSectionWidths = [<int>[0]];
-  List<List<TextEditingController>> rowSectionWidthCtrls =
-      [<TextEditingController>[]];
-  List<List<bool>> rowFixedSectors = [<bool>[false]];
+  List<List<int>> rowSectionWidths = [
+    <int>[0]
+  ];
+  List<List<TextEditingController>> rowSectionWidthCtrls = [
+    <TextEditingController>[]
+  ];
+  List<List<bool>> rowFixedSectors = [
+    <bool>[false]
+  ];
   List<List<bool>> rowVerticalAdapters = [<bool>[]];
   List<TextEditingController> sectionHeightCtrls = [];
 
@@ -126,8 +131,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
         TextEditingController(text: widget.existingItem?.notes ?? '');
 
     profileSetIndex = _normalizeIndex(
-        widget.existingItem?.profileSetIndex ??
-            widget.defaultProfileSetIndex,
+        widget.existingItem?.profileSetIndex ?? widget.defaultProfileSetIndex,
         profileSetBox.length);
     glassIndex = _normalizeIndex(
         widget.existingItem?.glassIndex ?? widget.defaultGlassIndex,
@@ -155,17 +159,20 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     horizontalAdapters =
         List<bool>.from(existingItem?.horizontalAdapters ?? []);
 
-    final existingFixed = List<bool>.from(existingItem?.fixedSectors ?? <bool>[]);
-    final existingWidths = List<int>.from(existingItem?.sectionWidths ?? <int>[]);
+    final existingFixed =
+        List<bool>.from(existingItem?.fixedSectors ?? <bool>[]);
+    final existingWidths =
+        List<int>.from(existingItem?.sectionWidths ?? <int>[]);
     final existingVerticalAdapters =
         List<bool>.from(existingItem?.verticalAdapters ?? <bool>[]);
 
     if (existingItem != null && existingItem.hasPerRowLayout) {
       rowVerticalSections =
           List<int>.from(existingItem.perRowVerticalSections ?? <int>[]);
-      rowSectionWidths = (existingItem.perRowSectionWidths ?? const <List<int>>[])
-          .map((row) => List<int>.from(row))
-          .toList();
+      rowSectionWidths =
+          (existingItem.perRowSectionWidths ?? const <List<int>>[])
+              .map((row) => List<int>.from(row))
+              .toList();
       rowFixedSectors =
           (existingItem.perRowFixedSectors ?? const <List<bool>>[])
               .map((row) => List<bool>.from(row))
@@ -175,8 +182,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
               .map((row) => List<bool>.from(row))
               .toList();
     } else {
-      rowVerticalSections =
-          List<int>.filled(horizontalSections, verticalSections); // default grid
+      rowVerticalSections = List<int>.filled(
+          horizontalSections, verticalSections); // default grid
       rowSectionWidths = List<List<int>>.generate(horizontalSections, (row) {
         return List<int>.generate(verticalSections,
             (col) => col < existingWidths.length ? existingWidths[col] : 0);
@@ -211,7 +218,10 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
       rowFixedSectors = [List<bool>.filled(verticalSections, false)];
     }
     if (rowVerticalAdapters.isEmpty) {
-      rowVerticalAdapters = [List<bool>.filled(verticalSections > 1 ? verticalSections - 1 : 0, false)];
+      rowVerticalAdapters = [
+        List<bool>.filled(
+            verticalSections > 1 ? verticalSections - 1 : 0, false)
+      ];
     }
 
     rowSectionWidthCtrls = List<List<TextEditingController>>.generate(
@@ -222,8 +232,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                 text: rowSectionWidths[row][col].toString())));
 
     verticalSections = rowVerticalSections.isNotEmpty
-        ? rowVerticalSections.reduce(
-            (value, element) => element > value ? element : value)
+        ? rowVerticalSections
+            .reduce((value, element) => element > value ? element : value)
         : verticalSections;
     verticalController.text = verticalSections.toString();
     _ensureGridSize();
@@ -256,10 +266,12 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                     icon: const Icon(Icons.design_services),
                     onPressed: () async {
                       final widthValue = double.tryParse(widthController.text);
-                      final heightValue = double.tryParse(heightController.text);
+                      final heightValue =
+                          double.tryParse(heightController.text);
                       _ensureGridSize();
-                      final initialCols =
-                          verticalSections < 1 ? 1 : (verticalSections > 8 ? 8 : verticalSections);
+                      final initialCols = verticalSections < 1
+                          ? 1
+                          : (verticalSections > 8 ? 8 : verticalSections);
                       final initialRows = horizontalSections < 1
                           ? 1
                           : (horizontalSections > 8 ? 8 : horizontalSections);
@@ -283,14 +295,17 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                       );
                       final initialRowSizes = List<double>.generate(
                         initialRows,
-                        (index) =>
-                            index < sectionHeights.length ? sectionHeights[index].toDouble() : 0.0,
+                        (index) => index < sectionHeights.length
+                            ? sectionHeights[index].toDouble()
+                            : 0.0,
                       );
                       final designerPage = WindowDoorDesignerPage(
-                        initialWidth:
-                            (widthValue != null && widthValue > 0) ? widthValue : null,
-                        initialHeight:
-                            (heightValue != null && heightValue > 0) ? heightValue : null,
+                        initialWidth: (widthValue != null && widthValue > 0)
+                            ? widthValue
+                            : null,
+                        initialHeight: (heightValue != null && heightValue > 0)
+                            ? heightValue
+                            : null,
                         initialRows: initialRows,
                         initialCols: initialCols,
                         initialShowBlind: blindIndex != null,
@@ -310,8 +325,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                           photoPath = null;
                         });
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                              content: Text(l10n.designImageAttached)),
+                          SnackBar(content: Text(l10n.designImageAttached)),
                         );
                       }
                     },
@@ -346,26 +360,29 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                           ),
                           TextField(
                             controller: quantityController,
-                            decoration: InputDecoration(labelText: l10n.quantity),
+                            decoration:
+                                InputDecoration(labelText: l10n.quantity),
                             keyboardType: TextInputType.number,
                           ),
                           TextField(
                             controller: widthController,
-                            decoration: InputDecoration(labelText: l10n.widthMm),
+                            decoration:
+                                InputDecoration(labelText: l10n.widthMm),
                             keyboardType: TextInputType.number,
                             onChanged: (_) =>
                                 _recalculateAllWidths(showErrors: false),
                           ),
                           TextField(
                             controller: heightController,
-                            decoration: InputDecoration(labelText: l10n.heightMm),
+                            decoration:
+                                InputDecoration(labelText: l10n.heightMm),
                             keyboardType: TextInputType.number,
                             onChanged: (_) => _recalculateHeights(),
                           ),
                           TextField(
                             controller: basePriceController,
-                            decoration:
-                                InputDecoration(labelText: l10n.basePriceOptional),
+                            decoration: InputDecoration(
+                                labelText: l10n.basePriceOptional),
                             keyboardType: TextInputType.number,
                           ),
                           TextField(
@@ -502,7 +519,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                                   ),
                                 ),
                             ],
-                            onChanged: (val) => setState(() => mechanismIndex = val),
+                            onChanged: (val) =>
+                                setState(() => mechanismIndex = val),
                           ),
                           DropdownButtonFormField<int?>(
                             initialValue: blindIndex,
@@ -525,13 +543,14 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                                   ),
                                 ),
                             ],
-                            onChanged: (val) => setState(() => blindIndex = val),
+                            onChanged: (val) =>
+                                setState(() => blindIndex = val),
                           ),
                           DropdownButtonFormField<int?>(
                             initialValue: accessoryIndex,
                             isExpanded: true,
-                            decoration:
-                                InputDecoration(labelText: l10n.accessoryOptional),
+                            decoration: InputDecoration(
+                                labelText: l10n.accessoryOptional),
                             items: [
                               DropdownMenuItem<int?>(
                                   value: null,
@@ -600,8 +619,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                             Navigator.pop(context);
                           }
                         },
-                        child:
-                            Text(widget.existingItem == null ? l10n.add : l10n.save),
+                        child: Text(
+                            widget.existingItem == null ? l10n.add : l10n.save),
                       ),
                     ),
                   ],
@@ -614,8 +633,9 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final bool useTwoColumns = constraints.maxWidth >= 640;
-        final double baseWidth =
-            useTwoColumns ? (constraints.maxWidth - 16) / 2 : constraints.maxWidth;
+        final double baseWidth = useTwoColumns
+            ? (constraints.maxWidth - 16) / 2
+            : constraints.maxWidth;
         final double minWidth = math.min(280, constraints.maxWidth);
         double itemWidth = baseWidth;
         if (itemWidth < minWidth) {
@@ -770,9 +790,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     final quantity = int.tryParse(quantityController.text) ?? 1;
     _ensureGridSize();
     final openings = rowFixedSectors.fold<int>(
-        0,
-        (prev, row) =>
-            prev + row.where((isFixed) => !isFixed).length);
+        0, (prev, row) => prev + row.where((isFixed) => !isFixed).length);
     final mPrice = double.tryParse(priceController.text);
     final mBasePrice = double.tryParse(basePriceController.text);
 
@@ -784,8 +802,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     }
 
     final maxVertical = rowVerticalSections.isNotEmpty
-        ? rowVerticalSections.reduce((value, element) =>
-            element > value ? element : value)
+        ? rowVerticalSections
+            .reduce((value, element) => element > value ? element : value)
         : verticalSections;
     final flattenedFixed = <bool>[];
     for (final row in rowFixedSectors) {
@@ -838,15 +856,12 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
         extra2Desc: extra2DescController.text,
         notes: notesController.text,
         perRowVerticalSections: List<int>.from(rowVerticalSections),
-        perRowSectionWidths: rowSectionWidths
-            .map((row) => List<int>.from(row))
-            .toList(),
-        perRowFixedSectors: rowFixedSectors
-            .map((row) => List<bool>.from(row))
-            .toList(),
-        perRowVerticalAdapters: rowVerticalAdapters
-            .map((row) => List<bool>.from(row))
-            .toList(),
+        perRowSectionWidths:
+            rowSectionWidths.map((row) => List<int>.from(row)).toList(),
+        perRowFixedSectors:
+            rowFixedSectors.map((row) => List<bool>.from(row)).toList(),
+        perRowVerticalAdapters:
+            rowVerticalAdapters.map((row) => List<bool>.from(row)).toList(),
       ),
     );
     return true;
@@ -928,8 +943,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
       rowVerticalSections.addAll(List<int>.filled(
           horizontalSections - rowVerticalSections.length, verticalSections));
     } else if (rowVerticalSections.length > horizontalSections) {
-      rowVerticalSections =
-          rowVerticalSections.sublist(0, horizontalSections);
+      rowVerticalSections = rowVerticalSections.sublist(0, horizontalSections);
     }
 
     if (rowSectionWidths.length < horizontalSections) {
@@ -977,8 +991,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
       rowVerticalSections[r] = columns;
 
       if (rowSectionWidths[r].length < columns) {
-        rowSectionWidths[r].addAll(
-            List<int>.filled(columns - rowSectionWidths[r].length, 0));
+        rowSectionWidths[r]
+            .addAll(List<int>.filled(columns - rowSectionWidths[r].length, 0));
       } else if (rowSectionWidths[r].length > columns) {
         rowSectionWidths[r] = rowSectionWidths[r].sublist(0, columns);
       }
@@ -986,14 +1000,12 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
       if (rowSectionWidthCtrls[r].length < columns) {
         for (int i = rowSectionWidthCtrls[r].length; i < columns; i++) {
           rowSectionWidthCtrls[r].add(TextEditingController(
-              text: (i < rowSectionWidths[r].length
-                      ? rowSectionWidths[r][i]
-                      : 0)
-                  .toString()));
+              text:
+                  (i < rowSectionWidths[r].length ? rowSectionWidths[r][i] : 0)
+                      .toString()));
         }
       } else if (rowSectionWidthCtrls[r].length > columns) {
-        rowSectionWidthCtrls[r] =
-            rowSectionWidthCtrls[r].sublist(0, columns);
+        rowSectionWidthCtrls[r] = rowSectionWidthCtrls[r].sublist(0, columns);
       }
 
       if (rowFixedSectors[r].length < columns) {
@@ -1056,15 +1068,13 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
           r < rowVerticalSections.length ? rowVerticalSections[r] : cols;
       for (int c = 0; c < rowCount && c < cols; c++) {
         final idx = r * cols + c;
-        if (r < rowFixedSectors.length &&
-            c < rowFixedSectors[r].length) {
+        if (r < rowFixedSectors.length && c < rowFixedSectors[r].length) {
           normalizedFixed[idx] = rowFixedSectors[r][c];
         }
       }
     }
 
-    final openingsCount =
-        normalizedFixed.where((isFixed) => !isFixed).length;
+    final openingsCount = normalizedFixed.where((isFixed) => !isFixed).length;
     final leftColumns = cols ~/ 2;
 
     return List<SashType>.generate(total, (index) {
@@ -1115,7 +1125,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
       remaining = 0;
     }
 
-    final autoWidth = (unspecified + 1) > 0 ? remaining ~/ (unspecified + 1) : 0;
+    final autoWidth =
+        (unspecified + 1) > 0 ? remaining ~/ (unspecified + 1) : 0;
     for (int i = 0; i < columns - 1; i++) {
       final ctrl = rowSectionWidthCtrls[row][i];
       int val = int.tryParse(ctrl.text) ?? 0;
@@ -1269,8 +1280,10 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
       children: [
         for (int r = 0; r < horizontalSections; r++)
           Card(
-            margin: EdgeInsets.only(bottom: r == horizontalSections - 1 ? 12 : 16),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            margin:
+                EdgeInsets.only(bottom: r == horizontalSections - 1 ? 12 : 16),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -1288,12 +1301,15 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                       SizedBox(
                         width: 160,
                         child: DropdownButtonFormField<int>(
-                          value: rowVerticalSections[r].clamp(1, verticalSections),
+                          value:
+                              rowVerticalSections[r].clamp(1, verticalSections),
                           decoration: InputDecoration(
                             labelText: l10n.verticalSections,
                           ),
                           items: [
-                            for (int count = 1; count <= verticalSections; count++)
+                            for (int count = 1;
+                                count <= verticalSections;
+                                count++)
                               DropdownMenuItem<int>(
                                 value: count,
                                 child: Text(count.toString()),
@@ -1351,8 +1367,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                             child: DropdownButtonFormField<bool>(
                               value: rowVerticalAdapters[r][i],
                               decoration: InputDecoration(
-                                labelText:
-                                    '${l10n.verticalDivision} ${i + 1}',
+                                labelText: '${l10n.verticalDivision} ${i + 1}',
                               ),
                               items: [
                                 const DropdownMenuItem(
@@ -1360,8 +1375,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                                 DropdownMenuItem(
                                     value: true, child: Text(l10n.pdfAdapter)),
                               ],
-                              onChanged: (val) => setState(
-                                  () => rowVerticalAdapters[r][i] = val ?? false),
+                              onChanged: (val) => setState(() =>
+                                  rowVerticalAdapters[r][i] = val ?? false),
                             ),
                           ),
                       ],
@@ -1374,7 +1389,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
         if (horizontalSections > 0)
           Card(
             margin: EdgeInsets.only(bottom: horizontalSections > 1 ? 16 : 0),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -1416,7 +1432,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
           ),
         if (horizontalSections > 1)
           Card(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(

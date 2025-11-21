@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../theme/app_background.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../l10n/app_localizations.dart';
+import '../widgets/glass_card.dart';
 
 class WelcomePage extends StatefulWidget {
   final List<String> failedBoxes;
@@ -20,11 +21,13 @@ class WelcomePage extends StatefulWidget {
 class _WelcomePageState extends State<WelcomePage> {
   late Box settingsBox;
   String localeCode = 'sq';
+
   @override
   void initState() {
     super.initState();
     settingsBox = Hive.box('settings');
     localeCode = settingsBox.get('locale', defaultValue: 'sq');
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.failedBoxes.isNotEmpty) {
         final names = widget.failedBoxes.join(', ');
@@ -37,7 +40,8 @@ class _WelcomePageState extends State<WelcomePage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-                'Some data failed to migrate: $names. Please check and recover manually if necessary.'),
+              'Some data failed to migrate: $names. Please check and recover manually if necessary.',
+            ),
           ),
         );
       }
@@ -47,56 +51,139 @@ class _WelcomePageState extends State<WelcomePage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
     return Scaffold(
       body: AppBackground(
         child: SafeArea(
           child: Center(
             child: Padding(
-              padding: const EdgeInsets.all(32),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset(l10n.companyLogoAsset, width: 220)
-                      .animate()
-                      .fadeIn(duration: 600.ms)
-                      .slideY(begin: 0.2),
-                  const SizedBox(height: 24),
-                  DropdownButton<String>(
-                    value: localeCode,
-                    onChanged: (val) {
-                      if (val != null) {
-                        setState(() => localeCode = val);
-                        settingsBox.put('locale', val);
-                      }
-                    },
-                    items: const [
-                      DropdownMenuItem(value: 'sq', child: Text('Shqip')),
-                      DropdownMenuItem(value: 'en', child: Text('English')),
-                      DropdownMenuItem(value: 'de', child: Text('Deutsch')),
-                      DropdownMenuItem(value: 'fr', child: Text('Français')),
-                      DropdownMenuItem(value: 'it', child: Text('Italiano')),
-                    ],
-                  ),
-                  Text(
-                    l10n.welcomeAddress,
-                    textAlign: TextAlign.center,
-                  ),
-                  Text(
-                    l10n.welcomePhones,
-                    textAlign: TextAlign.center,
-                  ),
-                  Text(
-                    l10n.welcomeWebsite,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 32),
-                  ElevatedButton(
-                    onPressed: () =>
-                        Navigator.pushReplacementNamed(context, '/home'),
-                    child: Text(l10n.welcomeEnter),
-                  ).animate().fadeIn(duration: 220.ms, delay: 100.ms),
-                ],
-              ),
+              padding: const EdgeInsets.all(24),
+              child: GlassCard(
+                width: 360,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Top: language selector aligned right
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: localeCode,
+                          icon: Icon(
+                            Icons.language,
+                            size: 20,
+                            color: colors.onSurface.withOpacity(0.75),
+                          ),
+                          style: textTheme.bodyMedium?.copyWith(
+                            color: colors.onSurface.withOpacity(0.9),
+                          ),
+                          onChanged: (val) {
+                            if (val != null) {
+                              setState(() => localeCode = val);
+                              settingsBox.put('locale', val);
+                            }
+                          },
+                          items: const [
+                            DropdownMenuItem(value: 'sq', child: Text('Shqip')),
+                            DropdownMenuItem(
+                                value: 'en', child: Text('English')),
+                            DropdownMenuItem(
+                                value: 'de', child: Text('Deutsch')),
+                            DropdownMenuItem(
+                                value: 'fr', child: Text('Français')),
+                            DropdownMenuItem(
+                                value: 'it', child: Text('Italiano')),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    // Logo in the center
+                    Image.asset(
+                      l10n.companyLogoAsset,
+                      width: 200,
+                    ).animate().fadeIn(duration: 500.ms).slideY(begin: 0.2),
+
+                    const SizedBox(height: 20),
+
+                    // Divider line for a more "finished" look
+                    Divider(
+                      thickness: 0.7,
+                      color: colors.onSurface.withOpacity(0.12),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // Address / phone / website
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          l10n.welcomeAddress,
+                          textAlign: TextAlign.center,
+                          style: textTheme.bodyMedium?.copyWith(
+                            color: colors.onSurface.withOpacity(0.85),
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          l10n.welcomePhones,
+                          textAlign: TextAlign.center,
+                          style: textTheme.bodyMedium?.copyWith(
+                            color: colors.onSurface.withOpacity(0.8),
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          l10n.welcomeWebsite,
+                          textAlign: TextAlign.center,
+                          style: textTheme.bodyMedium?.copyWith(
+                            color: colors.onSurface.withOpacity(0.8),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 26),
+
+                    // Enter button
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () =>
+                            Navigator.pushReplacementNamed(context, '/home'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: colors.surface.withOpacity(0.85),
+                          elevation: 8,
+                          shadowColor: Colors.black26,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                        ),
+                        child: Text(
+                          l10n.welcomeEnter,
+                          style: textTheme.labelLarge?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: colors.primary,
+                            letterSpacing: 0.4,
+                          ),
+                        ),
+                      ),
+                    )
+                        .animate()
+                        .fadeIn(duration: 220.ms, delay: 120.ms)
+                        .slideY(begin: 0.15),
+                  ],
+                ),
+              ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.1),
             ),
           ),
         ),

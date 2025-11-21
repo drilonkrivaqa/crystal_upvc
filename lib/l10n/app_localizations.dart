@@ -20,17 +20,14 @@ class AppLocalizations {
       'productionIron': 'Hekur',
       'productionRegisteredProfiles': 'Profilet e regjistruara',
       'productionSawSettings': 'Cilësimet e sharrës',
-      'productionProfileSawWidth':
-          'Gjerësia e sharrës së profilit (mm)',
-      'productionHekriSawWidth':
-          'Gjerësia e sharrës së hekurit (mm)',
+      'productionProfileSawWidth': 'Gjerësia e sharrës së profilit (mm)',
+      'productionHekriSawWidth': 'Gjerësia e sharrës së hekurit (mm)',
       'productionCutSummary':
           'Nevojiten {needed} m, Tuba: {pipes}, Humbje {waste} m',
       'productionBarDetail':
           'Shufra {index}: {combination} = {total}/{pipeLength}',
       'productionOffsetFrom': 'Offset nga {type} (mm)',
-      'productionOffsetsSummary':
-          'L: {l}mm, Z: {z}mm, T: {t}mm',
+      'productionOffsetsSummary': 'L: {l}mm, Z: {z}mm, T: {t}mm',
       'cuttingPieceFrame': 'Korniza (L)',
       'cuttingPieceSash': 'Krah (Z)',
       'cuttingPieceT': 'T',
@@ -56,8 +53,7 @@ class AppLocalizations {
       'catalogFieldOuterThicknessL': 'Trashësia e jashtme L (mm)',
       'catalogFieldOuterThicknessZ': 'Trashësia e jashtme Z (mm)',
       'catalogFieldOuterThicknessT': 'Trashësia e jashtme T (mm)',
-      'catalogFieldOuterThicknessAdapter':
-          'Trashësia e jashtme Adapter (mm)',
+      'catalogFieldOuterThicknessAdapter': 'Trashësia e jashtme Adapter (mm)',
       'catalogFieldUf': 'Uf (W/m²K)',
       'catalogFieldMassL': 'Masa L kg/m',
       'catalogFieldMassZ': 'Masa Z kg/m',
@@ -135,8 +131,7 @@ class AppLocalizations {
       'searchCustomer': 'Kërko klientin',
       'noResults': 'Nuk ka rezultate',
       'profitPercent': 'Fitimi %',
-      'offerSearchHint':
-          'Kërko sipas emrit të klientit ose numrit të ofertës',
+      'offerSearchHint': 'Kërko sipas emrit të klientit ose numrit të ofertës',
       'deleteOffer': 'Fshij Ofertën',
       'deleteOfferConfirm':
           'A jeni i sigurt që dëshironi ta fshini këtë ofertë?',
@@ -212,17 +207,14 @@ class AppLocalizations {
       'none': 'Asnjë',
       'blindOptional': 'Roleta (Opsional)',
       'accessoryOptional': 'Aksesor (Opsional)',
-      'fillAllRequired':
-          'Ju lutem plotësoni të gjitha të dhënat e kërkuara!',
+      'fillAllRequired': 'Ju lutem plotësoni të gjitha të dhënat e kërkuara!',
       'saveChanges': 'Ruaj ndryshimet?',
       'saveChangesQuestion':
           'Dëshironi t\'i ruani ndryshimet para se të dilni?',
       'no': 'Jo',
       'yes': 'Po',
-      'sectionWidthExceeds':
-          'Gjerësia e sektorit e kalon gjerësinë totale!',
-      'sectionHeightExceeds':
-          'Lartësia e sektorit e kalon lartësinë totale!',
+      'sectionWidthExceeds': 'Gjerësia e sektorit e kalon gjerësinë totale!',
+      'sectionHeightExceeds': 'Lartësia e sektorit e kalon lartësinë totale!',
       'fixed': 'Fikse',
       'openWithSash': 'Me hapje (Me krah)',
       'sectorWidths': 'Gjerësitë e sektorëve (mm)',
@@ -254,8 +246,7 @@ class AppLocalizations {
       'productionBarDetail':
           'Bar {index}: {combination} = {total}/{pipeLength}',
       'productionOffsetFrom': 'Offset from {type} (mm)',
-      'productionOffsetsSummary':
-          'L: {l}mm, Z: {z}mm, T: {t}mm',
+      'productionOffsetsSummary': 'L: {l}mm, Z: {z}mm, T: {t}mm',
       'cuttingPieceFrame': 'Frame (L)',
       'cuttingPieceSash': 'Sash (Z)',
       'cuttingPieceT': 'T',
@@ -281,8 +272,7 @@ class AppLocalizations {
       'catalogFieldOuterThicknessL': 'Outer thickness L (mm)',
       'catalogFieldOuterThicknessZ': 'Outer thickness Z (mm)',
       'catalogFieldOuterThicknessT': 'Outer thickness T (mm)',
-      'catalogFieldOuterThicknessAdapter':
-          'Outer thickness Adapter (mm)',
+      'catalogFieldOuterThicknessAdapter': 'Outer thickness Adapter (mm)',
       'catalogFieldUf': 'Uf (W/m²K)',
       'catalogFieldMassL': 'Mass L kg/m',
       'catalogFieldMassZ': 'Mass Z kg/m',
@@ -410,8 +400,7 @@ class AppLocalizations {
       'bulkAddDialogNamePrefix': 'Name prefix',
       'bulkAddDialogItemsLabel': 'Items (one per line)',
       'bulkAddDialogInvalidLine': 'Could not read: {line}',
-      'bulkAddDialogNoItems':
-          'Please enter at least one valid item first.',
+      'bulkAddDialogNoItems': 'Please enter at least one valid item first.',
       'bulkAddSnackSuccess': '{count} items added.',
       'bulkAddDialogDefaultPrefix': 'Item',
       'editWindowDoor': 'Edit Window/Door',
@@ -473,8 +462,7 @@ class AppLocalizations {
       'productionBarDetail':
           'Stab {index}: {combination} = {total}/{pipeLength}',
       'productionOffsetFrom': 'Versatz von {type} (mm)',
-      'productionOffsetsSummary':
-          'L: {l}mm, Z: {z}mm, T: {t}mm',
+      'productionOffsetsSummary': 'L: {l}mm, Z: {z}mm, T: {t}mm',
       'cuttingPieceFrame': 'Rahmen (L)',
       'cuttingPieceSash': 'Flügel (Z)',
       'cuttingPieceT': 'T',
@@ -500,8 +488,7 @@ class AppLocalizations {
       'catalogFieldOuterThicknessL': 'Außenstärke L (mm)',
       'catalogFieldOuterThicknessZ': 'Außenstärke Z (mm)',
       'catalogFieldOuterThicknessT': 'Außenstärke T (mm)',
-      'catalogFieldOuterThicknessAdapter':
-          'Außenstärke Adapter (mm)',
+      'catalogFieldOuterThicknessAdapter': 'Außenstärke Adapter (mm)',
       'catalogFieldUf': 'Uf (W/m²K)',
       'catalogFieldMassL': 'Masse L kg/m',
       'catalogFieldMassZ': 'Masse Z kg/m',
@@ -642,17 +629,14 @@ class AppLocalizations {
       'none': 'Keiner',
       'blindOptional': 'Rollladen (Optional)',
       'accessoryOptional': 'Zubehör (Optional)',
-      'fillAllRequired':
-          'Bitte füllen Sie alle erforderlichen Felder aus!',
+      'fillAllRequired': 'Bitte füllen Sie alle erforderlichen Felder aus!',
       'saveChanges': 'Änderungen speichern?',
       'saveChangesQuestion':
           'Möchten Sie die Änderungen vor dem Verlassen speichern?',
       'no': 'Nein',
       'yes': 'Ja',
-      'sectionWidthExceeds':
-          'Sektorbreite überschreitet Gesamtbreite!',
-      'sectionHeightExceeds':
-          'Sektorhöhe überschreitet Gesamthöhe!',
+      'sectionWidthExceeds': 'Sektorbreite überschreitet Gesamtbreite!',
+      'sectionHeightExceeds': 'Sektorhöhe überschreitet Gesamthöhe!',
       'fixed': 'Fest',
       'openWithSash': 'Öffnend (mit Flügel)',
       'sectorWidths': 'Sektorbreiten (mm)',
@@ -677,16 +661,14 @@ class AppLocalizations {
       'productionIron': 'Fer',
       'productionRegisteredProfiles': 'Profils enregistrés',
       'productionSawSettings': 'Réglages de scie',
-      'productionProfileSawWidth':
-          'Largeur de scie pour profilés (mm)',
+      'productionProfileSawWidth': 'Largeur de scie pour profilés (mm)',
       'productionHekriSawWidth': 'Largeur de scie pour fer (mm)',
       'productionCutSummary':
           'Nécessaire {needed} m, Tubes : {pipes}, Perte {waste} m',
       'productionBarDetail':
           'Barre {index} : {combination} = {total}/{pipeLength}',
       'productionOffsetFrom': 'Décalage depuis {type} (mm)',
-      'productionOffsetsSummary':
-          'L : {l}mm, Z : {z}mm, T : {t}mm',
+      'productionOffsetsSummary': 'L : {l}mm, Z : {z}mm, T : {t}mm',
       'cuttingPieceFrame': 'Cadre (L)',
       'cuttingPieceSash': 'Ouvrant (Z)',
       'cuttingPieceT': 'T',
@@ -853,8 +835,7 @@ class AppLocalizations {
       'none': 'Aucun',
       'blindOptional': 'Volet roulant (Optionnel)',
       'accessoryOptional': 'Accessoire (Optionnel)',
-      'fillAllRequired':
-          'Veuillez remplir tous les champs requis !',
+      'fillAllRequired': 'Veuillez remplir tous les champs requis !',
       'saveChanges': 'Enregistrer les modifications ?',
       'saveChangesQuestion':
           'Voulez-vous enregistrer les modifications avant de quitter ?',
@@ -895,8 +876,7 @@ class AppLocalizations {
       'productionBarDetail':
           'Barra {index}: {combination} = {total}/{pipeLength}',
       'productionOffsetFrom': 'Offset da {type} (mm)',
-      'productionOffsetsSummary':
-          'L: {l}mm, Z: {z}mm, T: {t}mm',
+      'productionOffsetsSummary': 'L: {l}mm, Z: {z}mm, T: {t}mm',
       'cuttingPieceFrame': 'Telaio (L)',
       'cuttingPieceSash': 'Anta (Z)',
       'cuttingPieceT': 'T',
@@ -922,8 +902,7 @@ class AppLocalizations {
       'catalogFieldOuterThicknessL': 'Spessore esterno L (mm)',
       'catalogFieldOuterThicknessZ': 'Spessore esterno Z (mm)',
       'catalogFieldOuterThicknessT': 'Spessore esterno T (mm)',
-      'catalogFieldOuterThicknessAdapter':
-          'Spessore esterno Adattatore (mm)',
+      'catalogFieldOuterThicknessAdapter': 'Spessore esterno Adattatore (mm)',
       'catalogFieldUf': 'Uf (W/m²K)',
       'catalogFieldMassL': 'Massa L kg/m',
       'catalogFieldMassZ': 'Massa Z kg/m',
@@ -1075,11 +1054,9 @@ class AppLocalizations {
       'none': 'Nessuno',
       'blindOptional': 'Tapparella (Opzionale)',
       'accessoryOptional': 'Accessorio (Opzionale)',
-      'fillAllRequired':
-          'Si prega di compilare tutti i campi richiesti!',
+      'fillAllRequired': 'Si prega di compilare tutti i campi richiesti!',
       'saveChanges': 'Salvare le modifiche?',
-      'saveChangesQuestion':
-          'Vuoi salvare le modifiche prima di uscire?',
+      'saveChangesQuestion': 'Vuoi salvare le modifiche prima di uscire?',
       'no': 'No',
       'yes': 'Sì',
       'sectionWidthExceeds':
@@ -1110,8 +1087,7 @@ class AppLocalizations {
   String get productionTitle => _t('productionTitle');
   String get productionCutting => _t('productionCutting');
   String get productionGlass => _t('productionGlass');
-  String get productionRollerShutter =>
-      _t('productionRollerShutter');
+  String get productionRollerShutter => _t('productionRollerShutter');
   String get productionIron => _t('productionIron');
   String get productionRegisteredProfiles => _t('productionRegisteredProfiles');
   String get productionSawSettings => _t('productionSawSettings');
@@ -1173,37 +1149,26 @@ class AppLocalizations {
   String get catalogFieldPriceFrame => _t('catalogFieldPriceFrame');
   String get catalogFieldPriceSash => _t('catalogFieldPriceSash');
   String get catalogFieldPriceT => _t('catalogFieldPriceT');
-  String get catalogFieldPriceAdapter =>
-      _t('catalogFieldPriceAdapter');
+  String get catalogFieldPriceAdapter => _t('catalogFieldPriceAdapter');
   String get catalogFieldPriceBead => _t('catalogFieldPriceBead');
-  String get catalogFieldOuterThicknessL =>
-      _t('catalogFieldOuterThicknessL');
-  String get catalogFieldOuterThicknessZ =>
-      _t('catalogFieldOuterThicknessZ');
-  String get catalogFieldOuterThicknessT =>
-      _t('catalogFieldOuterThicknessT');
+  String get catalogFieldOuterThicknessL => _t('catalogFieldOuterThicknessL');
+  String get catalogFieldOuterThicknessZ => _t('catalogFieldOuterThicknessZ');
+  String get catalogFieldOuterThicknessT => _t('catalogFieldOuterThicknessT');
   String get catalogFieldOuterThicknessAdapter =>
       _t('catalogFieldOuterThicknessAdapter');
   String get catalogFieldUf => _t('catalogFieldUf');
   String get catalogFieldMassL => _t('catalogFieldMassL');
   String get catalogFieldMassZ => _t('catalogFieldMassZ');
   String get catalogFieldMassT => _t('catalogFieldMassT');
-  String get catalogFieldMassAdapter =>
-      _t('catalogFieldMassAdapter');
+  String get catalogFieldMassAdapter => _t('catalogFieldMassAdapter');
   String get catalogFieldMassBead => _t('catalogFieldMassBead');
-  String get catalogFieldInnerThicknessL =>
-      _t('catalogFieldInnerThicknessL');
-  String get catalogFieldInnerThicknessZ =>
-      _t('catalogFieldInnerThicknessZ');
-  String get catalogFieldInnerThicknessT =>
-      _t('catalogFieldInnerThicknessT');
-  String get catalogFieldFixedGlassLoss =>
-      _t('catalogFieldFixedGlassLoss');
-  String get catalogFieldSashGlassLoss =>
-      _t('catalogFieldSashGlassLoss');
+  String get catalogFieldInnerThicknessL => _t('catalogFieldInnerThicknessL');
+  String get catalogFieldInnerThicknessZ => _t('catalogFieldInnerThicknessZ');
+  String get catalogFieldInnerThicknessT => _t('catalogFieldInnerThicknessT');
+  String get catalogFieldFixedGlassLoss => _t('catalogFieldFixedGlassLoss');
+  String get catalogFieldSashGlassLoss => _t('catalogFieldSashGlassLoss');
   String get catalogFieldSashValue => _t('catalogFieldSashValue');
-  String get catalogFieldProfileLength =>
-      _t('catalogFieldProfileLength');
+  String get catalogFieldProfileLength => _t('catalogFieldProfileLength');
   String get catalogFieldPricePerM2 => _t('catalogFieldPricePerM2');
   String get catalogFieldMassPerM2 => _t('catalogFieldMassPerM2');
   String get catalogFieldUg => _t('catalogFieldUg');
@@ -1290,11 +1255,9 @@ class AppLocalizations {
   String get versionSaved => _t('versionSaved');
   String get versionsEmpty => _t('versionsEmpty');
   String get useVersion => _t('useVersion');
-  String get applyVersionConfirmation =>
-      _t('applyVersionConfirmation');
+  String get applyVersionConfirmation => _t('applyVersionConfirmation');
   String get versionApplied => _t('versionApplied');
-  String get deleteVersionConfirmation =>
-      _t('deleteVersionConfirmation');
+  String get deleteVersionConfirmation => _t('deleteVersionConfirmation');
   String get versionDeleted => _t('versionDeleted');
   String get versionDefaultName => _t('versionDefaultName');
   String get versionCreatedOn => _t('versionCreatedOn');

@@ -136,8 +136,7 @@ class HomePage extends StatelessWidget {
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
-              padding:
-              const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -145,11 +144,10 @@ class HomePage extends StatelessWidget {
                   Align(
                     alignment: Alignment.centerRight,
                     child: ValueListenableBuilder(
-                      valueListenable:
-                      settingsBox.listenable(keys: ['locale']),
+                      valueListenable: settingsBox.listenable(keys: ['locale']),
                       builder: (context, Box box, _) {
                         final code =
-                        box.get('locale', defaultValue: 'sq') as String;
+                            box.get('locale', defaultValue: 'sq') as String;
                         return Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 10,
@@ -169,12 +167,10 @@ class HomePage extends StatelessWidget {
                               icon: Icon(
                                 Icons.language,
                                 size: 20,
-                                color:
-                                colors.onSurface.withOpacity(0.75),
+                                color: colors.onSurface.withOpacity(0.75),
                               ),
                               style: textTheme.bodyMedium?.copyWith(
-                                color:
-                                colors.onSurface.withOpacity(0.9),
+                                color: colors.onSurface.withOpacity(0.9),
                               ),
                               onChanged: (val) {
                                 if (val != null) {
@@ -206,10 +202,7 @@ class HomePage extends StatelessWidget {
                   Image.asset(
                     l10n.companyLogoAsset,
                     width: 220,
-                  )
-                      .animate()
-                      .fadeIn(duration: 450.ms)
-                      .slideY(begin: 0.25),
+                  ).animate().fadeIn(duration: 450.ms).slideY(begin: 0.25),
 
                   const SizedBox(height: 36),
 
@@ -221,16 +214,16 @@ class HomePage extends StatelessWidget {
                     children: items
                         .map(
                           (item) => _FrostedMenuCard(
-                        icon: item.icon,
-                        label: item.label,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => item.page),
-                          );
-                        },
-                      ),
-                    )
+                            icon: item.icon,
+                            label: item.label,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => item.page),
+                              );
+                            },
+                          ),
+                        )
                         .toList(),
                   ),
                 ],
@@ -301,10 +294,7 @@ class _FrostedMenuCard extends StatelessWidget {
           ),
         ],
       ),
-    )
-        .animate()
-        .fadeIn(duration: 500.ms)
-        .slideY(begin: 0.15);
+    ).animate().fadeIn(duration: 500.ms).slideY(begin: 0.15);
   }
 }
 

@@ -166,13 +166,12 @@ class _RoletaPageState extends State<RoletaPage> {
                                 ? '${letter.value}'
                                 : '${letter.key} = ${letter.value}')
                             .join(', ');
-                        final total = letterEntries
-                            .fold<int>(0, (sum, value) => sum + value.value);
+                        final total = letterEntries.fold<int>(
+                            0, (sum, value) => sum + value.value);
                         final dimensionText = breakdown.isEmpty
                             ? '${entry.key} mm'
                             : '${entry.key} mm ($breakdown)';
-                        return Text(
-                            '$dimensionText - $total ${l10n.pcs}');
+                        return Text('$dimensionText - $total ${l10n.pcs}');
                       }),
                     ],
                   ),

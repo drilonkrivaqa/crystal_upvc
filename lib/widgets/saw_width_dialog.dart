@@ -16,8 +16,9 @@ Future<bool?> showSawWidthDialog(
   final profileWidth = showProfileSawWidth
       ? settingsBox.get('profileSawWidth', defaultValue: 0)
       : null;
-  final hekriWidth =
-      showHekriSawWidth ? settingsBox.get('hekriSawWidth', defaultValue: 0) : null;
+  final hekriWidth = showHekriSawWidth
+      ? settingsBox.get('hekriSawWidth', defaultValue: 0)
+      : null;
   final profileController = TextEditingController(
     text: profileWidth != null ? '$profileWidth' : '',
   );
@@ -68,7 +69,8 @@ Future<bool?> showSawWidthDialog(
                 settingsBox.put('profileSawWidth', sanitizedProfile.toInt());
               }
               if (showHekriSawWidth) {
-                final hekriValue = int.tryParse(hekriController.text.trim()) ?? 0;
+                final hekriValue =
+                    int.tryParse(hekriController.text.trim()) ?? 0;
                 final sanitizedHekri = hekriValue.clamp(0, 1000);
                 settingsBox.put('hekriSawWidth', sanitizedHekri.toInt());
               }

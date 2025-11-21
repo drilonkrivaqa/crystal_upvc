@@ -138,10 +138,8 @@ class _HekriProfilesPageState extends State<HekriProfilesPage> {
                       Text(profile.name,
                           style: const TextStyle(fontWeight: FontWeight.bold)),
                       const SizedBox(height: 4),
-                      Text(l10n.productionOffsetsSummary(
-                          profile.hekriOffsetL,
-                          profile.hekriOffsetZ,
-                          profile.hekriOffsetT)),
+                      Text(l10n.productionOffsetsSummary(profile.hekriOffsetL,
+                          profile.hekriOffsetZ, profile.hekriOffsetT)),
                     ],
                   ),
                 );

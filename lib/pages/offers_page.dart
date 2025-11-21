@@ -199,9 +199,11 @@ class _OffersPageState extends State<OffersPage> {
                   results.sort((a, b) {
                     final offerA = box.getAt(a);
                     final offerB = box.getAt(b);
-                    final dateA = offerA?.lastEdited ?? offerA?.date ??
+                    final dateA = offerA?.lastEdited ??
+                        offerA?.date ??
                         DateTime.fromMillisecondsSinceEpoch(0);
-                    final dateB = offerB?.lastEdited ?? offerB?.date ??
+                    final dateB = offerB?.lastEdited ??
+                        offerB?.date ??
                         DateTime.fromMillisecondsSinceEpoch(0);
                     return dateB.compareTo(dateA);
                   });
@@ -237,8 +239,8 @@ class _OffersPageState extends State<OffersPage> {
                                 TextButton(
                                   onPressed: () => Navigator.pop(context, true),
                                   child: Text(l10n.delete,
-                                      style:
-                                          const TextStyle(color: AppColors.delete)),
+                                      style: const TextStyle(
+                                          color: AppColors.delete)),
                                 ),
                               ],
                             ),

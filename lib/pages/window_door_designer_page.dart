@@ -21,18 +21,20 @@ import '../utils/design_image_saver_stub.dart'
 // ---- appearance constants ----------------------------------------------------
 
 // Frame + opening geometry
-const double kFrameStroke = 1;     // thin frame edge stroke
-const double kFrameFace   = 10.0;    // visible PVC frame face (outer to opening)
-const double kRebateLip   = 6.0;     // small inner lip before glass (sash/bead look)
-const double kBlindBoxHeightMm = 200.0; // default blind box height in millimetres
-const double kFallbackWindowHeightMm = 1200.0; // used when real dimensions absent
+const double kFrameStroke = 1; // thin frame edge stroke
+const double kFrameFace = 10.0; // visible PVC frame face (outer to opening)
+const double kRebateLip = 6.0; // small inner lip before glass (sash/bead look)
+const double kBlindBoxHeightMm =
+    200.0; // default blind box height in millimetres
+const double kFallbackWindowHeightMm =
+    1200.0; // used when real dimensions absent
 
 // Lines
 const double kMullionStroke = 2;
-const double kSashStroke    = 3;
+const double kSashStroke = 3;
 
 // Colors
-const Color kLineColor      = Colors.black87;
+const Color kLineColor = Colors.black87;
 
 class _ProfileColorOption {
   final String label;
@@ -67,9 +69,9 @@ const _glassColorOptions = <_SimpleColorOption>[
 ];
 
 // Selection outline
-const Color kSelectOutline  = Color(0xFF1E88E5);   // blue outline
-const double kSelectDash    = 7.0;
-const double kSelectGap     = 5.0;
+const Color kSelectOutline = Color(0xFF1E88E5); // blue outline
+const double kSelectDash = 7.0;
+const double kSelectGap = 5.0;
 
 // -----------------------------------------------------------------------------
 // Model / types
@@ -79,10 +81,10 @@ enum SashType {
   casementLeft,
   casementRight,
   tilt,
-  tiltLeft,       // triangle apex LEFT (opens to the right)
-  tiltRight,      // triangle apex RIGHT (opens to the left)
-  tiltTurnLeft,   // triangles apex TOP + RIGHT
-  tiltTurnRight,  // triangles apex TOP + LEFT
+  tiltLeft, // triangle apex LEFT (opens to the right)
+  tiltRight, // triangle apex RIGHT (opens to the left)
+  tiltTurnLeft, // triangles apex TOP + RIGHT
+  tiltTurnRight, // triangles apex TOP + LEFT
   slidingLeft,
   slidingRight,
   slidingTiltLeft,
@@ -157,8 +159,9 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     _heightController =
         TextEditingController(text: windowHeightMm.toStringAsFixed(0));
     cells = List<SashType>.filled(rows * cols, SashType.fixed, growable: true);
-    cellGlassColors =
-        List<Color>.filled(rows * cols, _glassColorOptions.first.color, growable: true);
+    cellGlassColors = List<Color>.filled(
+        rows * cols, _glassColorOptions.first.color,
+        growable: true);
     profileColor = _profileColorOptions.first;
     blindColor = _blindColorOptions.first;
     _columnSizes = _initialSizes(widget.initialColumnSizes, cols);
@@ -181,9 +184,11 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     setState(() {
       rows = r.clamp(1, 8);
       cols = c.clamp(1, 8);
-      cells = List<SashType>.filled(rows * cols, SashType.fixed, growable: true);
-      cellGlassColors =
-          List<Color>.filled(rows * cols, _glassColorOptions.first.color, growable: true);
+      cells =
+          List<SashType>.filled(rows * cols, SashType.fixed, growable: true);
+      cellGlassColors = List<Color>.filled(
+          rows * cols, _glassColorOptions.first.color,
+          growable: true);
       selectedIndex = null;
       _columnSizes = List<double>.filled(cols, 1.0);
       _rowSizes = List<double>.filled(rows, 1.0);
@@ -218,7 +223,8 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     }
 
     // Hit test inside the opening (frame inset)
-    final outer = Rect.fromLTWH(0, blindHeightPx, size.width, size.height - blindHeightPx);
+    final outer = Rect.fromLTWH(
+        0, blindHeightPx, size.width, size.height - blindHeightPx);
     final opening = outer.deflate(kFrameFace);
 
     if (!opening.contains(localPos)) {
@@ -230,8 +236,10 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     final cellArea = opening.deflate(kRebateLip);
     final columnFractions = _normalizedFractions(_columnSizes, cols);
     final rowFractions = _normalizedFractions(_rowSizes, rows);
-    final c = _hitTestAxis(localPos.dx, cellArea.left, cellArea.width, columnFractions, cols);
-    final r = _hitTestAxis(localPos.dy, cellArea.top, cellArea.height, rowFractions, rows);
+    final c = _hitTestAxis(
+        localPos.dx, cellArea.left, cellArea.width, columnFractions, cols);
+    final r = _hitTestAxis(
+        localPos.dy, cellArea.top, cellArea.height, rowFractions, rows);
     final idx = _xyToIndex(r, c);
 
     setState(() {
@@ -336,7 +344,8 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
       if (bytes == null) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Unable to capture the design preview.')),
+          const SnackBar(
+              content: Text('Unable to capture the design preview.')),
         );
         return;
       }
@@ -401,8 +410,8 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
   }
 
   Future<Uint8List?> _captureDesignBytes() async {
-    final boundary =
-        _repaintKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+    final boundary = _repaintKey.currentContext?.findRenderObject()
+        as RenderRepaintBoundary?;
     if (boundary == null) {
       return null;
     }
@@ -413,8 +422,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
   }
 
   Future<void> _saveDesignToStorage(Uint8List bytes) async {
-    final fileName =
-        'window_door_${DateTime.now().millisecondsSinceEpoch}.png';
+    final fileName = 'window_door_${DateTime.now().millisecondsSinceEpoch}.png';
     try {
       final savedPath = await design_saver.saveDesignImage(bytes, fileName);
       if (!mounted) return;
@@ -428,7 +436,9 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     } on UnsupportedError catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.message ?? 'Saving PNG is not supported on this platform.')),
+        SnackBar(
+            content: Text(
+                e.message ?? 'Saving PNG is not supported on this platform.')),
       );
     } catch (e) {
       if (!mounted) return;
@@ -440,9 +450,11 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
 
   void _reset() {
     setState(() {
-      cells = List<SashType>.filled(rows * cols, SashType.fixed, growable: true);
-      cellGlassColors =
-          List<Color>.filled(rows * cols, _glassColorOptions.first.color, growable: true);
+      cells =
+          List<SashType>.filled(rows * cols, SashType.fixed, growable: true);
+      cellGlassColors = List<Color>.filled(
+          rows * cols, _glassColorOptions.first.color,
+          growable: true);
       selectedIndex = null;
       activeTool = SashType.fixed;
       outsideView = true;
@@ -465,8 +477,14 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
       appBar: AppBar(
         title: const Text('Window/Door Designer'),
         actions: [
-          IconButton(onPressed: _exportPng, tooltip: 'Export PNG', icon: const Icon(Icons.download)),
-          IconButton(onPressed: _reset, tooltip: 'Reset', icon: const Icon(Icons.refresh)),
+          IconButton(
+              onPressed: _exportPng,
+              tooltip: 'Export PNG',
+              icon: const Icon(Icons.download)),
+          IconButton(
+              onPressed: _reset,
+              tooltip: 'Reset',
+              icon: const Icon(Icons.refresh)),
         ],
       ),
       body: SafeArea(
@@ -533,7 +551,8 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
               key: _repaintKey,
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
-                onTapDown: (d) => _onTapCanvas(d.localPosition, constraints.biggest),
+                onTapDown: (d) =>
+                    _onTapCanvas(d.localPosition, constraints.biggest),
                 child: CustomPaint(
                   size: constraints.biggest,
                   painter: _WindowPainter(
@@ -560,8 +579,10 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
   }
 
   Widget _buildControlsPanel(ThemeData theme, {required bool isWide}) {
-    final titleStyle = theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600);
-    final labelStyle = theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600);
+    final titleStyle =
+        theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600);
+    final labelStyle =
+        theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600);
 
     return SingleChildScrollView(
       padding: EdgeInsets.fromLTRB(isWide ? 24 : 16, 16, isWide ? 24 : 16, 24),
@@ -645,14 +666,15 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
                 ? 'Glass colour (select a section)'
                 : 'Glass colour',
             chips: _glassColorOptions.map((opt) {
-              final isSelected =
-                  selectedIndex != null && cellGlassColors[selectedIndex!] == opt.color;
+              final isSelected = selectedIndex != null &&
+                  cellGlassColors[selectedIndex!] == opt.color;
               return ChoiceChip(
                 label: Text(opt.label),
                 avatar: _ColorDot(color: opt.color),
                 selected: isSelected,
                 onSelected: selectedIndex != null
-                    ? (_) => setState(() => cellGlassColors[selectedIndex!] = opt.color)
+                    ? (_) => setState(
+                        () => cellGlassColors[selectedIndex!] = opt.color)
                     : null,
               );
             }).toList(),
@@ -751,7 +773,9 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
   }
 
   double _initialHeightMm(double? providedHeight) {
-    if (providedHeight != null && providedHeight.isFinite && providedHeight > 0) {
+    if (providedHeight != null &&
+        providedHeight.isFinite &&
+        providedHeight > 0) {
       return providedHeight;
     }
     return kFallbackWindowHeightMm;
@@ -817,7 +841,8 @@ class _WindowPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final totalHeightMm = windowHeightMm + (showBlindBox ? kBlindBoxHeightMm : 0);
+    final totalHeightMm =
+        windowHeightMm + (showBlindBox ? kBlindBoxHeightMm : 0);
     final mmToPx = totalHeightMm > 0 ? size.height / totalHeightMm : 0.0;
     final blindHeightPx = showBlindBox ? kBlindBoxHeightMm * mmToPx : 0.0;
 
@@ -865,7 +890,8 @@ class _WindowPainter extends CustomPainter {
     }
 
     // Outer rect (whole widget)
-    final outer = Rect.fromLTWH(0, blindHeightPx, size.width, size.height - blindHeightPx);
+    final outer = Rect.fromLTWH(
+        0, blindHeightPx, size.width, size.height - blindHeightPx);
 
     // 1) Draw PVC frame body
     canvas.drawRect(outer, paintFrameFill);
@@ -924,7 +950,8 @@ class _WindowPainter extends CustomPainter {
 
         // Selection (non-tint dashed outline, toggle-able)
         if (selectedIndex == idx) {
-          _drawDashedRect(canvas, rect.deflate(5), kSelectOutline, kSelectDash, kSelectGap, 2.0);
+          _drawDashedRect(canvas, rect.deflate(5), kSelectOutline, kSelectDash,
+              kSelectGap, 2.0);
         }
 
         // Mirror L/R types when viewing from inside
@@ -939,14 +966,16 @@ class _WindowPainter extends CustomPainter {
     for (int c = 0; c < cols - 1; c++) {
       mullionX += columnWidths[c];
       final x = mullionX;
-      canvas.drawLine(Offset(x, glassArea.top), Offset(x, glassArea.bottom), paintMullion);
+      canvas.drawLine(
+          Offset(x, glassArea.top), Offset(x, glassArea.bottom), paintMullion);
     }
     // horizontals
     double mullionY = glassArea.top;
     for (int r = 0; r < rows - 1; r++) {
       mullionY += rowHeights[r];
       final y = mullionY;
-      canvas.drawLine(Offset(glassArea.left, y), Offset(glassArea.right, y), paintMullion);
+      canvas.drawLine(
+          Offset(glassArea.left, y), Offset(glassArea.right, y), paintMullion);
     }
 
     // 6) Small sash/bead stroke around the whole glass area (a clean inner frame look)
@@ -988,23 +1017,29 @@ class _WindowPainter extends CustomPainter {
   }
 
   // Selection outline helper
-  void _drawDashedRect(Canvas canvas, Rect r, Color color, double dash, double gap, double width) {
+  void _drawDashedRect(Canvas canvas, Rect r, Color color, double dash,
+      double gap, double width) {
     final paint = Paint()
       ..color = color
       ..style = PaintingStyle.stroke
       ..strokeWidth = width;
 
     // Top
-    _dashLine(canvas, Offset(r.left, r.top), Offset(r.right, r.top), paint, dash, gap);
+    _dashLine(canvas, Offset(r.left, r.top), Offset(r.right, r.top), paint,
+        dash, gap);
     // Right
-    _dashLine(canvas, Offset(r.right, r.top), Offset(r.right, r.bottom), paint, dash, gap);
+    _dashLine(canvas, Offset(r.right, r.top), Offset(r.right, r.bottom), paint,
+        dash, gap);
     // Bottom
-    _dashLine(canvas, Offset(r.right, r.bottom), Offset(r.left, r.bottom), paint, dash, gap);
+    _dashLine(canvas, Offset(r.right, r.bottom), Offset(r.left, r.bottom),
+        paint, dash, gap);
     // Left
-    _dashLine(canvas, Offset(r.left, r.bottom), Offset(r.left, r.top), paint, dash, gap);
+    _dashLine(canvas, Offset(r.left, r.bottom), Offset(r.left, r.top), paint,
+        dash, gap);
   }
 
-  void _dashLine(Canvas canvas, Offset a, Offset b, Paint paint, double dash, double gap) {
+  void _dashLine(
+      Canvas canvas, Offset a, Offset b, Paint paint, double dash, double gap) {
     final total = (b - a);
     final length = total.distance;
     final dir = total / length;
@@ -1020,17 +1055,28 @@ class _WindowPainter extends CustomPainter {
   SashType _mirrorForInside(SashType t, bool outside) {
     if (outside) return t;
     switch (t) {
-      case SashType.casementLeft:  return SashType.casementRight;
-      case SashType.casementRight: return SashType.casementLeft;
-      case SashType.tiltLeft:      return SashType.tiltRight;
-      case SashType.tiltRight:     return SashType.tiltLeft;
-      case SashType.tiltTurnLeft:  return SashType.tiltTurnRight;
-      case SashType.tiltTurnRight: return SashType.tiltTurnLeft;
-      case SashType.slidingLeft:   return SashType.slidingRight;
-      case SashType.slidingRight:  return SashType.slidingLeft;
-      case SashType.slidingTiltLeft:  return SashType.slidingTiltRight;
-      case SashType.slidingTiltRight: return SashType.slidingTiltLeft;
-      default: return t;
+      case SashType.casementLeft:
+        return SashType.casementRight;
+      case SashType.casementRight:
+        return SashType.casementLeft;
+      case SashType.tiltLeft:
+        return SashType.tiltRight;
+      case SashType.tiltRight:
+        return SashType.tiltLeft;
+      case SashType.tiltTurnLeft:
+        return SashType.tiltTurnRight;
+      case SashType.tiltTurnRight:
+        return SashType.tiltTurnLeft;
+      case SashType.slidingLeft:
+        return SashType.slidingRight;
+      case SashType.slidingRight:
+        return SashType.slidingLeft;
+      case SashType.slidingTiltLeft:
+        return SashType.slidingTiltRight;
+      case SashType.slidingTiltRight:
+        return SashType.slidingTiltLeft;
+      default:
+        return t;
     }
   }
 
@@ -1055,10 +1101,12 @@ class _WindowPainter extends CustomPainter {
         _drawTiltSide(canvas, r, apexLeft: false, paint: p);
         break;
       case SashType.tiltTurnLeft:
-        _drawTiltTurn(canvas, r, sideApex: _SideApex.right, paint: p); // TOP + RIGHT
+        _drawTiltTurn(canvas, r,
+            sideApex: _SideApex.right, paint: p); // TOP + RIGHT
         break;
       case SashType.tiltTurnRight:
-        _drawTiltTurn(canvas, r, sideApex: _SideApex.left, paint: p);  // TOP + LEFT
+        _drawTiltTurn(canvas, r,
+            sideApex: _SideApex.left, paint: p); // TOP + LEFT
         break;
       case SashType.slidingLeft:
         _drawSliding(canvas, r, toLeft: true, paint: p);
@@ -1081,15 +1129,20 @@ class _WindowPainter extends CustomPainter {
     final tp = TextPainter(
       text: TextSpan(
         text: 'F',
-        style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w900, color: Colors.black),
+        style: TextStyle(
+            fontSize: fontSize,
+            fontWeight: FontWeight.w900,
+            color: Colors.black),
       ),
       textDirection: TextDirection.ltr,
     )..layout();
-    tp.paint(canvas, Offset(r.center.dx - tp.width / 2, r.center.dy - tp.height / 2));
+    tp.paint(canvas,
+        Offset(r.center.dx - tp.width / 2, r.center.dy - tp.height / 2));
   }
 
   // Casement: main diagonal + short legs at handle side
-  void _drawCasement(Canvas canvas, Rect r, {required bool leftHinge, required Paint paint}) {
+  void _drawCasement(Canvas canvas, Rect r,
+      {required bool leftHinge, required Paint paint}) {
     final path = Path();
     if (leftHinge) {
       path.moveTo(r.left, r.top);
@@ -1143,26 +1196,34 @@ class _WindowPainter extends CustomPainter {
   // Tilt&Turn: two clear triangles.
   //   • TT RIGHT => triangles apex at TOP and LEFT
   //   • TT LEFT  => triangles apex at TOP and RIGHT
-  void _drawTiltTurn(Canvas canvas, Rect r, {required _SideApex sideApex, required Paint paint}) {
+  void _drawTiltTurn(Canvas canvas, Rect r,
+      {required _SideApex sideApex, required Paint paint}) {
     // Top triangle
-    canvas.drawLine(Offset(r.center.dx, r.top), Offset(r.left, r.bottom), paint);
-    canvas.drawLine(Offset(r.center.dx, r.top), Offset(r.right, r.bottom), paint);
+    canvas.drawLine(
+        Offset(r.center.dx, r.top), Offset(r.left, r.bottom), paint);
+    canvas.drawLine(
+        Offset(r.center.dx, r.top), Offset(r.right, r.bottom), paint);
     canvas.drawLine(Offset(r.left, r.bottom), Offset(r.right, r.bottom), paint);
 
     // Side triangle
     if (sideApex == _SideApex.left) {
-      canvas.drawLine(Offset(r.left, r.center.dy), Offset(r.right, r.top), paint);
-      canvas.drawLine(Offset(r.left, r.center.dy), Offset(r.right, r.bottom), paint);
+      canvas.drawLine(
+          Offset(r.left, r.center.dy), Offset(r.right, r.top), paint);
+      canvas.drawLine(
+          Offset(r.left, r.center.dy), Offset(r.right, r.bottom), paint);
       canvas.drawLine(Offset(r.right, r.top), Offset(r.right, r.bottom), paint);
     } else {
-      canvas.drawLine(Offset(r.right, r.center.dy), Offset(r.left, r.top), paint);
-      canvas.drawLine(Offset(r.right, r.center.dy), Offset(r.left, r.bottom), paint);
+      canvas.drawLine(
+          Offset(r.right, r.center.dy), Offset(r.left, r.top), paint);
+      canvas.drawLine(
+          Offset(r.right, r.center.dy), Offset(r.left, r.bottom), paint);
       canvas.drawLine(Offset(r.left, r.top), Offset(r.left, r.bottom), paint);
     }
   }
 
   // Sliding: long arrow
-  void _drawSliding(Canvas canvas, Rect r, {required bool toLeft, required Paint paint}) {
+  void _drawSliding(Canvas canvas, Rect r,
+      {required bool toLeft, required Paint paint}) {
     final y = r.center.dy;
     final l = r.left + r.width * 0.12;
     final ri = r.right - r.width * 0.12;
@@ -1256,7 +1317,7 @@ class _ToolPalette extends StatelessWidget {
       _ToolItem('R', SashType.tiltLeft),
       _ToolItem('L', SashType.tiltRight),
       _ToolItem('TTR', SashType.tiltTurnRight), // top + left
-      _ToolItem('TTL', SashType.tiltTurnLeft),  // top + right
+      _ToolItem('TTL', SashType.tiltTurnLeft), // top + right
       _ToolItem('SL', SashType.slidingLeft),
       _ToolItem('SR', SashType.slidingRight),
       _ToolItem('STL', SashType.slidingTiltLeft),
@@ -1426,7 +1487,8 @@ class _NumberField extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextField(
       controller: controller,
-      keyboardType: const TextInputType.numberWithOptions(decimal: false, signed: false),
+      keyboardType:
+          const TextInputType.numberWithOptions(decimal: false, signed: false),
       decoration: InputDecoration(
         labelText: label,
         suffixIcon: _NumberFieldActions(
@@ -1512,7 +1574,10 @@ class _Legend extends StatelessWidget {
   final ThemeData theme;
   final Color frameColor;
   final Color glassColor;
-  const _Legend({required this.theme, required this.frameColor, required this.glassColor});
+  const _Legend(
+      {required this.theme,
+      required this.frameColor,
+      required this.glassColor});
 
   @override
   Widget build(BuildContext context) {

@@ -179,8 +179,7 @@ class ExtraCharge extends HiveObject {
   double amount;
   ExtraCharge({this.description = '', this.amount = 0});
 
-  ExtraCharge copy() =>
-      ExtraCharge(description: description, amount: amount);
+  ExtraCharge copy() => ExtraCharge(description: description, amount: amount);
 }
 
 class SectionInsets {
@@ -224,7 +223,8 @@ class WindowDoorItem extends HiveObject {
   @HiveField(11)
   double? manualPrice; // optional manual override for final price
   @HiveField(25)
-  double? manualBasePrice; // optional manual override for base price (0% profit)
+  double?
+      manualBasePrice; // optional manual override for base price (0% profit)
   @HiveField(12)
   double? extra1Price; // optional extra price 1
   @HiveField(13)
@@ -254,11 +254,13 @@ class WindowDoorItem extends HiveObject {
   @HiveField(26)
   List<int>? perRowVerticalSections; // number of sections per horizontal row
   @HiveField(27)
-  List<List<int>>? perRowSectionWidths; // width of each vertical section per row
+  List<List<int>>?
+      perRowSectionWidths; // width of each vertical section per row
   @HiveField(28)
   List<List<bool>>? perRowFixedSectors; // fixed/open per cell per row
   @HiveField(29)
-  List<List<bool>>? perRowVerticalAdapters; // adapter flags between vertical sections per row
+  List<List<bool>>?
+      perRowVerticalAdapters; // adapter flags between vertical sections per row
 
   WindowDoorItem({
     required this.name,
@@ -336,8 +338,8 @@ class WindowDoorItem extends HiveObject {
       }
       return List<int>.filled(columns, 0);
     }
-    return List<int>.generate(columns,
-        (c) => c < sectionWidths.length ? sectionWidths[c] : 0);
+    return List<int>.generate(
+        columns, (c) => c < sectionWidths.length ? sectionWidths[c] : 0);
   }
 
   List<bool> fixedForRow(int row) {
@@ -464,8 +466,9 @@ class WindowDoorItem extends HiveObject {
     if (source == null) {
       return <List<T>>[];
     }
-    return List<List<T>>.generate(source.length,
-        (i) => List<T>.from(source[i], growable: true), growable: true);
+    return List<List<T>>.generate(
+        source.length, (i) => List<T>.from(source[i], growable: true),
+        growable: true);
   }
 
   WindowDoorItem copy() {
@@ -481,9 +484,7 @@ class WindowDoorItem extends HiveObject {
       accessoryIndex: accessoryIndex,
       openings: openings,
       photoPath: photoPath,
-      photoBytes: photoBytes != null
-          ? Uint8List.fromList(photoBytes!)
-          : null,
+      photoBytes: photoBytes != null ? Uint8List.fromList(photoBytes!) : null,
       manualPrice: manualPrice,
       manualBasePrice: manualBasePrice,
       extra1Price: extra1Price,
@@ -553,22 +554,16 @@ class WindowDoorItem extends HiveObject {
         final h = effectiveHeights[r].toDouble();
         final insets = sectionInsets(set, r, c);
         if (!isFixedAt(r, c)) {
-          final sashW =
-              (w - insets.left - insets.right + sashAdd).clamp(0, w);
-          final sashH =
-              (h - insets.top - insets.bottom + sashAdd).clamp(0, h);
+          final sashW = (w - insets.left - insets.right + sashAdd).clamp(0, w);
+          final sashH = (h - insets.top - insets.bottom + sashAdd).clamp(0, h);
           sashLength += 2 * (sashW + sashH) / 1000.0 * set.priceZ;
           final beadW = (sashW - melt - 2 * z).clamp(0, sashW);
           final beadH = (sashH - melt - 2 * z).clamp(0, sashH);
-          glazingBeadLength +=
-              2 * (beadW + beadH) / 1000.0 * set.priceLlajsne;
+          glazingBeadLength += 2 * (beadW + beadH) / 1000.0 * set.priceLlajsne;
         } else {
-          final beadW =
-              (w - insets.left - insets.right).clamp(0, w);
-          final beadH =
-              (h - insets.top - insets.bottom).clamp(0, h);
-          glazingBeadLength +=
-              2 * (beadW + beadH) / 1000.0 * set.priceLlajsne;
+          final beadW = (w - insets.left - insets.right).clamp(0, w);
+          final beadH = (h - insets.top - insets.bottom).clamp(0, h);
+          glazingBeadLength += 2 * (beadW + beadH) / 1000.0 * set.priceLlajsne;
         }
       }
     }
@@ -634,14 +629,10 @@ class WindowDoorItem extends HiveObject {
         final h = effectiveHeights[r].toDouble();
         final insets = sectionInsets(set, r, c);
         if (!isFixedAt(r, c)) {
-          final sashW =
-              (w - insets.left - insets.right + sashAdd).clamp(0, w);
-          final sashH =
-              (h - insets.top - insets.bottom + sashAdd).clamp(0, h);
-          final glassW =
-              (sashW - melt - 2 * z - sashTakeoff).clamp(0, sashW);
-          final glassH =
-              (sashH - melt - 2 * z - sashTakeoff).clamp(0, sashH);
+          final sashW = (w - insets.left - insets.right + sashAdd).clamp(0, w);
+          final sashH = (h - insets.top - insets.bottom + sashAdd).clamp(0, h);
+          final glassW = (sashW - melt - 2 * z - sashTakeoff).clamp(0, sashW);
+          final glassH = (sashH - melt - 2 * z - sashTakeoff).clamp(0, sashH);
           final area = (glassW / 1000.0) * (glassH / 1000.0);
           total += area * glass.pricePerM2;
         } else {
@@ -685,22 +676,16 @@ class WindowDoorItem extends HiveObject {
         final h = effectiveHeights[r].toDouble();
         final insets = sectionInsets(set, r, c);
         if (!isFixedAt(r, c)) {
-          final sashW =
-              (w - insets.left - insets.right + sashAdd).clamp(0, w);
-          final sashH =
-              (h - insets.top - insets.bottom + sashAdd).clamp(0, h);
+          final sashW = (w - insets.left - insets.right + sashAdd).clamp(0, w);
+          final sashH = (h - insets.top - insets.bottom + sashAdd).clamp(0, h);
           sashLength += 2 * (sashW + sashH) / 1000.0 * set.massZ;
           final beadW = (sashW - melt - 2 * z).clamp(0, sashW);
           final beadH = (sashH - melt - 2 * z).clamp(0, sashH);
-          glazingBeadLength +=
-              2 * (beadW + beadH) / 1000.0 * set.massLlajsne;
+          glazingBeadLength += 2 * (beadW + beadH) / 1000.0 * set.massLlajsne;
         } else {
-          final beadW =
-              (w - insets.left - insets.right).clamp(0, w);
-          final beadH =
-              (h - insets.top - insets.bottom).clamp(0, h);
-          glazingBeadLength +=
-              2 * (beadW + beadH) / 1000.0 * set.massLlajsne;
+          final beadW = (w - insets.left - insets.right).clamp(0, w);
+          final beadH = (h - insets.top - insets.bottom).clamp(0, h);
+          glazingBeadLength += 2 * (beadW + beadH) / 1000.0 * set.massLlajsne;
         }
       }
     }
@@ -766,14 +751,10 @@ class WindowDoorItem extends HiveObject {
         final h = effectiveHeights[r].toDouble();
         final insets = sectionInsets(set, r, c);
         if (!isFixedAt(r, c)) {
-          final sashW =
-              (w - insets.left - insets.right + sashAdd).clamp(0, w);
-          final sashH =
-              (h - insets.top - insets.bottom + sashAdd).clamp(0, h);
-          final glassW =
-              (sashW - melt - 2 * z - sashTakeoff).clamp(0, sashW);
-          final glassH =
-              (sashH - melt - 2 * z - sashTakeoff).clamp(0, sashH);
+          final sashW = (w - insets.left - insets.right + sashAdd).clamp(0, w);
+          final sashH = (h - insets.top - insets.bottom + sashAdd).clamp(0, h);
+          final glassW = (sashW - melt - 2 * z - sashTakeoff).clamp(0, sashW);
+          final glassH = (sashH - melt - 2 * z - sashTakeoff).clamp(0, sashH);
           final area = (glassW / 1000.0) * (glassH / 1000.0);
           total += area * glass.massPerM2;
         } else {
@@ -814,14 +795,10 @@ class WindowDoorItem extends HiveObject {
         final h = effectiveHeights[r].toDouble();
         final insets = sectionInsets(set, r, c);
         if (!isFixedAt(r, c)) {
-          final sashW =
-              (w - insets.left - insets.right + sashAdd).clamp(0, w);
-          final sashH =
-              (h - insets.top - insets.bottom + sashAdd).clamp(0, h);
-          final glassW =
-              (sashW - melt - 2 * z - sashTakeoff).clamp(0, sashW);
-          final glassH =
-              (sashH - melt - 2 * z - sashTakeoff).clamp(0, sashH);
+          final sashW = (w - insets.left - insets.right + sashAdd).clamp(0, w);
+          final sashH = (h - insets.top - insets.bottom + sashAdd).clamp(0, h);
+          final glassW = (sashW - melt - 2 * z - sashTakeoff).clamp(0, sashW);
+          final glassH = (sashH - melt - 2 * z - sashTakeoff).clamp(0, sashH);
           total += (glassW / 1000.0) * (glassH / 1000.0);
         } else {
           final effectiveW =
@@ -890,12 +867,10 @@ class WindowDoorItem extends HiveObject {
           final sashH =
               (h - insets.top - insets.bottom + sashAdd).clamp(0, h).toDouble();
           sashLen += 2 * (sashW + sashH) / 1000.0;
-          glassW = (sashW - melt - 2 * z - sashTakeoff)
-              .clamp(0, sashW)
-              .toDouble();
-          glassH = (sashH - melt - 2 * z - sashTakeoff)
-              .clamp(0, sashH)
-              .toDouble();
+          glassW =
+              (sashW - melt - 2 * z - sashTakeoff).clamp(0, sashW).toDouble();
+          glassH =
+              (sashH - melt - 2 * z - sashTakeoff).clamp(0, sashH).toDouble();
         } else {
           glassW = (w - insets.left - insets.right - fixedTakeoff)
               .clamp(0, w)
@@ -924,7 +899,8 @@ class WindowDoorItem extends HiveObject {
       }
     } else {
       for (int i = 0; i < verticalSections - 1; i++) {
-        final len = (effectiveHeight - 2 * l).clamp(0, effectiveHeight) / 1000.0;
+        final len =
+            (effectiveHeight - 2 * l).clamp(0, effectiveHeight) / 1000.0;
         if (verticalAdapters[i]) {
           adapterLen += len;
         } else {
@@ -941,11 +917,10 @@ class WindowDoorItem extends HiveObject {
       }
     }
 
-    final af =
-        frameLen * (set.lOuterThickness / 1000.0) +
-            sashLen * (set.zOuterThickness / 1000.0) +
-            adapterLen * (set.adapterOuterThickness / 1000.0) +
-            tLen * (set.tOuterThickness / 1000.0);
+    final af = frameLen * (set.lOuterThickness / 1000.0) +
+        sashLen * (set.zOuterThickness / 1000.0) +
+        adapterLen * (set.adapterOuterThickness / 1000.0) +
+        tLen * (set.tOuterThickness / 1000.0);
 
     final denom = ag + af;
     if (denom == 0) return null;
@@ -1026,8 +1001,7 @@ class Offer extends HiveObject {
     customerIndex = version.customerIndex;
     items = [for (final item in version.items) item.copy()];
     profitPercent = version.profitPercent;
-    extraCharges =
-        [for (final charge in version.extraCharges) charge.copy()];
+    extraCharges = [for (final charge in version.extraCharges) charge.copy()];
     discountPercent = version.discountPercent;
     discountAmount = version.discountAmount;
     notes = version.notes;

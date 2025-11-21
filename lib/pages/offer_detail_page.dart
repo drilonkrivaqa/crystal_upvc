@@ -84,11 +84,11 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
   }
 
   Future<void> _saveDefaultCharacteristics(
-      Offer offer,
-      int? profileIndex,
-      int? glassIndex,
-      int blindIndex,
-      ) async {
+    Offer offer,
+    int? profileIndex,
+    int? glassIndex,
+    int blindIndex,
+  ) async {
     final l10n = AppLocalizations.of(context);
     final profileChanged =
         profileIndex != null && profileIndex != offer.defaultProfileSetIndex;
@@ -156,8 +156,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
   }
 
   Future<List<bool>?> _showApplyDefaultsDialog(
-      Offer offer,
-      ) {
+    Offer offer,
+  ) {
     final l10n = AppLocalizations.of(context);
     return showDialog<List<bool>>(
       context: context,
@@ -179,7 +179,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                         onPressed: () {
                           setStateDialog(() {
                             selection =
-                            List<bool>.filled(offer.items.length, true);
+                                List<bool>.filled(offer.items.length, true);
                           });
                         },
                         child: Text(l10n.selectAll),
@@ -189,7 +189,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                         onPressed: () {
                           setStateDialog(() {
                             selection =
-                            List<bool>.filled(offer.items.length, false);
+                                List<bool>.filled(offer.items.length, false);
                           });
                         },
                         child: Text(l10n.selectNone),
@@ -392,8 +392,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
         : '${l10n.locale.languageCode}_${l10n.locale.countryCode}';
     final formatter = DateFormat.yMMMd(localeCode).add_Hm();
     final versionIndices = List<int>.generate(versions.length, (i) => i)
-      ..sort(
-              (a, b) => versions[b].createdAt.compareTo(versions[a].createdAt));
+      ..sort((a, b) => versions[b].createdAt.compareTo(versions[a].createdAt));
 
     return GlassCard(
       margin: EdgeInsets.zero,
@@ -450,7 +449,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
               final version = versions[index];
               final createdText = formatter.format(version.createdAt);
               final subtitle =
-              l10n.versionCreatedOn.replaceAll('{date}', createdText);
+                  l10n.versionCreatedOn.replaceAll('{date}', createdText);
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: Row(
@@ -518,13 +517,12 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
               value: selected,
               items: List.generate(
                 customerBox.length,
-                    (i) => DropdownMenuItem(
+                (i) => DropdownMenuItem(
                   value: i,
                   child: Text(customerBox.getAt(i)?.name ?? ''),
                 ),
               ),
-              onChanged: (v) =>
-                  setStateDialog(() => selected = v ?? selected),
+              onChanged: (v) => setStateDialog(() => selected = v ?? selected),
             ),
             actions: [
               TextButton(
@@ -551,7 +549,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
   Future<void> _showProfitDialog(Offer offer) async {
     final l10n = AppLocalizations.of(context);
     final controller =
-    TextEditingController(text: offer.profitPercent.toString());
+        TextEditingController(text: offer.profitPercent.toString());
     await showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -660,7 +658,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
         : '${l10n.locale.languageCode}_${l10n.locale.countryCode}';
     final createdText = DateFormat.yMMMd(localeCode).format(offer.date);
     final editedText =
-    DateFormat.yMMMd(localeCode).add_Hm().format(offer.lastEdited);
+        DateFormat.yMMMd(localeCode).add_Hm().format(offer.lastEdited);
 
     return GlassCard(
       margin: EdgeInsets.zero,
@@ -697,17 +695,19 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 ),
                 Flexible(
                   child: Align(
-                    alignment:
-                    isCompact ? Alignment.centerLeft : Alignment.centerRight,
+                    alignment: isCompact
+                        ? Alignment.centerLeft
+                        : Alignment.centerRight,
                     child: Wrap(
                       spacing: 8,
                       runSpacing: 8,
                       alignment:
-                      isCompact ? WrapAlignment.start : WrapAlignment.end,
+                          isCompact ? WrapAlignment.start : WrapAlignment.end,
                       children: [
                         _buildInfoChip('${l10n.pdfDate} $createdText'),
                         _buildInfoChip(
-                          l10n.versionCreatedOn.replaceAll('{date}', editedText),
+                          l10n.versionCreatedOn
+                              .replaceAll('{date}', editedText),
                         ),
                       ],
                     ),
@@ -787,12 +787,12 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
   }
 
   Widget _buildDefaultCharacteristicsCard(
-      Offer offer,
-      int? selectedProfileIndex,
-      int? selectedGlassIndex,
-      int selectedBlindIndex,
-      bool hasPendingDefaultChange,
-      ) {
+    Offer offer,
+    int? selectedProfileIndex,
+    int? selectedGlassIndex,
+    int selectedBlindIndex,
+    bool hasPendingDefaultChange,
+  ) {
     final l10n = AppLocalizations.of(context);
     return GlassCard(
       margin: EdgeInsets.zero,
@@ -822,13 +822,13 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
             onChanged: profileSetBox.isEmpty
                 ? null
                 : (val) {
-              if (val == null) {
-                return;
-              }
-              setState(() {
-                _selectedDefaultProfileSetIndex = val;
-              });
-            },
+                    if (val == null) {
+                      return;
+                    }
+                    setState(() {
+                      _selectedDefaultProfileSetIndex = val;
+                    });
+                  },
           ),
           const SizedBox(height: 12),
           DropdownButtonFormField<int>(
@@ -848,13 +848,13 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
             onChanged: glassBox.isEmpty
                 ? null
                 : (val) {
-              if (val == null) {
-                return;
-              }
-              setState(() {
-                _selectedDefaultGlassIndex = val;
-              });
-            },
+                    if (val == null) {
+                      return;
+                    }
+                    setState(() {
+                      _selectedDefaultGlassIndex = val;
+                    });
+                  },
           ),
           const SizedBox(height: 12),
           DropdownButtonFormField<int>(
@@ -911,8 +911,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
       {bool emphasize = false}) {
     final theme = Theme.of(context);
     final style = emphasize
-        ? theme.textTheme.titleMedium
-        ?.copyWith(fontWeight: FontWeight.bold)
+        ? theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)
         : theme.textTheme.bodyMedium;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
@@ -957,12 +956,12 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
             final accessory = (item.accessoryIndex != null)
                 ? accessoryBox.getAt(item.accessoryIndex!)
                 : null;
-            double profileCost =
-                item.calculateProfileCost(profileSet, boxHeight: blind?.boxHeight ?? 0) *
-                    item.quantity;
-            double glassCost =
-                item.calculateGlassCost(profileSet, glass, boxHeight: blind?.boxHeight ?? 0) *
-                    item.quantity;
+            double profileCost = item.calculateProfileCost(profileSet,
+                    boxHeight: blind?.boxHeight ?? 0) *
+                item.quantity;
+            double glassCost = item.calculateGlassCost(profileSet, glass,
+                    boxHeight: blind?.boxHeight ?? 0) *
+                item.quantity;
             double blindCost = (blind != null)
                 ? (item.calculateBlindPricingArea() *
                     blind.pricePerM2 *
@@ -972,31 +971,37 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 ? mechanism.price * item.quantity * item.openings
                 : 0;
             double accessoryCost =
-            (accessory != null) ? accessory.price * item.quantity : 0;
+                (accessory != null) ? accessory.price * item.quantity : 0;
             double extras =
-                ((item.extra1Price ?? 0) + (item.extra2Price ?? 0)) * item.quantity;
-            double base =
-                profileCost + glassCost + blindCost + mechanismCost + accessoryCost;
-            final profileMass =
-                item.calculateProfileMass(profileSet, boxHeight: blind?.boxHeight ?? 0) *
+                ((item.extra1Price ?? 0) + (item.extra2Price ?? 0)) *
                     item.quantity;
-            final glassMass = item
-                .calculateGlassMass(profileSet, glass,
-                boxHeight: blind?.boxHeight ?? 0) *
+            double base = profileCost +
+                glassCost +
+                blindCost +
+                mechanismCost +
+                accessoryCost;
+            final profileMass = item.calculateProfileMass(profileSet,
+                    boxHeight: blind?.boxHeight ?? 0) *
+                item.quantity;
+            final glassMass = item.calculateGlassMass(profileSet, glass,
+                    boxHeight: blind?.boxHeight ?? 0) *
                 item.quantity;
             final blindMass = (blind != null)
                 ? ((item.width / 1000.0) *
-                (item.height / 1000.0) *
-                blind.massPerM2 *
-                item.quantity)
+                    (item.height / 1000.0) *
+                    blind.massPerM2 *
+                    item.quantity)
                 : 0;
             final mechanismMass = (mechanism != null)
                 ? mechanism.mass * item.quantity * item.openings
                 : 0;
             final accessoryMass =
-            (accessory != null) ? accessory.mass * item.quantity : 0;
-            final itemMass =
-                profileMass + glassMass + blindMass + mechanismMass + accessoryMass;
+                (accessory != null) ? accessory.mass * item.quantity : 0;
+            final itemMass = profileMass +
+                glassMass +
+                blindMass +
+                mechanismMass +
+                accessoryMass;
             final itemArea = item.calculateTotalArea() * item.quantity;
             if (item.manualBasePrice != null) {
               base = item.manualBasePrice!;
@@ -1015,7 +1020,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
             totalArea += itemArea;
           }
           double extrasTotal =
-          offer.extraCharges.fold(0, (p, e) => p + e.amount);
+              offer.extraCharges.fold(0, (p, e) => p + e.amount);
           double baseTotal = itemsBase + extrasTotal;
           double subtotal = itemsFinal + extrasTotal;
           subtotal -= offer.discountAmount;
@@ -1031,17 +1036,16 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: 12),
-              _buildSummaryRow(
-                  l10n.pdfTotalItems, '$totalPcs ${l10n.pcs}'),
+              _buildSummaryRow(l10n.pdfTotalItems, '$totalPcs ${l10n.pcs}'),
               _buildSummaryRow(
                   l10n.pdfTotalMass, '${totalMass.toStringAsFixed(2)} kg'),
               _buildSummaryRow(
                   l10n.pdfTotalArea, '${totalArea.toStringAsFixed(2)} m²'),
               const Divider(height: 32),
-              _buildSummaryRow(l10n.totalWithoutProfit,
-                  '€${baseTotal.toStringAsFixed(2)}'),
+              _buildSummaryRow(
+                  l10n.totalWithoutProfit, '€${baseTotal.toStringAsFixed(2)}'),
               ...offer.extraCharges.map(
-                    (charge) => _buildSummaryRow(
+                (charge) => _buildSummaryRow(
                   charge.description.isNotEmpty
                       ? charge.description
                       : l10n.pdfExtra,
@@ -1085,7 +1089,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
         builder: (context, constraints) {
           final bool isWide = constraints.maxWidth > 600;
           final double fieldWidth =
-          isWide ? (constraints.maxWidth - 16) / 2 : constraints.maxWidth;
+              isWide ? (constraints.maxWidth - 16) / 2 : constraints.maxWidth;
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -1115,7 +1119,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                         child: TextField(
                           controller: descCtl,
                           decoration:
-                          InputDecoration(labelText: l10n.description),
+                              InputDecoration(labelText: l10n.description),
                           onChanged: (v) {
                             charge.description = v;
                             offer.lastEdited = DateTime.now();
@@ -1129,8 +1133,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                         child: TextField(
                           controller: amtCtl,
                           keyboardType: TextInputType.number,
-                          decoration:
-                          InputDecoration(labelText: l10n.amount),
+                          decoration: InputDecoration(labelText: l10n.amount),
                           onChanged: (v) {
                             charge.amount = double.tryParse(v) ?? 0;
                             offer.lastEdited = DateTime.now();
@@ -1184,8 +1187,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                     child: TextField(
                       controller: discountPercentController,
                       keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                          labelText: l10n.pdfDiscountPercent),
+                      decoration:
+                          InputDecoration(labelText: l10n.pdfDiscountPercent),
                       onChanged: (val) {
                         offer.discountPercent = double.tryParse(val) ?? 0;
                         offer.lastEdited = DateTime.now();
@@ -1200,7 +1203,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                       controller: discountAmountController,
                       keyboardType: TextInputType.number,
                       decoration:
-                      InputDecoration(labelText: l10n.pdfDiscountAmount),
+                          InputDecoration(labelText: l10n.pdfDiscountAmount),
                       onChanged: (val) {
                         offer.discountAmount = double.tryParse(val) ?? 0;
                         offer.lastEdited = DateTime.now();
@@ -1264,11 +1267,11 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
     final l10n = AppLocalizations.of(context);
     Offer offer = offerBox.getAt(widget.offerIndex)!;
     final normalizedProfileIndex =
-    _normalizeIndex(offer.defaultProfileSetIndex, profileSetBox.length);
+        _normalizeIndex(offer.defaultProfileSetIndex, profileSetBox.length);
     final normalizedGlassIndex =
-    _normalizeIndex(offer.defaultGlassIndex, glassBox.length);
-    final normalizedBlindIndex =
-    _normalizeIndex(offer.defaultBlindIndex, blindBox.length,
+        _normalizeIndex(offer.defaultGlassIndex, glassBox.length);
+    final normalizedBlindIndex = _normalizeIndex(
+        offer.defaultBlindIndex, blindBox.length,
         allowNegative: true);
     if (normalizedProfileIndex != offer.defaultProfileSetIndex ||
         normalizedGlassIndex != offer.defaultGlassIndex ||
@@ -1281,13 +1284,12 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
         ..save();
     }
     final selectedProfileIndex =
-    _effectiveSelectedProfileIndex(offer, profileSetBox.length);
+        _effectiveSelectedProfileIndex(offer, profileSetBox.length);
     final selectedGlassIndex =
-    _effectiveSelectedGlassIndex(offer, glassBox.length);
+        _effectiveSelectedGlassIndex(offer, glassBox.length);
     final selectedBlindIndex =
-    _effectiveSelectedBlindIndexRaw(offer, blindBox.length);
-    final hasPendingDefaultChange =
-    _hasPendingDefaultChange(
+        _effectiveSelectedBlindIndexRaw(offer, blindBox.length);
+    final hasPendingDefaultChange = _hasPendingDefaultChange(
         offer, selectedProfileIndex, selectedGlassIndex, selectedBlindIndex);
     return Scaffold(
       appBar: AppBar(
@@ -1334,12 +1336,12 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                           glassBox.isNotEmpty ||
                           blindBox.isNotEmpty)
                         _buildDefaultCharacteristicsCard(
-                            offer,
-                            selectedProfileIndex,
-                            selectedGlassIndex,
-                            selectedBlindIndex,
+                          offer,
+                          selectedProfileIndex,
+                          selectedGlassIndex,
+                          selectedBlindIndex,
                           hasPendingDefaultChange,
-                          ),
+                        ),
                     ];
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1378,12 +1380,11 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                     ? (item.calculateBlindPricingArea() * blind.pricePerM2)
                     : 0;
                 double blindCost = blindCostPer * item.quantity;
-                double mechanismCostPer = (mechanism != null)
-                    ? mechanism.price * item.openings
-                    : 0;
+                double mechanismCostPer =
+                    (mechanism != null) ? mechanism.price * item.openings : 0;
                 double mechanismCost = mechanismCostPer * item.quantity;
                 double accessoryCostPer =
-                (accessory != null) ? accessory.price : 0;
+                    (accessory != null) ? accessory.price : 0;
                 double accessoryCost = accessoryCostPer * item.quantity;
                 double extrasPer =
                     (item.extra1Price ?? 0) + (item.extra2Price ?? 0);
@@ -1395,19 +1396,18 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                     boxHeight: blind?.boxHeight ?? 0);
                 double blindMassPer = (blind != null)
                     ? ((item.width / 1000.0) *
-                    (item.height / 1000.0) *
-                    blind.massPerM2)
+                        (item.height / 1000.0) *
+                        blind.massPerM2)
                     : 0;
-                double mechanismMassPer = (mechanism != null)
-                    ? mechanism.mass * item.openings
-                    : 0;
+                double mechanismMassPer =
+                    (mechanism != null) ? mechanism.mass * item.openings : 0;
                 double accessoryMassPer =
-                (accessory != null) ? accessory.mass : 0;
+                    (accessory != null) ? accessory.mass : 0;
                 double totalMass = (profileMassPer +
-                    glassMassPer +
-                    blindMassPer +
-                    mechanismMassPer +
-                    accessoryMassPer) *
+                        glassMassPer +
+                        blindMassPer +
+                        mechanismMassPer +
+                        accessoryMassPer) *
                     item.quantity;
 
                 double basePer = profileCostPer +
@@ -1428,8 +1428,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                   finalPrice = item.manualPrice!;
                   finalPer = finalPrice / item.quantity;
                 } else {
-                  finalPrice =
-                      base * (1 + offer.profitPercent / 100) + extras;
+                  finalPrice = base * (1 + offer.profitPercent / 100) + extras;
                   finalPer = finalPrice / item.quantity;
                 }
                 double profitAmount = finalPrice - total;
@@ -1468,17 +1467,17 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                   if (item.photoPath != null) {
                     return kIsWeb
                         ? Image.network(
-                      item.photoPath!,
-                      width: 72,
-                      height: 72,
-                      fit: BoxFit.contain,
-                    )
+                            item.photoPath!,
+                            width: 72,
+                            height: 72,
+                            fit: BoxFit.contain,
+                          )
                         : Image.file(
-                      File(item.photoPath!),
-                      width: 72,
-                      height: 72,
-                      fit: BoxFit.contain,
-                    );
+                            File(item.photoPath!),
+                            width: 72,
+                            height: 72,
+                            fit: BoxFit.contain,
+                          );
                   }
                   if (item.photoBytes != null) {
                     return Image.memory(
@@ -1493,7 +1492,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
 
                 return GlassCard(
                   margin:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   onTap: () async {
                     await showDialog(
                       context: context,
@@ -1529,11 +1528,9 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                                       setState(() {});
                                     },
                                     defaultProfileSetIndex:
-                                    offer.defaultProfileSetIndex,
-                                    defaultGlassIndex:
-                                    offer.defaultGlassIndex,
-                                    defaultBlindIndex:
-                                    offer.defaultBlindIndex,
+                                        offer.defaultProfileSetIndex,
+                                    defaultGlassIndex: offer.defaultGlassIndex,
+                                    defaultBlindIndex: offer.defaultBlindIndex,
                                   ),
                                 ),
                               );
@@ -1557,7 +1554,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                           builder: (context, constraints) {
                             final isCompact = constraints.maxWidth < 640;
 
-                            Widget buildPriceColumn(CrossAxisAlignment alignment,
+                            Widget buildPriceColumn(
+                                CrossAxisAlignment alignment,
                                 TextAlign textAlign) {
                               return Column(
                                 crossAxisAlignment: alignment,
@@ -1565,7 +1563,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                                   Text(
                                     '€${finalPrice.toStringAsFixed(2)}',
                                     textAlign: textAlign,
-                                    style: theme.textTheme.titleMedium?.copyWith(
+                                    style:
+                                        theme.textTheme.titleMedium?.copyWith(
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -1610,21 +1609,23 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                                   borderRadius: BorderRadius.circular(12),
                                   child: imageWidget,
                                 ),
-                              if (imageWidget != null) const SizedBox(width: 12),
+                              if (imageWidget != null)
+                                const SizedBox(width: 12),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Row(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Expanded(
                                           child: Text(
                                             item.name,
                                             style: theme.textTheme.titleMedium
                                                 ?.copyWith(
-                                                  fontWeight: FontWeight.w600,
-                                                ),
+                                              fontWeight: FontWeight.w600,
+                                            ),
                                           ),
                                         ),
                                         const SizedBox(width: 8),
@@ -1639,7 +1640,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                                           ),
                                           child: Text(
                                             '${item.quantity} ${l10n.pcs}',
-                                            style: theme.textTheme.bodySmall?.copyWith(
+                                            style: theme.textTheme.bodySmall
+                                                ?.copyWith(
                                               color: theme.colorScheme.primary,
                                               fontWeight: FontWeight.w600,
                                             ),
@@ -1700,7 +1702,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: leadingSection,
                                   ),
                                   const SizedBox(height: 12),
@@ -1737,8 +1740,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                           ),
                           child: ExpansionTile(
                             tilePadding: EdgeInsets.zero,
-                            childrenPadding:
-                            const EdgeInsets.only(top: 8.0),
+                            childrenPadding: const EdgeInsets.only(top: 8.0),
                             title: Text(
                               'Details',
                               style: theme.textTheme.bodyMedium
@@ -1829,7 +1831,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
   Future<void> _showBulkAddDialog(Offer offer) async {
     final l10n = AppLocalizations.of(context);
     final prefixController =
-    TextEditingController(text: l10n.bulkAddDialogDefaultPrefix);
+        TextEditingController(text: l10n.bulkAddDialogDefaultPrefix);
     final itemsController = TextEditingController();
     List<WindowDoorItem>? createdItems;
     try {
@@ -1936,11 +1938,11 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                             label: const Text("Paste"),
                             onPressed: () async {
                               final data =
-                              await Clipboard.getData('text/plain');
+                                  await Clipboard.getData('text/plain');
                               if (data?.text != null) {
                                 updateAndRecompute(() {
-                                  itemsController.text =
-                                  (itemsController.text.isEmpty)
+                                  itemsController.text = (itemsController
+                                          .text.isEmpty)
                                       ? data!.text!
                                       : '${itemsController.text.trim()}\n${data!.text!}';
                                 });
@@ -2027,19 +2029,18 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                                 columns: const [
                                   DataColumn(label: Text("No.")),
                                   DataColumn(label: Text("Size")),
-                                  DataColumn(
-                                      label: Text("Sections (V×H)")),
+                                  DataColumn(label: Text("Sections (V×H)")),
                                   DataColumn(label: Text("Pcs")),
                                   DataColumn(label: Text("Name")),
                                 ],
                                 rows: previewRows
                                     .map(
                                       (r) => DataRow(
-                                    cells: r
-                                        .map((c) => DataCell(Text(c)))
-                                        .toList(),
-                                  ),
-                                )
+                                        cells: r
+                                            .map((c) => DataCell(Text(c)))
+                                            .toList(),
+                                      ),
+                                    )
                                     .toList(),
                               ),
                             ),
@@ -2118,22 +2119,20 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
   }
 
   List<WindowDoorItem> _parseBulkItems(
-      Offer offer,
-      String prefix,
-      String input,
-      AppLocalizations l10n,
-      ) {
+    Offer offer,
+    String prefix,
+    String input,
+    AppLocalizations l10n,
+  ) {
     final lines = input.split(RegExp(r'[\r\n]+'));
     final profileIndex = _normalizeIndex(
         _selectedDefaultProfileSetIndex ?? offer.defaultProfileSetIndex,
         profileSetBox.length);
     final glassIndex = _normalizeIndex(
-        _selectedDefaultGlassIndex ?? offer.defaultGlassIndex,
-        glassBox.length);
+        _selectedDefaultGlassIndex ?? offer.defaultGlassIndex, glassBox.length);
     final items = <WindowDoorItem>[];
-    final trimmedPrefix = prefix.trim().isEmpty
-        ? l10n.bulkAddDialogDefaultPrefix
-        : prefix.trim();
+    final trimmedPrefix =
+        prefix.trim().isEmpty ? l10n.bulkAddDialogDefaultPrefix : prefix.trim();
     final startingIndex = offer.items.length;
 
     for (final rawLine in lines) {
@@ -2170,9 +2169,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
       for (final row in rowFixed) {
         flattenedFixed.addAll(row);
       }
-      final rowVerticalAdapters = List<List<bool>>.generate(
-          horizontal,
-              (_) => List<bool>.filled(vertical > 1 ? vertical - 1 : 0, false));
+      final rowVerticalAdapters = List<List<bool>>.generate(horizontal,
+          (_) => List<bool>.filled(vertical > 1 ? vertical - 1 : 0, false));
 
       final itemIndex = startingIndex + items.length + 1;
       final name = '$trimmedPrefix $itemIndex';
@@ -2192,19 +2190,18 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
           sectionWidths: widthSegments,
           sectionHeights: heightSegments,
           verticalAdapters:
-          List<bool>.filled(vertical > 1 ? vertical - 1 : 0, false),
+              List<bool>.filled(vertical > 1 ? vertical - 1 : 0, false),
           horizontalAdapters:
-          List<bool>.filled(horizontal > 1 ? horizontal - 1 : 0, false),
+              List<bool>.filled(horizontal > 1 ? horizontal - 1 : 0, false),
           perRowVerticalSections: List<int>.filled(horizontal, vertical),
           perRowSectionWidths: List<List<int>>.generate(
             horizontal,
-                (_) => List<int>.from(widthSegments),
+            (_) => List<int>.from(widthSegments),
           ),
           perRowFixedSectors:
-          rowFixed.map((row) => List<bool>.from(row)).toList(),
-          perRowVerticalAdapters: rowVerticalAdapters
-              .map((row) => List<bool>.from(row))
-              .toList(),
+              rowFixed.map((row) => List<bool>.from(row)).toList(),
+          perRowVerticalAdapters:
+              rowVerticalAdapters.map((row) => List<bool>.from(row)).toList(),
         ),
       );
     }
@@ -2224,15 +2221,13 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
     final remainder = total % parts;
     return List<int>.generate(
       parts,
-          (index) => base + (index < remainder ? 1 : 0),
+      (index) => base + (index < remainder ? 1 : 0),
     );
   }
 
   List<Widget> _buildDetailSectionWidgets(List<_DetailSection> sections) {
-    final widgets = sections
-        .map(_buildSingleDetailSection)
-        .whereType<Widget>()
-        .toList();
+    final widgets =
+        sections.map(_buildSingleDetailSection).whereType<Widget>().toList();
     final result = <Widget>[];
     for (int i = 0; i < widgets.length; i++) {
       result.add(Padding(
@@ -2244,8 +2239,9 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
   }
 
   Widget? _buildSingleDetailSection(_DetailSection section) {
-    final entries =
-        section.entries.where((entry) => entry.value.trim().isNotEmpty).toList();
+    final entries = section.entries
+        .where((entry) => entry.value.trim().isNotEmpty)
+        .toList();
     if (entries.isEmpty) {
       return null;
     }
@@ -2414,17 +2410,20 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
     ];
     if (blind != null) {
       componentEntries.add(
-        _DetailEntry('Roller shutter', '${blind.name} · €${blindCost.toStringAsFixed(2)}'),
+        _DetailEntry('Roller shutter',
+            '${blind.name} · €${blindCost.toStringAsFixed(2)}'),
       );
     }
     if (mechanism != null) {
       componentEntries.add(
-        _DetailEntry('Mechanism', '${mechanism.name} · €${mechanismCost.toStringAsFixed(2)}'),
+        _DetailEntry('Mechanism',
+            '${mechanism.name} · €${mechanismCost.toStringAsFixed(2)}'),
       );
     }
     if (accessory != null) {
       componentEntries.add(
-        _DetailEntry('Accessory', '${accessory.name} · €${accessoryCost.toStringAsFixed(2)}'),
+        _DetailEntry('Accessory',
+            '${accessory.name} · €${accessoryCost.toStringAsFixed(2)}'),
       );
     }
     if (item.extra1Price != null) {
