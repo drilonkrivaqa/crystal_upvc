@@ -118,6 +118,10 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final settingsBox = Hive.box('settings');
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
     final items = [
       _NavItem(Icons.auto_awesome_motion_outlined, l10n.homeCatalogs,
           const CatalogsPage()),
@@ -132,56 +136,101 @@ class HomePage extends StatelessWidget {
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
+              padding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
+                  // Language selector as a small, clean chip
                   Align(
                     alignment: Alignment.centerRight,
                     child: ValueListenableBuilder(
                       valueListenable:
-                          settingsBox.listenable(keys: ['locale']),
+                      settingsBox.listenable(keys: ['locale']),
                       builder: (context, Box box, _) {
                         final code =
-                            box.get('locale', defaultValue: 'sq') as String;
-                        return DropdownButton<String>(
-                          value: code,
-                          onChanged: (val) {
-                            if (val != null) {
-                              box.put('locale', val);
-                            }
-                          },
-                          items: const [
-                            DropdownMenuItem(value: 'sq', child: Text('Shqip')),
-                            DropdownMenuItem(value: 'en', child: Text('English')),
-                            DropdownMenuItem(value: 'de', child: Text('Deutsch')),
-                            DropdownMenuItem(
-                                value: 'fr', child: Text('Français')),
-                            DropdownMenuItem(value: 'it', child: Text('Italiano')),
-                          ],
+                        box.get('locale', defaultValue: 'sq') as String;
+                        return Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colors.surface.withOpacity(0.55),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: colors.outline.withOpacity(0.3),
+                            ),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: code,
+                              borderRadius: BorderRadius.circular(16),
+                              icon: Icon(
+                                Icons.language,
+                                size: 20,
+                                color:
+                                colors.onSurface.withOpacity(0.75),
+                              ),
+                              style: textTheme.bodyMedium?.copyWith(
+                                color:
+                                colors.onSurface.withOpacity(0.9),
+                              ),
+                              onChanged: (val) {
+                                if (val != null) {
+                                  box.put('locale', val);
+                                }
+                              },
+                              items: const [
+                                DropdownMenuItem(
+                                    value: 'sq', child: Text('Shqip')),
+                                DropdownMenuItem(
+                                    value: 'en', child: Text('English')),
+                                DropdownMenuItem(
+                                    value: 'de', child: Text('Deutsch')),
+                                DropdownMenuItem(
+                                    value: 'fr', child: Text('Français')),
+                                DropdownMenuItem(
+                                    value: 'it', child: Text('Italiano')),
+                              ],
+                            ),
+                          ),
                         );
                       },
                     ),
                   ),
+
+                  const SizedBox(height: 28),
+
+                  // Logo as a clean hero
                   Image.asset(
                     l10n.companyLogoAsset,
-                    width: 200,
-                  ).animate().fadeIn(duration: 500.ms).slideY(begin: 0.3),
-                  const SizedBox(height: 24),
+                    width: 220,
+                  )
+                      .animate()
+                      .fadeIn(duration: 450.ms)
+                      .slideY(begin: 0.25),
+
+                  const SizedBox(height: 36),
+
+                  // Navigation cards
                   Wrap(
-                    spacing: 0,
-                    runSpacing: 0,
+                    spacing: 16,
+                    runSpacing: 16,
                     alignment: WrapAlignment.center,
                     children: items
-                        .map((item) => _FrostedMenuCard(
-                              icon: item.icon,
-                              label: item.label,
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (_) => item.page),
-                                );
-                              },
-                            ))
+                        .map(
+                          (item) => _FrostedMenuCard(
+                        icon: item.icon,
+                        label: item.label,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => item.page),
+                          );
+                        },
+                      ),
+                    )
                         .toList(),
                   ),
                 ],
@@ -207,26 +256,55 @@ class _FrostedMenuCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
     return GlassCard(
-      width: 110,
-      height: 140,
+      width: 150,
+      height: 160,
       padding: const EdgeInsets.all(16),
       onTap: onTap,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 40, color: AppColors.primaryDark),
-          const SizedBox(height: 16),
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  colors.primary.withOpacity(0.18),
+                  AppColors.primaryDark.withOpacity(0.25),
+                ],
+              ),
+            ),
+            child: Icon(
+              icon,
+              size: 26,
+              color: AppColors.primaryDark,
+            ),
+          ),
+          const SizedBox(height: 14),
           Text(
             label,
-            style: const TextStyle(
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: textTheme.bodyMedium?.copyWith(
               fontSize: 14,
               fontWeight: FontWeight.w600,
             ),
           ),
         ],
       ),
-    ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.2);
+    )
+        .animate()
+        .fadeIn(duration: 500.ms)
+        .slideY(begin: 0.15);
   }
 }
 
