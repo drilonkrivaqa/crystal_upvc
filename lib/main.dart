@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'theme/app_background.dart';
 import 'widgets/glass_card.dart';
 import 'theme/app_colors.dart';
@@ -16,6 +17,7 @@ import 'data_migrations.dart';
 import 'l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'firebase_options.dart';
+import 'utils/data_sync_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -58,6 +60,8 @@ void main() async {
   await openBoxSafe<Accessory>('accessories');
   await openBoxSafe<Offer>('offers');
   await openBoxSafe('settings');
+
+  await DataSyncService.initialize(FirebaseFirestore.instance);
 
   final settingsBox = Hive.box('settings');
 

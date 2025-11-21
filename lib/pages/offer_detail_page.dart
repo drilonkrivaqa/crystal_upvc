@@ -3,6 +3,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart';
 import '../models.dart';
+import '../utils/data_sync_service.dart';
 import 'window_door_item_page.dart';
 import '../theme/app_colors.dart';
 import 'dart:io' show File;
@@ -29,6 +30,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
   late Box<Blind> blindBox;
   late Box<Mechanism> mechanismBox;
   late Box<Accessory> accessoryBox;
+  late DataSyncService _dataSyncService;
   late TextEditingController discountPercentController;
   late TextEditingController discountAmountController;
   late TextEditingController notesController;
@@ -1236,13 +1238,14 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
   @override
   void initState() {
     super.initState();
-    offerBox = Hive.box<Offer>('offers');
-    customerBox = Hive.box<Customer>('customers');
-    profileSetBox = Hive.box<ProfileSet>('profileSets');
-    glassBox = Hive.box<Glass>('glasses');
-    blindBox = Hive.box<Blind>('blinds');
-    mechanismBox = Hive.box<Mechanism>('mechanisms');
-    accessoryBox = Hive.box<Accessory>('accessories');
+    _dataSyncService = DataSyncService.instance;
+    offerBox = _dataSyncService.offerBox;
+    customerBox = _dataSyncService.customerBox;
+    profileSetBox = _dataSyncService.profileSetBox;
+    glassBox = _dataSyncService.glassBox;
+    blindBox = _dataSyncService.blindBox;
+    mechanismBox = _dataSyncService.mechanismBox;
+    accessoryBox = _dataSyncService.accessoryBox;
     final offer = offerBox.getAt(widget.offerIndex)!;
     discountPercentController =
         TextEditingController(text: offer.discountPercent.toString());

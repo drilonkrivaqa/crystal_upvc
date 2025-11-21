@@ -7,6 +7,7 @@ import '../theme/app_background.dart';
 import '../utils/offer_label.dart';
 import '../utils/offer_letters.dart';
 import '../utils/production_piece_detail.dart';
+import '../utils/data_sync_service.dart';
 import '../widgets/glass_card.dart';
 import '../widgets/offer_letters_table.dart';
 import '../widgets/offer_multi_select.dart';
@@ -26,6 +27,7 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
   late Box<ProfileSet> profileBox;
   late Box<Customer> customerBox;
   late Box settingsBox;
+  late DataSyncService _dataSyncService;
   final Set<int> selectedOffers = <int>{};
   Map<int, String> offerLetters = <int, String>{};
   Map<int, Map<PieceType, List<List<ProductionPieceDetail>>>>?
@@ -34,9 +36,10 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
   @override
   void initState() {
     super.initState();
-    offerBox = Hive.box<Offer>('offers');
-    profileBox = Hive.box<ProfileSet>('profileSets');
-    customerBox = Hive.box<Customer>('customers');
+    _dataSyncService = DataSyncService.instance;
+    offerBox = _dataSyncService.offerBox;
+    profileBox = _dataSyncService.profileSetBox;
+    customerBox = _dataSyncService.customerBox;
     settingsBox = Hive.box('settings');
   }
 
