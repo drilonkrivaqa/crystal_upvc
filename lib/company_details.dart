@@ -17,6 +17,8 @@ class CompanyInfo {
 }
 
 class CompanyDetails {
+  static const String appPassword = '1234';
+
   static const Map<String, CompanyInfo> _localizedDetails = {
     'sq': CompanyInfo(
       name: 'TONI AL-PVC',
