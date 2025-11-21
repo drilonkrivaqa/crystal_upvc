@@ -133,58 +133,106 @@ class HomePage extends StatelessWidget {
           child: Center(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
-              child: Column(
-                children: [
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: ValueListenableBuilder(
-                      valueListenable:
-                          settingsBox.listenable(keys: ['locale']),
-                      builder: (context, Box box, _) {
-                        final code =
-                            box.get('locale', defaultValue: 'sq') as String;
-                        return DropdownButton<String>(
-                          value: code,
-                          onChanged: (val) {
-                            if (val != null) {
-                              box.put('locale', val);
-                            }
-                          },
-                          items: const [
-                            DropdownMenuItem(value: 'sq', child: Text('Shqip')),
-                            DropdownMenuItem(value: 'en', child: Text('English')),
-                            DropdownMenuItem(value: 'de', child: Text('Deutsch')),
-                            DropdownMenuItem(
-                                value: 'fr', child: Text('Français')),
-                            DropdownMenuItem(value: 'it', child: Text('Italiano')),
-                          ],
-                        );
-                      },
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 900),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: ValueListenableBuilder(
+                        valueListenable:
+                            settingsBox.listenable(keys: ['locale']),
+                        builder: (context, Box box, _) {
+                          final code =
+                              box.get('locale', defaultValue: 'sq') as String;
+                          return Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.75),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: AppColors.primary.withOpacity(0.2),
+                              ),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 6),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.language,
+                                    color: Colors.black54, size: 18),
+                                const SizedBox(width: 8),
+                                DropdownButton<String>(
+                                  value: code,
+                                  underline: const SizedBox.shrink(),
+                                  borderRadius: BorderRadius.circular(14),
+                                  onChanged: (val) {
+                                    if (val != null) {
+                                      box.put('locale', val);
+                                    }
+                                  },
+                                  items: const [
+                                    DropdownMenuItem(
+                                        value: 'sq', child: Text('Shqip')),
+                                    DropdownMenuItem(
+                                        value: 'en', child: Text('English')),
+                                    DropdownMenuItem(
+                                        value: 'de', child: Text('Deutsch')),
+                                    DropdownMenuItem(
+                                        value: 'fr', child: Text('Français')),
+                                    DropdownMenuItem(
+                                        value: 'it', child: Text('Italiano')),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                  ),
-                  Image.asset(
-                    l10n.companyLogoAsset,
-                    width: 200,
-                  ).animate().fadeIn(duration: 500.ms).slideY(begin: 0.3),
-                  const SizedBox(height: 24),
-                  Wrap(
-                    spacing: 0,
-                    runSpacing: 0,
-                    alignment: WrapAlignment.center,
-                    children: items
-                        .map((item) => _FrostedMenuCard(
-                              icon: item.icon,
-                              label: item.label,
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (_) => item.page),
-                                );
-                              },
-                            ))
-                        .toList(),
-                  ),
-                ],
+                    const SizedBox(height: 8),
+                    Image.asset(
+                      l10n.companyLogoAsset,
+                      width: 220,
+                    ).animate().fadeIn(duration: 500.ms).slideY(begin: 0.3),
+                    const SizedBox(height: 20),
+                    Text(
+                      l10n.appTitle,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.primaryDark,
+                          ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      l10n.welcomeWebsite,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            color: AppColors.mutedText,
+                            letterSpacing: 0.2,
+                          ),
+                    ),
+                    const SizedBox(height: 32),
+                    Wrap(
+                      spacing: 18,
+                      runSpacing: 18,
+                      alignment: WrapAlignment.center,
+                      children: items
+                          .map((item) => _FrostedMenuCard(
+                                icon: item.icon,
+                                label: item.label,
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (_) => item.page),
+                                  );
+                                },
+                              ))
+                          .toList(),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -207,21 +255,50 @@ class _FrostedMenuCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return GlassCard(
-      width: 110,
-      height: 140,
-      padding: const EdgeInsets.all(16),
+      width: 140,
+      height: 170,
+      padding: const EdgeInsets.all(18),
       onTap: onTap,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 40, color: AppColors.primaryDark),
-          const SizedBox(height: 16),
+          Container(
+            width: 54,
+            height: 54,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                colors: [AppColors.primary, AppColors.highlight],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.primary.withOpacity(0.25),
+                  blurRadius: 12,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+            ),
+            child: Icon(icon, size: 30, color: Colors.white),
+          ),
+          const SizedBox(height: 18),
           Text(
             label,
             style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            l10n.homeEnter,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 12,
+              color: AppColors.mutedText,
             ),
           ),
         ],
