@@ -29,6 +29,7 @@
   "catalogBlind": "Roleta",
   "catalogMechanism": "Mekanizma",
   "catalogAccessory": "Aksesorë",
+  "catalogShtesa": "Shtesa",
   "catalogAddTitle": "Shto {type}",
   "catalogEditTitle": "Ndrysho {name}",
   "catalogSectionGeneral": "Të përgjithshme",
@@ -109,5 +110,63 @@
   "defaultProfile": "Profili i paracaktuar",
   "defaultGlass": "Xhami i paracaktuar",
   "defaultBlind": "Roleta e paracaktuar",
-  "applyDefaultsMessage": "Zgjidhni cilat dritare/dyer duhet të përdorin profilin, xhamin dhe roletën e re të paracaktuar. Hiqni shenjën nga ato që dëshironi t'i përjashtoni."
+  "applyDefaultsMessage": "Zgjidhni cilat dritare/dyer duhet të përdorin profilin, xhamin dhe roletën e re të paracaktuar. Hiqni shenjën nga ato që dëshironi t'i përjashtoni.",
+  "shtesaTitle": "Shtesa",
+  "shtesaNone": "Pa shtesa",
+  "shtesaOptionLabel": "Shtesa {size} mm ({price} €/m)",
+  "@shtesaOptionLabel": {
+    "placeholders": {
+      "size": {},
+      "price": {}
+    }
+  },
+  "shtesaNoOptions": "Nuk ka shtesa për {profile}.",
+  "@shtesaNoOptions": {
+    "placeholders": {
+      "profile": {}
+    }
+  },
+  "shtesaLeft": "Shtesa majtas (mm)",
+  "shtesaRight": "Shtesa djathtas (mm)",
+  "shtesaTop": "Shtesa sipër (mm)",
+  "shtesaBottom": "Shtesa poshtë (mm)",
+  "shtesaEffectiveSize": "Masa efektive: {width} x {height} mm",
+  "@shtesaEffectiveSize": {
+    "placeholders": {
+      "width": {},
+      "height": {}
+    }
+  },
+  "shtesaLengths": "Gjatësitë e shtesës: vertikale {vertical} mm · horizontale {horizontal} mm",
+  "@shtesaLengths": {
+    "placeholders": {
+      "vertical": {},
+      "horizontal": {}
+    }
+  },
+  "shtesaPageTitle": "Shtesa",
+  "shtesaPageHint": "Prek profilin për të vendosur shtesat sipas trashësisë dhe çmimit për metër.",
+  "shtesaNoProfiles": "Shto fillimisht një profil për të konfiguruar shtesat.",
+  "shtesaEditTitle": "Shtesa për {profile}",
+  "@shtesaEditTitle": {
+    "placeholders": {
+      "profile": {}
+    }
+  },
+  "shtesaAddSize": "Shto madhësi",
+  "shtesaThicknessLabel": "Trashësia (mm)",
+  "shtesaPriceLabel": "Çmimi €/m",
+  "actionCancel": "Anulo",
+  "actionSave": "Ruaj",
+  "pdfShtesaDetails": "Shtesa L:{left} R:{right} T:{top} B:{bottom} -> {width} x {height} mm",
+  "@pdfShtesaDetails": {
+    "placeholders": {
+      "left": {},
+      "right": {},
+      "top": {},
+      "bottom": {},
+      "width": {},
+      "height": {}
+    }
+  }
 }

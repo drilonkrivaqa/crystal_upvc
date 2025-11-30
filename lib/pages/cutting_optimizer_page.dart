@@ -192,11 +192,13 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
       {int boxHeight = 0}) {
     final map = {for (var t in PieceType.values) t: <int>[]};
 
-    final effectiveHeight = (item.height - boxHeight).clamp(0, item.height);
+    final frameWidth = item.frameWidth;
+    final effectiveHeight =
+        (item.frameHeight - boxHeight).clamp(0, item.frameHeight);
 
     // outer frame
     map[PieceType.l]!
-        .addAll([effectiveHeight, effectiveHeight, item.width, item.width]);
+        .addAll([effectiveHeight, effectiveHeight, frameWidth, frameWidth]);
 
     final l = set.lInnerThickness.toDouble();
     final z = set.zInnerThickness.toDouble();
@@ -252,7 +254,7 @@ class _CuttingOptimizerPageState extends State<CuttingOptimizerPage> {
     }
     for (int i = 0; i < item.horizontalSections - 1; i++) {
       final type = item.horizontalAdapters[i] ? PieceType.adapter : PieceType.t;
-      final len = (item.width - 2 * l).clamp(0, item.width).round();
+      final len = (frameWidth - 2 * l).clamp(0, frameWidth).round();
       map[type]!.add(len);
     }
 
