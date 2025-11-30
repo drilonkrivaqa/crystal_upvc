@@ -87,13 +87,14 @@ class ProfileSetAdapter extends TypeAdapter<ProfileSet> {
       zOuterThickness: fields[23] == null ? 0 : fields[23] as int,
       tOuterThickness: fields[24] == null ? 0 : fields[24] as int,
       adapterOuterThickness: fields[25] == null ? 0 : fields[25] as int,
+      shtesaOptions: (fields[27] as Map?)?.cast<int, double>() ?? {},
     );
   }
 
   @override
   void write(BinaryWriter writer, ProfileSet obj) {
     writer
-      ..writeByte(27)
+      ..writeByte(28)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -147,7 +148,9 @@ class ProfileSetAdapter extends TypeAdapter<ProfileSet> {
       ..writeByte(25)
       ..write(obj.adapterOuterThickness)
       ..writeByte(26)
-      ..write(obj.hekriPipeLength);
+      ..write(obj.hekriPipeLength)
+      ..writeByte(27)
+      ..write(obj.shtesaOptions);
   }
 
   @override
@@ -414,13 +417,17 @@ class WindowDoorItemAdapter extends TypeAdapter<WindowDoorItem> {
       perRowVerticalAdapters: (fields[29] as List?)
           ?.map<List<bool>>((dynamic row) => (row as List).cast<bool>())
           .toList(),
+      shtesaLeft: fields[30] == null ? 0 : fields[30] as int,
+      shtesaRight: fields[31] == null ? 0 : fields[31] as int,
+      shtesaTop: fields[32] == null ? 0 : fields[32] as int,
+      shtesaBottom: fields[33] == null ? 0 : fields[33] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, WindowDoorItem obj) {
     writer
-      ..writeByte(30)
+      ..writeByte(34)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -480,7 +487,15 @@ class WindowDoorItemAdapter extends TypeAdapter<WindowDoorItem> {
       ..writeByte(28)
       ..write(obj.perRowFixedSectors)
       ..writeByte(29)
-      ..write(obj.perRowVerticalAdapters);
+      ..write(obj.perRowVerticalAdapters)
+      ..writeByte(30)
+      ..write(obj.shtesaLeft)
+      ..writeByte(31)
+      ..write(obj.shtesaRight)
+      ..writeByte(32)
+      ..write(obj.shtesaTop)
+      ..writeByte(33)
+      ..write(obj.shtesaBottom);
   }
 
   @override

@@ -229,6 +229,31 @@ class AppLocalizations {
       'auto': 'auto',
       'verticalDivision': 'Ndarja Vertikale',
       'horizontalDivision': 'Ndarja Horizontale',
+      'catalogShtesa': 'Shtesa',
+      'shtesaTitle': 'Shtesa',
+      'shtesaNone': 'Pa shtesa',
+      'shtesaOptionLabel': 'Shtesa {size} mm ({price} €/m)',
+      'shtesaNoOptions': 'Nuk ka shtesa për {profile}.',
+      'shtesaLeft': 'Shtesa majtas (mm)',
+      'shtesaRight': 'Shtesa djathtas (mm)',
+      'shtesaTop': 'Shtesa sipër (mm)',
+      'shtesaBottom': 'Shtesa poshtë (mm)',
+      'shtesaEffectiveSize': 'Masa efektive: {width} x {height} mm',
+      'shtesaLengths':
+          'Gjatësitë e shtesës: vertikale {vertical} mm · horizontale {horizontal} mm',
+      'shtesaPageTitle': 'Shtesa',
+      'shtesaPageHint':
+          'Prek profilin për të vendosur shtesat sipas trashësisë dhe çmimit për metër.',
+      'shtesaNoProfiles':
+          'Shto fillimisht një profil për të konfiguruar shtesat.',
+      'shtesaEditTitle': 'Shtesa për {profile}',
+      'shtesaAddSize': 'Shto madhësi',
+      'shtesaThicknessLabel': 'Trashësia (mm)',
+      'shtesaPriceLabel': 'Çmimi €/m',
+      'actionCancel': 'Anulo',
+      'actionSave': 'Ruaj',
+      'pdfShtesaDetails':
+          'Shtesa L:{left} R:{right} T:{top} B:{bottom} -> {width} x {height} mm',
     },
     'en': {
       'homeCatalogs': 'Catalogs',
@@ -448,6 +473,30 @@ class AppLocalizations {
       'auto': 'auto',
       'verticalDivision': 'Vertical division',
       'horizontalDivision': 'Horizontal division',
+      'catalogShtesa': 'Additions (Shtesa)',
+      'shtesaTitle': 'Shtesa',
+      'shtesaNone': 'No shtesa',
+      'shtesaOptionLabel': 'Shtesa {size} mm ({price} €/m)',
+      'shtesaNoOptions': 'No shtesa sizes added for {profile}.',
+      'shtesaLeft': 'Left shtesa (mm)',
+      'shtesaRight': 'Right shtesa (mm)',
+      'shtesaTop': 'Top shtesa (mm)',
+      'shtesaBottom': 'Bottom shtesa (mm)',
+      'shtesaEffectiveSize': 'Effective window size: {width} x {height} mm',
+      'shtesaLengths':
+          'Shtesa lengths: vertical {vertical} mm · horizontal {horizontal} mm',
+      'shtesaPageTitle': 'Shtesa',
+      'shtesaPageHint':
+          'Tap a profile to set shtesa sizes by thickness and price per meter.',
+      'shtesaNoProfiles': 'Add a profile first to configure shtesa.',
+      'shtesaEditTitle': 'Shtesa for {profile}',
+      'shtesaAddSize': 'Add size',
+      'shtesaThicknessLabel': 'Thickness (mm)',
+      'shtesaPriceLabel': 'Price €/m',
+      'actionCancel': 'Cancel',
+      'actionSave': 'Save',
+      'pdfShtesaDetails':
+          'Shtesa L:{left} R:{right} T:{top} B:{bottom} -> {width} x {height} mm',
     },
     'de': {
       'homeCatalogs': 'Preisliste',
@@ -657,6 +706,30 @@ class AppLocalizations {
       'auto': 'auto',
       'verticalDivision': 'Vertikale Teilung',
       'horizontalDivision': 'Horizontale Teilung',
+      'catalogShtesa': 'Shtesa',
+      'shtesaTitle': 'Shtesa',
+      'shtesaNone': 'No shtesa',
+      'shtesaOptionLabel': 'Shtesa {size} mm ({price} €/m)',
+      'shtesaNoOptions': 'No shtesa sizes added for {profile}.',
+      'shtesaLeft': 'Left shtesa (mm)',
+      'shtesaRight': 'Right shtesa (mm)',
+      'shtesaTop': 'Top shtesa (mm)',
+      'shtesaBottom': 'Bottom shtesa (mm)',
+      'shtesaEffectiveSize': 'Effective window size: {width} x {height} mm',
+      'shtesaLengths':
+          'Shtesa lengths: vertical {vertical} mm · horizontal {horizontal} mm',
+      'shtesaPageTitle': 'Shtesa',
+      'shtesaPageHint':
+          'Tap a profile to set shtesa sizes by thickness and price per meter.',
+      'shtesaNoProfiles': 'Add a profile first to configure shtesa.',
+      'shtesaEditTitle': 'Shtesa for {profile}',
+      'shtesaAddSize': 'Add size',
+      'shtesaThicknessLabel': 'Thickness (mm)',
+      'shtesaPriceLabel': 'Price €/m',
+      'actionCancel': 'Cancel',
+      'actionSave': 'Save',
+      'pdfShtesaDetails':
+          'Shtesa L:{left} R:{right} T:{top} B:{bottom} -> {width} x {height} mm',
     },
     'fr': {
       'homeCatalogs': 'Liste de prix',
@@ -868,6 +941,30 @@ class AppLocalizations {
       'auto': 'auto',
       'verticalDivision': 'Division verticale',
       'horizontalDivision': 'Division horizontale',
+      'catalogShtesa': 'Shtesa',
+      'shtesaTitle': 'Shtesa',
+      'shtesaNone': 'No shtesa',
+      'shtesaOptionLabel': 'Shtesa {size} mm ({price} €/m)',
+      'shtesaNoOptions': 'No shtesa sizes added for {profile}.',
+      'shtesaLeft': 'Left shtesa (mm)',
+      'shtesaRight': 'Right shtesa (mm)',
+      'shtesaTop': 'Top shtesa (mm)',
+      'shtesaBottom': 'Bottom shtesa (mm)',
+      'shtesaEffectiveSize': 'Effective window size: {width} x {height} mm',
+      'shtesaLengths':
+          'Shtesa lengths: vertical {vertical} mm · horizontal {horizontal} mm',
+      'shtesaPageTitle': 'Shtesa',
+      'shtesaPageHint':
+          'Tap a profile to set shtesa sizes by thickness and price per meter.',
+      'shtesaNoProfiles': 'Add a profile first to configure shtesa.',
+      'shtesaEditTitle': 'Shtesa for {profile}',
+      'shtesaAddSize': 'Add size',
+      'shtesaThicknessLabel': 'Thickness (mm)',
+      'shtesaPriceLabel': 'Price €/m',
+      'actionCancel': 'Cancel',
+      'actionSave': 'Save',
+      'pdfShtesaDetails':
+          'Shtesa L:{left} R:{right} T:{top} B:{bottom} -> {width} x {height} mm',
     },
     'it': {
       'homeCatalogs': 'Listino prezzi',
@@ -1089,6 +1186,30 @@ class AppLocalizations {
       'auto': 'auto',
       'verticalDivision': 'Divisione verticale',
       'horizontalDivision': 'Divisione orizzontale',
+      'catalogShtesa': 'Shtesa',
+      'shtesaTitle': 'Shtesa',
+      'shtesaNone': 'No shtesa',
+      'shtesaOptionLabel': 'Shtesa {size} mm ({price} €/m)',
+      'shtesaNoOptions': 'No shtesa sizes added for {profile}.',
+      'shtesaLeft': 'Left shtesa (mm)',
+      'shtesaRight': 'Right shtesa (mm)',
+      'shtesaTop': 'Top shtesa (mm)',
+      'shtesaBottom': 'Bottom shtesa (mm)',
+      'shtesaEffectiveSize': 'Effective window size: {width} x {height} mm',
+      'shtesaLengths':
+          'Shtesa lengths: vertical {vertical} mm · horizontal {horizontal} mm',
+      'shtesaPageTitle': 'Shtesa',
+      'shtesaPageHint':
+          'Tap a profile to set shtesa sizes by thickness and price per meter.',
+      'shtesaNoProfiles': 'Add a profile first to configure shtesa.',
+      'shtesaEditTitle': 'Shtesa for {profile}',
+      'shtesaAddSize': 'Add size',
+      'shtesaThicknessLabel': 'Thickness (mm)',
+      'shtesaPriceLabel': 'Price €/m',
+      'actionCancel': 'Cancel',
+      'actionSave': 'Save',
+      'pdfShtesaDetails':
+          'Shtesa L:{left} R:{right} T:{top} B:{bottom} -> {width} x {height} mm',
     },
   };
 
@@ -1195,6 +1316,44 @@ class AppLocalizations {
   String get catalogFieldBoxHeight => _t('catalogFieldBoxHeight');
   String get catalogFieldPrice => _t('catalogFieldPrice');
   String get catalogFieldMass => _t('catalogFieldMass');
+  String get catalogShtesa => _t('catalogShtesa');
+  String get shtesaTitle => _t('shtesaTitle');
+  String get shtesaNone => _t('shtesaNone');
+  String shtesaOptionLabel(int size, String price) => _t('shtesaOptionLabel')
+      .replaceAll('{size}', '$size')
+      .replaceAll('{price}', price);
+  String shtesaNoOptions(String profile) =>
+      _t('shtesaNoOptions').replaceAll('{profile}', profile);
+  String get shtesaLeft => _t('shtesaLeft');
+  String get shtesaRight => _t('shtesaRight');
+  String get shtesaTop => _t('shtesaTop');
+  String get shtesaBottom => _t('shtesaBottom');
+  String shtesaEffectiveSize(int width, int height) =>
+      _t('shtesaEffectiveSize')
+          .replaceAll('{width}', '$width')
+          .replaceAll('{height}', '$height');
+  String shtesaLengths(int vertical, int horizontal) => _t('shtesaLengths')
+      .replaceAll('{vertical}', '$vertical')
+      .replaceAll('{horizontal}', '$horizontal');
+  String get shtesaPageTitle => _t('shtesaPageTitle');
+  String get shtesaPageHint => _t('shtesaPageHint');
+  String get shtesaNoProfiles => _t('shtesaNoProfiles');
+  String shtesaEditTitle(String profile) =>
+      _t('shtesaEditTitle').replaceAll('{profile}', profile);
+  String get shtesaAddSize => _t('shtesaAddSize');
+  String get shtesaThicknessLabel => _t('shtesaThicknessLabel');
+  String get shtesaPriceLabel => _t('shtesaPriceLabel');
+  String get actionCancel => _t('actionCancel');
+  String get actionSave => _t('actionSave');
+  String pdfShtesaDetails(int left, int right, int top, int bottom, int width,
+          int height) =>
+      _t('pdfShtesaDetails')
+          .replaceAll('{left}', '$left')
+          .replaceAll('{right}', '$right')
+          .replaceAll('{top}', '$top')
+          .replaceAll('{bottom}', '$bottom')
+          .replaceAll('{width}', '$width')
+          .replaceAll('{height}', '$height');
   String get calculate => _t('calculate');
   String get pcs => _t('pcs');
   String get savePdf => _t('savePdf');

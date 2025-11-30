@@ -29,6 +29,7 @@
   "catalogBlind": "Roller Shutter",
   "catalogMechanism": "Mechanisms",
   "catalogAccessory": "Accessories",
+  "catalogShtesa": "Additions (Shtesa)",
   "catalogAddTitle": "Add {type}",
   "catalogEditTitle": "Edit {name}",
   "catalogSectionGeneral": "General",
@@ -109,5 +110,63 @@
   "defaultProfile": "Default profile",
   "defaultGlass": "Default glass",
   "defaultBlind": "Default blind",
-  "applyDefaultsMessage": "Choose which windows/doors should use the updated default profile, glass, and blind. Uncheck the items you want to exclude."
+  "applyDefaultsMessage": "Choose which windows/doors should use the updated default profile, glass, and blind. Uncheck the items you want to exclude.",
+  "shtesaTitle": "Shtesa",
+  "shtesaNone": "No shtesa",
+  "shtesaOptionLabel": "Shtesa {size} mm ({price} €/m)",
+  "@shtesaOptionLabel": {
+    "placeholders": {
+      "size": {},
+      "price": {}
+    }
+  },
+  "shtesaNoOptions": "No shtesa sizes added for {profile}.",
+  "@shtesaNoOptions": {
+    "placeholders": {
+      "profile": {}
+    }
+  },
+  "shtesaLeft": "Left shtesa (mm)",
+  "shtesaRight": "Right shtesa (mm)",
+  "shtesaTop": "Top shtesa (mm)",
+  "shtesaBottom": "Bottom shtesa (mm)",
+  "shtesaEffectiveSize": "Effective window size: {width} x {height} mm",
+  "@shtesaEffectiveSize": {
+    "placeholders": {
+      "width": {},
+      "height": {}
+    }
+  },
+  "shtesaLengths": "Shtesa lengths: vertical {vertical} mm · horizontal {horizontal} mm",
+  "@shtesaLengths": {
+    "placeholders": {
+      "vertical": {},
+      "horizontal": {}
+    }
+  },
+  "shtesaPageTitle": "Shtesa",
+  "shtesaPageHint": "Tap a profile to set shtesa sizes by thickness and price per meter.",
+  "shtesaNoProfiles": "Add a profile first to configure shtesa.",
+  "shtesaEditTitle": "Shtesa for {profile}",
+  "@shtesaEditTitle": {
+    "placeholders": {
+      "profile": {}
+    }
+  },
+  "shtesaAddSize": "Add size",
+  "shtesaThicknessLabel": "Thickness (mm)",
+  "shtesaPriceLabel": "Price €/m",
+  "actionCancel": "Cancel",
+  "actionSave": "Save",
+  "pdfShtesaDetails": "Shtesa L:{left} R:{right} T:{top} B:{bottom} -> {width} x {height} mm",
+  "@pdfShtesaDetails": {
+    "placeholders": {
+      "left": {},
+      "right": {},
+      "top": {},
+      "bottom": {},
+      "width": {},
+      "height": {}
+    }
+  }
 }

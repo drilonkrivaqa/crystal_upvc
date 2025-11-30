@@ -29,6 +29,7 @@
   "catalogBlind": "Tapparella",
   "catalogMechanism": "Meccanismi",
   "catalogAccessory": "Accessori",
+  "catalogShtesa": "Shtesa",
   "calculate": "Calcola",
   "pcs": "pz",
   "savePdf": "Salva PDF",
@@ -109,5 +110,63 @@
   "catalogFieldPsi": "Psi (W/mK)",
   "catalogFieldBoxHeight": "Altezza cassonetto (mm)",
   "catalogFieldPrice": "Prezzo (€)",
-  "catalogFieldMass": "Massa (kg)"
+  "catalogFieldMass": "Massa (kg)",
+  "shtesaTitle": "Shtesa",
+  "shtesaNone": "No shtesa",
+  "shtesaOptionLabel": "Shtesa {size} mm ({price} €/m)",
+  "@shtesaOptionLabel": {
+    "placeholders": {
+      "size": {},
+      "price": {}
+    }
+  },
+  "shtesaNoOptions": "No shtesa sizes added for {profile}.",
+  "@shtesaNoOptions": {
+    "placeholders": {
+      "profile": {}
+    }
+  },
+  "shtesaLeft": "Left shtesa (mm)",
+  "shtesaRight": "Right shtesa (mm)",
+  "shtesaTop": "Top shtesa (mm)",
+  "shtesaBottom": "Bottom shtesa (mm)",
+  "shtesaEffectiveSize": "Effective window size: {width} x {height} mm",
+  "@shtesaEffectiveSize": {
+    "placeholders": {
+      "width": {},
+      "height": {}
+    }
+  },
+  "shtesaLengths": "Shtesa lengths: vertical {vertical} mm · horizontal {horizontal} mm",
+  "@shtesaLengths": {
+    "placeholders": {
+      "vertical": {},
+      "horizontal": {}
+    }
+  },
+  "shtesaPageTitle": "Shtesa",
+  "shtesaPageHint": "Tap a profile to set shtesa sizes by thickness and price per meter.",
+  "shtesaNoProfiles": "Add a profile first to configure shtesa.",
+  "shtesaEditTitle": "Shtesa for {profile}",
+  "@shtesaEditTitle": {
+    "placeholders": {
+      "profile": {}
+    }
+  },
+  "shtesaAddSize": "Add size",
+  "shtesaThicknessLabel": "Thickness (mm)",
+  "shtesaPriceLabel": "Price €/m",
+  "actionCancel": "Cancel",
+  "actionSave": "Save",
+  "pdfShtesaDetails": "Shtesa L:{left} R:{right} T:{top} B:{bottom} -> {width} x {height} mm",
+  "@pdfShtesaDetails": {
+    "placeholders": {
+      "left": {},
+      "right": {},
+      "top": {},
+      "bottom": {},
+      "width": {},
+      "height": {}
+    }
+  }
 }

@@ -29,6 +29,7 @@
   "catalogBlind": "Rollladen",
   "catalogMechanism": "Mechanismen",
   "catalogAccessory": "Zubehör",
+  "catalogShtesa": "Shtesa",
   "catalogAddTitle": "{type} hinzufügen",
   "catalogEditTitle": "{name} bearbeiten",
   "catalogSectionGeneral": "Allgemein",
@@ -109,5 +110,63 @@
   "defaultProfile": "Standardprofil",
   "defaultGlass": "Standardglas",
   "defaultBlind": "Standardrollladen",
-  "applyDefaultsMessage": "Wählen Sie, welche Fenster/Türen das aktualisierte Standardprofil, Glas und den Rollladen verwenden sollen. Entfernen Sie die Auswahl bei den Elementen, die ausgeschlossen werden sollen."
+  "applyDefaultsMessage": "Wählen Sie, welche Fenster/Türen das aktualisierte Standardprofil, Glas und den Rollladen verwenden sollen. Entfernen Sie die Auswahl bei den Elementen, die ausgeschlossen werden sollen.",
+  "shtesaTitle": "Shtesa",
+  "shtesaNone": "No shtesa",
+  "shtesaOptionLabel": "Shtesa {size} mm ({price} €/m)",
+  "@shtesaOptionLabel": {
+    "placeholders": {
+      "size": {},
+      "price": {}
+    }
+  },
+  "shtesaNoOptions": "No shtesa sizes added for {profile}.",
+  "@shtesaNoOptions": {
+    "placeholders": {
+      "profile": {}
+    }
+  },
+  "shtesaLeft": "Left shtesa (mm)",
+  "shtesaRight": "Right shtesa (mm)",
+  "shtesaTop": "Top shtesa (mm)",
+  "shtesaBottom": "Bottom shtesa (mm)",
+  "shtesaEffectiveSize": "Effective window size: {width} x {height} mm",
+  "@shtesaEffectiveSize": {
+    "placeholders": {
+      "width": {},
+      "height": {}
+    }
+  },
+  "shtesaLengths": "Shtesa lengths: vertical {vertical} mm · horizontal {horizontal} mm",
+  "@shtesaLengths": {
+    "placeholders": {
+      "vertical": {},
+      "horizontal": {}
+    }
+  },
+  "shtesaPageTitle": "Shtesa",
+  "shtesaPageHint": "Tap a profile to set shtesa sizes by thickness and price per meter.",
+  "shtesaNoProfiles": "Add a profile first to configure shtesa.",
+  "shtesaEditTitle": "Shtesa for {profile}",
+  "@shtesaEditTitle": {
+    "placeholders": {
+      "profile": {}
+    }
+  },
+  "shtesaAddSize": "Add size",
+  "shtesaThicknessLabel": "Thickness (mm)",
+  "shtesaPriceLabel": "Price €/m",
+  "actionCancel": "Cancel",
+  "actionSave": "Save",
+  "pdfShtesaDetails": "Shtesa L:{left} R:{right} T:{top} B:{bottom} -> {width} x {height} mm",
+  "@pdfShtesaDetails": {
+    "placeholders": {
+      "left": {},
+      "right": {},
+      "top": {},
+      "bottom": {},
+      "width": {},
+      "height": {}
+    }
+  }
 }

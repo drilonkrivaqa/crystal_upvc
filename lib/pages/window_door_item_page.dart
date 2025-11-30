@@ -65,6 +65,10 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   String? notes;
   int verticalSections = 1;
   int horizontalSections = 1;
+  int shtesaLeft = 0;
+  int shtesaRight = 0;
+  int shtesaTop = 0;
+  int shtesaBottom = 0;
   List<int> sectionHeights = [0];
   List<bool> horizontalAdapters = [];
   List<int> rowVerticalSections = [1];
@@ -152,6 +156,10 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     extra1Desc = widget.existingItem?.extra1Desc;
     extra2Desc = widget.existingItem?.extra2Desc;
     notes = widget.existingItem?.notes;
+    shtesaLeft = widget.existingItem?.shtesaLeft ?? 0;
+    shtesaRight = widget.existingItem?.shtesaRight ?? 0;
+    shtesaTop = widget.existingItem?.shtesaTop ?? 0;
+    shtesaBottom = widget.existingItem?.shtesaBottom ?? 0;
     final existingItem = widget.existingItem;
     verticalSections = existingItem?.verticalSections ?? 1;
     horizontalSections = existingItem?.horizontalSections ?? 1;
@@ -251,6 +259,10 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     final quantityLabel = quantityController.text.trim().isEmpty
         ? '1'
         : quantityController.text.trim();
+    final selectedProfile =
+        (profileSetIndex >= 0 && profileSetIndex < profileSetBox.length)
+            ? profileSetBox.getAt(profileSetIndex)
+            : null;
 
     return WillPopScope(
         onWillPop: _onWillPop,
@@ -263,15 +275,14 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                 actions: [
                   IconButton(
                     tooltip: l10n.designWindowDoor,
-                    icon: const Icon(Icons.design_services),
-                    onPressed: () async {
-                      final widthValue = double.tryParse(widthController.text);
-                      final heightValue =
-                          double.tryParse(heightController.text);
-                      _ensureGridSize();
-                      final initialCols = verticalSections < 1
-                          ? 1
-                          : (verticalSections > 8 ? 8 : verticalSections);
+                  icon: const Icon(Icons.design_services),
+                  onPressed: () async {
+                    final widthValue = _effectiveWidthFromInputs();
+                    final heightValue = _effectiveHeightFromInputs();
+                    _ensureGridSize();
+                    final initialCols = verticalSections < 1
+                        ? 1
+                        : (verticalSections > 8 ? 8 : verticalSections);
                       final initialRows = horizontalSections < 1
                           ? 1
                           : (horizontalSections > 8 ? 8 : horizontalSections);
@@ -300,11 +311,11 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                             : 0.0,
                       );
                       final designerPage = WindowDoorDesignerPage(
-                        initialWidth: (widthValue != null && widthValue > 0)
-                            ? widthValue
+                        initialWidth: widthValue > 0
+                            ? widthValue.toDouble()
                             : null,
-                        initialHeight: (heightValue != null && heightValue > 0)
-                            ? heightValue
+                        initialHeight: heightValue > 0
+                            ? heightValue.toDouble()
                             : null,
                         initialRows: initialRows,
                         initialCols: initialCols,
@@ -395,6 +406,24 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                       ],
                     ),
                     const SizedBox(height: 16),
+                    if (selectedProfile != null) ...[
+                      _buildSectionCard(
+                        children: [
+                          _buildSectionTitle(
+                            context,
+                            l10n.shtesaTitle,
+                            Icons.add_box_outlined,
+                          ),
+                          const SizedBox(height: 12),
+                          _buildShtesaSection(
+                            context,
+                            selectedProfile,
+                            l10n,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                    ],
                     _buildSectionCard(
                       children: [
                         _buildSectionTitle(
@@ -700,6 +729,78 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     );
   }
 
+  Widget _buildShtesaSection(
+      BuildContext context, ProfileSet profile, AppLocalizations l10n) {
+    final options = profile.shtesaOptions.entries.toList()
+      ..sort((a, b) => a.key.compareTo(b.key));
+    final dropdownItems = <DropdownMenuItem<int>>[
+      DropdownMenuItem(value: 0, child: Text(l10n.shtesaNone)),
+      ...options.map(
+        (entry) => DropdownMenuItem(
+          value: entry.key,
+          child: Text(
+            l10n.shtesaOptionLabel(entry.key, entry.value.toStringAsFixed(2)),
+          ),
+        ),
+      ),
+    ];
+
+    DropdownButtonFormField<int> buildDropdown(
+        String label, int value, ValueChanged<int?> onChanged) {
+      final normalizedValue =
+          dropdownItems.any((item) => item.value == value) ? value : 0;
+      return DropdownButtonFormField<int>(
+        value: normalizedValue,
+        decoration: InputDecoration(labelText: label),
+        items: dropdownItems,
+        onChanged: (val) {
+          onChanged(val ?? 0);
+          _recalculateAllWidths(showErrors: false);
+          _recalculateHeights(showErrors: false);
+        },
+      );
+    }
+
+    final effectiveWidth = _effectiveWidthFromInputs();
+    final effectiveHeight = _effectiveHeightFromInputs();
+    final verticalLength = int.tryParse(heightController.text) ?? 0;
+    final horizontalLength = effectiveWidth;
+
+    if (options.isEmpty) {
+      return Text(
+        l10n.shtesaNoOptions(profile.name),
+        style: Theme.of(context)
+            .textTheme
+            .bodyMedium
+            ?.copyWith(color: Theme.of(context).colorScheme.error),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildFormGrid([
+          buildDropdown(l10n.shtesaLeft, shtesaLeft, (val) {
+            setState(() => shtesaLeft = val ?? 0);
+          }),
+          buildDropdown(l10n.shtesaRight, shtesaRight, (val) {
+            setState(() => shtesaRight = val ?? 0);
+          }),
+          buildDropdown(l10n.shtesaTop, shtesaTop, (val) {
+            setState(() => shtesaTop = val ?? 0);
+          }),
+          buildDropdown(l10n.shtesaBottom, shtesaBottom, (val) {
+            setState(() => shtesaBottom = val ?? 0);
+          }),
+        ]),
+        const SizedBox(height: 12),
+        Text(l10n.shtesaEffectiveSize(effectiveWidth, effectiveHeight)),
+        const SizedBox(height: 4),
+        Text(l10n.shtesaLengths(verticalLength, horizontalLength)),
+      ],
+    );
+  }
+
   Widget _buildPhotoPicker(BuildContext context, AppLocalizations l10n) {
     final borderRadius = BorderRadius.circular(16);
     final imageBytes = _designImageBytes ?? photoBytes;
@@ -832,6 +933,10 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
         name: name,
         width: width,
         height: height,
+        shtesaLeft: shtesaLeft,
+        shtesaRight: shtesaRight,
+        shtesaTop: shtesaTop,
+        shtesaBottom: shtesaBottom,
         quantity: quantity,
         profileSetIndex: profileSetIndex,
         glassIndex: glassIndex,
@@ -933,6 +1038,16 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
 
     _ensureGridSize();
     setState(() {});
+  }
+
+  int _effectiveWidthFromInputs() {
+    final totalWidth = int.tryParse(widthController.text) ?? 0;
+    return math.max(0, totalWidth - shtesaLeft - shtesaRight);
+  }
+
+  int _effectiveHeightFromInputs() {
+    final totalHeight = int.tryParse(heightController.text) ?? 0;
+    return math.max(0, totalHeight - shtesaTop - shtesaBottom);
   }
 
   void _ensureGridSize() {
@@ -1101,7 +1216,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     final columns = rowVerticalSections[row];
     if (columns <= 0) return;
 
-    final totalWidth = int.tryParse(widthController.text) ?? 0;
+    final totalWidth = _effectiveWidthFromInputs();
     int specifiedSum = 0;
     int unspecified = 0;
     for (int i = 0; i < columns - 1; i++) {
@@ -1158,7 +1273,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
 
   void _recalculateHeights({bool showErrors = true}) {
     if (horizontalSections == 0) return;
-    int totalHeight = int.tryParse(heightController.text) ?? 0;
+    int totalHeight = _effectiveHeightFromInputs();
     int specifiedSum = 0;
     int unspecified = 0;
     for (int i = 0; i < horizontalSections - 1; i++) {
