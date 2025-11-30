@@ -43,6 +43,7 @@ class AppLocalizations {
       'catalogBlind': 'Roleta',
       'catalogMechanism': 'Mekanizma',
       'catalogAccessory': 'Aksesorë',
+      'catalogShtesa': 'Shtesa',
       'catalogAddTitle': 'Shto {type}',
       'catalogEditTitle': 'Ndrysho {name}',
       'catalogSectionGeneral': 'Të përgjithshme',
@@ -229,6 +230,21 @@ class AppLocalizations {
       'auto': 'auto',
       'verticalDivision': 'Ndarja Vertikale',
       'horizontalDivision': 'Ndarja Horizontale',
+      'close': 'Mbylle',
+      'shtesaSelectionLabel': 'Masa e shtesës',
+      'shtesaEmpty': 'Asnjë shtesë e regjistruar.',
+      'shtesaForProfile': 'Shtesat për {profile}',
+      'addShtesaOption': 'Shto shtesë',
+      'shtesaName': 'Emri',
+      'shtesaSizeMm': 'Masa (mm)',
+      'shtesaPricePerMeter': 'Çmimi për metër',
+      'shtesaEmptyProfile': 'Nuk ka shtesa për {profile}.',
+      'shtesaSideTop': 'Lart',
+      'shtesaSideBottom': 'Poshtë',
+      'shtesaSideLeft': 'Majtas',
+      'shtesaSideRight': 'Djathtas',
+      'shtesaAppliedInfo': 'Shtesa e zgjedhur: {size} mm · €{price}/m',
+      'shtesaOpeningInfo': 'Hapja pas shtesës: {width} x {height} mm',
     },
     'en': {
       'homeCatalogs': 'Catalogs',
@@ -265,6 +281,7 @@ class AppLocalizations {
       'catalogBlind': 'Roller Shutter',
       'catalogMechanism': 'Mechanisms',
       'catalogAccessory': 'Accessories',
+      'catalogShtesa': 'Additions',
       'catalogAddTitle': 'Add {type}',
       'catalogEditTitle': 'Edit {name}',
       'catalogSectionGeneral': 'General',
@@ -448,6 +465,21 @@ class AppLocalizations {
       'auto': 'auto',
       'verticalDivision': 'Vertical division',
       'horizontalDivision': 'Horizontal division',
+      'close': 'Close',
+      'shtesaSelectionLabel': 'Shtesa size',
+      'shtesaEmpty': 'No additions configured yet.',
+      'shtesaForProfile': 'Additions for {profile}',
+      'addShtesaOption': 'Add addition size',
+      'shtesaName': 'Name',
+      'shtesaSizeMm': 'Size (mm)',
+      'shtesaPricePerMeter': 'Price per meter',
+      'shtesaEmptyProfile': 'No additions configured for {profile}.',
+      'shtesaSideTop': 'Top',
+      'shtesaSideBottom': 'Bottom',
+      'shtesaSideLeft': 'Left',
+      'shtesaSideRight': 'Right',
+      'shtesaAppliedInfo': 'Selected shtesa: {size} mm · €{price}/m',
+      'shtesaOpeningInfo': 'Opening after shtesa: {width} x {height} mm',
     },
     'de': {
       'homeCatalogs': 'Preisliste',
@@ -484,6 +516,7 @@ class AppLocalizations {
       'catalogBlind': 'Rollladen',
       'catalogMechanism': 'Mechanismen',
       'catalogAccessory': 'Zubehör',
+      'catalogShtesa': 'Shtesa',
       'catalogAddTitle': '{type} hinzufügen',
       'catalogEditTitle': '{name} bearbeiten',
       'catalogSectionGeneral': 'Allgemein',
@@ -657,6 +690,21 @@ class AppLocalizations {
       'auto': 'auto',
       'verticalDivision': 'Vertikale Teilung',
       'horizontalDivision': 'Horizontale Teilung',
+      'close': 'Schließen',
+      'shtesaSelectionLabel': 'Shtesa Größe',
+      'shtesaEmpty': 'Keine Add-ons konfiguriert.',
+      'shtesaForProfile': 'Shtesa für {profile}',
+      'addShtesaOption': 'Shtesa hinzufügen',
+      'shtesaName': 'Name',
+      'shtesaSizeMm': 'Größe (mm)',
+      'shtesaPricePerMeter': 'Preis pro Meter',
+      'shtesaEmptyProfile': 'Keine Shtesa für {profile}.',
+      'shtesaSideTop': 'Oben',
+      'shtesaSideBottom': 'Unten',
+      'shtesaSideLeft': 'Links',
+      'shtesaSideRight': 'Rechts',
+      'shtesaAppliedInfo': 'Gewählte Shtesa: {size} mm · €{price}/m',
+      'shtesaOpeningInfo': 'Öffnung nach Shtesa: {width} x {height} mm',
     },
     'fr': {
       'homeCatalogs': 'Liste de prix',
@@ -693,6 +741,7 @@ class AppLocalizations {
       'catalogBlind': 'Volet roulant',
       'catalogMechanism': 'Mécanismes',
       'catalogAccessory': 'Accessoires',
+      'catalogShtesa': 'Shtesa',
       'catalogAddTitle': 'Ajouter {type}',
       'catalogEditTitle': 'Modifier {name}',
       'catalogSectionGeneral': 'Général',
@@ -868,6 +917,21 @@ class AppLocalizations {
       'auto': 'auto',
       'verticalDivision': 'Division verticale',
       'horizontalDivision': 'Division horizontale',
+      'close': 'Fermer',
+      'shtesaSelectionLabel': 'Dimension de la shtesa',
+      'shtesaEmpty': 'Aucune shtesa configurée.',
+      'shtesaForProfile': 'Shtesa pour {profile}',
+      'addShtesaOption': 'Ajouter une shtesa',
+      'shtesaName': 'Nom',
+      'shtesaSizeMm': 'Taille (mm)',
+      'shtesaPricePerMeter': 'Prix par mètre',
+      'shtesaEmptyProfile': 'Aucune shtesa pour {profile}.',
+      'shtesaSideTop': 'Haut',
+      'shtesaSideBottom': 'Bas',
+      'shtesaSideLeft': 'Gauche',
+      'shtesaSideRight': 'Droite',
+      'shtesaAppliedInfo': 'Shtesa sélectionnée : {size} mm · €{price}/m',
+      'shtesaOpeningInfo': 'Ouverture après shtesa : {width} x {height} mm',
     },
     'it': {
       'homeCatalogs': 'Listino prezzi',
@@ -904,6 +968,7 @@ class AppLocalizations {
       'catalogBlind': 'Tapparella',
       'catalogMechanism': 'Meccanismi',
       'catalogAccessory': 'Accessori',
+      'catalogShtesa': 'Shtesa',
       'catalogAddTitle': 'Aggiungi {type}',
       'catalogEditTitle': 'Modifica {name}',
       'catalogSectionGeneral': 'Generale',
@@ -1089,6 +1154,21 @@ class AppLocalizations {
       'auto': 'auto',
       'verticalDivision': 'Divisione verticale',
       'horizontalDivision': 'Divisione orizzontale',
+      'close': 'Chiudi',
+      'shtesaSelectionLabel': 'Dimensione shtesa',
+      'shtesaEmpty': 'Nessuna shtesa configurata.',
+      'shtesaForProfile': 'Shtesa per {profile}',
+      'addShtesaOption': 'Aggiungi shtesa',
+      'shtesaName': 'Nome',
+      'shtesaSizeMm': 'Dimensione (mm)',
+      'shtesaPricePerMeter': 'Prezzo per metro',
+      'shtesaEmptyProfile': 'Nessuna shtesa per {profile}.',
+      'shtesaSideTop': 'Alto',
+      'shtesaSideBottom': 'Basso',
+      'shtesaSideLeft': 'Sinistra',
+      'shtesaSideRight': 'Destra',
+      'shtesaAppliedInfo': 'Shtesa selezionata: {size} mm · €{price}/m',
+      'shtesaOpeningInfo': 'Apertura dopo shtesa: {width} x {height} mm',
     },
   };
 
@@ -1158,6 +1238,7 @@ class AppLocalizations {
   String get catalogBlind => _t('catalogBlind');
   String get catalogMechanism => _t('catalogMechanism');
   String get catalogAccessory => _t('catalogAccessory');
+  String get catalogShtesa => _t('catalogShtesa');
   String catalogAddTitle(String type) =>
       _t('catalogAddTitle').replaceAll('{type}', type);
   String catalogEditTitle(String name) =>
@@ -1343,6 +1424,28 @@ class AppLocalizations {
   String get auto => _t('auto');
   String get verticalDivision => _t('verticalDivision');
   String get horizontalDivision => _t('horizontalDivision');
+  String get close => _t('close');
+  String get shtesaSelectionLabel => _t('shtesaSelectionLabel');
+  String get shtesaEmpty => _t('shtesaEmpty');
+  String shtesaForProfile(String profile) =>
+      _t('shtesaForProfile').replaceAll('{profile}', profile);
+  String get addShtesaOption => _t('addShtesaOption');
+  String get shtesaName => _t('shtesaName');
+  String get shtesaSizeMm => _t('shtesaSizeMm');
+  String get shtesaPricePerMeter => _t('shtesaPricePerMeter');
+  String shtesaEmptyProfile(String profile) =>
+      _t('shtesaEmptyProfile').replaceAll('{profile}', profile);
+  String get shtesaSideTop => _t('shtesaSideTop');
+  String get shtesaSideBottom => _t('shtesaSideBottom');
+  String get shtesaSideLeft => _t('shtesaSideLeft');
+  String get shtesaSideRight => _t('shtesaSideRight');
+  String shtesaAppliedInfo(int size, String price) =>
+      _t('shtesaAppliedInfo')
+          .replaceAll('{size}', size.toString())
+          .replaceAll('{price}', price);
+  String shtesaOpeningInfo(int width, int height) => _t('shtesaOpeningInfo')
+      .replaceAll('{width}', width.toString())
+      .replaceAll('{height}', height.toString());
 
   String widthAutoLabel(int index) => '${width} $index (${auto})';
   String widthLabel(int index) => '${width} $index';
