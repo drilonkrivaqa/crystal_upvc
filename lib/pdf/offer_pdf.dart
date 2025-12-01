@@ -20,7 +20,6 @@ Future<void> printOfferPdf({
   required Box<Blind> blindBox,
   required Box<Mechanism> mechanismBox,
   required Box<Accessory> accessoryBox,
-  required Box<ProfileShtesa> shtesaBox,
   required AppLocalizations l10n,
 }) async {
   final fontData = await rootBundle.load('assets/fonts/Montserrat-Regular.ttf');
@@ -98,10 +97,6 @@ Future<void> printOfferPdf({
     final accessory = item.accessoryIndex != null
         ? accessoryBox.getAt(item.accessoryIndex!)
         : null;
-    final shtesaEntry = shtesaBox.values.firstWhere(
-      (e) => e.profileSetIndex == item.profileSetIndex,
-      orElse: () => ProfileShtesa(profileSetIndex: item.profileSetIndex),
-    );
 
     final profileCost =
         item.calculateProfileCost(profile, boxHeight: blind?.boxHeight ?? 0) *
@@ -116,29 +111,11 @@ Future<void> printOfferPdf({
         mechanism != null ? mechanism.price * item.quantity * item.openings : 0;
     final accessoryCost =
         accessory != null ? accessory.price * item.quantity : 0;
-    final shtesaPrice = (item.shtesaSizeMm ?? 0) > 0
-        ? shtesaEntry.options
-            .firstWhere(
-              (o) => o.sizeMm == item.shtesaSizeMm,
-              orElse: () =>
-                  ShtesaOption(
-                      sizeMm: item.shtesaSizeMm ?? 0,
-                      pricePerMeter: item.shtesaPricePerM ?? 0),
-            )
-            .pricePerMeter
-        : null;
-    final shtesaCost = item
-            .calculateShtesaCost(overridePricePerMeter: shtesaPrice) *
-        item.quantity;
     final extras =
         ((item.extra1Price ?? 0) + (item.extra2Price ?? 0)) * item.quantity;
 
-    double base = profileCost +
-        glassCost +
-        blindCost +
-        mechanismCost +
-        accessoryCost +
-        shtesaCost;
+    double base =
+        profileCost + glassCost + blindCost + mechanismCost + accessoryCost;
     if (item.manualBasePrice != null) {
       base = item.manualBasePrice!;
     }
@@ -160,8 +137,8 @@ Future<void> printOfferPdf({
             boxHeight: blind?.boxHeight ?? 0) *
         item.quantity;
     final blindMass = blind != null
-        ? ((item.effectiveWidthMm() / 1000.0) *
-            (item.effectiveHeightMm() / 1000.0) *
+        ? ((item.width / 1000.0) *
+            (item.height / 1000.0) *
             blind.massPerM2 *
             item.quantity)
         : 0;
@@ -300,10 +277,6 @@ Future<void> printOfferPdf({
           final accessory = item.accessoryIndex != null
               ? accessoryBox.getAt(item.accessoryIndex!)
               : null;
-          final shtesaEntry = shtesaBox.values.firstWhere(
-            (e) => e.profileSetIndex == item.profileSetIndex,
-            orElse: () => ProfileShtesa(profileSetIndex: item.profileSetIndex),
-          );
 
           final profileCost = item.calculateProfileCost(profile,
                   boxHeight: blind?.boxHeight ?? 0) *
@@ -321,20 +294,6 @@ Future<void> printOfferPdf({
               : 0;
           final accessoryCost =
               accessory != null ? accessory.price * item.quantity : 0;
-          final shtesaPrice = (item.shtesaSizeMm ?? 0) > 0
-              ? shtesaEntry.options
-                  .firstWhere(
-                    (o) => o.sizeMm == item.shtesaSizeMm,
-                    orElse: () =>
-                        ShtesaOption(
-                            sizeMm: item.shtesaSizeMm ?? 0,
-                            pricePerMeter: item.shtesaPricePerM ?? 0),
-                  )
-                  .pricePerMeter
-              : null;
-          final shtesaCost = item
-                  .calculateShtesaCost(overridePricePerMeter: shtesaPrice) *
-              item.quantity;
           final extras = ((item.extra1Price ?? 0) + (item.extra2Price ?? 0)) *
               item.quantity;
 
@@ -345,8 +304,8 @@ Future<void> printOfferPdf({
                   boxHeight: blind?.boxHeight ?? 0) *
               item.quantity;
           final blindMass = blind != null
-              ? ((item.effectiveWidthMm() / 1000.0) *
-                  (item.effectiveHeightMm() / 1000.0) *
+              ? ((item.width / 1000.0) *
+                  (item.height / 1000.0) *
                   blind.massPerM2 *
                   item.quantity)
               : 0;
@@ -367,8 +326,7 @@ Future<void> printOfferPdf({
               glassCost +
               blindCost +
               mechanismCost +
-              accessoryCost +
-              shtesaCost;
+              accessoryCost;
           if (item.manualBasePrice != null) {
             base = item.manualBasePrice!;
           }

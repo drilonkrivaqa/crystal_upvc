@@ -109,19 +109,5 @@
   "defaultProfile": "Profil par défaut",
   "defaultGlass": "Vitrage par défaut",
   "defaultBlind": "Volet par défaut",
-  "applyDefaultsMessage": "Choisissez quelles fenêtres/portes doivent utiliser le profil, le vitrage et le volet par défaut mis à jour. Décochez les éléments à exclure.",
-  "catalogShtesa": "Shtesa",
-  "shtesaNoProfiles": "Enregistrez d'abord des profils pour configurer les shtesa.",
-  "shtesaNoSizes": "Aucune dimension de shtesa",
-  "shtesaAddSize": "Ajouter une dimension de shtesa",
-  "shtesaSelectSize": "Taille de shtesa",
-  "shtesaOptional": "Shtesa (optionnel)",
-  "shtesaSides": "Côtés shtesa",
-  "pricePerMeter": "Prix par mètre",
-  "lengthMm": "Longueur (mm)",
-  "sideLeft": "Gauche",
-  "sideRight": "Droite",
-  "sideTop": "Haut",
-  "sideBottom": "Bas",
-  "shtesaSummary": "Shtesa"
+  "applyDefaultsMessage": "Choisissez quelles fenêtres/portes doivent utiliser le profil, le vitrage et le volet par défaut mis à jour. Décochez les éléments à exclure."
 }
