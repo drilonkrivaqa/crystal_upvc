@@ -97,7 +97,6 @@ Future<void> printOfferPdf({
     final accessory = item.accessoryIndex != null
         ? accessoryBox.getAt(item.accessoryIndex!)
         : null;
-    final additionCost = item.calculateAdditionCost(profile) * item.quantity;
 
     final profileCost =
         item.calculateProfileCost(profile, boxHeight: blind?.boxHeight ?? 0) *
@@ -106,9 +105,7 @@ Future<void> printOfferPdf({
             boxHeight: blind?.boxHeight ?? 0) *
         item.quantity;
     final blindCost = blind != null
-        ? (item.calculateBlindPricingArea(profile, boxHeight: blind.boxHeight) *
-            blind.pricePerM2 *
-            item.quantity)
+        ? (item.calculateBlindPricingArea() * blind.pricePerM2 * item.quantity)
         : 0;
     final mechanismCost =
         mechanism != null ? mechanism.price * item.quantity * item.openings : 0;
@@ -118,12 +115,7 @@ Future<void> printOfferPdf({
         ((item.extra1Price ?? 0) + (item.extra2Price ?? 0)) * item.quantity;
 
     double base =
-        profileCost +
-        glassCost +
-        blindCost +
-        mechanismCost +
-        accessoryCost +
-        additionCost;
+        profileCost + glassCost + blindCost + mechanismCost + accessoryCost;
     if (item.manualBasePrice != null) {
       base = item.manualBasePrice!;
     }
@@ -145,10 +137,8 @@ Future<void> printOfferPdf({
             boxHeight: blind?.boxHeight ?? 0) *
         item.quantity;
     final blindMass = blind != null
-        ? ((item.effectiveWidth(profile) / 1000.0) *
-            ((item.effectiveHeight(profile) - blind.boxHeight)
-                    .clamp(0, item.effectiveHeight(profile)) /
-                1000.0) *
+        ? ((item.width / 1000.0) *
+            (item.height / 1000.0) *
             blind.massPerM2 *
             item.quantity)
         : 0;
@@ -159,9 +149,7 @@ Future<void> printOfferPdf({
     totalMass +=
         profileMass + glassMass + blindMass + mechanismMass + accessoryMass;
 
-    totalArea += item
-            .calculateTotalArea(profile, boxHeight: blind?.boxHeight ?? 0) *
-        item.quantity;
+    totalArea += item.calculateTotalArea() * item.quantity;
   }
   final extrasTotal =
       offer.extraCharges.fold<double>(0.0, (p, e) => p + e.amount);
@@ -289,13 +277,6 @@ Future<void> printOfferPdf({
           final accessory = item.accessoryIndex != null
               ? accessoryBox.getAt(item.accessoryIndex!)
               : null;
-          final addition = item.selectedAddition(profile);
-          final hasAddition = addition != null &&
-              (item.additionLeft ||
-                  item.additionRight ||
-                  item.additionTop ||
-                  item.additionBottom);
-          final additionCost = item.calculateAdditionCost(profile) * item.quantity;
 
           final profileCost = item.calculateProfileCost(profile,
                   boxHeight: blind?.boxHeight ?? 0) *
@@ -304,8 +285,7 @@ Future<void> printOfferPdf({
                   boxHeight: blind?.boxHeight ?? 0) *
               item.quantity;
           final blindCost = blind != null
-              ? (item.calculateBlindPricingArea(profile,
-                      boxHeight: blind.boxHeight) *
+              ? (item.calculateBlindPricingArea() *
                   blind.pricePerM2 *
                   item.quantity)
               : 0;
@@ -324,10 +304,8 @@ Future<void> printOfferPdf({
                   boxHeight: blind?.boxHeight ?? 0) *
               item.quantity;
           final blindMass = blind != null
-              ? ((item.effectiveWidth(profile) / 1000.0) *
-                  ((item.effectiveHeight(profile) - blind.boxHeight)
-                          .clamp(0, item.effectiveHeight(profile)) /
-                      1000.0) *
+              ? ((item.width / 1000.0) *
+                  (item.height / 1000.0) *
                   blind.massPerM2 *
                   item.quantity)
               : 0;
@@ -348,8 +326,7 @@ Future<void> printOfferPdf({
               glassCost +
               blindCost +
               mechanismCost +
-              accessoryCost +
-              additionCost;
+              accessoryCost;
           if (item.manualBasePrice != null) {
             base = item.manualBasePrice!;
           }
@@ -373,8 +350,6 @@ Future<void> printOfferPdf({
             pw.Text(item.name, style: headerStyle),
             pw.SizedBox(height: 2),
             pw.Text('${l10n.pdfDimensions} ${item.width} x ${item.height} mm'),
-            pw.Text(
-                'Opening ${item.effectiveWidth(profile)} x ${item.effectiveHeight(profile)} mm'),
             pw.Text('${l10n.pdfPieces} ${item.quantity}'),
             pw.Text('${l10n.pdfProfileType} ${profile.name}'),
             pw.Text('${l10n.pdfGlass} ${glass.name}'),
@@ -383,12 +358,6 @@ Future<void> printOfferPdf({
               pw.Text('${l10n.pdfMechanism} ${mechanism.name}'),
             if (accessory != null)
               pw.Text('${l10n.pdfAccessory} ${accessory.name}'),
-            if (hasAddition)
-              pw.Text(
-                  'Addition: ${addition!.name} (${addition.sizeMm}mm) · ${_pdfAdditionSides(item)}'),
-            if (hasAddition)
-              pw.Text(
-                  'Addition cost: €${additionCost.toStringAsFixed(2)} (${item.quantity}pcs)'),
             if (item.extra1Price != null)
               pw.Text(
                   '${item.extra1Desc ?? l10n.pdfExtra1}: €${(item.extra1Price! * item.quantity).toStringAsFixed(2)}'),
@@ -686,15 +655,6 @@ Future<pw.MemoryImage?> _preparePdfImage(Uint8List bytes) async {
   } catch (_) {
     return pw.MemoryImage(bytes);
   }
-}
-
-String _pdfAdditionSides(WindowDoorItem item) {
-  final sides = <String>[];
-  if (item.additionLeft) sides.add('Left');
-  if (item.additionRight) sides.add('Right');
-  if (item.additionTop) sides.add('Top');
-  if (item.additionBottom) sides.add('Bottom');
-  return sides.isEmpty ? 'None' : sides.join(', ');
 }
 
 Uint8List _resizeImageBytes(Uint8List bytes) {

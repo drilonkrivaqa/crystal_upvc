@@ -229,24 +229,6 @@ class AppLocalizations {
       'auto': 'auto',
       'verticalDivision': 'Ndarja Vertikale',
       'horizontalDivision': 'Ndarja Horizontale',
-      'additionTitle': 'Shtesa',
-      'additionSelect': 'Zgjidhni shtesën',
-      'additionNone': 'Pa shtesë',
-      'additionUnavailable': 'Nuk ka shtesa të përcaktuara për këtë profil',
-      'additionSides': 'Apliko në anë',
-      'additionSideLeft': 'Majtas',
-      'additionSideRight': 'Djathtas',
-      'additionSideTop': 'Sipër',
-      'additionSideBottom': 'Poshtë',
-      'additionOpening': 'Hapja pas shtesës',
-      'catalogAddition': 'Shtesa',
-      'additionIntro': 'Prekni një profil për të menaxhuar masat e shtesës.',
-      'additionSizeLabel': 'Masa (mm)',
-      'additionPriceLabel': 'Çmimi për metër (€)',
-      'additionAdd': 'Shto shtesë',
-      'additionEditTitle': 'Modifiko shtesën',
-      'additionListEmpty': 'Asnjë shtesë e ruajtur për këtë profil.',
-
     },
     'en': {
       'homeCatalogs': 'Catalogs',
@@ -466,24 +448,6 @@ class AppLocalizations {
       'auto': 'auto',
       'verticalDivision': 'Vertical division',
       'horizontalDivision': 'Horizontal division',
-      'additionTitle': 'Shtesa (Addition)',
-      'additionSelect': 'Select addition',
-      'additionNone': 'No addition',
-      'additionUnavailable': 'No additions configured for this profile',
-      'additionSides': 'Apply to sides',
-      'additionSideLeft': 'Left',
-      'additionSideRight': 'Right',
-      'additionSideTop': 'Top',
-      'additionSideBottom': 'Bottom',
-      'additionOpening': 'Opening size',
-      'catalogAddition': 'Shtesa',
-      'additionIntro': 'Tap a profile to manage its shtesa sizes.',
-      'additionSizeLabel': 'Size (mm)',
-      'additionPriceLabel': 'Price per meter (€)',
-      'additionAdd': 'Add addition',
-      'additionEditTitle': 'Edit addition',
-      'additionListEmpty': 'No additions saved for this profile.',
-
     },
     'de': {
       'homeCatalogs': 'Preisliste',
@@ -693,24 +657,6 @@ class AppLocalizations {
       'auto': 'auto',
       'verticalDivision': 'Vertikale Teilung',
       'horizontalDivision': 'Horizontale Teilung',
-      'additionTitle': 'Shtesa (Zusatz)',
-      'additionSelect': 'Zusatz auswählen',
-      'additionNone': 'Kein Zusatz',
-      'additionUnavailable': 'Keine Zusätze für dieses Profil definiert',
-      'additionSides': 'Auf Seiten anwenden',
-      'additionSideLeft': 'Links',
-      'additionSideRight': 'Rechts',
-      'additionSideTop': 'Oben',
-      'additionSideBottom': 'Unten',
-      'additionOpening': 'Öffnung nach Zusatz',
-      'catalogAddition': 'Shtesa',
-      'additionIntro': 'Tippen Sie auf ein Profil, um dessen Zusätze zu verwalten.',
-      'additionSizeLabel': 'Maß (mm)',
-      'additionPriceLabel': 'Preis pro Meter (€)',
-      'additionAdd': 'Zusatz hinzufügen',
-      'additionEditTitle': 'Zusatz bearbeiten',
-      'additionListEmpty': 'Keine Zusätze für dieses Profil gespeichert.',
-
     },
     'fr': {
       'homeCatalogs': 'Liste de prix',
@@ -922,24 +868,6 @@ class AppLocalizations {
       'auto': 'auto',
       'verticalDivision': 'Division verticale',
       'horizontalDivision': 'Division horizontale',
-      'additionTitle': 'Shtesa (Ajout)',
-      'additionSelect': 'Sélectionnez une shtesa',
-      'additionNone': 'Aucune shtesa',
-      'additionUnavailable': 'Aucune shtesa définie pour ce profil',
-      'additionSides': 'Appliquer sur les côtés',
-      'additionSideLeft': 'Gauche',
-      'additionSideRight': 'Droite',
-      'additionSideTop': 'Haut',
-      'additionSideBottom': 'Bas',
-      'additionOpening': 'Ouverture avec shtesa',
-      'catalogAddition': 'Shtesa',
-      'additionIntro': 'Touchez un profil pour gérer les dimensions de la shtesa.',
-      'additionSizeLabel': 'Dimension (mm)',
-      'additionPriceLabel': 'Prix par mètre (€)',
-      'additionAdd': 'Ajouter une shtesa',
-      'additionEditTitle': 'Modifier la shtesa',
-      'additionListEmpty': 'Aucune shtesa enregistrée pour ce profil.',
-
     },
     'it': {
       'homeCatalogs': 'Listino prezzi',
@@ -1161,24 +1089,6 @@ class AppLocalizations {
       'auto': 'auto',
       'verticalDivision': 'Divisione verticale',
       'horizontalDivision': 'Divisione orizzontale',
-      'additionTitle': 'Shtesa (Aggiunta)',
-      'additionSelect': 'Seleziona shtesa',
-      'additionNone': 'Nessuna shtesa',
-      'additionUnavailable': 'Nessuna shtesa definita per questo profilo',
-      'additionSides': 'Applica ai lati',
-      'additionSideLeft': 'Sinistra',
-      'additionSideRight': 'Destra',
-      'additionSideTop': 'Alto',
-      'additionSideBottom': 'Basso',
-      'additionOpening': 'Apertura con shtesa',
-      'catalogAddition': 'Shtesa',
-      'additionIntro': 'Tocca un profilo per gestire le dimensioni della shtesa.',
-      'additionSizeLabel': 'Dimensione (mm)',
-      'additionPriceLabel': 'Prezzo al metro (€)',
-      'additionAdd': 'Aggiungi shtesa',
-      'additionEditTitle': 'Modifica shtesa',
-      'additionListEmpty': 'Nessuna shtesa salvata per questo profilo.',
-
     },
   };
 
@@ -1248,7 +1158,6 @@ class AppLocalizations {
   String get catalogBlind => _t('catalogBlind');
   String get catalogMechanism => _t('catalogMechanism');
   String get catalogAccessory => _t('catalogAccessory');
-  String get catalogAddition => _t('catalogAddition');
   String catalogAddTitle(String type) =>
       _t('catalogAddTitle').replaceAll('{type}', type);
   String catalogEditTitle(String name) =>
@@ -1289,22 +1198,6 @@ class AppLocalizations {
   String get calculate => _t('calculate');
   String get pcs => _t('pcs');
   String get savePdf => _t('savePdf');
-  String get additionTitle => _t('additionTitle');
-  String get additionSelect => _t('additionSelect');
-  String get additionNone => _t('additionNone');
-  String get additionUnavailable => _t('additionUnavailable');
-  String get additionSides => _t('additionSides');
-  String get additionSideLeft => _t('additionSideLeft');
-  String get additionSideRight => _t('additionSideRight');
-  String get additionSideTop => _t('additionSideTop');
-  String get additionSideBottom => _t('additionSideBottom');
-  String get additionOpening => _t('additionOpening');
-  String get additionIntro => _t('additionIntro');
-  String get additionSizeLabel => _t('additionSizeLabel');
-  String get additionPriceLabel => _t('additionPriceLabel');
-  String get additionAdd => _t('additionAdd');
-  String get additionEditTitle => _t('additionEditTitle');
-  String get additionListEmpty => _t('additionListEmpty');
   String get pdfDocument => _t('pdfDocument');
   String get pdfClient => _t('pdfClient');
   String get pdfPage => _t('pdfPage');
