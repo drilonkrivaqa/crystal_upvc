@@ -33,6 +33,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   late Box<Blind> blindBox;
   late Box<Mechanism> mechanismBox;
   late Box<Accessory> accessoryBox;
+  late Box<ProfileShtesa> shtesaBox;
+  VoidCallback? _shtesaListener;
 
   late TextEditingController nameController;
   late TextEditingController widthController;
@@ -53,6 +55,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   int? blindIndex;
   int? mechanismIndex;
   int? accessoryIndex;
+  int? shtesaOptionIndex;
   String? photoPath;
   Uint8List? photoBytes;
   Uint8List? _designImageBytes;
@@ -79,6 +82,12 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   ];
   List<List<bool>> rowVerticalAdapters = [<bool>[]];
   List<TextEditingController> sectionHeightCtrls = [];
+  bool shtesaLeft = false;
+  bool shtesaRight = false;
+  bool shtesaTop = false;
+  bool shtesaBottom = false;
+  int? shtesaSizeMm;
+  double? shtesaPricePerM;
 
   int _normalizeIndex(int? index, int length, {bool allowNegative = false}) {
     if (length <= 0) {
@@ -94,6 +103,64 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     return value;
   }
 
+  List<ShtesaOption> _availableShtesaOptions() {
+    final entry = shtesaBox.values.firstWhere(
+      (e) => e.profileSetIndex == profileSetIndex,
+      orElse: () => ProfileShtesa(profileSetIndex: profileSetIndex),
+    );
+    if (!entry.isInBox) {
+      shtesaBox.add(entry);
+    }
+    return entry.options;
+  }
+
+  void _updateShtesaSelectionForProfile() {
+    final options = _availableShtesaOptions();
+    if (options.isEmpty) {
+      shtesaOptionIndex = null;
+      return;
+    }
+    if (shtesaSizeMm != null) {
+      final match = options.indexWhere((o) => o.sizeMm == shtesaSizeMm);
+      if (match != -1) {
+        shtesaOptionIndex = match;
+        shtesaPricePerM = options[match].pricePerMeter;
+        return;
+      }
+    }
+    if (shtesaOptionIndex != null &&
+        shtesaOptionIndex! >= 0 &&
+        shtesaOptionIndex! < options.length) {
+      shtesaSizeMm = options[shtesaOptionIndex!].sizeMm;
+      shtesaPricePerM = options[shtesaOptionIndex!].pricePerMeter;
+      return;
+    }
+    shtesaOptionIndex = null;
+  }
+
+  int _currentShtesaSize() => shtesaSizeMm ?? 0;
+
+  int _effectiveWidth() {
+    final widthValue = int.tryParse(widthController.text) ?? 0;
+    final size = _currentShtesaSize();
+    final reduction = (shtesaLeft ? size : 0) + (shtesaRight ? size : 0);
+    final result = widthValue - reduction;
+    return result < 0 ? 0 : result;
+  }
+
+  int _effectiveHeight() {
+    final heightValue = int.tryParse(heightController.text) ?? 0;
+    final size = _currentShtesaSize();
+    final reduction = (shtesaTop ? size : 0) + (shtesaBottom ? size : 0);
+    final result = heightValue - reduction;
+    return result < 0 ? 0 : result;
+  }
+
+  void _onShtesaChanged() {
+    _recalculateAllWidths(showErrors: false);
+    _recalculateHeights(showErrors: false);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -102,6 +169,15 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     blindBox = Hive.box<Blind>('blinds');
     mechanismBox = Hive.box<Mechanism>('mechanisms');
     accessoryBox = Hive.box<Accessory>('accessories');
+    shtesaBox = Hive.box<ProfileShtesa>('shtesa');
+    _shtesaListener = () {
+      if (mounted) {
+        setState(() {
+          _updateShtesaSelectionForProfile();
+        });
+      }
+    };
+    shtesaBox.listenable().addListener(_shtesaListener!);
 
     nameController =
         TextEditingController(text: widget.existingItem?.name ?? '');
@@ -143,6 +219,12 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     blindIndex = normalizedBlindIndex >= 0 ? normalizedBlindIndex : null;
     mechanismIndex = widget.existingItem?.mechanismIndex;
     accessoryIndex = widget.existingItem?.accessoryIndex;
+    shtesaLeft = widget.existingItem?.shtesaLeft ?? false;
+    shtesaRight = widget.existingItem?.shtesaRight ?? false;
+    shtesaTop = widget.existingItem?.shtesaTop ?? false;
+    shtesaBottom = widget.existingItem?.shtesaBottom ?? false;
+    shtesaSizeMm = widget.existingItem?.shtesaSizeMm;
+    shtesaPricePerM = widget.existingItem?.shtesaPricePerM;
     photoPath = widget.existingItem?.photoPath;
     photoBytes = widget.existingItem?.photoBytes;
     manualPrice = widget.existingItem?.manualPrice;
@@ -237,11 +319,14 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
         : verticalSections;
     verticalController.text = verticalSections.toString();
     _ensureGridSize();
+    _updateShtesaSelectionForProfile();
+    _onShtesaChanged();
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final shtesaOptions = _availableShtesaOptions();
     final verticalLabel = verticalController.text.trim().isEmpty
         ? verticalSections.toString()
         : verticalController.text.trim();
@@ -477,8 +562,11 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                                   ),
                                 ),
                             ],
-                            onChanged: (val) =>
-                                setState(() => profileSetIndex = val ?? 0),
+                            onChanged: (val) => setState(() {
+                              profileSetIndex = val ?? 0;
+                              _updateShtesaSelectionForProfile();
+                              _onShtesaChanged();
+                            }),
                           ),
                           DropdownButtonFormField<int>(
                             initialValue: glassIndex,
@@ -570,7 +658,104 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                             onChanged: (val) =>
                                 setState(() => accessoryIndex = val),
                           ),
+                          DropdownButtonFormField<int?>(
+                            value: shtesaOptionIndex,
+                            isExpanded: true,
+                            decoration:
+                                InputDecoration(labelText: l10n.shtesaOptional),
+                            items: [
+                              DropdownMenuItem<int?>(
+                                value: null,
+                                child: Text(l10n.none),
+                              ),
+                              for (int i = 0; i < shtesaOptions.length; i++)
+                                DropdownMenuItem<int?>(
+                                  value: i,
+                                  child: Text(
+                                      '${shtesaOptions[i].sizeMm}mm · €${shtesaOptions[i].pricePerMeter.toStringAsFixed(2)}/m'),
+                                ),
+                            ],
+                            onChanged: (val) {
+                              setState(() {
+                                shtesaOptionIndex = val;
+                                if (val != null &&
+                                    val >= 0 &&
+                                    val < shtesaOptions.length) {
+                                  shtesaSizeMm = shtesaOptions[val].sizeMm;
+                                  shtesaPricePerM =
+                                      shtesaOptions[val].pricePerMeter;
+                                } else {
+                                  shtesaSizeMm = null;
+                                  shtesaPricePerM = null;
+                                  shtesaLeft = false;
+                                  shtesaRight = false;
+                                  shtesaTop = false;
+                                  shtesaBottom = false;
+                                }
+                                _onShtesaChanged();
+                              });
+                            },
+                          ),
                         ]),
+                        const SizedBox(height: 12),
+                        if (shtesaOptions.isEmpty)
+                          Text(
+                            l10n.shtesaNoSizes,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(color: AppColors.grey600),
+                          ),
+                        if (shtesaSizeMm != null)
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(height: 8),
+                              Text(l10n.shtesaSides,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(fontWeight: FontWeight.w600)),
+                              const SizedBox(height: 8),
+                              Wrap(
+                                spacing: 8,
+                                children: [
+                                  FilterChip(
+                                    label: Text(l10n.sideLeft),
+                                    selected: shtesaLeft,
+                                    onSelected: (v) => setState(() {
+                                      shtesaLeft = v;
+                                      _onShtesaChanged();
+                                    }),
+                                  ),
+                                  FilterChip(
+                                    label: Text(l10n.sideRight),
+                                    selected: shtesaRight,
+                                    onSelected: (v) => setState(() {
+                                      shtesaRight = v;
+                                      _onShtesaChanged();
+                                    }),
+                                  ),
+                                  FilterChip(
+                                    label: Text(l10n.sideTop),
+                                    selected: shtesaTop,
+                                    onSelected: (v) => setState(() {
+                                      shtesaTop = v;
+                                      _onShtesaChanged();
+                                    }),
+                                  ),
+                                  FilterChip(
+                                    label: Text(l10n.sideBottom),
+                                    selected: shtesaBottom,
+                                    onSelected: (v) => setState(() {
+                                      shtesaBottom = v;
+                                      _onShtesaChanged();
+                                    }),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                       ],
                     ),
                     const SizedBox(height: 16),
@@ -827,6 +1012,14 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
       }
     }
 
+    final hasShtesaSize = (shtesaSizeMm ?? 0) > 0;
+    if (!hasShtesaSize) {
+      shtesaLeft = false;
+      shtesaRight = false;
+      shtesaTop = false;
+      shtesaBottom = false;
+    }
+
     widget.onSave(
       WindowDoorItem(
         name: name,
@@ -862,6 +1055,12 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
             rowFixedSectors.map((row) => List<bool>.from(row)).toList(),
         perRowVerticalAdapters:
             rowVerticalAdapters.map((row) => List<bool>.from(row)).toList(),
+        shtesaLeft: shtesaLeft,
+        shtesaRight: shtesaRight,
+        shtesaTop: shtesaTop,
+        shtesaBottom: shtesaBottom,
+        shtesaSizeMm: hasShtesaSize ? shtesaSizeMm : null,
+        shtesaPricePerM: hasShtesaSize ? shtesaPricePerM : null,
       ),
     );
     return true;
@@ -1101,7 +1300,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     final columns = rowVerticalSections[row];
     if (columns <= 0) return;
 
-    final totalWidth = int.tryParse(widthController.text) ?? 0;
+    final totalWidth = _effectiveWidth();
     int specifiedSum = 0;
     int unspecified = 0;
     for (int i = 0; i < columns - 1; i++) {
@@ -1158,7 +1357,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
 
   void _recalculateHeights({bool showErrors = true}) {
     if (horizontalSections == 0) return;
-    int totalHeight = int.tryParse(heightController.text) ?? 0;
+    int totalHeight = _effectiveHeight();
     int specifiedSum = 0;
     int unspecified = 0;
     for (int i = 0; i < horizontalSections - 1; i++) {
@@ -1478,6 +1677,9 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
 
   @override
   void dispose() {
+    if (_shtesaListener != null) {
+      shtesaBox.listenable().removeListener(_shtesaListener!);
+    }
     nameController.dispose();
     widthController.dispose();
     heightController.dispose();
