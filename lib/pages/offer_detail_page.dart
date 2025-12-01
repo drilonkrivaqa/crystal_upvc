@@ -963,7 +963,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                     boxHeight: blind?.boxHeight ?? 0) *
                 item.quantity;
             double blindCost = (blind != null)
-                ? (item.calculateBlindPricingArea() *
+                ? (item.calculateBlindPricingArea(profileSet,
+                        boxHeight: blind.boxHeight) *
                     blind.pricePerM2 *
                     item.quantity)
                 : 0;
@@ -972,6 +973,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 : 0;
             double accessoryCost =
                 (accessory != null) ? accessory.price * item.quantity : 0;
+            double additionCost =
+                item.calculateAdditionCost(profileSet) * item.quantity;
             double extras =
                 ((item.extra1Price ?? 0) + (item.extra2Price ?? 0)) *
                     item.quantity;
@@ -979,7 +982,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 glassCost +
                 blindCost +
                 mechanismCost +
-                accessoryCost;
+                accessoryCost +
+                additionCost;
             final profileMass = item.calculateProfileMass(profileSet,
                     boxHeight: blind?.boxHeight ?? 0) *
                 item.quantity;
@@ -987,8 +991,10 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                     boxHeight: blind?.boxHeight ?? 0) *
                 item.quantity;
             final blindMass = (blind != null)
-                ? ((item.width / 1000.0) *
-                    (item.height / 1000.0) *
+                ? ((item.effectiveWidth(profileSet) / 1000.0) *
+                    ((item.effectiveHeight(profileSet) - blind.boxHeight)
+                            .clamp(0, item.effectiveHeight(profileSet)) /
+                        1000.0) *
                     blind.massPerM2 *
                     item.quantity)
                 : 0;
@@ -1002,7 +1008,9 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 blindMass +
                 mechanismMass +
                 accessoryMass;
-            final itemArea = item.calculateTotalArea() * item.quantity;
+            final itemArea = item
+                    .calculateTotalArea(profileSet, boxHeight: blind?.boxHeight ?? 0) *
+                item.quantity;
             if (item.manualBasePrice != null) {
               base = item.manualBasePrice!;
             }
@@ -1377,7 +1385,9 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                     boxHeight: blind?.boxHeight ?? 0);
                 double glassCost = glassCostPer * item.quantity;
                 double blindCostPer = (blind != null)
-                    ? (item.calculateBlindPricingArea() * blind.pricePerM2)
+                    ? (item.calculateBlindPricingArea(profileSet,
+                            boxHeight: blind.boxHeight) *
+                        blind.pricePerM2)
                     : 0;
                 double blindCost = blindCostPer * item.quantity;
                 double mechanismCostPer =
@@ -1386,6 +1396,9 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 double accessoryCostPer =
                     (accessory != null) ? accessory.price : 0;
                 double accessoryCost = accessoryCostPer * item.quantity;
+                double additionCostPer =
+                    item.calculateAdditionCost(profileSet);
+                double additionCost = additionCostPer * item.quantity;
                 double extrasPer =
                     (item.extra1Price ?? 0) + (item.extra2Price ?? 0);
                 double extras = extrasPer * item.quantity;
@@ -1394,11 +1407,16 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                     boxHeight: blind?.boxHeight ?? 0);
                 double glassMassPer = item.calculateGlassMass(profileSet, glass,
                     boxHeight: blind?.boxHeight ?? 0);
-                double blindMassPer = (blind != null)
-                    ? ((item.width / 1000.0) *
-                        (item.height / 1000.0) *
-                        blind.massPerM2)
-                    : 0;
+                double blindMassPer = 0;
+                if (blind != null) {
+                  final effectiveWidth =
+                      item.effectiveWidth(profileSet) / 1000.0;
+                  final effectiveHeight =
+                      (item.effectiveHeight(profileSet) - blind.boxHeight)
+                          .clamp(0, item.effectiveHeight(profileSet)) /
+                          1000.0;
+                  blindMassPer = effectiveWidth * effectiveHeight * blind.massPerM2;
+                }
                 double mechanismMassPer =
                     (mechanism != null) ? mechanism.mass * item.openings : 0;
                 double accessoryMassPer =
@@ -1414,7 +1432,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                     glassCostPer +
                     blindCostPer +
                     mechanismCostPer +
-                    accessoryCostPer;
+                    accessoryCostPer +
+                    additionCostPer;
                 double base = basePer * item.quantity;
                 if (item.manualBasePrice != null) {
                   base = item.manualBasePrice!;
@@ -1436,6 +1455,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 double? uw = item.calculateUw(profileSet, glass,
                     boxHeight: blind?.boxHeight ?? 0);
 
+                final addition = item.selectedAddition(profileSet);
                 final detailSections = _buildItemDetailSections(
                   item: item,
                   profileSet: profileSet,
@@ -1450,6 +1470,9 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                   blindCost: blindCost,
                   mechanismCost: mechanismCost,
                   accessoryCost: accessoryCost,
+                  addition: addition,
+                  additionCostPer: additionCostPer,
+                  additionCost: additionCost,
                   extrasPer: extrasPer,
                   extras: extras,
                   totalPer: totalPer,
@@ -2311,6 +2334,9 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
     required double blindCost,
     required double mechanismCost,
     required double accessoryCost,
+    Addition? addition,
+    required double additionCostPer,
+    required double additionCost,
     required double extrasPer,
     required double extras,
     required double totalPer,
@@ -2323,9 +2349,27 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
     double? uw,
   }) {
     final sections = <_DetailSection>[];
+    String _formatAdditionSides(WindowDoorItem item) {
+      final sides = <String>[];
+      if (item.additionLeft) sides.add('Left');
+      if (item.additionRight) sides.add('Right');
+      if (item.additionTop) sides.add('Top');
+      if (item.additionBottom) sides.add('Bottom');
+      return sides.isEmpty ? 'None' : sides.join(', ');
+    }
+
+    final openingWidth = item.effectiveWidth(profileSet);
+    final openingHeight = item.effectiveHeight(profileSet);
+    final hasAddition = addition != null &&
+        (item.additionLeft ||
+            item.additionRight ||
+            item.additionTop ||
+            item.additionBottom);
+    final additionSides = _formatAdditionSides(item);
 
     final generalEntries = <_DetailEntry>[
       _DetailEntry('Size', '${item.width} x ${item.height} mm'),
+      _DetailEntry('Opening', '$openingWidth x $openingHeight mm'),
       _DetailEntry('Quantity', '${item.quantity} pcs'),
       _DetailEntry('Profile', profileSet.name),
       _DetailEntry('Glass', glass.name),
@@ -2333,6 +2377,15 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
           'Sections', '${item.horizontalSections}x${item.verticalSections}'),
       _DetailEntry('Mass', '${totalMass.toStringAsFixed(2)} kg'),
     ];
+    if (hasAddition && addition != null) {
+      generalEntries.add(
+        _DetailEntry(
+            'Addition', '${addition.name} (${addition.sizeMm}mm)'),
+      );
+      generalEntries.add(
+        _DetailEntry('Addition sides', additionSides),
+      );
+    }
     if (item.notes != null && item.notes!.isNotEmpty) {
       generalEntries.add(
         _DetailEntry('Notes', item.notes!, spanFullWidth: true),
@@ -2424,6 +2477,14 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
       componentEntries.add(
         _DetailEntry('Accessory',
             '${accessory.name} · €${accessoryCost.toStringAsFixed(2)}'),
+      );
+    }
+    if (hasAddition) {
+      componentEntries.add(
+        _DetailEntry(
+          'Addition cost',
+          '€${additionCostPer.toStringAsFixed(2)} / pc · €${additionCost.toStringAsFixed(2)} (${item.quantity}pcs)',
+        ),
       );
     }
     if (item.extra1Price != null) {

@@ -53,6 +53,11 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   int? blindIndex;
   int? mechanismIndex;
   int? accessoryIndex;
+  int additionIndex = -1;
+  bool additionLeft = false;
+  bool additionRight = false;
+  bool additionTop = false;
+  bool additionBottom = false;
   String? photoPath;
   Uint8List? photoBytes;
   Uint8List? _designImageBytes;
@@ -92,6 +97,57 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
       return length - 1;
     }
     return value;
+  }
+
+  ProfileSet? get _currentProfileSet {
+    if (profileSetBox.isEmpty || profileSetIndex >= profileSetBox.length) {
+      return null;
+    }
+    return profileSetBox.getAt(profileSetIndex);
+  }
+
+  Addition? _selectedAddition(ProfileSet? profile) {
+    if (profile == null) return null;
+    if (additionIndex < 0 || additionIndex >= profile.additions.length) {
+      return null;
+    }
+    return profile.additions[additionIndex];
+  }
+
+  int _rawWidth() => int.tryParse(widthController.text) ?? 0;
+  int _rawHeight() => int.tryParse(heightController.text) ?? 0;
+
+  int _effectiveInputWidth() {
+    final profile = _currentProfileSet;
+    final addition = _selectedAddition(profile);
+    final raw = _rawWidth();
+    if (addition == null) return raw;
+    final reduction =
+        (additionLeft ? addition.sizeMm : 0) + (additionRight ? addition.sizeMm : 0);
+    return (raw - reduction).clamp(0, raw);
+  }
+
+  int _effectiveInputHeight() {
+    final profile = _currentProfileSet;
+    final addition = _selectedAddition(profile);
+    final raw = _rawHeight();
+    if (addition == null) return raw;
+    final reduction =
+        (additionTop ? addition.sizeMm : 0) + (additionBottom ? addition.sizeMm : 0);
+    return (raw - reduction).clamp(0, raw);
+  }
+
+  void _syncAdditionSelection() {
+    final additions = _currentProfileSet?.additions ?? const <Addition>[];
+    if (additionIndex >= additions.length || additionIndex < 0) {
+      additionIndex = additions.isNotEmpty ? 0 : -1;
+    }
+    if (additionIndex < 0) {
+      additionLeft = false;
+      additionRight = false;
+      additionTop = false;
+      additionBottom = false;
+    }
   }
 
   @override
@@ -143,6 +199,16 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     blindIndex = normalizedBlindIndex >= 0 ? normalizedBlindIndex : null;
     mechanismIndex = widget.existingItem?.mechanismIndex;
     accessoryIndex = widget.existingItem?.accessoryIndex;
+    final additions = profileSetBox.isNotEmpty
+        ? profileSetBox.getAt(profileSetIndex)?.additions.length ?? 0
+        : 0;
+    additionIndex = _normalizeIndex(
+        widget.existingItem?.additionIndex ?? -1, additions,
+        allowNegative: true);
+    additionLeft = widget.existingItem?.additionLeft ?? false;
+    additionRight = widget.existingItem?.additionRight ?? false;
+    additionTop = widget.existingItem?.additionTop ?? false;
+    additionBottom = widget.existingItem?.additionBottom ?? false;
     photoPath = widget.existingItem?.photoPath;
     photoBytes = widget.existingItem?.photoBytes;
     manualPrice = widget.existingItem?.manualPrice;
@@ -158,6 +224,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     sectionHeights = List<int>.from(existingItem?.sectionHeights ?? []);
     horizontalAdapters =
         List<bool>.from(existingItem?.horizontalAdapters ?? []);
+    _syncAdditionSelection();
 
     final existingFixed =
         List<bool>.from(existingItem?.fixedSectors ?? <bool>[]);
@@ -395,6 +462,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                       ],
                     ),
                     const SizedBox(height: 16),
+                    _buildAdditionSection(l10n),
+                    const SizedBox(height: 16),
                     _buildSectionCard(
                       children: [
                         _buildSectionTitle(
@@ -467,19 +536,25 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                             isExpanded: true,
                             decoration:
                                 InputDecoration(labelText: l10n.catalogProfile),
-                            items: [
-                              for (int i = 0; i < profileSetBox.length; i++)
-                                DropdownMenuItem<int>(
-                                  value: i,
-                                  child: Text(
-                                    profileSetBox.getAt(i)?.name ?? '',
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
+                          items: [
+                            for (int i = 0; i < profileSetBox.length; i++)
+                              DropdownMenuItem<int>(
+                                value: i,
+                                child: Text(
+                                  profileSetBox.getAt(i)?.name ?? '',
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                            ],
-                            onChanged: (val) =>
-                                setState(() => profileSetIndex = val ?? 0),
-                          ),
+                              ),
+                          ],
+                          onChanged: (val) {
+                            setState(() {
+                              profileSetIndex = val ?? 0;
+                              _syncAdditionSelection();
+                            });
+                            _recalculateAllWidths(showErrors: false);
+                            _recalculateHeights(showErrors: false);
+                          },
+                        ),
                           DropdownButtonFormField<int>(
                             initialValue: glassIndex,
                             isExpanded: true,
@@ -788,6 +863,9 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     final width = int.tryParse(widthController.text) ?? 0;
     final height = int.tryParse(heightController.text) ?? 0;
     final quantity = int.tryParse(quantityController.text) ?? 1;
+    _syncAdditionSelection();
+    final validAddition = _selectedAddition(_currentProfileSet) != null;
+    final additionIdxToSave = validAddition ? additionIndex : -1;
     _ensureGridSize();
     final openings = rowFixedSectors.fold<int>(
         0, (prev, row) => prev + row.where((isFixed) => !isFixed).length);
@@ -862,6 +940,11 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
             rowFixedSectors.map((row) => List<bool>.from(row)).toList(),
         perRowVerticalAdapters:
             rowVerticalAdapters.map((row) => List<bool>.from(row)).toList(),
+        additionIndex: additionIdxToSave,
+        additionLeft: validAddition ? additionLeft : false,
+        additionRight: validAddition ? additionRight : false,
+        additionTop: validAddition ? additionTop : false,
+        additionBottom: validAddition ? additionBottom : false,
       ),
     );
     return true;
@@ -1101,7 +1184,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     final columns = rowVerticalSections[row];
     if (columns <= 0) return;
 
-    final totalWidth = int.tryParse(widthController.text) ?? 0;
+    final totalWidth = _effectiveInputWidth();
     int specifiedSum = 0;
     int unspecified = 0;
     for (int i = 0; i < columns - 1; i++) {
@@ -1158,7 +1241,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
 
   void _recalculateHeights({bool showErrors = true}) {
     if (horizontalSections == 0) return;
-    int totalHeight = int.tryParse(heightController.text) ?? 0;
+    int totalHeight = _effectiveInputHeight();
     int specifiedSum = 0;
     int unspecified = 0;
     for (int i = 0; i < horizontalSections - 1; i++) {
@@ -1268,6 +1351,123 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
               ],
             ),
           ),
+      ],
+    );
+  }
+
+
+
+  Widget _buildAdditionSection(AppLocalizations l10n) {
+    final profile = _currentProfileSet;
+    final additions = profile?.additions ?? const <Addition>[];
+    final hasSelection = _selectedAddition(profile) != null;
+    final chipsEnabled = hasSelection;
+    final effectiveWidth = _effectiveInputWidth();
+    final effectiveHeight = _effectiveInputHeight();
+
+    return _buildSectionCard(
+      children: [
+        _buildSectionTitle(
+          context,
+          l10n.additionTitle,
+          Icons.extension,
+        ),
+        const SizedBox(height: 12),
+        DropdownButtonFormField<int>(
+          value: hasSelection ? additionIndex : -1,
+          isExpanded: true,
+          decoration: InputDecoration(labelText: l10n.additionSelect),
+          items: [
+            DropdownMenuItem<int>(
+              value: -1,
+              child: Text(l10n.additionNone),
+            ),
+            for (int i = 0; i < additions.length; i++)
+              DropdownMenuItem<int>(
+                value: i,
+                child: Text(
+                  '${additions[i].name} · ${additions[i].sizeMm}mm · €${additions[i].pricePerMeter.toStringAsFixed(2)}/m',
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+          ],
+          onChanged: (val) {
+            setState(() {
+              additionIndex = val ?? -1;
+              if (additionIndex < 0) {
+                additionLeft = false;
+                additionRight = false;
+                additionTop = false;
+                additionBottom = false;
+              }
+            });
+            _recalculateAllWidths(showErrors: false);
+            _recalculateHeights(showErrors: false);
+          },
+        ),
+        const SizedBox(height: 12),
+        if (additions.isEmpty)
+          Text(
+            l10n.additionUnavailable,
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+        if (additions.isNotEmpty) ...[
+          Text(l10n.additionSides),
+          const SizedBox(height: 6),
+          Wrap(
+            spacing: 8,
+            runSpacing: 6,
+            children: [
+              FilterChip(
+                label: Text(l10n.additionSideLeft),
+                selected: additionLeft,
+                onSelected: chipsEnabled
+                    ? (val) {
+                        setState(() => additionLeft = val);
+                        _recalculateAllWidths(showErrors: false);
+                        _recalculateHeights(showErrors: false);
+                      }
+                    : null,
+              ),
+              FilterChip(
+                label: Text(l10n.additionSideRight),
+                selected: additionRight,
+                onSelected: chipsEnabled
+                    ? (val) {
+                        setState(() => additionRight = val);
+                        _recalculateAllWidths(showErrors: false);
+                        _recalculateHeights(showErrors: false);
+                      }
+                    : null,
+              ),
+              FilterChip(
+                label: Text(l10n.additionSideTop),
+                selected: additionTop,
+                onSelected: chipsEnabled
+                    ? (val) {
+                        setState(() => additionTop = val);
+                        _recalculateAllWidths(showErrors: false);
+                        _recalculateHeights(showErrors: false);
+                      }
+                    : null,
+              ),
+              FilterChip(
+                label: Text(l10n.additionSideBottom),
+                selected: additionBottom,
+                onSelected: chipsEnabled
+                    ? (val) {
+                        setState(() => additionBottom = val);
+                        _recalculateAllWidths(showErrors: false);
+                        _recalculateHeights(showErrors: false);
+                      }
+                    : null,
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          _buildInfoChip(Icons.aspect_ratio,
+              '${l10n.additionOpening}: $effectiveWidth x $effectiveHeight mm'),
+        ],
       ],
     );
   }
