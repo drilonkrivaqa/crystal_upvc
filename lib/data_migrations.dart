@@ -63,6 +63,10 @@ Future<bool> _migrateProfileSets() async {
           profile.adapterOuterThickness = 0;
           changed = true;
         }
+        if ((p.additions as List?) == null) {
+          profile.additions = const <Addition>[];
+          changed = true;
+        }
         if (changed) {
           await profile.save();
         }
@@ -195,6 +199,29 @@ Future<bool> _migrateOffers() async {
         offer.defaultBlindIndex = normalizedBlind;
         changed = true;
       }
+      for (final item in offer.items) {
+        final i = item as dynamic;
+        if (i.additionIndex == null) {
+          item.additionIndex = -1;
+          changed = true;
+        }
+        if (i.additionLeft == null) {
+          item.additionLeft = false;
+          changed = true;
+        }
+        if (i.additionRight == null) {
+          item.additionRight = false;
+          changed = true;
+        }
+        if (i.additionTop == null) {
+          item.additionTop = false;
+          changed = true;
+        }
+        if (i.additionBottom == null) {
+          item.additionBottom = false;
+          changed = true;
+        }
+      }
       for (final version in offer.versions) {
         final normalizedVersionProfile =
             normalize(version.defaultProfileSetIndex, profileBox.length);
@@ -214,6 +241,29 @@ Future<bool> _migrateOffers() async {
         if (normalizedVersionBlind != version.defaultBlindIndex) {
           version.defaultBlindIndex = normalizedVersionBlind;
           changed = true;
+        }
+        for (final item in version.items) {
+          final i = item as dynamic;
+          if (i.additionIndex == null) {
+            item.additionIndex = -1;
+            changed = true;
+          }
+          if (i.additionLeft == null) {
+            item.additionLeft = false;
+            changed = true;
+          }
+          if (i.additionRight == null) {
+            item.additionRight = false;
+            changed = true;
+          }
+          if (i.additionTop == null) {
+            item.additionTop = false;
+            changed = true;
+          }
+          if (i.additionBottom == null) {
+            item.additionBottom = false;
+            changed = true;
+          }
         }
       }
       if (offer.offerNumber <= 0) {
