@@ -43,7 +43,6 @@ class AppLocalizations {
       'catalogBlind': 'Roleta',
       'catalogMechanism': 'Mekanizma',
       'catalogAccessory': 'Aksesorë',
-      'catalogShtesa': 'Shtesa',
       'catalogAddTitle': 'Shto {type}',
       'catalogEditTitle': 'Ndrysho {name}',
       'catalogSectionGeneral': 'Të përgjithshme',
@@ -78,19 +77,6 @@ class AppLocalizations {
       'catalogFieldBoxHeight': 'Lartësia e kutisë (mm)',
       'catalogFieldPrice': 'Çmimi (€)',
       'catalogFieldMass': 'Masa (kg)',
-      'shtesaNoProfiles': 'Ju lutem regjistroni profilat përpara se të konfiguroni shtesat.',
-      'shtesaNoSizes': 'Nuk ka shtesa të regjistruara',
-      'shtesaAddSize': 'Shto shtesë',
-      'shtesaSelectSize': 'Madhësia e shtesës',
-      'shtesaOptional': 'Shtesa (opsionale)',
-      'shtesaSides': 'Anët e shtesës',
-      'pricePerMeter': 'Çmimi për metër',
-      'lengthMm': 'Gjatësia (mm)',
-      'sideLeft': 'Majtas',
-      'sideRight': 'Djathtas',
-      'sideTop': 'Sipër',
-      'sideBottom': 'Poshtë',
-      'shtesaSummary': 'Shtesa',
       'calculate': 'Kalkulo',
       'pcs': 'copë',
       'savePdf': 'Ruaj PDF',
@@ -279,7 +265,6 @@ class AppLocalizations {
       'catalogBlind': 'Roller Shutter',
       'catalogMechanism': 'Mechanisms',
       'catalogAccessory': 'Accessories',
-      'catalogShtesa': 'Add-ons',
       'catalogAddTitle': 'Add {type}',
       'catalogEditTitle': 'Edit {name}',
       'catalogSectionGeneral': 'General',
@@ -314,19 +299,6 @@ class AppLocalizations {
       'catalogFieldBoxHeight': 'Box height (mm)',
       'catalogFieldPrice': 'Price (€)',
       'catalogFieldMass': 'Mass (kg)',
-      'shtesaNoProfiles': 'Please register profiles first to configure shtesa.',
-      'shtesaNoSizes': 'No shtesa sizes yet',
-      'shtesaAddSize': 'Add shtesa size',
-      'shtesaSelectSize': 'Shtesa size',
-      'shtesaOptional': 'Shtesa (optional)',
-      'shtesaSides': 'Shtesa sides',
-      'pricePerMeter': 'Price per meter',
-      'lengthMm': 'Length (mm)',
-      'sideLeft': 'Left',
-      'sideRight': 'Right',
-      'sideTop': 'Top',
-      'sideBottom': 'Bottom',
-      'shtesaSummary': 'Shtesa',
       'calculate': 'Calculate',
       'pcs': 'pcs',
       'savePdf': 'Save PDF',
@@ -512,7 +484,6 @@ class AppLocalizations {
       'catalogBlind': 'Rollladen',
       'catalogMechanism': 'Mechanismen',
       'catalogAccessory': 'Zubehör',
-      'catalogShtesa': 'Aufsatzprofil',
       'catalogAddTitle': '{type} hinzufügen',
       'catalogEditTitle': '{name} bearbeiten',
       'catalogSectionGeneral': 'Allgemein',
@@ -547,20 +518,6 @@ class AppLocalizations {
       'catalogFieldBoxHeight': 'Kastenhöhe (mm)',
       'catalogFieldPrice': 'Preis (€)',
       'catalogFieldMass': 'Masse (kg)',
-      'shtesaNoProfiles':
-          'Bitte registrieren Sie zuerst Profile, um Shtesa zu konfigurieren.',
-      'shtesaNoSizes': 'Noch keine Shtesa-Größen',
-      'shtesaAddSize': 'Shtesa-Größe hinzufügen',
-      'shtesaSelectSize': 'Shtesa-Größe',
-      'shtesaOptional': 'Shtesa (optional)',
-      'shtesaSides': 'Shtesa-Seiten',
-      'pricePerMeter': 'Preis pro Meter',
-      'lengthMm': 'Länge (mm)',
-      'sideLeft': 'Links',
-      'sideRight': 'Rechts',
-      'sideTop': 'Oben',
-      'sideBottom': 'Unten',
-      'shtesaSummary': 'Shtesa',
       'calculate': 'Berechne',
       'pcs': 'Stk.',
       'savePdf': 'PDF speichern',
@@ -736,7 +693,6 @@ class AppLocalizations {
       'catalogBlind': 'Volet roulant',
       'catalogMechanism': 'Mécanismes',
       'catalogAccessory': 'Accessoires',
-      'catalogShtesa': 'Shtesa',
       'catalogAddTitle': 'Ajouter {type}',
       'catalogEditTitle': 'Modifier {name}',
       'catalogSectionGeneral': 'Général',
@@ -772,20 +728,6 @@ class AppLocalizations {
       'catalogFieldBoxHeight': 'Hauteur caisson (mm)',
       'catalogFieldPrice': 'Prix (€)',
       'catalogFieldMass': 'Masse (kg)',
-      'shtesaNoProfiles':
-          'Enregistrez d\'abord des profils pour configurer les shtesa.',
-      'shtesaNoSizes': 'Aucune dimension de shtesa',
-      'shtesaAddSize': 'Ajouter une dimension de shtesa',
-      'shtesaSelectSize': 'Taille de shtesa',
-      'shtesaOptional': 'Shtesa (optionnel)',
-      'shtesaSides': 'Côtés shtesa',
-      'pricePerMeter': 'Prix par mètre',
-      'lengthMm': 'Longueur (mm)',
-      'sideLeft': 'Gauche',
-      'sideRight': 'Droite',
-      'sideTop': 'Haut',
-      'sideBottom': 'Bas',
-      'shtesaSummary': 'Shtesa',
       'calculate': 'Calculer',
       'pcs': 'pcs',
       'savePdf': 'Enregistrer le PDF',
@@ -962,7 +904,6 @@ class AppLocalizations {
       'catalogBlind': 'Tapparella',
       'catalogMechanism': 'Meccanismi',
       'catalogAccessory': 'Accessori',
-      'catalogShtesa': 'Shtesa',
       'catalogAddTitle': 'Aggiungi {type}',
       'catalogEditTitle': 'Modifica {name}',
       'catalogSectionGeneral': 'Generale',
@@ -997,20 +938,6 @@ class AppLocalizations {
       'catalogFieldBoxHeight': 'Altezza cassonetto (mm)',
       'catalogFieldPrice': 'Prezzo (€)',
       'catalogFieldMass': 'Massa (kg)',
-      'shtesaNoProfiles':
-          'Registra prima i profili per configurare le shtesa.',
-      'shtesaNoSizes': 'Nessuna shtesa salvata',
-      'shtesaAddSize': 'Aggiungi shtesa',
-      'shtesaSelectSize': 'Dimensione shtesa',
-      'shtesaOptional': 'Shtesa (opzionale)',
-      'shtesaSides': 'Lati shtesa',
-      'pricePerMeter': 'Prezzo al metro',
-      'lengthMm': 'Lunghezza (mm)',
-      'sideLeft': 'Sinistra',
-      'sideRight': 'Destra',
-      'sideTop': 'Alto',
-      'sideBottom': 'Basso',
-      'shtesaSummary': 'Shtesa',
       'calculate': 'Calcola',
       'pcs': 'pz',
       'savePdf': 'Salva PDF',
@@ -1231,7 +1158,6 @@ class AppLocalizations {
   String get catalogBlind => _t('catalogBlind');
   String get catalogMechanism => _t('catalogMechanism');
   String get catalogAccessory => _t('catalogAccessory');
-  String get catalogShtesa => _t('catalogShtesa');
   String catalogAddTitle(String type) =>
       _t('catalogAddTitle').replaceAll('{type}', type);
   String catalogEditTitle(String name) =>
@@ -1269,19 +1195,6 @@ class AppLocalizations {
   String get catalogFieldBoxHeight => _t('catalogFieldBoxHeight');
   String get catalogFieldPrice => _t('catalogFieldPrice');
   String get catalogFieldMass => _t('catalogFieldMass');
-  String get shtesaNoProfiles => _t('shtesaNoProfiles');
-  String get shtesaNoSizes => _t('shtesaNoSizes');
-  String get shtesaAddSize => _t('shtesaAddSize');
-  String get shtesaSelectSize => _t('shtesaSelectSize');
-  String get shtesaOptional => _t('shtesaOptional');
-  String get shtesaSides => _t('shtesaSides');
-  String get pricePerMeter => _t('pricePerMeter');
-  String get lengthMm => _t('lengthMm');
-  String get sideLeft => _t('sideLeft');
-  String get sideRight => _t('sideRight');
-  String get sideTop => _t('sideTop');
-  String get sideBottom => _t('sideBottom');
-  String get shtesaSummary => _t('shtesaSummary');
   String get calculate => _t('calculate');
   String get pcs => _t('pcs');
   String get savePdf => _t('savePdf');

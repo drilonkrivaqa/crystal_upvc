@@ -29,7 +29,6 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
   late Box<Blind> blindBox;
   late Box<Mechanism> mechanismBox;
   late Box<Accessory> accessoryBox;
-  late Box<ProfileShtesa> shtesaBox;
   late TextEditingController discountPercentController;
   late TextEditingController discountAmountController;
   late TextEditingController notesController;
@@ -945,21 +944,6 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
           int totalPcs = 0;
           double totalMass = 0;
           double totalArea = 0;
-          double? shtesaPriceFor(WindowDoorItem item) {
-            if ((item.shtesaSizeMm ?? 0) <= 0) return null;
-            final entry = shtesaBox.values.firstWhere(
-              (e) => e.profileSetIndex == item.profileSetIndex,
-              orElse: () => ProfileShtesa(profileSetIndex: item.profileSetIndex),
-            );
-            final option = entry.options.firstWhere(
-              (o) => o.sizeMm == item.shtesaSizeMm,
-              orElse: () =>
-                  ShtesaOption(
-                      sizeMm: item.shtesaSizeMm ?? 0,
-                      pricePerMeter: item.shtesaPricePerM ?? 0),
-            );
-            return option.pricePerMeter;
-          }
           for (var item in offer.items) {
             final profileSet = profileSetBox.getAt(item.profileSetIndex)!;
             final glass = glassBox.getAt(item.glassIndex)!;
@@ -972,7 +956,6 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
             final accessory = (item.accessoryIndex != null)
                 ? accessoryBox.getAt(item.accessoryIndex!)
                 : null;
-            final shtesaPrice = shtesaPriceFor(item);
             double profileCost = item.calculateProfileCost(profileSet,
                     boxHeight: blind?.boxHeight ?? 0) *
                 item.quantity;
@@ -989,9 +972,6 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 : 0;
             double accessoryCost =
                 (accessory != null) ? accessory.price * item.quantity : 0;
-            double shtesaCost = item
-                    .calculateShtesaCost(overridePricePerMeter: shtesaPrice) *
-                item.quantity;
             double extras =
                 ((item.extra1Price ?? 0) + (item.extra2Price ?? 0)) *
                     item.quantity;
@@ -999,8 +979,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 glassCost +
                 blindCost +
                 mechanismCost +
-                accessoryCost +
-                shtesaCost;
+                accessoryCost;
             final profileMass = item.calculateProfileMass(profileSet,
                     boxHeight: blind?.boxHeight ?? 0) *
                 item.quantity;
@@ -1008,8 +987,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                     boxHeight: blind?.boxHeight ?? 0) *
                 item.quantity;
             final blindMass = (blind != null)
-                ? ((item.effectiveWidthMm() / 1000.0) *
-                    (item.effectiveHeightMm() / 1000.0) *
+                ? ((item.width / 1000.0) *
+                    (item.height / 1000.0) *
                     blind.massPerM2 *
                     item.quantity)
                 : 0;
@@ -1264,7 +1243,6 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
     blindBox = Hive.box<Blind>('blinds');
     mechanismBox = Hive.box<Mechanism>('mechanisms');
     accessoryBox = Hive.box<Accessory>('accessories');
-    shtesaBox = Hive.box<ProfileShtesa>('shtesa');
     final offer = offerBox.getAt(widget.offerIndex)!;
     discountPercentController =
         TextEditingController(text: offer.discountPercent.toString());
@@ -1335,7 +1313,6 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 blindBox: blindBox,
                 mechanismBox: mechanismBox,
                 accessoryBox: accessoryBox,
-                shtesaBox: shtesaBox,
                 l10n: AppLocalizations.of(context),
               );
             },
@@ -1392,10 +1369,6 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 final accessory = (item.accessoryIndex != null)
                     ? accessoryBox.getAt(item.accessoryIndex!)
                     : null;
-                final shtesaEntry = shtesaBox.values.firstWhere(
-                  (e) => e.profileSetIndex == item.profileSetIndex,
-                  orElse: () => ProfileShtesa(profileSetIndex: item.profileSetIndex),
-                );
 
                 double profileCostPer = item.calculateProfileCost(profileSet,
                     boxHeight: blind?.boxHeight ?? 0);
@@ -1413,21 +1386,6 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 double accessoryCostPer =
                     (accessory != null) ? accessory.price : 0;
                 double accessoryCost = accessoryCostPer * item.quantity;
-                double shtesaCostPer = (item.shtesaSizeMm ?? 0) > 0
-                    ? item.calculateShtesaCost(
-                        overridePricePerMeter: shtesaEntry.options
-                                .firstWhere(
-                                  (o) => o.sizeMm == item.shtesaSizeMm,
-                                  orElse: () =>
-                                      ShtesaOption(
-                                          sizeMm: item.shtesaSizeMm ?? 0,
-                                          pricePerMeter:
-                                              item.shtesaPricePerM ?? 0),
-                                )
-                                .pricePerMeter,
-                      )
-                    : 0;
-                double shtesaCost = shtesaCostPer * item.quantity;
                 double extrasPer =
                     (item.extra1Price ?? 0) + (item.extra2Price ?? 0);
                 double extras = extrasPer * item.quantity;
@@ -1437,8 +1395,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 double glassMassPer = item.calculateGlassMass(profileSet, glass,
                     boxHeight: blind?.boxHeight ?? 0);
                 double blindMassPer = (blind != null)
-                    ? ((item.effectiveWidthMm() / 1000.0) *
-                        (item.effectiveHeightMm() / 1000.0) *
+                    ? ((item.width / 1000.0) *
+                        (item.height / 1000.0) *
                         blind.massPerM2)
                     : 0;
                 double mechanismMassPer =
@@ -1456,8 +1414,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                     glassCostPer +
                     blindCostPer +
                     mechanismCostPer +
-                    accessoryCostPer +
-                    shtesaCostPer;
+                    accessoryCostPer;
                 double base = basePer * item.quantity;
                 if (item.manualBasePrice != null) {
                   base = item.manualBasePrice!;
@@ -1493,8 +1450,6 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                   blindCost: blindCost,
                   mechanismCost: mechanismCost,
                   accessoryCost: accessoryCost,
-                  shtesaCostPer: shtesaCostPer,
-                  shtesaCost: shtesaCost,
                   extrasPer: extrasPer,
                   extras: extras,
                   totalPer: totalPer,
@@ -2356,8 +2311,6 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
     required double blindCost,
     required double mechanismCost,
     required double accessoryCost,
-    required double shtesaCostPer,
-    required double shtesaCost,
     required double extrasPer,
     required double extras,
     required double totalPer,
@@ -2369,7 +2322,6 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
     required double totalMass,
     double? uw,
   }) {
-    final l10n = AppLocalizations.of(context);
     final sections = <_DetailSection>[];
 
     final generalEntries = <_DetailEntry>[
@@ -2386,32 +2338,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
         _DetailEntry('Notes', item.notes!, spanFullWidth: true),
       );
     }
-    sections.add(
-        _DetailSection(title: l10n.catalogSectionGeneral, entries: generalEntries));
-
-    if ((item.shtesaSizeMm ?? 0) > 0 &&
-        (item.shtesaLeft || item.shtesaRight || item.shtesaTop ||
-            item.shtesaBottom)) {
-      final sides = <String>[];
-      if (item.shtesaLeft) sides.add(l10n.sideLeft);
-      if (item.shtesaRight) sides.add(l10n.sideRight);
-      if (item.shtesaTop) sides.add(l10n.sideTop);
-      if (item.shtesaBottom) sides.add(l10n.sideBottom);
-      sections.add(
-        _DetailSection(
-          title: l10n.shtesaSummary,
-          entries: [
-            _DetailEntry(l10n.shtesaSelectSize,
-                '${item.shtesaSizeMm} mm', spanFullWidth: true),
-            _DetailEntry(l10n.shtesaSides, sides.join(', '),
-                spanFullWidth: true),
-            _DetailEntry(
-                l10n.pricePerMeter, '€${shtesaCostPer.toStringAsFixed(2)}'),
-            _DetailEntry(l10n.total, '€${shtesaCost.toStringAsFixed(2)}'),
-          ],
-        ),
-      );
-    }
+    sections.add(_DetailSection(title: 'General', entries: generalEntries));
 
     final layoutEntries = <_DetailEntry>[];
     if (item.perRowSectionWidths != null &&
