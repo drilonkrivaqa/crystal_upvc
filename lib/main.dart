@@ -30,6 +30,8 @@ void main() async {
   Hive.registerAdapter(BlindAdapter());
   Hive.registerAdapter(MechanismAdapter());
   Hive.registerAdapter(AccessoryAdapter());
+  Hive.registerAdapter(ShtesaOptionAdapter());
+  Hive.registerAdapter(ProfileShtesaAdapter());
   Hive.registerAdapter(WindowDoorItemAdapter());
   Hive.registerAdapter(OfferVersionAdapter());
   Hive.registerAdapter(OfferAdapter());
@@ -56,6 +58,7 @@ void main() async {
   await openBoxSafe<Blind>('blinds');
   await openBoxSafe<Mechanism>('mechanisms');
   await openBoxSafe<Accessory>('accessories');
+  await openBoxSafe<ProfileShtesa>('shtesa');
   await openBoxSafe<Offer>('offers');
   await openBoxSafe('settings');
 

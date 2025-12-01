@@ -109,5 +109,19 @@
   "defaultProfile": "Profili i paracaktuar",
   "defaultGlass": "Xhami i paracaktuar",
   "defaultBlind": "Roleta e paracaktuar",
-  "applyDefaultsMessage": "Zgjidhni cilat dritare/dyer duhet të përdorin profilin, xhamin dhe roletën e re të paracaktuar. Hiqni shenjën nga ato që dëshironi t'i përjashtoni."
+  "applyDefaultsMessage": "Zgjidhni cilat dritare/dyer duhet të përdorin profilin, xhamin dhe roletën e re të paracaktuar. Hiqni shenjën nga ato që dëshironi t'i përjashtoni.",
+  "catalogShtesa": "Shtesa",
+  "shtesaNoProfiles": "Ju lutem regjistroni profilat përpara se të konfiguroni shtesat.",
+  "shtesaNoSizes": "Nuk ka shtesa të regjistruara",
+  "shtesaAddSize": "Shto shtesë",
+  "shtesaSelectSize": "Madhësia e shtesës",
+  "shtesaOptional": "Shtesa (opsionale)",
+  "shtesaSides": "Anët e shtesës",
+  "pricePerMeter": "Çmimi për metër",
+  "lengthMm": "Gjatësia (mm)",
+  "sideLeft": "Majtas",
+  "sideRight": "Djathtas",
+  "sideTop": "Sipër",
+  "sideBottom": "Poshtë",
+  "shtesaSummary": "Shtesa"
 }
