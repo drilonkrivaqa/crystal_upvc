@@ -213,10 +213,12 @@ class _HekriPageState extends State<HekriPage> {
       PieceType.t: <int>[],
     };
 
-    final effectiveHeight = (item.height - boxHeight).clamp(0, item.height);
+    final effectiveHeight =
+        (item.effectiveHeight - boxHeight).clamp(0, item.effectiveHeight);
+    final effectiveWidth = item.effectiveWidth;
 
     map[PieceType.l]!
-        .addAll([effectiveHeight, effectiveHeight, item.width, item.width]);
+        .addAll([effectiveHeight, effectiveHeight, effectiveWidth, effectiveWidth]);
 
     final l = set.lInnerThickness.toDouble();
     final sashAdd = set.sashValue.toDouble();
@@ -264,7 +266,9 @@ class _HekriPageState extends State<HekriPage> {
     }
     for (int i = 0; i < item.horizontalSections - 1; i++) {
       if (!item.horizontalAdapters[i]) {
-        final len = (item.width - 2 * l).clamp(0, item.width).round();
+        final len = (item.effectiveWidth - 2 * l)
+            .clamp(0, item.effectiveWidth)
+            .round();
         map[PieceType.t]!.add(len);
       }
     }
