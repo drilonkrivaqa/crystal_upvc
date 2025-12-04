@@ -1116,7 +1116,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     final columns = rowVerticalSections[row];
     if (columns <= 0) return;
 
-    final totalWidth = int.tryParse(widthController.text) ?? 0;
+    final totalWidth = _currentEffectiveWidth();
     int specifiedSum = 0;
     int unspecified = 0;
     for (int i = 0; i < columns - 1; i++) {
@@ -1277,7 +1277,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
 
   void _recalculateHeights({bool showErrors = true}) {
     if (horizontalSections == 0) return;
-    int totalHeight = int.tryParse(heightController.text) ?? 0;
+    int totalHeight = _currentEffectiveHeight();
     int specifiedSum = 0;
     int unspecified = 0;
     for (int i = 0; i < horizontalSections - 1; i++) {
