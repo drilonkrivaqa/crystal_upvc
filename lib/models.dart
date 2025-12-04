@@ -965,8 +965,7 @@ class WindowDoorItem extends HiveObject {
     final psi = glass.psi;
     if (uf == null || ug == null || psi == null) return null;
 
-    final frameWidth = effectiveWidth;
-    final frameHeight = (height - boxHeight).clamp(0, height);
+    final effectiveHeight = (height - boxHeight).clamp(0, height);
     final effectiveHeights = List<int>.from(sectionHeights);
     if (effectiveHeights.isNotEmpty) {
       effectiveHeights[effectiveHeights.length - 1] =
