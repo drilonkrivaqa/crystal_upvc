@@ -63,10 +63,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   String? extra1Desc;
   String? extra2Desc;
   String? notes;
-  ShtesaSelection? leftShtesa;
-  ShtesaSelection? rightShtesa;
-  ShtesaSelection? topShtesa;
-  ShtesaSelection? bottomShtesa;
   int verticalSections = 1;
   int horizontalSections = 1;
   List<int> sectionHeights = [0];
@@ -156,10 +152,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     extra1Desc = widget.existingItem?.extra1Desc;
     extra2Desc = widget.existingItem?.extra2Desc;
     notes = widget.existingItem?.notes;
-    leftShtesa = widget.existingItem?.leftShtesa;
-    rightShtesa = widget.existingItem?.rightShtesa;
-    topShtesa = widget.existingItem?.topShtesa;
-    bottomShtesa = widget.existingItem?.bottomShtesa;
     final existingItem = widget.existingItem;
     verticalSections = existingItem?.verticalSections ?? 1;
     horizontalSections = existingItem?.horizontalSections ?? 1;
@@ -273,8 +265,9 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                     tooltip: l10n.designWindowDoor,
                     icon: const Icon(Icons.design_services),
                     onPressed: () async {
-                      final widthValue = _currentEffectiveWidth();
-                      final heightValue = _currentEffectiveHeight();
+                      final widthValue = double.tryParse(widthController.text);
+                      final heightValue =
+                          double.tryParse(heightController.text);
                       _ensureGridSize();
                       final initialCols = verticalSections < 1
                           ? 1
@@ -307,10 +300,12 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                             : 0.0,
                       );
                       final designerPage = WindowDoorDesignerPage(
-                        initialWidth:
-                            widthValue > 0 ? widthValue.toDouble() : null,
-                        initialHeight:
-                            heightValue > 0 ? heightValue.toDouble() : null,
+                        initialWidth: (widthValue != null && widthValue > 0)
+                            ? widthValue
+                            : null,
+                        initialHeight: (heightValue != null && heightValue > 0)
+                            ? heightValue
+                            : null,
                         initialRows: initialRows,
                         initialCols: initialCols,
                         initialShowBlind: blindIndex != null,
@@ -455,8 +450,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                         ),
                         const SizedBox(height: 16),
                         _buildDimensionInputs(),
-                        const SizedBox(height: 16),
-                        _buildShtesaSection(),
                       ],
                     ),
                     const SizedBox(height: 16),
@@ -484,12 +477,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                                   ),
                                 ),
                             ],
-                            onChanged: (val) {
-                              setState(() {
-                                profileSetIndex = val ?? 0;
-                                _normalizeShtesaSelections();
-                              });
-                            },
+                            onChanged: (val) =>
+                                setState(() => profileSetIndex = val ?? 0),
                           ),
                           DropdownButtonFormField<int>(
                             initialValue: glassIndex,
@@ -873,10 +862,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
             rowFixedSectors.map((row) => List<bool>.from(row)).toList(),
         perRowVerticalAdapters:
             rowVerticalAdapters.map((row) => List<bool>.from(row)).toList(),
-        leftShtesa: leftShtesa?.copy(),
-        rightShtesa: rightShtesa?.copy(),
-        topShtesa: topShtesa?.copy(),
-        bottomShtesa: bottomShtesa?.copy(),
       ),
     );
     return true;
@@ -1169,110 +1154,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     for (int r = 0; r < horizontalSections; r++) {
       _recalculateRowWidths(r, showErrors: showErrors);
     }
-  }
-
-  List<ShtesaOption> _availableShtesaOptions() {
-    return profileSetBox.getAt(profileSetIndex)?.shtesaOptions ??
-        const <ShtesaOption>[];
-  }
-
-  bool _matchesOption(ShtesaSelection selection, ShtesaOption option) {
-    return selection.sizeMm == option.sizeMm &&
-        selection.pricePerMeter == option.pricePerMeter &&
-        selection.label == option.label;
-  }
-
-  ShtesaSelection? _dropdownValue(ShtesaSelection? selection) {
-    if (selection == null) return null;
-    for (final option in _availableShtesaOptions()) {
-      if (_matchesOption(selection, option)) {
-        return ShtesaSelection.fromOption(option);
-      }
-    }
-    return selection;
-  }
-
-  void _normalizeShtesaSelections() {
-    final options = _availableShtesaOptions();
-    bool exists(ShtesaSelection? selection) {
-      if (selection == null) return true;
-      return options.any((opt) => _matchesOption(selection, opt));
-    }
-
-    if (!exists(leftShtesa)) leftShtesa = null;
-    if (!exists(rightShtesa)) rightShtesa = null;
-    if (!exists(topShtesa)) topShtesa = null;
-    if (!exists(bottomShtesa)) bottomShtesa = null;
-  }
-
-  int _currentEffectiveWidth() {
-    final base = int.tryParse(widthController.text) ?? 0;
-    final reduction = (leftShtesa?.sizeMm ?? 0) + (rightShtesa?.sizeMm ?? 0);
-    return (base - reduction).clamp(0, base);
-  }
-
-  int _currentEffectiveHeight() {
-    final base = int.tryParse(heightController.text) ?? 0;
-    final reduction = (topShtesa?.sizeMm ?? 0) + (bottomShtesa?.sizeMm ?? 0);
-    return (base - reduction).clamp(0, base);
-  }
-
-  Widget _buildShtesaDropdown(
-    String label,
-    ShtesaSelection? current,
-    ValueChanged<ShtesaSelection?> onChanged,
-  ) {
-    final l10n = AppLocalizations.of(context);
-    final options = _availableShtesaOptions();
-    return DropdownButtonFormField<ShtesaSelection?>(
-      value: _dropdownValue(current),
-      isExpanded: true,
-      decoration: InputDecoration(labelText: label),
-      items: [
-        DropdownMenuItem<ShtesaSelection?>(value: null, child: Text(l10n.none)),
-        ...options.map(
-          (opt) => DropdownMenuItem<ShtesaSelection?>(
-            value: ShtesaSelection.fromOption(opt),
-            child: Text(
-              '${opt.displayLabel()} - ${opt.pricePerMeter.toStringAsFixed(2)}',
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ),
-      ],
-      onChanged: (value) => setState(() => onChanged(value?.copy())),
-    );
-  }
-
-  Widget _buildShtesaSection() {
-    final l10n = AppLocalizations.of(context);
-    final effectiveW = _currentEffectiveWidth();
-    final effectiveH = _currentEffectiveHeight();
-    return _buildSectionCard(
-      children: [
-        _buildSectionTitle(
-          context,
-          l10n.shtesaSides,
-          Icons.add_box_outlined,
-        ),
-        const SizedBox(height: 8),
-        Text(
-          l10n.shtesaEffective(effectiveW, effectiveH),
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
-        const SizedBox(height: 12),
-        _buildFormGrid([
-          _buildShtesaDropdown(l10n.shtesaLeft, leftShtesa,
-              (val) => leftShtesa = val),
-          _buildShtesaDropdown(l10n.shtesaRight, rightShtesa,
-              (val) => rightShtesa = val),
-          _buildShtesaDropdown(l10n.shtesaTop, topShtesa,
-              (val) => topShtesa = val),
-          _buildShtesaDropdown(l10n.shtesaBottom, bottomShtesa,
-              (val) => bottomShtesa = val),
-        ]),
-      ],
-    );
   }
 
   void _recalculateHeights({bool showErrors = true}) {
