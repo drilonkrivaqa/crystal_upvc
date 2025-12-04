@@ -78,6 +78,8 @@ class ProfileSet extends HiveObject {
   int tOuterThickness; // Outer thickness of T profile
   @HiveField(25, defaultValue: 0)
   int adapterOuterThickness; // Outer thickness of Adapter
+  @HiveField(27, defaultValue: [])
+  List<ShtesaOption> shtesaOptions; // Available additions for this profile set
 
   ProfileSet({
     required this.name,
@@ -107,7 +109,68 @@ class ProfileSet extends HiveObject {
     this.zOuterThickness = 0,
     this.tOuterThickness = 0,
     this.adapterOuterThickness = 0,
+    this.shtesaOptions = const [],
   });
+}
+
+@HiveType(typeId: 10)
+class ShtesaOption {
+  @HiveField(0)
+  int sizeMm;
+  @HiveField(1)
+  double pricePerMeter;
+  @HiveField(2, defaultValue: '')
+  String label;
+
+  ShtesaOption({
+    required this.sizeMm,
+    required this.pricePerMeter,
+    this.label = '',
+  });
+
+  String displayLabel() {
+    final trimmed = label.trim();
+    if (trimmed.isEmpty) return '${sizeMm.toString()} mm';
+    return '$trimmed (${sizeMm.toString()} mm)';
+  }
+}
+
+@HiveType(typeId: 11)
+class ShtesaSelection {
+  @HiveField(0)
+  int sizeMm;
+  @HiveField(1)
+  double pricePerMeter;
+  @HiveField(2, defaultValue: '')
+  String label;
+
+  ShtesaSelection({
+    required this.sizeMm,
+    required this.pricePerMeter,
+    this.label = '',
+  });
+
+  factory ShtesaSelection.fromOption(ShtesaOption option) {
+    return ShtesaSelection(
+      sizeMm: option.sizeMm,
+      pricePerMeter: option.pricePerMeter,
+      label: option.label,
+    );
+  }
+
+  ShtesaSelection copy() {
+    return ShtesaSelection(
+      sizeMm: sizeMm,
+      pricePerMeter: pricePerMeter,
+      label: label,
+    );
+  }
+
+  String displayLabel() {
+    final trimmed = label.trim();
+    if (trimmed.isEmpty) return '${sizeMm.toString()} mm';
+    return '$trimmed (${sizeMm.toString()} mm)';
+  }
 }
 
 @HiveType(typeId: 2)
@@ -261,6 +324,14 @@ class WindowDoorItem extends HiveObject {
   @HiveField(29)
   List<List<bool>>?
       perRowVerticalAdapters; // adapter flags between vertical sections per row
+  @HiveField(30)
+  ShtesaSelection? leftShtesa;
+  @HiveField(31)
+  ShtesaSelection? rightShtesa;
+  @HiveField(32)
+  ShtesaSelection? topShtesa;
+  @HiveField(33)
+  ShtesaSelection? bottomShtesa;
 
   WindowDoorItem({
     required this.name,
@@ -293,6 +364,10 @@ class WindowDoorItem extends HiveObject {
     this.perRowSectionWidths,
     this.perRowFixedSectors,
     this.perRowVerticalAdapters,
+    this.leftShtesa,
+    this.rightShtesa,
+    this.topShtesa,
+    this.bottomShtesa,
   })  : fixedSectors = fixedSectors ??
             List<bool>.filled(verticalSections * horizontalSections, false),
         sectionWidths = sectionWidths ?? List<int>.filled(verticalSections, 0),
@@ -304,6 +379,42 @@ class WindowDoorItem extends HiveObject {
         horizontalAdapters = horizontalAdapters ??
             List<bool>.filled(
                 horizontalSections > 0 ? horizontalSections - 1 : 0, false);
+
+  int get _leftShtesaSize => leftShtesa?.sizeMm ?? 0;
+  int get _rightShtesaSize => rightShtesa?.sizeMm ?? 0;
+  int get _topShtesaSize => topShtesa?.sizeMm ?? 0;
+  int get _bottomShtesaSize => bottomShtesa?.sizeMm ?? 0;
+
+  int get effectiveWidth =>
+      (width - _leftShtesaSize - _rightShtesaSize).clamp(0, width);
+  int get effectiveHeight =>
+      (height - _topShtesaSize - _bottomShtesaSize).clamp(0, height);
+
+  List<int> effectiveSectionHeights({int boxHeight = 0}) {
+    if (horizontalSections <= 0) {
+      return const <int>[];
+    }
+
+    final adjustedHeights = List<int>.from(sectionHeights);
+    if (adjustedHeights.length < horizontalSections) {
+      adjustedHeights
+          .addAll(List<int>.filled(horizontalSections - adjustedHeights.length, 0));
+    } else if (adjustedHeights.length > horizontalSections) {
+      adjustedHeights.removeRange(horizontalSections, adjustedHeights.length);
+    }
+
+    final targetHeight = (effectiveHeight - boxHeight).clamp(0, effectiveHeight);
+    final sumExceptLast = adjustedHeights
+        .take(horizontalSections - 1)
+        .fold<int>(0, (a, b) => a + b);
+    final lastHeight = (targetHeight - sumExceptLast).clamp(0, targetHeight);
+    adjustedHeights[horizontalSections - 1] = lastHeight;
+
+    return adjustedHeights;
+  }
+
+  int get horizontalShtesaTotal => _leftShtesaSize + _rightShtesaSize;
+  int get verticalShtesaTotal => _topShtesaSize + _bottomShtesaSize;
 
   bool get hasPerRowLayout =>
       perRowVerticalSections != null && perRowVerticalSections!.isNotEmpty;
@@ -327,19 +438,45 @@ class WindowDoorItem extends HiveObject {
     if (columns <= 0) {
       return const <int>[];
     }
+    final targetWidth = effectiveWidth;
     if (hasPerRowLayout) {
       if (row >= 0 && row < (perRowSectionWidths?.length ?? 0)) {
         final rowWidths = perRowSectionWidths![row];
         if (rowWidths.length >= columns) {
-          return List<int>.from(rowWidths.take(columns));
+          final values = List<int>.from(rowWidths.take(columns));
+          if (values.isNotEmpty) {
+            final sumExceptLast =
+                values.take(values.length - 1).fold<int>(0, (a, b) => a + b);
+            values[values.length - 1] =
+                (targetWidth - sumExceptLast).clamp(0, targetWidth);
+          }
+          return values;
         }
-        return List<int>.from(rowWidths)
+        final values = List<int>.from(rowWidths)
           ..addAll(List<int>.filled(columns - rowWidths.length, 0));
+        if (values.isNotEmpty) {
+          final sumExceptLast =
+              values.take(values.length - 1).fold<int>(0, (a, b) => a + b);
+          values[values.length - 1] =
+              (targetWidth - sumExceptLast).clamp(0, targetWidth);
+        }
+        return values;
       }
-      return List<int>.filled(columns, 0);
+      final values = List<int>.filled(columns, 0);
+      if (values.isNotEmpty) {
+        values[values.length - 1] = targetWidth;
+      }
+      return values;
     }
-    return List<int>.generate(
+    final values = List<int>.generate(
         columns, (c) => c < sectionWidths.length ? sectionWidths[c] : 0);
+    if (values.isNotEmpty) {
+      final sumExceptLast =
+          values.take(values.length - 1).fold<int>(0, (a, b) => a + b);
+      values[values.length - 1] =
+          (targetWidth - sumExceptLast).clamp(0, targetWidth);
+    }
+    return values;
   }
 
   List<bool> fixedForRow(int row) {
@@ -511,6 +648,10 @@ class WindowDoorItem extends HiveObject {
       perRowVerticalAdapters: perRowVerticalAdapters != null
           ? _clone2d<bool>(perRowVerticalAdapters!)
           : null,
+      leftShtesa: leftShtesa?.copy(),
+      rightShtesa: rightShtesa?.copy(),
+      topShtesa: topShtesa?.copy(),
+      bottomShtesa: bottomShtesa?.copy(),
     );
   }
 
@@ -530,18 +671,16 @@ class WindowDoorItem extends HiveObject {
   /// If [boxHeight] is provided, it will be subtracted from the total height
   /// (including the last section height) before calculating the cost.
   double calculateProfileCost(ProfileSet set, {int boxHeight = 0}) {
-    final effectiveHeight = (height - boxHeight).clamp(0, height);
-    final effectiveHeights = List<int>.from(sectionHeights);
-    if (effectiveHeights.isNotEmpty) {
-      effectiveHeights[effectiveHeights.length - 1] =
-          (effectiveHeights.last - boxHeight).clamp(0, effectiveHeights.last);
-    }
+    final frameWidth = effectiveWidth;
+    final frameHeight = (effectiveHeight - boxHeight).clamp(0, effectiveHeight);
+    final effectiveHeights = effectiveSectionHeights(boxHeight: boxHeight);
     final l = set.lInnerThickness.toDouble();
     final z = set.zInnerThickness.toDouble();
     const melt = 6.0;
     final sashAdd = set.sashValue.toDouble();
 
-    double frameLength = 2 * (width + effectiveHeight) / 1000.0 * set.priceL;
+    double frameLength =
+        2 * (frameWidth + frameHeight) / 1000.0 * set.priceL;
     double sashLength = 0;
     double adapterLength = 0;
     double tLength = 0;
@@ -583,7 +722,7 @@ class WindowDoorItem extends HiveObject {
       }
     } else {
       for (int i = 0; i < verticalSections - 1; i++) {
-        final len = (effectiveHeight - 2 * l).clamp(0, effectiveHeight);
+        final len = (frameHeight - 2 * l).clamp(0, frameHeight);
         if (verticalAdapters[i]) {
           adapterLength += (len / 1000.0) * set.priceAdapter;
         } else {
@@ -592,7 +731,7 @@ class WindowDoorItem extends HiveObject {
       }
     }
     for (int i = 0; i < horizontalSections - 1; i++) {
-      final len = (width - 2 * l).clamp(0, width);
+      final len = (frameWidth - 2 * l).clamp(0, frameWidth);
       if (horizontalAdapters[i]) {
         adapterLength += (len / 1000.0) * set.priceAdapter;
       } else {
@@ -609,11 +748,7 @@ class WindowDoorItem extends HiveObject {
 
   /// Returns cost for glass, given selected [Glass] and section sizes.
   double calculateGlassCost(ProfileSet set, Glass glass, {int boxHeight = 0}) {
-    final effectiveHeights = List<int>.from(sectionHeights);
-    if (effectiveHeights.isNotEmpty) {
-      effectiveHeights[effectiveHeights.length - 1] =
-          (effectiveHeights.last - boxHeight).clamp(0, effectiveHeights.last);
-    }
+    final effectiveHeights = effectiveSectionHeights(boxHeight: boxHeight);
     final l = set.lInnerThickness.toDouble();
     final z = set.zInnerThickness.toDouble();
     const melt = 6.0;
@@ -652,18 +787,16 @@ class WindowDoorItem extends HiveObject {
   /// Follows the same logic as [calculateProfileCost] but multiplies lengths
   /// with the corresponding mass per meter from [ProfileSet].
   double calculateProfileMass(ProfileSet set, {int boxHeight = 0}) {
-    final effectiveHeight = (height - boxHeight).clamp(0, height);
-    final effectiveHeights = List<int>.from(sectionHeights);
-    if (effectiveHeights.isNotEmpty) {
-      effectiveHeights[effectiveHeights.length - 1] =
-          (effectiveHeights.last - boxHeight).clamp(0, effectiveHeights.last);
-    }
+    final frameHeight = (effectiveHeight - boxHeight).clamp(0, effectiveHeight);
+    final frameWidth = effectiveWidth;
+    final effectiveHeights = effectiveSectionHeights(boxHeight: boxHeight);
     final l = set.lInnerThickness.toDouble();
     final z = set.zInnerThickness.toDouble();
     const melt = 6.0;
     final sashAdd = set.sashValue.toDouble();
 
-    double frameLength = 2 * (width + effectiveHeight) / 1000.0 * set.massL;
+    double frameLength =
+        2 * (frameWidth + frameHeight) / 1000.0 * set.massL;
     double sashLength = 0;
     double adapterLength = 0;
     double tLength = 0;
@@ -705,7 +838,7 @@ class WindowDoorItem extends HiveObject {
       }
     } else {
       for (int i = 0; i < verticalSections - 1; i++) {
-        final len = (effectiveHeight - 2 * l).clamp(0, effectiveHeight);
+        final len = (frameHeight - 2 * l).clamp(0, frameHeight);
         if (verticalAdapters[i]) {
           adapterLength += (len / 1000.0) * set.massAdapter;
         } else {
@@ -714,7 +847,7 @@ class WindowDoorItem extends HiveObject {
       }
     }
     for (int i = 0; i < horizontalSections - 1; i++) {
-      final len = (width - 2 * l).clamp(0, width);
+      final len = (frameWidth - 2 * l).clamp(0, frameWidth);
       if (horizontalAdapters[i]) {
         adapterLength += (len / 1000.0) * set.massAdapter;
       } else {
@@ -729,13 +862,30 @@ class WindowDoorItem extends HiveObject {
         glazingBeadLength;
   }
 
+  /// Returns the cost contribution of all selected shtesa (additions) for
+  /// this item. Vertical additions use the full height while horizontal ones
+  /// span the effective width between vertical additions.
+  double calculateShtesaCost() {
+    double total = 0;
+    if (leftShtesa != null) {
+      total += (height / 1000.0) * leftShtesa!.pricePerMeter;
+    }
+    if (rightShtesa != null) {
+      total += (height / 1000.0) * rightShtesa!.pricePerMeter;
+    }
+    final horizontalLength = effectiveWidth.toDouble();
+    if (topShtesa != null) {
+      total += (horizontalLength / 1000.0) * topShtesa!.pricePerMeter;
+    }
+    if (bottomShtesa != null) {
+      total += (horizontalLength / 1000.0) * bottomShtesa!.pricePerMeter;
+    }
+    return total;
+  }
+
   /// Returns mass for glass, given selected [Glass] and section sizes.
   double calculateGlassMass(ProfileSet set, Glass glass, {int boxHeight = 0}) {
-    final effectiveHeights = List<int>.from(sectionHeights);
-    if (effectiveHeights.isNotEmpty) {
-      effectiveHeights[effectiveHeights.length - 1] =
-          (effectiveHeights.last - boxHeight).clamp(0, effectiveHeights.last);
-    }
+    final effectiveHeights = effectiveSectionHeights(boxHeight: boxHeight);
     final l = set.lInnerThickness.toDouble();
     final z = set.zInnerThickness.toDouble();
     const melt = 6.0;
@@ -775,11 +925,7 @@ class WindowDoorItem extends HiveObject {
   /// This mirrors the logic from [calculateGlassMass] but without applying the
   /// glass mass per square meter so the caller can compute areas directly.
   double calculateGlassArea(ProfileSet set, {int boxHeight = 0}) {
-    final effectiveHeights = List<int>.from(sectionHeights);
-    if (effectiveHeights.isNotEmpty) {
-      effectiveHeights[effectiveHeights.length - 1] =
-          (effectiveHeights.last - boxHeight).clamp(0, effectiveHeights.last);
-    }
+    final effectiveHeights = effectiveSectionHeights(boxHeight: boxHeight);
     final l = set.lInnerThickness.toDouble();
     final z = set.zInnerThickness.toDouble();
     const melt = 6.0;
@@ -815,7 +961,7 @@ class WindowDoorItem extends HiveObject {
   /// Returns the total area for the entire window/door item in square meters
   /// using the overall width and height dimensions.
   double calculateTotalArea() {
-    return (width / 1000.0) * (height / 1000.0);
+    return (effectiveWidth / 1000.0) * (effectiveHeight / 1000.0);
   }
 
   /// Returns the area to use when calculating blind pricing. If the total
@@ -833,7 +979,8 @@ class WindowDoorItem extends HiveObject {
     final psi = glass.psi;
     if (uf == null || ug == null || psi == null) return null;
 
-    final effectiveHeight = (height - boxHeight).clamp(0, height);
+    final frameWidth = effectiveWidth;
+    final frameHeight = (height - boxHeight).clamp(0, height);
     final effectiveHeights = List<int>.from(sectionHeights);
     if (effectiveHeights.isNotEmpty) {
       effectiveHeights[effectiveHeights.length - 1] =
@@ -846,7 +993,7 @@ class WindowDoorItem extends HiveObject {
     final fixedTakeoff = set.fixedGlassTakeoff.toDouble();
     final sashTakeoff = set.sashGlassTakeoff.toDouble();
 
-    double frameLen = 2 * (width + effectiveHeight) / 1000.0;
+    double frameLen = 2 * (frameWidth + frameHeight) / 1000.0;
     double sashLen = 0;
     double adapterLen = 0;
     double tLen = 0;
@@ -899,8 +1046,7 @@ class WindowDoorItem extends HiveObject {
       }
     } else {
       for (int i = 0; i < verticalSections - 1; i++) {
-        final len =
-            (effectiveHeight - 2 * l).clamp(0, effectiveHeight) / 1000.0;
+        final len = (frameHeight - 2 * l).clamp(0, frameHeight) / 1000.0;
         if (verticalAdapters[i]) {
           adapterLen += len;
         } else {
@@ -909,7 +1055,7 @@ class WindowDoorItem extends HiveObject {
       }
     }
     for (int i = 0; i < horizontalSections - 1; i++) {
-      final len = (width - 2 * l).clamp(0, width) / 1000.0;
+      final len = (frameWidth - 2 * l).clamp(0, frameWidth) / 1000.0;
       if (horizontalAdapters[i]) {
         adapterLen += len;
       } else {
