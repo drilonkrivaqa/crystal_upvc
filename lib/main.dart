@@ -30,6 +30,8 @@ void main() async {
   Hive.registerAdapter(BlindAdapter());
   Hive.registerAdapter(MechanismAdapter());
   Hive.registerAdapter(AccessoryAdapter());
+  Hive.registerAdapter(ShtesaOptionAdapter());
+  Hive.registerAdapter(ShtesaSelectionAdapter());
   Hive.registerAdapter(WindowDoorItemAdapter());
   Hive.registerAdapter(OfferVersionAdapter());
   Hive.registerAdapter(OfferAdapter());

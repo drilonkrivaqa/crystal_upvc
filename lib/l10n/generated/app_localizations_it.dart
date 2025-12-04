@@ -105,6 +105,49 @@ class AppLocalizationsIt extends AppLocalizations {
   String get catalogAccessory => 'Accessori';
 
   @override
+  String get shtesaTitle => 'Shtesa (Additions)';
+
+  @override
+  String shtesaProfile(String profile) {
+    return 'Shtesa for $profile';
+  }
+
+  @override
+  String get shtesaAdd => 'Add shtesa';
+
+  @override
+  String get shtesaEmpty => 'No shtesa options yet.';
+
+  @override
+  String get shtesaSize => 'Shtesa size (mm)';
+
+  @override
+  String get shtesaPrice => 'Price per meter';
+
+  @override
+  String get shtesaLabel => 'Label (optional)';
+
+  @override
+  String get shtesaSides => 'Shtesa per side';
+
+  @override
+  String shtesaEffective(int width, int height) {
+    return 'Effective size with shtesa: $width x $height mm';
+  }
+
+  @override
+  String get shtesaLeft => 'Left shtesa';
+
+  @override
+  String get shtesaRight => 'Right shtesa';
+
+  @override
+  String get shtesaTop => 'Top shtesa';
+
+  @override
+  String get shtesaBottom => 'Bottom shtesa';
+
+  @override
   String catalogAddTitle(Object type) {
     return 'Aggiungi $type';
   }
