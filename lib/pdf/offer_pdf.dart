@@ -104,7 +104,6 @@ Future<void> printOfferPdf({
     final glassCost = item.calculateGlassCost(profile, glass,
             boxHeight: blind?.boxHeight ?? 0) *
         item.quantity;
-    final shtesaCost = item.calculateShtesaCost() * item.quantity;
     final blindCost = blind != null
         ? (item.calculateBlindPricingArea() * blind.pricePerM2 * item.quantity)
         : 0;
@@ -115,12 +114,8 @@ Future<void> printOfferPdf({
     final extras =
         ((item.extra1Price ?? 0) + (item.extra2Price ?? 0)) * item.quantity;
 
-    double base = profileCost +
-        glassCost +
-        shtesaCost +
-        blindCost +
-        mechanismCost +
-        accessoryCost;
+    double base =
+        profileCost + glassCost + blindCost + mechanismCost + accessoryCost;
     if (item.manualBasePrice != null) {
       base = item.manualBasePrice!;
     }
@@ -142,8 +137,8 @@ Future<void> printOfferPdf({
             boxHeight: blind?.boxHeight ?? 0) *
         item.quantity;
     final blindMass = blind != null
-        ? ((item.effectiveWidth / 1000.0) *
-            (item.effectiveHeight / 1000.0) *
+        ? ((item.width / 1000.0) *
+            (item.height / 1000.0) *
             blind.massPerM2 *
             item.quantity)
         : 0;
@@ -289,7 +284,6 @@ Future<void> printOfferPdf({
           final glassCost = item.calculateGlassCost(profile, glass,
                   boxHeight: blind?.boxHeight ?? 0) *
               item.quantity;
-          final shtesaCost = item.calculateShtesaCost() * item.quantity;
           final blindCost = blind != null
               ? (item.calculateBlindPricingArea() *
                   blind.pricePerM2 *
@@ -310,8 +304,8 @@ Future<void> printOfferPdf({
                   boxHeight: blind?.boxHeight ?? 0) *
               item.quantity;
           final blindMass = blind != null
-              ? ((item.effectiveWidth / 1000.0) *
-                  (item.effectiveHeight / 1000.0) *
+              ? ((item.width / 1000.0) *
+                  (item.height / 1000.0) *
                   blind.massPerM2 *
                   item.quantity)
               : 0;
@@ -330,7 +324,6 @@ Future<void> printOfferPdf({
 
           double base = profileCost +
               glassCost +
-              shtesaCost +
               blindCost +
               mechanismCost +
               accessoryCost;
