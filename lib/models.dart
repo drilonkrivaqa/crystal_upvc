@@ -424,45 +424,19 @@ class WindowDoorItem extends HiveObject {
     if (columns <= 0) {
       return const <int>[];
     }
-    final targetWidth = effectiveWidth;
     if (hasPerRowLayout) {
       if (row >= 0 && row < (perRowSectionWidths?.length ?? 0)) {
         final rowWidths = perRowSectionWidths![row];
         if (rowWidths.length >= columns) {
-          final values = List<int>.from(rowWidths.take(columns));
-          if (values.isNotEmpty) {
-            final sumExceptLast =
-                values.take(values.length - 1).fold<int>(0, (a, b) => a + b);
-            values[values.length - 1] =
-                (targetWidth - sumExceptLast).clamp(0, targetWidth);
-          }
-          return values;
+          return List<int>.from(rowWidths.take(columns));
         }
-        final values = List<int>.from(rowWidths)
+        return List<int>.from(rowWidths)
           ..addAll(List<int>.filled(columns - rowWidths.length, 0));
-        if (values.isNotEmpty) {
-          final sumExceptLast =
-              values.take(values.length - 1).fold<int>(0, (a, b) => a + b);
-          values[values.length - 1] =
-              (targetWidth - sumExceptLast).clamp(0, targetWidth);
-        }
-        return values;
       }
-      final values = List<int>.filled(columns, 0);
-      if (values.isNotEmpty) {
-        values[values.length - 1] = targetWidth;
-      }
-      return values;
+      return List<int>.filled(columns, 0);
     }
-    final values = List<int>.generate(
+    return List<int>.generate(
         columns, (c) => c < sectionWidths.length ? sectionWidths[c] : 0);
-    if (values.isNotEmpty) {
-      final sumExceptLast =
-          values.take(values.length - 1).fold<int>(0, (a, b) => a + b);
-      values[values.length - 1] =
-          (targetWidth - sumExceptLast).clamp(0, targetWidth);
-    }
-    return values;
   }
 
   List<bool> fixedForRow(int row) {
