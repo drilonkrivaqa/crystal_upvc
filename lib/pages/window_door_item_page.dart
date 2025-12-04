@@ -1240,11 +1240,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
           ),
         ),
       ],
-      onChanged: (value) => setState(() {
-        onChanged(value?.copy());
-        _recalculateAllWidths(showErrors: false);
-        _recalculateHeights(showErrors: false);
-      }),
+      onChanged: (value) => setState(() => onChanged(value?.copy())),
     );
   }
 
