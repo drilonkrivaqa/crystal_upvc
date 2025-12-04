@@ -391,25 +391,11 @@ class WindowDoorItem extends HiveObject {
       (height - _topShtesaSize - _bottomShtesaSize).clamp(0, height);
 
   List<int> effectiveSectionHeights({int boxHeight = 0}) {
-    if (horizontalSections <= 0) {
-      return const <int>[];
-    }
-
     final adjustedHeights = List<int>.from(sectionHeights);
-    if (adjustedHeights.length < horizontalSections) {
-      adjustedHeights
-          .addAll(List<int>.filled(horizontalSections - adjustedHeights.length, 0));
-    } else if (adjustedHeights.length > horizontalSections) {
-      adjustedHeights.removeRange(horizontalSections, adjustedHeights.length);
+    if (adjustedHeights.isNotEmpty) {
+      adjustedHeights[adjustedHeights.length - 1] =
+          (adjustedHeights.last - boxHeight).clamp(0, adjustedHeights.last);
     }
-
-    final targetHeight = (effectiveHeight - boxHeight).clamp(0, effectiveHeight);
-    final sumExceptLast = adjustedHeights
-        .take(horizontalSections - 1)
-        .fold<int>(0, (a, b) => a + b);
-    final lastHeight = (targetHeight - sumExceptLast).clamp(0, targetHeight);
-    adjustedHeights[horizontalSections - 1] = lastHeight;
-
     return adjustedHeights;
   }
 
