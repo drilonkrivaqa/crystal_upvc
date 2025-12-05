@@ -13,32 +13,16 @@ class ShtesaPage extends StatefulWidget {
 }
 
 class _ShtesaPageState extends State<ShtesaPage> {
-  Box<ProfileSet>? profileBox;
-  String? loadError;
-
-  Future<void> _ensureProfileBox() async {
-    try {
-      if (!Hive.isBoxOpen('profileSets')) {
-        await Hive.openBox<ProfileSet>('profileSets');
-      }
-      setState(() {
-        profileBox = Hive.box<ProfileSet>('profileSets');
-      });
-    } catch (e) {
-      setState(() {
-        loadError = e.toString();
-      });
-    }
-  }
+  late Box<ProfileSet> profileBox;
 
   @override
   void initState() {
     super.initState();
-    _ensureProfileBox();
+    profileBox = Hive.box<ProfileSet>('profileSets');
   }
 
   void _editShtesa(int index) {
-    final profile = profileBox?.getAt(index);
+    final profile = profileBox.getAt(index);
     if (profile == null) return;
     final l10n = AppLocalizations.of(context);
     final options = List<ShtesaOption>.from(profile.shtesaOptions);
@@ -158,51 +142,47 @@ class _ShtesaPageState extends State<ShtesaPage> {
     return Scaffold(
       appBar: AppBar(title: Text(l10n.catalogShtesa)),
       body: AppBackground(
-        child: loadError != null
-            ? Center(child: Text(loadError!))
-            : profileBox == null
-                ? const Center(child: CircularProgressIndicator())
-                : ValueListenableBuilder(
-                    valueListenable: profileBox!.listenable(),
-                    builder: (context, Box<ProfileSet> box, _) {
-                      if (box.isEmpty) {
-                        return Center(child: Text(l10n.shtesaNoOptions));
-                      }
-                      return ListView.builder(
-                        padding: const EdgeInsets.all(12),
-                        itemCount: box.length,
-                        itemBuilder: (context, index) {
-                          final profile = box.getAt(index);
-                          if (profile == null) return const SizedBox.shrink();
-                          final lengths = profile.shtesaOptions
-                              .map((e) => '${e.lengthMm}mm')
-                              .join(' • ');
-                          return GlassCard(
-                            margin: const EdgeInsets.symmetric(vertical: 6),
-                            onTap: () => _editShtesa(index),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  profile.name,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleMedium
-                                      ?.copyWith(fontWeight: FontWeight.bold),
-                                ),
-                                const SizedBox(height: 6),
-                                Text(
-                                  lengths.isEmpty
-                                      ? l10n.shtesaNoOptions
-                                      : lengths,
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      );
-                    },
+        child: ValueListenableBuilder(
+          valueListenable: profileBox.listenable(),
+          builder: (context, Box<ProfileSet> box, _) {
+            if (box.isEmpty) {
+              return Center(child: Text(l10n.shtesaNoOptions));
+            }
+            return ListView.builder(
+              padding: const EdgeInsets.all(12),
+              itemCount: box.length,
+              itemBuilder: (context, index) {
+                final profile = box.getAt(index);
+                if (profile == null) return const SizedBox.shrink();
+                final lengths = profile.shtesaOptions
+                    .map((e) => '${e.lengthMm}mm')
+                    .join(' • ');
+                return GlassCard(
+                  margin: const EdgeInsets.symmetric(vertical: 6),
+                  onTap: () => _editShtesa(index),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        profile.name,
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        lengths.isEmpty
+                            ? l10n.shtesaNoOptions
+                            : lengths,
+                      ),
+                    ],
                   ),
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }

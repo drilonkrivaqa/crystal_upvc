@@ -84,13 +84,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   List<TextEditingController> sectionHeightCtrls = [];
   List<int> shtesaSelections = [0, 0, 0, 0];
 
-  Future<Box<T>> _openBoxIfNeeded<T>(String name) async {
-    if (Hive.isBoxOpen(name)) {
-      return Hive.box<T>(name);
-    }
-    return Hive.openBox<T>(name);
-  }
-
   int _normalizeIndex(int? index, int length, {bool allowNegative = false}) {
     if (length <= 0) {
       return allowNegative ? -1 : 0;
@@ -238,7 +231,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     final existingVerticalAdapters =
         List<bool>.from(existingItem?.verticalAdapters ?? <bool>[]);
     shtesaSelections = List<int>.from(existingItem?.shtesaSelectionMm ?? []);
-
     while (shtesaSelections.length < 4) {
       shtesaSelections.add(0);
     }
