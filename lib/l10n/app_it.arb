@@ -109,5 +109,18 @@
   "catalogFieldPsi": "Psi (W/mK)",
   "catalogFieldBoxHeight": "Altezza cassonetto (mm)",
   "catalogFieldPrice": "Prezzo (€)",
-  "catalogFieldMass": "Massa (kg)"
+  "catalogFieldMass": "Massa (kg)",
+  "catalogShtesa": "Shtesa (Estensione)",
+  "shtesaLabel": "Shtesa (Estensione)",
+  "shtesaNone": "Nessuna",
+  "shtesaNoOptions": "Nessuna dimensione di shtesa configurata per questo profilo.",
+  "shtesaLeft": "Shtesa sinistra (mm)",
+  "shtesaRight": "Shtesa destra (mm)",
+  "shtesaTop": "Shtesa superiore (mm)",
+  "shtesaBottom": "Shtesa inferiore (mm)",
+  "shtesaFinalSize": "Dimensione finale: {width} x {height} mm",
+  "shtesaVerticalLength": "Lunghezza verticale della shtesa: {length} mm",
+  "shtesaHorizontalLength": "Lunghezza orizzontale della shtesa: {length} mm",
+  "shtesaLengthLabel": "Dimensione shtesa (mm)",
+  "shtesaPriceLabel": "Prezzo al metro"
 }

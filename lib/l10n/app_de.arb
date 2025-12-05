@@ -109,5 +109,18 @@
   "defaultProfile": "Standardprofil",
   "defaultGlass": "Standardglas",
   "defaultBlind": "Standardrollladen",
-  "applyDefaultsMessage": "Wählen Sie, welche Fenster/Türen das aktualisierte Standardprofil, Glas und den Rollladen verwenden sollen. Entfernen Sie die Auswahl bei den Elementen, die ausgeschlossen werden sollen."
+  "applyDefaultsMessage": "Wählen Sie, welche Fenster/Türen das aktualisierte Standardprofil, Glas und den Rollladen verwenden sollen. Entfernen Sie die Auswahl bei den Elementen, die ausgeschlossen werden sollen.",
+  "catalogShtesa": "Shtesa (Zusatz)",
+  "shtesaLabel": "Shtesa (Zusatz)",
+  "shtesaNone": "Keine",
+  "shtesaNoOptions": "Keine Shtesa-Größen für dieses Profil konfiguriert.",
+  "shtesaLeft": "Shtesa links (mm)",
+  "shtesaRight": "Shtesa rechts (mm)",
+  "shtesaTop": "Shtesa oben (mm)",
+  "shtesaBottom": "Shtesa unten (mm)",
+  "shtesaFinalSize": "Endgültige Größe: {width} x {height} mm",
+  "shtesaVerticalLength": "Vertikale Shtesa-Länge: {length} mm",
+  "shtesaHorizontalLength": "Horizontale Shtesa-Länge: {length} mm",
+  "shtesaLengthLabel": "Shtesa Größe (mm)",
+  "shtesaPriceLabel": "Preis pro Meter"
 }
