@@ -25,62 +25,46 @@ Future<bool> _migrateProfileSets() async {
     for (final key in box.keys) {
       final profile = box.get(key);
       if (profile != null) {
-        try {
-          bool changed = false;
-          final p = profile as dynamic;
-          if (p.massL == null) {
-            profile.massL = 0;
-            changed = true;
-          }
-          if (p.massZ == null) {
-            profile.massZ = 0;
-            changed = true;
-          }
-          if (p.massT == null) {
-            profile.massT = 0;
-            changed = true;
-          }
-          if (p.massAdapter == null) {
-            profile.massAdapter = 0;
-            changed = true;
-          }
-          if (p.massLlajsne == null) {
-            profile.massLlajsne = 0;
-            changed = true;
-          }
-          if (p.lOuterThickness == null) {
-            profile.lOuterThickness = 0;
-            changed = true;
-          }
-          if (p.zOuterThickness == null) {
-            profile.zOuterThickness = 0;
-            changed = true;
-          }
-          if (p.tOuterThickness == null) {
-            profile.tOuterThickness = 0;
-            changed = true;
-          }
-          if (p.adapterOuterThickness == null) {
-            profile.adapterOuterThickness = 0;
-            changed = true;
-          }
-          if ((p.pipeLength ?? 0) <= 0) {
-            profile.pipeLength = 6500;
-            changed = true;
-          }
-          if ((p.hekriPipeLength ?? 0) <= 0) {
-            profile.hekriPipeLength = 6000;
-            changed = true;
-          }
-          if (profile.shtesaOptions == null) {
-            profile.shtesaOptions = const [];
-            changed = true;
-          }
-          if (changed) {
-            await profile.save();
-          }
-        } catch (e) {
-          debugPrint('Failed to migrate profile set $key: $e');
+        bool changed = false;
+        final p = profile as dynamic;
+        if (p.massL == null) {
+          profile.massL = 0;
+          changed = true;
+        }
+        if (p.massZ == null) {
+          profile.massZ = 0;
+          changed = true;
+        }
+        if (p.massT == null) {
+          profile.massT = 0;
+          changed = true;
+        }
+        if (p.massAdapter == null) {
+          profile.massAdapter = 0;
+          changed = true;
+        }
+        if (p.massLlajsne == null) {
+          profile.massLlajsne = 0;
+          changed = true;
+        }
+        if (p.lOuterThickness == null) {
+          profile.lOuterThickness = 0;
+          changed = true;
+        }
+        if (p.zOuterThickness == null) {
+          profile.zOuterThickness = 0;
+          changed = true;
+        }
+        if (p.tOuterThickness == null) {
+          profile.tOuterThickness = 0;
+          changed = true;
+        }
+        if (p.adapterOuterThickness == null) {
+          profile.adapterOuterThickness = 0;
+          changed = true;
+        }
+        if (changed) {
+          await profile.save();
         }
       }
     }
@@ -220,10 +204,6 @@ Future<bool> _migrateOffers() async {
         offer.defaultBlindIndex = normalizedBlind;
         changed = true;
       }
-      ProfileSet? offerProfileSet(int index) {
-        if (index < 0 || index >= profileBox.length) return null;
-        return profileBox.getAt(index);
-      }
       for (final item in offer.items) {
         final normalizedItemProfile =
             normalize(item.profileSetIndex, profileBox.length);
@@ -254,14 +234,6 @@ Future<bool> _migrateOffers() async {
         if (normalizedItemAccessory != item.accessoryIndex) {
           item.accessoryIndex = normalizedItemAccessory;
           changed = true;
-        }
-        final profile = offerProfileSet(item.profileSetIndex);
-        if (profile != null) {
-          final normalizedShtesa = item.sanitizeShtesaSelections(profile);
-          if (normalizedShtesa != item.shtesaSelections) {
-            item.shtesaSelections = normalizedShtesa;
-            changed = true;
-          }
         }
       }
       for (final version in offer.versions) {
