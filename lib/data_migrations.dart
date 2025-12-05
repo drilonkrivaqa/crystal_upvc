@@ -2,19 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'models.dart';
 
-Future<Box<T>?> _openBoxWithRecovery<T>(String name) async {
-  try {
-    return await Hive.openBox<T>(name, crashRecovery: true);
-  } catch (e) {
-    debugPrint('Failed to open box $name: $e');
-    return null;
-  }
-}
-
 Future<bool> _migrateCustomers() async {
   try {
-    final box = await _openBoxWithRecovery<Customer>('customers');
-    if (box == null) return false;
+    final box = await Hive.openBox<Customer>('customers');
     for (final key in box.keys) {
       final customer = box.get(key);
       if (customer != null && (customer.email == null)) {
@@ -31,8 +21,7 @@ Future<bool> _migrateCustomers() async {
 
 Future<bool> _migrateProfileSets() async {
   try {
-    final box = await _openBoxWithRecovery<ProfileSet>('profileSets');
-    if (box == null) return false;
+    final box = await Hive.openBox<ProfileSet>('profileSets');
     for (final key in box.keys) {
       final profile = box.get(key);
       if (profile != null) {
@@ -104,8 +93,7 @@ Future<bool> _migrateProfileSets() async {
 
 Future<bool> _migrateBlinds() async {
   try {
-    final box = await _openBoxWithRecovery<Blind>('blinds');
-    if (box == null) return false;
+    final box = await Hive.openBox<Blind>('blinds');
     for (final key in box.keys) {
       final blind = box.get(key);
       if (blind != null) {
@@ -133,8 +121,7 @@ Future<bool> _migrateBlinds() async {
 
 Future<bool> _migrateMechanisms() async {
   try {
-    final box = await _openBoxWithRecovery<Mechanism>('mechanisms');
-    if (box == null) return false;
+    final box = await Hive.openBox<Mechanism>('mechanisms');
     for (final key in box.keys) {
       final mechanism = box.get(key);
       if (mechanism != null) {
@@ -154,8 +141,7 @@ Future<bool> _migrateMechanisms() async {
 
 Future<bool> _migrateAccessories() async {
   try {
-    final box = await _openBoxWithRecovery<Accessory>('accessories');
-    if (box == null) return false;
+    final box = await Hive.openBox<Accessory>('accessories');
     for (final key in box.keys) {
       final accessory = box.get(key);
       if (accessory != null) {
@@ -175,23 +161,12 @@ Future<bool> _migrateAccessories() async {
 
 Future<bool> _migrateOffers() async {
   try {
-    final box = await _openBoxWithRecovery<Offer>('offers');
-    final profileBox = await _openBoxWithRecovery<ProfileSet>('profileSets');
-    final glassBox = await _openBoxWithRecovery<Glass>('glasses');
-    final blindBox = await _openBoxWithRecovery<Blind>('blinds');
-    final mechanismBox = await _openBoxWithRecovery<Mechanism>('mechanisms');
-    final accessoryBox = await _openBoxWithRecovery<Accessory>('accessories');
-    if ([box, profileBox, glassBox, blindBox, mechanismBox, accessoryBox]
-        .any((b) => b == null)) {
-      return false;
-    }
-
-    final offers = box!;
-    final profiles = profileBox!;
-    final glasses = glassBox!;
-    final blinds = blindBox!;
-    final mechanisms = mechanismBox!;
-    final accessories = accessoryBox!;
+    final box = await Hive.openBox<Offer>('offers');
+    final profileBox = await Hive.openBox<ProfileSet>('profileSets');
+    final glassBox = await Hive.openBox<Glass>('glasses');
+    final blindBox = await Hive.openBox<Blind>('blinds');
+    final mechanismBox = await Hive.openBox<Mechanism>('mechanisms');
+    final accessoryBox = await Hive.openBox<Accessory>('accessories');
     int normalize(int value, int length, {bool allowNegative = false}) {
       if (length <= 0) {
         return allowNegative ? -1 : 0;
@@ -213,24 +188,24 @@ Future<bool> _migrateOffers() async {
     }
 
     var maxNumber = 0;
-    for (final key in offers.keys) {
-      final offer = offers.get(key);
+    for (final key in box.keys) {
+      final offer = box.get(key);
       if (offer == null) continue;
       if (offer.offerNumber > maxNumber) {
         maxNumber = offer.offerNumber;
       }
     }
     var nextNumber = maxNumber;
-    for (final key in offers.keys) {
-      final offer = offers.get(key);
+    for (final key in box.keys) {
+      final offer = box.get(key);
       if (offer == null) continue;
       bool changed = false;
       final normalizedProfile =
-          normalize(offer.defaultProfileSetIndex, profiles.length);
+          normalize(offer.defaultProfileSetIndex, profileBox.length);
       final normalizedGlass =
-          normalize(offer.defaultGlassIndex, glasses.length);
+          normalize(offer.defaultGlassIndex, glassBox.length);
       final normalizedBlind = normalize(
-          offer.defaultBlindIndex, blinds.length,
+          offer.defaultBlindIndex, blindBox.length,
           allowNegative: true);
       if (normalizedProfile != offer.defaultProfileSetIndex) {
         offer.defaultProfileSetIndex = normalizedProfile;
@@ -251,14 +226,14 @@ Future<bool> _migrateOffers() async {
       }
       for (final item in offer.items) {
         final normalizedItemProfile =
-            normalize(item.profileSetIndex, profiles.length);
-        final normalizedItemGlass = normalize(item.glassIndex, glasses.length);
+            normalize(item.profileSetIndex, profileBox.length);
+        final normalizedItemGlass = normalize(item.glassIndex, glassBox.length);
         final normalizedItemBlind =
-            normalizeOptional(item.blindIndex, blinds.length);
+            normalizeOptional(item.blindIndex, blindBox.length);
         final normalizedItemMechanism =
-            normalizeOptional(item.mechanismIndex, mechanisms.length);
+            normalizeOptional(item.mechanismIndex, mechanismBox.length);
         final normalizedItemAccessory =
-            normalizeOptional(item.accessoryIndex, accessories.length);
+            normalizeOptional(item.accessoryIndex, accessoryBox.length);
 
         if (normalizedItemProfile != item.profileSetIndex) {
           item.profileSetIndex = normalizedItemProfile;
@@ -291,11 +266,11 @@ Future<bool> _migrateOffers() async {
       }
       for (final version in offer.versions) {
         final normalizedVersionProfile =
-            normalize(version.defaultProfileSetIndex, profiles.length);
+            normalize(version.defaultProfileSetIndex, profileBox.length);
         final normalizedVersionGlass =
-            normalize(version.defaultGlassIndex, glasses.length);
+            normalize(version.defaultGlassIndex, glassBox.length);
         final normalizedVersionBlind = normalize(
-            (version as dynamic).defaultBlindIndex ?? -1, blinds.length,
+            (version as dynamic).defaultBlindIndex ?? -1, blindBox.length,
             allowNegative: true);
         if (normalizedVersionProfile != version.defaultProfileSetIndex) {
           version.defaultProfileSetIndex = normalizedVersionProfile;
@@ -311,14 +286,14 @@ Future<bool> _migrateOffers() async {
         }
         for (final item in version.items) {
           final normalizedItemProfile =
-              normalize(item.profileSetIndex, profiles.length);
-          final normalizedItemGlass = normalize(item.glassIndex, glasses.length);
+              normalize(item.profileSetIndex, profileBox.length);
+          final normalizedItemGlass = normalize(item.glassIndex, glassBox.length);
           final normalizedItemBlind =
-              normalizeOptional(item.blindIndex, blinds.length);
+              normalizeOptional(item.blindIndex, blindBox.length);
           final normalizedItemMechanism =
-              normalizeOptional(item.mechanismIndex, mechanisms.length);
+              normalizeOptional(item.mechanismIndex, mechanismBox.length);
           final normalizedItemAccessory =
-              normalizeOptional(item.accessoryIndex, accessories.length);
+              normalizeOptional(item.accessoryIndex, accessoryBox.length);
 
           if (normalizedItemProfile != item.profileSetIndex) {
             item.profileSetIndex = normalizedItemProfile;
