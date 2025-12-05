@@ -29,6 +29,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
   late Box<Blind> blindBox;
   late Box<Mechanism> mechanismBox;
   late Box<Accessory> accessoryBox;
+  String? _boxLoadError;
+  bool _boxesReady = false;
   late TextEditingController discountPercentController;
   late TextEditingController discountAmountController;
   late TextEditingController notesController;
@@ -972,6 +974,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 : 0;
             double accessoryCost =
                 (accessory != null) ? accessory.price * item.quantity : 0;
+            double shtesaCost =
+                item.calculateShtesaCost(profileSet) * item.quantity;
             double extras =
                 ((item.extra1Price ?? 0) + (item.extra2Price ?? 0)) *
                     item.quantity;
@@ -979,7 +983,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 glassCost +
                 blindCost +
                 mechanismCost +
-                accessoryCost;
+                accessoryCost +
+                shtesaCost;
             final profileMass = item.calculateProfileMass(profileSet,
                     boxHeight: blind?.boxHeight ?? 0) *
                 item.quantity;
@@ -1236,35 +1241,78 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
   @override
   void initState() {
     super.initState();
-    offerBox = Hive.box<Offer>('offers');
-    customerBox = Hive.box<Customer>('customers');
-    profileSetBox = Hive.box<ProfileSet>('profileSets');
-    glassBox = Hive.box<Glass>('glasses');
-    blindBox = Hive.box<Blind>('blinds');
-    mechanismBox = Hive.box<Mechanism>('mechanisms');
-    accessoryBox = Hive.box<Accessory>('accessories');
-    final offer = offerBox.getAt(widget.offerIndex)!;
-    discountPercentController =
-        TextEditingController(text: offer.discountPercent.toString());
-    discountAmountController =
-        TextEditingController(text: offer.discountAmount.toString());
-    notesController = TextEditingController(text: offer.notes);
-    extraDescControllers = [
-      for (var c in offer.extraCharges)
-        TextEditingController(text: c.description)
-    ];
-    extraAmountControllers = [
-      for (var c in offer.extraCharges)
-        TextEditingController(text: c.amount.toString())
-    ];
-    _selectedDefaultProfileSetIndex = offer.defaultProfileSetIndex;
-    _selectedDefaultGlassIndex = offer.defaultGlassIndex;
-    _selectedDefaultBlindIndex = offer.defaultBlindIndex;
+    _initializeBoxes();
+  }
+
+  Future<void> _initializeBoxes() async {
+    try {
+      offerBox = Hive.isBoxOpen('offers')
+          ? Hive.box<Offer>('offers')
+          : await Hive.openBox<Offer>('offers');
+      customerBox = Hive.isBoxOpen('customers')
+          ? Hive.box<Customer>('customers')
+          : await Hive.openBox<Customer>('customers');
+      profileSetBox = Hive.isBoxOpen('profileSets')
+          ? Hive.box<ProfileSet>('profileSets')
+          : await Hive.openBox<ProfileSet>('profileSets');
+      glassBox = Hive.isBoxOpen('glasses')
+          ? Hive.box<Glass>('glasses')
+          : await Hive.openBox<Glass>('glasses');
+      blindBox = Hive.isBoxOpen('blinds')
+          ? Hive.box<Blind>('blinds')
+          : await Hive.openBox<Blind>('blinds');
+      mechanismBox = Hive.isBoxOpen('mechanisms')
+          ? Hive.box<Mechanism>('mechanisms')
+          : await Hive.openBox<Mechanism>('mechanisms');
+      accessoryBox = Hive.isBoxOpen('accessories')
+          ? Hive.box<Accessory>('accessories')
+          : await Hive.openBox<Accessory>('accessories');
+      final offer = offerBox.getAt(widget.offerIndex)!;
+      discountPercentController =
+          TextEditingController(text: offer.discountPercent.toString());
+      discountAmountController =
+          TextEditingController(text: offer.discountAmount.toString());
+      notesController = TextEditingController(text: offer.notes);
+      extraDescControllers = [
+        for (var c in offer.extraCharges)
+          TextEditingController(text: c.description)
+      ];
+      extraAmountControllers = [
+        for (var c in offer.extraCharges)
+          TextEditingController(text: c.amount.toString())
+      ];
+      _selectedDefaultProfileSetIndex = offer.defaultProfileSetIndex;
+      _selectedDefaultGlassIndex = offer.defaultGlassIndex;
+      _selectedDefaultBlindIndex = offer.defaultBlindIndex;
+      if (mounted) {
+        setState(() {
+          _boxesReady = true;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _boxLoadError = e.toString();
+          _boxesReady = true;
+        });
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    if (_boxLoadError != null) {
+      return Scaffold(
+        appBar: AppBar(title: Text(l10n.pdfOffer)),
+        body: Center(child: Text(_boxLoadError!)),
+      );
+    }
+    if (!_boxesReady) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
     Offer offer = offerBox.getAt(widget.offerIndex)!;
     final normalizedProfileIndex =
         _normalizeIndex(offer.defaultProfileSetIndex, profileSetBox.length);
@@ -1386,6 +1434,9 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 double accessoryCostPer =
                     (accessory != null) ? accessory.price : 0;
                 double accessoryCost = accessoryCostPer * item.quantity;
+                double shtesaCostPer =
+                    item.calculateShtesaCost(profileSet);
+                double shtesaCost = shtesaCostPer * item.quantity;
                 double extrasPer =
                     (item.extra1Price ?? 0) + (item.extra2Price ?? 0);
                 double extras = extrasPer * item.quantity;
@@ -1414,7 +1465,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                     glassCostPer +
                     blindCostPer +
                     mechanismCostPer +
-                    accessoryCostPer;
+                    accessoryCostPer +
+                    shtesaCostPer;
                 double base = basePer * item.quantity;
                 if (item.manualBasePrice != null) {
                   base = item.manualBasePrice!;
@@ -1450,6 +1502,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                   blindCost: blindCost,
                   mechanismCost: mechanismCost,
                   accessoryCost: accessoryCost,
+                  shtesaCost: shtesaCost,
                   extrasPer: extrasPer,
                   extras: extras,
                   totalPer: totalPer,
@@ -2311,6 +2364,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
     required double blindCost,
     required double mechanismCost,
     required double accessoryCost,
+    required double shtesaCost,
     required double extrasPer,
     required double extras,
     required double totalPer,
@@ -2424,6 +2478,29 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
       componentEntries.add(
         _DetailEntry('Accessory',
             '${accessory.name} · €${accessoryCost.toStringAsFixed(2)}'),
+      );
+    }
+    final selection = item.normalizedShtesaSelection;
+    final sideLabels = ['Top', 'Right', 'Bottom', 'Left'];
+    final shtesaDescriptions = <String>[];
+    final priceMap = {
+      for (final option in profileSet.shtesaOptions)
+        option.lengthMm: option.pricePerMeter
+    };
+    for (int i = 0; i < selection.length && i < 4; i++) {
+      if (selection[i] > 0) {
+        final price = priceMap[selection[i]] ?? 0;
+        shtesaDescriptions.add(
+            '${sideLabels[i]}: ${selection[i]}mm (€${price.toStringAsFixed(2)}/m)');
+      }
+    }
+    if (shtesaDescriptions.isNotEmpty) {
+      componentEntries.add(
+        _DetailEntry(
+          'Shtesa',
+          '${shtesaDescriptions.join('  •  ')} · €${shtesaCost.toStringAsFixed(2)}',
+          spanFullWidth: true,
+        ),
       );
     }
     if (item.extra1Price != null) {

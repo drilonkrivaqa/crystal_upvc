@@ -78,6 +78,8 @@ class ProfileSet extends HiveObject {
   int tOuterThickness; // Outer thickness of T profile
   @HiveField(25, defaultValue: 0)
   int adapterOuterThickness; // Outer thickness of Adapter
+  @HiveField(27, defaultValue: const [])
+  List<ShtesaOption> shtesaOptions;
 
   ProfileSet({
     required this.name,
@@ -107,6 +109,7 @@ class ProfileSet extends HiveObject {
     this.zOuterThickness = 0,
     this.tOuterThickness = 0,
     this.adapterOuterThickness = 0,
+    this.shtesaOptions = const [],
   });
 }
 
@@ -169,6 +172,19 @@ class Accessory extends HiveObject {
   @HiveField(2, defaultValue: 0)
   double mass;
   Accessory({required this.name, required this.price, this.mass = 0});
+}
+
+@HiveType(typeId: 10)
+class ShtesaOption extends HiveObject {
+  @HiveField(0)
+  int lengthMm;
+  @HiveField(1)
+  double pricePerMeter;
+
+  ShtesaOption({
+    this.lengthMm = 0,
+    this.pricePerMeter = 0,
+  });
 }
 
 @HiveType(typeId: 8)
@@ -261,6 +277,8 @@ class WindowDoorItem extends HiveObject {
   @HiveField(29)
   List<List<bool>>?
       perRowVerticalAdapters; // adapter flags between vertical sections per row
+  @HiveField(30, defaultValue: const [])
+  List<int> shtesaSelectionMm; // selected shtesa length (mm) per side
 
   WindowDoorItem({
     required this.name,
@@ -293,6 +311,7 @@ class WindowDoorItem extends HiveObject {
     this.perRowSectionWidths,
     this.perRowFixedSectors,
     this.perRowVerticalAdapters,
+    List<int>? shtesaSelectionMm,
   })  : fixedSectors = fixedSectors ??
             List<bool>.filled(verticalSections * horizontalSections, false),
         sectionWidths = sectionWidths ?? List<int>.filled(verticalSections, 0),
@@ -303,7 +322,8 @@ class WindowDoorItem extends HiveObject {
                 verticalSections > 0 ? verticalSections - 1 : 0, false),
         horizontalAdapters = horizontalAdapters ??
             List<bool>.filled(
-                horizontalSections > 0 ? horizontalSections - 1 : 0, false);
+                horizontalSections > 0 ? horizontalSections - 1 : 0, false),
+        shtesaSelectionMm = shtesaSelectionMm ?? const [];
 
   bool get hasPerRowLayout =>
       perRowVerticalSections != null && perRowVerticalSections!.isNotEmpty;
@@ -511,6 +531,7 @@ class WindowDoorItem extends HiveObject {
       perRowVerticalAdapters: perRowVerticalAdapters != null
           ? _clone2d<bool>(perRowVerticalAdapters!)
           : null,
+      shtesaSelectionMm: List<int>.from(shtesaSelectionMm),
     );
   }
 
@@ -524,6 +545,17 @@ class WindowDoorItem extends HiveObject {
       top: row == 0 ? l : halfT,
       bottom: row == horizontalSections - 1 ? l : halfT,
     );
+  }
+
+  List<int> get normalizedShtesaSelection {
+    final selection = List<int>.from(shtesaSelectionMm);
+    while (selection.length < 4) {
+      selection.add(0);
+    }
+    if (selection.length > 4) {
+      selection.removeRange(4, selection.length);
+    }
+    return selection;
   }
 
   /// Returns the cost for profiles using the exact section sizes.
@@ -605,6 +637,33 @@ class WindowDoorItem extends HiveObject {
         adapterLength +
         tLength +
         glazingBeadLength;
+  }
+
+  double calculateShtesaCost(ProfileSet set) {
+    if (set.shtesaOptions.isEmpty) {
+      return 0;
+    }
+    final selection = normalizedShtesaSelection;
+    final prices = <int, double>{
+      for (final option in set.shtesaOptions)
+        option.lengthMm: option.pricePerMeter
+    };
+    final sideMeters = [
+      width / 1000.0,
+      height / 1000.0,
+      width / 1000.0,
+      height / 1000.0,
+    ];
+    double total = 0;
+    for (int i = 0; i < 4; i++) {
+      final selectedLength = selection[i];
+      if (selectedLength <= 0) continue;
+      final pricePerMeter = prices[selectedLength];
+      if (pricePerMeter != null) {
+        total += pricePerMeter * sideMeters[i].clamp(0, double.infinity);
+      }
+    }
+    return total;
   }
 
   /// Returns cost for glass, given selected [Glass] and section sizes.
