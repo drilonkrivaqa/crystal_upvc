@@ -678,7 +678,7 @@ class WindowDoorItem extends HiveObject {
       }
     } else {
       for (int i = 0; i < verticalSections - 1; i++) {
-        final len = (effectiveHeight - 2 * l).clamp(0, effectiveHeight);
+        final len = (reducedHeight - 2 * l).clamp(0, reducedHeight);
         if (verticalAdapters[i]) {
           adapterLength += (len / 1000.0) * set.priceAdapter;
         } else {
@@ -802,7 +802,7 @@ class WindowDoorItem extends HiveObject {
       }
     } else {
       for (int i = 0; i < verticalSections - 1; i++) {
-        final len = (effectiveHeight - 2 * l).clamp(0, effectiveHeight);
+        final len = (reducedHeight - 2 * l).clamp(0, reducedHeight);
         if (verticalAdapters[i]) {
           adapterLength += (len / 1000.0) * set.massAdapter;
         } else {
@@ -1001,7 +1001,7 @@ class WindowDoorItem extends HiveObject {
     } else {
       for (int i = 0; i < verticalSections - 1; i++) {
         final len =
-            (effectiveHeight - 2 * l).clamp(0, effectiveHeight) / 1000.0;
+            (reducedHeight - 2 * l).clamp(0, reducedHeight) / 1000.0;
         if (verticalAdapters[i]) {
           adapterLen += len;
         } else {
