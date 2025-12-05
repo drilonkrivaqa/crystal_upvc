@@ -79,6 +79,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   ];
   List<List<bool>> rowVerticalAdapters = [<bool>[]];
   List<TextEditingController> sectionHeightCtrls = [];
+  List<int> shtesaSelections = [0, 0, 0, 0];
 
   int _normalizeIndex(int? index, int length, {bool allowNegative = false}) {
     if (length <= 0) {
@@ -92,6 +93,46 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
       return length - 1;
     }
     return value;
+  }
+
+  List<int> get _availableShtesaLengths {
+    if (profileSetBox.isEmpty) {
+      return const <int>[];
+    }
+    final normalizedIndex =
+        _normalizeIndex(profileSetIndex, profileSetBox.length, allowNegative: false);
+    final profile = profileSetBox.getAt(normalizedIndex);
+    if (profile == null) return const <int>[];
+    final lengths = profile.shtesaOptions
+        .where((element) => element.lengthMm > 0)
+        .map((e) => e.lengthMm)
+        .toSet()
+        .toList();
+    lengths.sort();
+    return lengths;
+  }
+
+  Map<int, double> get _shtesaPriceMap {
+    if (profileSetBox.isEmpty) {
+      return const {};
+    }
+    final normalizedIndex =
+        _normalizeIndex(profileSetIndex, profileSetBox.length, allowNegative: false);
+    final profile = profileSetBox.getAt(normalizedIndex);
+    if (profile == null) return const {};
+    return {
+      for (final option in profile.shtesaOptions)
+        option.lengthMm: option.pricePerMeter,
+    };
+  }
+
+  void _normalizeShtesaForProfile() {
+    final available = _availableShtesaLengths.toSet();
+    for (int i = 0; i < shtesaSelections.length; i++) {
+      if (!available.contains(shtesaSelections[i])) {
+        shtesaSelections[i] = 0;
+      }
+    }
   }
 
   @override
@@ -165,6 +206,13 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
         List<int>.from(existingItem?.sectionWidths ?? <int>[]);
     final existingVerticalAdapters =
         List<bool>.from(existingItem?.verticalAdapters ?? <bool>[]);
+    shtesaSelections = List<int>.from(existingItem?.shtesaSelectionMm ?? []);
+    while (shtesaSelections.length < 4) {
+      shtesaSelections.add(0);
+    }
+    if (shtesaSelections.length > 4) {
+      shtesaSelections = List<int>.from(shtesaSelections.take(4));
+    }
 
     if (existingItem != null && existingItem.hasPerRowLayout) {
       rowVerticalSections =
@@ -237,6 +285,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
         : verticalSections;
     verticalController.text = verticalSections.toString();
     _ensureGridSize();
+    _normalizeShtesaForProfile();
   }
 
   @override
@@ -477,8 +526,10 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                                   ),
                                 ),
                             ],
-                            onChanged: (val) =>
-                                setState(() => profileSetIndex = val ?? 0),
+                            onChanged: (val) => setState(() {
+                              profileSetIndex = val ?? 0;
+                              _normalizeShtesaForProfile();
+                            }),
                           ),
                           DropdownButtonFormField<int>(
                             initialValue: glassIndex,
@@ -565,11 +616,13 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                                     accessoryBox.getAt(i)?.name ?? '',
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                ),
+                              ),
                             ],
                             onChanged: (val) =>
                                 setState(() => accessoryIndex = val),
                           ),
+                          const SizedBox(height: 12),
+                          _buildShtesaSelector(l10n),
                         ]),
                       ],
                     ),
@@ -665,6 +718,62 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
       backgroundColor: AppColors.primaryLight.withOpacity(0.35),
       label: Text(label),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+    );
+  }
+
+  Widget _buildShtesaSelector(AppLocalizations l10n) {
+    final options = _availableShtesaLengths;
+    final priceMap = _shtesaPriceMap;
+    final sideLabels = [
+      l10n.shtesaSideTop,
+      l10n.shtesaSideRight,
+      l10n.shtesaSideBottom,
+      l10n.shtesaSideLeft,
+    ];
+
+    if (options.isEmpty) {
+      return Text(l10n.shtesaNoOptions);
+    }
+
+    List<DropdownMenuItem<int>> buildItems() {
+      return [
+        DropdownMenuItem<int>(
+          value: 0,
+          child: Text(l10n.none),
+        ),
+        for (final length in options)
+          DropdownMenuItem<int>(
+            value: length,
+            child: Text(
+                '$length mm · €${(priceMap[length] ?? 0).toStringAsFixed(2)}/m'),
+          ),
+      ];
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.shtesaPerSide,
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        const SizedBox(height: 8),
+        _buildFormGrid([
+          for (int i = 0; i < 4; i++)
+            DropdownButtonFormField<int>(
+              value: shtesaSelections[i],
+              isExpanded: true,
+              decoration: InputDecoration(labelText: sideLabels[i]),
+              items: buildItems(),
+              onChanged: (val) {
+                setState(() {
+                  shtesaSelections[i] = val ?? 0;
+                  _normalizeShtesaForProfile();
+                });
+              },
+            ),
+        ]),
+      ],
     );
   }
 
@@ -848,6 +957,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
         horizontalAdapters: horizontalAdapters,
         photoPath: _designImageBytes != null ? null : photoPath,
         photoBytes: _designImageBytes ?? photoBytes,
+        shtesaSelectionMm: List<int>.from(shtesaSelections),
         manualPrice: mPrice,
         manualBasePrice: mBasePrice,
         extra1Price: double.tryParse(extra1Controller.text),
