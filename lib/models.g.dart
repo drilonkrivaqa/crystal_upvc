@@ -87,13 +87,15 @@ class ProfileSetAdapter extends TypeAdapter<ProfileSet> {
       zOuterThickness: fields[23] == null ? 0 : fields[23] as int,
       tOuterThickness: fields[24] == null ? 0 : fields[24] as int,
       adapterOuterThickness: fields[25] == null ? 0 : fields[25] as int,
+      shtesaOptions:
+          (fields[27] as List?)?.cast<ShtesaOption>() ?? const [],
     );
   }
 
   @override
   void write(BinaryWriter writer, ProfileSet obj) {
     writer
-      ..writeByte(27)
+      ..writeByte(28)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -147,7 +149,9 @@ class ProfileSetAdapter extends TypeAdapter<ProfileSet> {
       ..writeByte(25)
       ..write(obj.adapterOuterThickness)
       ..writeByte(26)
-      ..write(obj.hekriPipeLength);
+      ..write(obj.hekriPipeLength)
+      ..writeByte(27)
+      ..write(obj.shtesaOptions);
   }
 
   @override
@@ -330,6 +334,43 @@ class AccessoryAdapter extends TypeAdapter<Accessory> {
           typeId == other.typeId;
 }
 
+class ShtesaOptionAdapter extends TypeAdapter<ShtesaOption> {
+  @override
+  final int typeId = 10;
+
+  @override
+  ShtesaOption read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return ShtesaOption(
+      lengthMm: fields[0] as int,
+      pricePerMeter: fields[1] as double,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, ShtesaOption obj) {
+    writer
+      ..writeByte(2)
+      ..writeByte(0)
+      ..write(obj.lengthMm)
+      ..writeByte(1)
+      ..write(obj.pricePerMeter);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ShtesaOptionAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
 class ExtraChargeAdapter extends TypeAdapter<ExtraCharge> {
   @override
   final int typeId = 8;
@@ -414,13 +455,15 @@ class WindowDoorItemAdapter extends TypeAdapter<WindowDoorItem> {
       perRowVerticalAdapters: (fields[29] as List?)
           ?.map<List<bool>>((dynamic row) => (row as List).cast<bool>())
           .toList(),
+      shtesaSelectionMm:
+          (fields[30] as List?)?.cast<int>() ?? const <int>[],
     );
   }
 
   @override
   void write(BinaryWriter writer, WindowDoorItem obj) {
     writer
-      ..writeByte(30)
+      ..writeByte(31)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -480,7 +523,9 @@ class WindowDoorItemAdapter extends TypeAdapter<WindowDoorItem> {
       ..writeByte(28)
       ..write(obj.perRowFixedSectors)
       ..writeByte(29)
-      ..write(obj.perRowVerticalAdapters);
+      ..write(obj.perRowVerticalAdapters)
+      ..writeByte(30)
+      ..write(obj.shtesaSelectionMm);
   }
 
   @override

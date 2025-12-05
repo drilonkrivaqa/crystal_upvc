@@ -63,6 +63,10 @@ Future<bool> _migrateProfileSets() async {
           profile.adapterOuterThickness = 0;
           changed = true;
         }
+        if (p.shtesaOptions == null) {
+          profile.shtesaOptions = const [];
+          changed = true;
+        }
         if (changed) {
           await profile.save();
         }
@@ -194,6 +198,13 @@ Future<bool> _migrateOffers() async {
           normalizedBlind != offer.defaultBlindIndex) {
         offer.defaultBlindIndex = normalizedBlind;
         changed = true;
+      }
+      for (final item in offer.items) {
+        final i = item as dynamic;
+        if (i.shtesaSelectionMm == null) {
+          item.shtesaSelectionMm = const [];
+          changed = true;
+        }
       }
       for (final version in offer.versions) {
         final normalizedVersionProfile =
