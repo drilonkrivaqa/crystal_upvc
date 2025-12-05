@@ -29,8 +29,6 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
   late Box<Blind> blindBox;
   late Box<Mechanism> mechanismBox;
   late Box<Accessory> accessoryBox;
-  String? _boxLoadError;
-  bool _boxesReady = false;
   late TextEditingController discountPercentController;
   late TextEditingController discountAmountController;
   late TextEditingController notesController;
@@ -1241,78 +1239,35 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
   @override
   void initState() {
     super.initState();
-    _initializeBoxes();
-  }
-
-  Future<void> _initializeBoxes() async {
-    try {
-      offerBox = Hive.isBoxOpen('offers')
-          ? Hive.box<Offer>('offers')
-          : await Hive.openBox<Offer>('offers');
-      customerBox = Hive.isBoxOpen('customers')
-          ? Hive.box<Customer>('customers')
-          : await Hive.openBox<Customer>('customers');
-      profileSetBox = Hive.isBoxOpen('profileSets')
-          ? Hive.box<ProfileSet>('profileSets')
-          : await Hive.openBox<ProfileSet>('profileSets');
-      glassBox = Hive.isBoxOpen('glasses')
-          ? Hive.box<Glass>('glasses')
-          : await Hive.openBox<Glass>('glasses');
-      blindBox = Hive.isBoxOpen('blinds')
-          ? Hive.box<Blind>('blinds')
-          : await Hive.openBox<Blind>('blinds');
-      mechanismBox = Hive.isBoxOpen('mechanisms')
-          ? Hive.box<Mechanism>('mechanisms')
-          : await Hive.openBox<Mechanism>('mechanisms');
-      accessoryBox = Hive.isBoxOpen('accessories')
-          ? Hive.box<Accessory>('accessories')
-          : await Hive.openBox<Accessory>('accessories');
-      final offer = offerBox.getAt(widget.offerIndex)!;
-      discountPercentController =
-          TextEditingController(text: offer.discountPercent.toString());
-      discountAmountController =
-          TextEditingController(text: offer.discountAmount.toString());
-      notesController = TextEditingController(text: offer.notes);
-      extraDescControllers = [
-        for (var c in offer.extraCharges)
-          TextEditingController(text: c.description)
-      ];
-      extraAmountControllers = [
-        for (var c in offer.extraCharges)
-          TextEditingController(text: c.amount.toString())
-      ];
-      _selectedDefaultProfileSetIndex = offer.defaultProfileSetIndex;
-      _selectedDefaultGlassIndex = offer.defaultGlassIndex;
-      _selectedDefaultBlindIndex = offer.defaultBlindIndex;
-      if (mounted) {
-        setState(() {
-          _boxesReady = true;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _boxLoadError = e.toString();
-          _boxesReady = true;
-        });
-      }
-    }
+    offerBox = Hive.box<Offer>('offers');
+    customerBox = Hive.box<Customer>('customers');
+    profileSetBox = Hive.box<ProfileSet>('profileSets');
+    glassBox = Hive.box<Glass>('glasses');
+    blindBox = Hive.box<Blind>('blinds');
+    mechanismBox = Hive.box<Mechanism>('mechanisms');
+    accessoryBox = Hive.box<Accessory>('accessories');
+    final offer = offerBox.getAt(widget.offerIndex)!;
+    discountPercentController =
+        TextEditingController(text: offer.discountPercent.toString());
+    discountAmountController =
+        TextEditingController(text: offer.discountAmount.toString());
+    notesController = TextEditingController(text: offer.notes);
+    extraDescControllers = [
+      for (var c in offer.extraCharges)
+        TextEditingController(text: c.description)
+    ];
+    extraAmountControllers = [
+      for (var c in offer.extraCharges)
+        TextEditingController(text: c.amount.toString())
+    ];
+    _selectedDefaultProfileSetIndex = offer.defaultProfileSetIndex;
+    _selectedDefaultGlassIndex = offer.defaultGlassIndex;
+    _selectedDefaultBlindIndex = offer.defaultBlindIndex;
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    if (_boxLoadError != null) {
-      return Scaffold(
-        appBar: AppBar(title: Text(l10n.pdfOffer)),
-        body: Center(child: Text(_boxLoadError!)),
-      );
-    }
-    if (!_boxesReady) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
     Offer offer = offerBox.getAt(widget.offerIndex)!;
     final normalizedProfileIndex =
         _normalizeIndex(offer.defaultProfileSetIndex, profileSetBox.length);
