@@ -63,10 +63,6 @@ Future<bool> _migrateProfileSets() async {
           profile.adapterOuterThickness = 0;
           changed = true;
         }
-        if (p.shtesaOptions == null) {
-          profile.shtesaOptions = [];
-          changed = true;
-        }
         if (changed) {
           await profile.save();
         }
