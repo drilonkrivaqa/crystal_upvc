@@ -42,7 +42,7 @@ void main() async {
 
   Future<bool> openBoxSafe<T>(String name) async {
     try {
-      await Hive.openBox<T>(name);
+      await Hive.openBox<T>(name, crashRecovery: true);
       return true;
     } catch (e) {
       debugPrint('Error opening box $name: $e');
