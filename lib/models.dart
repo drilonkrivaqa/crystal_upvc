@@ -625,7 +625,7 @@ class WindowDoorItem extends HiveObject {
   double calculateProfileCost(ProfileSet set, {int boxHeight = 0}) {
     final netWidth = effectiveWidth();
     final netHeight = effectiveHeight();
-    final reducedHeight = (netHeight - boxHeight).clamp(0, netHeight);
+    final effectiveHeight = (netHeight - boxHeight).clamp(0, netHeight);
     final effectiveHeights = List<int>.from(sectionHeights);
     if (effectiveHeights.isNotEmpty) {
       effectiveHeights[effectiveHeights.length - 1] =
@@ -636,7 +636,7 @@ class WindowDoorItem extends HiveObject {
     const melt = 6.0;
     final sashAdd = set.sashValue.toDouble();
 
-    double frameLength = 2 * (netWidth + reducedHeight) / 1000.0 * set.priceL;
+    double frameLength = 2 * (netWidth + effectiveHeight) / 1000.0 * set.priceL;
     double sashLength = 0;
     double adapterLength = 0;
     double tLength = 0;
@@ -749,7 +749,7 @@ class WindowDoorItem extends HiveObject {
   double calculateProfileMass(ProfileSet set, {int boxHeight = 0}) {
     final netWidth = effectiveWidth();
     final netHeight = effectiveHeight();
-    final reducedHeight = (netHeight - boxHeight).clamp(0, netHeight);
+    final effectiveHeight = (netHeight - boxHeight).clamp(0, netHeight);
     final effectiveHeights = List<int>.from(sectionHeights);
     if (effectiveHeights.isNotEmpty) {
       effectiveHeights[effectiveHeights.length - 1] =
@@ -760,7 +760,7 @@ class WindowDoorItem extends HiveObject {
     const melt = 6.0;
     final sashAdd = set.sashValue.toDouble();
 
-    double frameLength = 2 * (netWidth + reducedHeight) / 1000.0 * set.massL;
+    double frameLength = 2 * (netWidth + effectiveHeight) / 1000.0 * set.massL;
     double sashLength = 0;
     double adapterLength = 0;
     double tLength = 0;
@@ -934,7 +934,7 @@ class WindowDoorItem extends HiveObject {
 
     final netWidth = effectiveWidth();
     final netHeight = effectiveHeight();
-    final reducedHeight = (netHeight - boxHeight).clamp(0, netHeight);
+    final effectiveHeight = (netHeight - boxHeight).clamp(0, netHeight);
     final effectiveHeights = List<int>.from(sectionHeights);
     if (effectiveHeights.isNotEmpty) {
       effectiveHeights[effectiveHeights.length - 1] =
@@ -947,7 +947,7 @@ class WindowDoorItem extends HiveObject {
     final fixedTakeoff = set.fixedGlassTakeoff.toDouble();
     final sashTakeoff = set.sashGlassTakeoff.toDouble();
 
-    double frameLen = 2 * (netWidth + reducedHeight) / 1000.0;
+    double frameLen = 2 * (netWidth + effectiveHeight) / 1000.0;
     double sashLen = 0;
     double adapterLen = 0;
     double tLen = 0;
