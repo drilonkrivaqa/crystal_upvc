@@ -43,26 +43,6 @@ class AppLocalizations {
       'catalogBlind': 'Roleta',
       'catalogMechanism': 'Mekanizma',
       'catalogAccessory': 'Aksesorë',
-      'catalogShtesa': 'Shtesa',
-      'shtesaTitle': 'Shtesa (shtesa)',
-      'shtesaEmpty': 'Nuk ka shtesa për këtë profil.',
-      'shtesaLeft': 'Shtesa majtas',
-      'shtesaRight': 'Shtesa djathtas',
-      'shtesaTop': 'Shtesa sipër',
-      'shtesaBottom': 'Shtesa poshtë',
-      'shtesaEffectiveSize': 'Përmasa efektive: {w}×{h} mm',
-      'shtesaReduction': 'Reduktim: -{w}mm gjerësi, -{h}mm lartësi',
-      'shtesaOptionLabel': '{size} mm (€/m {price})',
-      'shtesaInvalidSize':
-          'Shtesat janë më të mëdha se dimensionet e dritares.',
-      'shtesaAddLength': 'Shto madhësi shtese',
-      'shtesaPricePerMeter': 'Çmimi për metër (€)',
-      'shtesaLengthMm': 'Madhësia (mm)',
-      'shtesaDialogHint':
-          'Vendosni madhësitë e shtesës për këtë profil. Çmimet aplikohen për metër.',
-      'shtesaNoProfiles': 'Shto profilin që të shtosh shtesat.',
-      'shtesaEditTitle': 'Shtesa për {name}',
-      'shtesaChip': '{size} mm',
       'catalogAddTitle': 'Shto {type}',
       'catalogEditTitle': 'Ndrysho {name}',
       'catalogSectionGeneral': 'Të përgjithshme',
@@ -285,25 +265,6 @@ class AppLocalizations {
       'catalogBlind': 'Roller Shutter',
       'catalogMechanism': 'Mechanisms',
       'catalogAccessory': 'Accessories',
-      'catalogShtesa': 'Shtesa (Additions)',
-      'shtesaTitle': 'Shtesa (Additions)',
-      'shtesaEmpty': 'No shtesa configured for this profile.',
-      'shtesaLeft': 'Left shtesa',
-      'shtesaRight': 'Right shtesa',
-      'shtesaTop': 'Top shtesa',
-      'shtesaBottom': 'Bottom shtesa',
-      'shtesaEffectiveSize': 'Effective size: {w}×{h} mm',
-      'shtesaReduction': 'Reduction: -{w}mm width, -{h}mm height',
-      'shtesaOptionLabel': '{size} mm (€{price}/m)',
-      'shtesaInvalidSize': 'Shtesa sizes exceed the window dimensions.',
-      'shtesaAddLength': 'Add shtesa length',
-      'shtesaPricePerMeter': 'Price per meter (€)',
-      'shtesaLengthMm': 'Length (mm)',
-      'shtesaDialogHint':
-          'Enter the available shtesa sizes for this profile. Prices apply per meter.',
-      'shtesaNoProfiles': 'Add a profile first to configure shtesa.',
-      'shtesaEditTitle': 'Shtesa for {name}',
-      'shtesaChip': '{size} mm',
       'catalogAddTitle': 'Add {type}',
       'catalogEditTitle': 'Edit {name}',
       'catalogSectionGeneral': 'General',
@@ -523,26 +484,6 @@ class AppLocalizations {
       'catalogBlind': 'Rollladen',
       'catalogMechanism': 'Mechanismen',
       'catalogAccessory': 'Zubehör',
-      'catalogShtesa': 'Shtesa (Zusätze)',
-      'shtesaTitle': 'Shtesa (Zusätze)',
-      'shtesaEmpty': 'Keine Shtesa für dieses Profil.',
-      'shtesaLeft': 'Shtesa links',
-      'shtesaRight': 'Shtesa rechts',
-      'shtesaTop': 'Shtesa oben',
-      'shtesaBottom': 'Shtesa unten',
-      'shtesaEffectiveSize': 'Effektive Größe: {w}×{h} mm',
-      'shtesaReduction': 'Reduktion: -{w}mm Breite, -{h}mm Höhe',
-      'shtesaOptionLabel': '{size} mm (€{price}/m)',
-      'shtesaInvalidSize':
-          'Shtesa-Größen überschreiten die Fensterabmessungen.',
-      'shtesaAddLength': 'Shtesa-Länge hinzufügen',
-      'shtesaPricePerMeter': 'Preis pro Meter (€)',
-      'shtesaLengthMm': 'Länge (mm)',
-      'shtesaDialogHint':
-          'Verfügbare Shtesa-Größen für dieses Profil eingeben. Preise gelten pro Meter.',
-      'shtesaNoProfiles': 'Füge zuerst ein Profil hinzu, um Shtesa zu konfigurieren.',
-      'shtesaEditTitle': 'Shtesa für {name}',
-      'shtesaChip': '{size} mm',
       'catalogAddTitle': '{type} hinzufügen',
       'catalogEditTitle': '{name} bearbeiten',
       'catalogSectionGeneral': 'Allgemein',
@@ -752,26 +693,6 @@ class AppLocalizations {
       'catalogBlind': 'Volet roulant',
       'catalogMechanism': 'Mécanismes',
       'catalogAccessory': 'Accessoires',
-      'catalogShtesa': 'Shtesa (ajouts)',
-      'shtesaTitle': 'Shtesa (ajouts)',
-      'shtesaEmpty': 'Aucune shtesa configurée pour ce profil.',
-      'shtesaLeft': 'Shtesa gauche',
-      'shtesaRight': 'Shtesa droite',
-      'shtesaTop': 'Shtesa haute',
-      'shtesaBottom': 'Shtesa basse',
-      'shtesaEffectiveSize': 'Taille effective : {w}×{h} mm',
-      'shtesaReduction': 'Réduction : -{w}mm largeur, -{h}mm hauteur',
-      'shtesaOptionLabel': '{size} mm (€{price}/m)',
-      'shtesaInvalidSize':
-          'Les tailles de shtesa dépassent les dimensions de la fenêtre.',
-      'shtesaAddLength': 'Ajouter une longueur de shtesa',
-      'shtesaPricePerMeter': 'Prix par mètre (€)',
-      'shtesaLengthMm': 'Longueur (mm)',
-      'shtesaDialogHint':
-          'Saisissez les tailles de shtesa disponibles pour ce profil. Les prix sont par mètre.',
-      'shtesaNoProfiles': 'Ajoutez un profil avant de configurer les shtesa.',
-      'shtesaEditTitle': 'Shtesa pour {name}',
-      'shtesaChip': '{size} mm',
       'catalogAddTitle': 'Ajouter {type}',
       'catalogEditTitle': 'Modifier {name}',
       'catalogSectionGeneral': 'Général',
@@ -983,26 +904,6 @@ class AppLocalizations {
       'catalogBlind': 'Tapparella',
       'catalogMechanism': 'Meccanismi',
       'catalogAccessory': 'Accessori',
-      'catalogShtesa': 'Shtesa (aggiunte)',
-      'shtesaTitle': 'Shtesa (aggiunte)',
-      'shtesaEmpty': 'Nessuna shtesa configurata per questo profilo.',
-      'shtesaLeft': 'Shtesa sinistra',
-      'shtesaRight': 'Shtesa destra',
-      'shtesaTop': 'Shtesa superiore',
-      'shtesaBottom': 'Shtesa inferiore',
-      'shtesaEffectiveSize': 'Dimensione effettiva: {w}×{h} mm',
-      'shtesaReduction': 'Riduzione: -{w}mm larghezza, -{h}mm altezza',
-      'shtesaOptionLabel': '{size} mm (€{price}/m)',
-      'shtesaInvalidSize':
-          'Le dimensioni della shtesa superano quelle della finestra.',
-      'shtesaAddLength': 'Aggiungi lunghezza shtesa',
-      'shtesaPricePerMeter': 'Prezzo al metro (€)',
-      'shtesaLengthMm': 'Lunghezza (mm)',
-      'shtesaDialogHint':
-          'Inserisci le lunghezze di shtesa disponibili per questo profilo. I prezzi si applicano al metro.',
-      'shtesaNoProfiles': 'Aggiungi un profilo per configurare le shtesa.',
-      'shtesaEditTitle': 'Shtesa per {name}',
-      'shtesaChip': '{size} mm',
       'catalogAddTitle': 'Aggiungi {type}',
       'catalogEditTitle': 'Modifica {name}',
       'catalogSectionGeneral': 'Generale',
@@ -1257,7 +1158,6 @@ class AppLocalizations {
   String get catalogBlind => _t('catalogBlind');
   String get catalogMechanism => _t('catalogMechanism');
   String get catalogAccessory => _t('catalogAccessory');
-  String get catalogShtesa => _t('catalogShtesa');
   String catalogAddTitle(String type) =>
       _t('catalogAddTitle').replaceAll('{type}', type);
   String catalogEditTitle(String name) =>
@@ -1297,29 +1197,6 @@ class AppLocalizations {
   String get catalogFieldMass => _t('catalogFieldMass');
   String get calculate => _t('calculate');
   String get pcs => _t('pcs');
-  String get shtesaTitle => _t('shtesaTitle');
-  String get shtesaEmpty => _t('shtesaEmpty');
-  String get shtesaLeft => _t('shtesaLeft');
-  String get shtesaRight => _t('shtesaRight');
-  String get shtesaTop => _t('shtesaTop');
-  String get shtesaBottom => _t('shtesaBottom');
-  String shtesaEffectiveSize(int w, int h) =>
-      _t('shtesaEffectiveSize').replaceAll('{w}', w.toString()).replaceAll('{h}', h.toString());
-  String shtesaReduction(int w, int h) =>
-      _t('shtesaReduction').replaceAll('{w}', w.toString()).replaceAll('{h}', h.toString());
-  String shtesaOptionLabel(int size, String price) => _t('shtesaOptionLabel')
-      .replaceAll('{size}', size.toString())
-      .replaceAll('{price}', price);
-  String get shtesaInvalidSize => _t('shtesaInvalidSize');
-  String get shtesaAddLength => _t('shtesaAddLength');
-  String get shtesaPricePerMeter => _t('shtesaPricePerMeter');
-  String get shtesaLengthMm => _t('shtesaLengthMm');
-  String get shtesaDialogHint => _t('shtesaDialogHint');
-  String get shtesaNoProfiles => _t('shtesaNoProfiles');
-  String shtesaEditTitle(String name) =>
-      _t('shtesaEditTitle').replaceAll('{name}', name);
-  String shtesaChip(int size) =>
-      _t('shtesaChip').replaceAll('{size}', size.toString());
   String get savePdf => _t('savePdf');
   String get pdfDocument => _t('pdfDocument');
   String get pdfClient => _t('pdfClient');

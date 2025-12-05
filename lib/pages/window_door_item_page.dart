@@ -63,7 +63,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   String? extra1Desc;
   String? extra2Desc;
   String? notes;
-  ShtesaSelection? shtesaSelection;
   int verticalSections = 1;
   int horizontalSections = 1;
   List<int> sectionHeights = [0];
@@ -80,42 +79,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   ];
   List<List<bool>> rowVerticalAdapters = [<bool>[]];
   List<TextEditingController> sectionHeightCtrls = [];
-
-  List<ShtesaOption> get _currentShtesaOptions {
-    final profile = profileSetBox.getAt(profileSetIndex);
-    return profile?.shtesaOptions ?? const <ShtesaOption>[];
-  }
-
-  int _effectiveWidthUi() {
-    final raw = int.tryParse(widthController.text) ?? 0;
-    final reduction = shtesaSelection?.horizontalReduction() ?? 0;
-    final net = raw - reduction;
-    return net < 0 ? 0 : net;
-  }
-
-  int _effectiveHeightUi() {
-    final raw = int.tryParse(heightController.text) ?? 0;
-    final reduction = shtesaSelection?.verticalReduction() ?? 0;
-    final net = raw - reduction;
-    return net < 0 ? 0 : net;
-  }
-
-  void _sanitizeShtesaSelection() {
-    final sizes = _currentShtesaOptions.map((o) => o.sizeMm).toSet();
-    if (shtesaSelection == null) return;
-    if (!sizes.contains(shtesaSelection!.leftMm)) {
-      shtesaSelection!.leftMm = null;
-    }
-    if (!sizes.contains(shtesaSelection!.rightMm)) {
-      shtesaSelection!.rightMm = null;
-    }
-    if (!sizes.contains(shtesaSelection!.topMm)) {
-      shtesaSelection!.topMm = null;
-    }
-    if (!sizes.contains(shtesaSelection!.bottomMm)) {
-      shtesaSelection!.bottomMm = null;
-    }
-  }
 
   int _normalizeIndex(int? index, int length, {bool allowNegative = false}) {
     if (length <= 0) {
@@ -189,7 +152,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     extra1Desc = widget.existingItem?.extra1Desc;
     extra2Desc = widget.existingItem?.extra2Desc;
     notes = widget.existingItem?.notes;
-    shtesaSelection = widget.existingItem?.shtesa?.copy();
     final existingItem = widget.existingItem;
     verticalSections = existingItem?.verticalSections ?? 1;
     horizontalSections = existingItem?.horizontalSections ?? 1;
@@ -274,7 +236,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
             .reduce((value, element) => element > value ? element : value)
         : verticalSections;
     verticalController.text = verticalSections.toString();
-    _sanitizeShtesaSelection();
     _ensureGridSize();
   }
 
@@ -506,23 +467,19 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                             isExpanded: true,
                             decoration:
                                 InputDecoration(labelText: l10n.catalogProfile),
-                          items: [
-                            for (int i = 0; i < profileSetBox.length; i++)
-                              DropdownMenuItem<int>(
-                                value: i,
-                                child: Text(
+                            items: [
+                              for (int i = 0; i < profileSetBox.length; i++)
+                                DropdownMenuItem<int>(
+                                  value: i,
+                                  child: Text(
                                     profileSetBox.getAt(i)?.name ?? '',
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                              ),
-                          ],
-                          onChanged: (val) => setState(() {
-                            profileSetIndex = val ?? 0;
-                            _sanitizeShtesaSelection();
-                            _recalculateAllWidths(showErrors: false);
-                            _recalculateHeights(showErrors: false);
-                          }),
-                        ),
+                                ),
+                            ],
+                            onChanged: (val) =>
+                                setState(() => profileSetIndex = val ?? 0),
+                          ),
                           DropdownButtonFormField<int>(
                             initialValue: glassIndex,
                             isExpanded: true,
@@ -616,8 +573,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                         ]),
                       ],
                     ),
-                    const SizedBox(height: 16),
-                    _buildShtesaCard(l10n),
                     const SizedBox(height: 16),
                     _buildSectionCard(
                       children: [
@@ -724,122 +679,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
           children: children,
         ),
       ),
-    );
-  }
-
-  Widget _buildShtesaCard(AppLocalizations l10n) {
-    final options = _currentShtesaOptions;
-    final effectiveWidth = _effectiveWidthUi();
-    final effectiveHeight = _effectiveHeightUi();
-
-    List<DropdownMenuItem<int?>> _items() {
-      return [
-        DropdownMenuItem<int?>(
-          value: null,
-          child: Text(l10n.none),
-        ),
-        ...options.map(
-          (opt) => DropdownMenuItem<int?>(
-            value: opt.sizeMm,
-            child: Text(
-              l10n.shtesaOptionLabel(
-                  opt.sizeMm, opt.pricePerMeter.toStringAsFixed(2)),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ),
-      ];
-    }
-
-    void updateSelection(void Function(ShtesaSelection) updater) {
-      setState(() {
-        final selection = shtesaSelection ?? ShtesaSelection();
-        updater(selection);
-        shtesaSelection = selection;
-        _recalculateAllWidths(showErrors: false);
-        _recalculateHeights(showErrors: false);
-      });
-    }
-
-    return _buildSectionCard(
-      children: [
-        _buildSectionTitle(
-          context,
-          l10n.shtesaTitle,
-          Icons.straighten_outlined,
-        ),
-        const SizedBox(height: 12),
-        if (options.isEmpty)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
-            child: Text(
-              l10n.shtesaEmpty,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.copyWith(color: Colors.grey.shade700),
-            ),
-          ),
-        _buildFormGrid([
-          DropdownButtonFormField<int?>(
-            value: shtesaSelection?.leftMm,
-            isExpanded: true,
-            decoration: InputDecoration(labelText: l10n.shtesaLeft),
-            items: _items(),
-            onChanged: options.isEmpty
-                ? null
-                : (val) => updateSelection((s) => s.leftMm = val),
-          ),
-          DropdownButtonFormField<int?>(
-            value: shtesaSelection?.rightMm,
-            isExpanded: true,
-            decoration: InputDecoration(labelText: l10n.shtesaRight),
-            items: _items(),
-            onChanged: options.isEmpty
-                ? null
-                : (val) => updateSelection((s) => s.rightMm = val),
-          ),
-          DropdownButtonFormField<int?>(
-            value: shtesaSelection?.topMm,
-            isExpanded: true,
-            decoration: InputDecoration(labelText: l10n.shtesaTop),
-            items: _items(),
-            onChanged: options.isEmpty
-                ? null
-                : (val) => updateSelection((s) => s.topMm = val),
-          ),
-          DropdownButtonFormField<int?>(
-            value: shtesaSelection?.bottomMm,
-            isExpanded: true,
-            decoration: InputDecoration(labelText: l10n.shtesaBottom),
-            items: _items(),
-            onChanged: options.isEmpty
-                ? null
-                : (val) => updateSelection((s) => s.bottomMm = val),
-          ),
-        ]),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            _buildInfoChip(
-              Icons.aspect_ratio,
-              l10n.shtesaEffectiveSize(effectiveWidth, effectiveHeight),
-            ),
-            if ((shtesaSelection?.horizontalReduction() ?? 0) > 0 ||
-                (shtesaSelection?.verticalReduction() ?? 0) > 0)
-              Padding(
-                padding: const EdgeInsets.only(left: 8.0),
-                child: _buildInfoChip(
-                  Icons.remove_done,
-                  l10n.shtesaReduction(
-                    shtesaSelection?.horizontalReduction() ?? 0,
-                    shtesaSelection?.verticalReduction() ?? 0,
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ],
     );
   }
 
@@ -950,9 +789,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     final height = int.tryParse(heightController.text) ?? 0;
     final quantity = int.tryParse(quantityController.text) ?? 1;
     _ensureGridSize();
-    _sanitizeShtesaSelection();
-    final netWidth = _effectiveWidthUi();
-    final netHeight = _effectiveHeightUi();
     final openings = rowFixedSectors.fold<int>(
         0, (prev, row) => prev + row.where((isFixed) => !isFixed).length);
     final mPrice = double.tryParse(priceController.text);
@@ -961,13 +797,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     if (name.isEmpty || width <= 0 || height <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.fillAllRequired)),
-      );
-      return false;
-    }
-
-    if (netWidth <= 0 || netHeight <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.shtesaInvalidSize)),
       );
       return false;
     }
@@ -1033,7 +862,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
             rowFixedSectors.map((row) => List<bool>.from(row)).toList(),
         perRowVerticalAdapters:
             rowVerticalAdapters.map((row) => List<bool>.from(row)).toList(),
-        shtesa: shtesaSelection?.copy(),
       ),
     );
     return true;
@@ -1273,7 +1101,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     final columns = rowVerticalSections[row];
     if (columns <= 0) return;
 
-    final totalWidth = _effectiveWidthUi();
+    final totalWidth = int.tryParse(widthController.text) ?? 0;
     int specifiedSum = 0;
     int unspecified = 0;
     for (int i = 0; i < columns - 1; i++) {
@@ -1330,7 +1158,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
 
   void _recalculateHeights({bool showErrors = true}) {
     if (horizontalSections == 0) return;
-    int totalHeight = _effectiveHeightUi();
+    int totalHeight = int.tryParse(heightController.text) ?? 0;
     int specifiedSum = 0;
     int unspecified = 0;
     for (int i = 0; i < horizontalSections - 1; i++) {
