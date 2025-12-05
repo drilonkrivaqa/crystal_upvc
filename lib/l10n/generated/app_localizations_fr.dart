@@ -105,6 +105,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get catalogAccessory => 'Accessoires';
 
   @override
+  String get catalogShtesa => 'Shtesa (Extension)';
+
+  @override
   String catalogAddTitle(Object type) {
     return 'Ajouter $type';
   }
@@ -348,6 +351,48 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get defaultBlind => 'Volet par défaut';
+
+  @override
+  String get shtesaLabel => 'Shtesa (Extension)';
+
+  @override
+  String get shtesaNone => 'Aucune';
+
+  @override
+  String get shtesaNoOptions => 'Aucune taille de shtesa configurée pour ce profil.';
+
+  @override
+  String get shtesaLeft => 'Shtesa gauche (mm)';
+
+  @override
+  String get shtesaRight => 'Shtesa droite (mm)';
+
+  @override
+  String get shtesaTop => 'Shtesa haut (mm)';
+
+  @override
+  String get shtesaBottom => 'Shtesa bas (mm)';
+
+  @override
+  String shtesaFinalSize(Object width, Object height) {
+    return 'Dimension finale : $width x $height mm';
+  }
+
+  @override
+  String shtesaVerticalLength(Object length) {
+    return 'Longueur verticale de la shtesa : $length mm';
+  }
+
+  @override
+  String shtesaHorizontalLength(Object length) {
+    return 'Longueur horizontale de la shtesa : $length mm';
+  }
+
+  @override
+  String get shtesaLengthLabel => 'Taille de la shtesa (mm)';
+
+  @override
+  String get shtesaPriceLabel => 'Prix par mètre';
 
   @override
   String get applyDefaultsMessage =>

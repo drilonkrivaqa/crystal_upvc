@@ -109,5 +109,18 @@
   "defaultProfile": "Default profile",
   "defaultGlass": "Default glass",
   "defaultBlind": "Default blind",
-  "applyDefaultsMessage": "Choose which windows/doors should use the updated default profile, glass, and blind. Uncheck the items you want to exclude."
+  "applyDefaultsMessage": "Choose which windows/doors should use the updated default profile, glass, and blind. Uncheck the items you want to exclude.",
+  "catalogShtesa": "Shtesa (Addition)",
+  "shtesaLabel": "Shtesa (Addition)",
+  "shtesaNone": "None",
+  "shtesaNoOptions": "No shtesa sizes configured for this profile.",
+  "shtesaLeft": "Left shtesa (mm)",
+  "shtesaRight": "Right shtesa (mm)",
+  "shtesaTop": "Top shtesa (mm)",
+  "shtesaBottom": "Bottom shtesa (mm)",
+  "shtesaFinalSize": "Final window size: {width} x {height} mm",
+  "shtesaVerticalLength": "Vertical shtesa length: {length} mm",
+  "shtesaHorizontalLength": "Horizontal shtesa length: {length} mm",
+  "shtesaLengthLabel": "Shtesa size (mm)",
+  "shtesaPriceLabel": "Price per meter"
 }
