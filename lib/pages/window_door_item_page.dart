@@ -28,6 +28,9 @@ class WindowDoorItemPage extends StatefulWidget {
 }
 
 class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
+  bool _boxesReady = false;
+  String? _loadError;
+
   late Box<ProfileSet> profileSetBox;
   late Box<Glass> glassBox;
   late Box<Blind> blindBox;
@@ -138,12 +141,33 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   @override
   void initState() {
     super.initState();
-    profileSetBox = Hive.box<ProfileSet>('profileSets');
-    glassBox = Hive.box<Glass>('glasses');
-    blindBox = Hive.box<Blind>('blinds');
-    mechanismBox = Hive.box<Mechanism>('mechanisms');
-    accessoryBox = Hive.box<Accessory>('accessories');
+    _initializeBoxes();
+  }
 
+  Future<void> _initializeBoxes() async {
+    try {
+      profileSetBox = await _openBoxIfNeeded<ProfileSet>('profileSets');
+      glassBox = await _openBoxIfNeeded<Glass>('glasses');
+      blindBox = await _openBoxIfNeeded<Blind>('blinds');
+      mechanismBox = await _openBoxIfNeeded<Mechanism>('mechanisms');
+      accessoryBox = await _openBoxIfNeeded<Accessory>('accessories');
+      _setupControllers();
+      if (mounted) {
+        setState(() {
+          _boxesReady = true;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _loadError = e.toString();
+          _boxesReady = true;
+        });
+      }
+    }
+  }
+
+  void _setupControllers() {
     nameController =
         TextEditingController(text: widget.existingItem?.name ?? '');
     widthController = TextEditingController(
@@ -291,6 +315,17 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    if (_loadError != null) {
+      return Scaffold(
+        appBar: AppBar(title: Text(l10n.addWindowDoorTitle)),
+        body: Center(child: Text(_loadError!)),
+      );
+    }
+    if (!_boxesReady) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
     final verticalLabel = verticalController.text.trim().isEmpty
         ? verticalSections.toString()
         : verticalController.text.trim();
