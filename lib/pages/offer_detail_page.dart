@@ -972,8 +972,6 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 : 0;
             double accessoryCost =
                 (accessory != null) ? accessory.price * item.quantity : 0;
-            double shtesaCost =
-                item.calculateShtesaCost(profileSet) * item.quantity;
             double extras =
                 ((item.extra1Price ?? 0) + (item.extra2Price ?? 0)) *
                     item.quantity;
@@ -981,8 +979,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 glassCost +
                 blindCost +
                 mechanismCost +
-                accessoryCost +
-                shtesaCost;
+                accessoryCost;
             final profileMass = item.calculateProfileMass(profileSet,
                     boxHeight: blind?.boxHeight ?? 0) *
                 item.quantity;
@@ -1389,9 +1386,6 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 double accessoryCostPer =
                     (accessory != null) ? accessory.price : 0;
                 double accessoryCost = accessoryCostPer * item.quantity;
-                double shtesaCostPer =
-                    item.calculateShtesaCost(profileSet);
-                double shtesaCost = shtesaCostPer * item.quantity;
                 double extrasPer =
                     (item.extra1Price ?? 0) + (item.extra2Price ?? 0);
                 double extras = extrasPer * item.quantity;
@@ -1420,8 +1414,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                     glassCostPer +
                     blindCostPer +
                     mechanismCostPer +
-                    accessoryCostPer +
-                    shtesaCostPer;
+                    accessoryCostPer;
                 double base = basePer * item.quantity;
                 if (item.manualBasePrice != null) {
                   base = item.manualBasePrice!;
@@ -1457,7 +1450,6 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                   blindCost: blindCost,
                   mechanismCost: mechanismCost,
                   accessoryCost: accessoryCost,
-                  shtesaCost: shtesaCost,
                   extrasPer: extrasPer,
                   extras: extras,
                   totalPer: totalPer,
@@ -2319,7 +2311,6 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
     required double blindCost,
     required double mechanismCost,
     required double accessoryCost,
-    required double shtesaCost,
     required double extrasPer,
     required double extras,
     required double totalPer,
@@ -2433,29 +2424,6 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
       componentEntries.add(
         _DetailEntry('Accessory',
             '${accessory.name} · €${accessoryCost.toStringAsFixed(2)}'),
-      );
-    }
-    final selection = item.normalizedShtesaSelection;
-    final sideLabels = ['Top', 'Right', 'Bottom', 'Left'];
-    final shtesaDescriptions = <String>[];
-    final priceMap = {
-      for (final option in profileSet.shtesaOptions)
-        option.lengthMm: option.pricePerMeter
-    };
-    for (int i = 0; i < selection.length && i < 4; i++) {
-      if (selection[i] > 0) {
-        final price = priceMap[selection[i]] ?? 0;
-        shtesaDescriptions.add(
-            '${sideLabels[i]}: ${selection[i]}mm (€${price.toStringAsFixed(2)}/m)');
-      }
-    }
-    if (shtesaDescriptions.isNotEmpty) {
-      componentEntries.add(
-        _DetailEntry(
-          'Shtesa',
-          '${shtesaDescriptions.join('  •  ')} · €${shtesaCost.toStringAsFixed(2)}',
-          spanFullWidth: true,
-        ),
       );
     }
     if (item.extra1Price != null) {

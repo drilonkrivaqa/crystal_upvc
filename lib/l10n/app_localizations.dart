@@ -43,17 +43,6 @@ class AppLocalizations {
       'catalogBlind': 'Roleta',
       'catalogMechanism': 'Mekanizma',
       'catalogAccessory': 'Aksesorë',
-      'catalogShtesa': 'Shtesa',
-      'shtesaOptionsTitle': 'Gjatesitë e shtesës',
-      'shtesaLengthLabel': 'Gjatësia (mm)',
-      'shtesaPricePerMeter': 'Çmimi për metër',
-      'shtesaAddLength': 'Shto gjatësi',
-      'shtesaPerSide': 'Shtesa për secilën anë',
-      'shtesaSideTop': 'Lart',
-      'shtesaSideRight': 'Djathtas',
-      'shtesaSideBottom': 'Poshtë',
-      'shtesaSideLeft': 'Majtas',
-      'shtesaNoOptions': 'Nuk ka shtesa për këtë profil',
       'catalogAddTitle': 'Shto {type}',
       'catalogEditTitle': 'Ndrysho {name}',
       'catalogSectionGeneral': 'Të përgjithshme',
@@ -276,17 +265,6 @@ class AppLocalizations {
       'catalogBlind': 'Roller Shutter',
       'catalogMechanism': 'Mechanisms',
       'catalogAccessory': 'Accessories',
-      'catalogShtesa': 'Shtesa',
-      'shtesaOptionsTitle': 'Shtesa lengths',
-      'shtesaLengthLabel': 'Length (mm)',
-      'shtesaPricePerMeter': 'Price per meter',
-      'shtesaAddLength': 'Add length',
-      'shtesaPerSide': 'Shtesa per side',
-      'shtesaSideTop': 'Top',
-      'shtesaSideRight': 'Right',
-      'shtesaSideBottom': 'Bottom',
-      'shtesaSideLeft': 'Left',
-      'shtesaNoOptions': 'No shtesa configured for this profile',
       'catalogAddTitle': 'Add {type}',
       'catalogEditTitle': 'Edit {name}',
       'catalogSectionGeneral': 'General',
@@ -506,17 +484,6 @@ class AppLocalizations {
       'catalogBlind': 'Rollladen',
       'catalogMechanism': 'Mechanismen',
       'catalogAccessory': 'Zubehör',
-      'catalogShtesa': 'Shtesa',
-      'shtesaOptionsTitle': 'Shtesa-Längen',
-      'shtesaLengthLabel': 'Länge (mm)',
-      'shtesaPricePerMeter': 'Preis pro Meter',
-      'shtesaAddLength': 'Länge hinzufügen',
-      'shtesaPerSide': 'Shtesa je Seite',
-      'shtesaSideTop': 'Oben',
-      'shtesaSideRight': 'Rechts',
-      'shtesaSideBottom': 'Unten',
-      'shtesaSideLeft': 'Links',
-      'shtesaNoOptions': 'Keine Shtesa für dieses Profil',
       'catalogAddTitle': '{type} hinzufügen',
       'catalogEditTitle': '{name} bearbeiten',
       'catalogSectionGeneral': 'Allgemein',
@@ -726,17 +693,6 @@ class AppLocalizations {
       'catalogBlind': 'Volet roulant',
       'catalogMechanism': 'Mécanismes',
       'catalogAccessory': 'Accessoires',
-      'catalogShtesa': 'Shtesa',
-      'shtesaOptionsTitle': 'Longueurs Shtesa',
-      'shtesaLengthLabel': 'Longueur (mm)',
-      'shtesaPricePerMeter': 'Prix par mètre',
-      'shtesaAddLength': 'Ajouter une longueur',
-      'shtesaPerSide': 'Shtesa par côté',
-      'shtesaSideTop': 'Haut',
-      'shtesaSideRight': 'Droite',
-      'shtesaSideBottom': 'Bas',
-      'shtesaSideLeft': 'Gauche',
-      'shtesaNoOptions': 'Aucune shtesa pour ce profil',
       'catalogAddTitle': 'Ajouter {type}',
       'catalogEditTitle': 'Modifier {name}',
       'catalogSectionGeneral': 'Général',
@@ -948,17 +904,6 @@ class AppLocalizations {
       'catalogBlind': 'Tapparella',
       'catalogMechanism': 'Meccanismi',
       'catalogAccessory': 'Accessori',
-      'catalogShtesa': 'Shtesa',
-      'shtesaOptionsTitle': 'Lunghezze Shtesa',
-      'shtesaLengthLabel': 'Lunghezza (mm)',
-      'shtesaPricePerMeter': 'Prezzo al metro',
-      'shtesaAddLength': 'Aggiungi lunghezza',
-      'shtesaPerSide': 'Shtesa per lato',
-      'shtesaSideTop': 'Alto',
-      'shtesaSideRight': 'Destra',
-      'shtesaSideBottom': 'Basso',
-      'shtesaSideLeft': 'Sinistra',
-      'shtesaNoOptions': 'Nessuna shtesa per questo profilo',
       'catalogAddTitle': 'Aggiungi {type}',
       'catalogEditTitle': 'Modifica {name}',
       'catalogSectionGeneral': 'Generale',
@@ -1213,17 +1158,6 @@ class AppLocalizations {
   String get catalogBlind => _t('catalogBlind');
   String get catalogMechanism => _t('catalogMechanism');
   String get catalogAccessory => _t('catalogAccessory');
-  String get catalogShtesa => _t('catalogShtesa');
-  String get shtesaOptionsTitle => _t('shtesaOptionsTitle');
-  String get shtesaLengthLabel => _t('shtesaLengthLabel');
-  String get shtesaPricePerMeter => _t('shtesaPricePerMeter');
-  String get shtesaAddLength => _t('shtesaAddLength');
-  String get shtesaPerSide => _t('shtesaPerSide');
-  String get shtesaSideTop => _t('shtesaSideTop');
-  String get shtesaSideRight => _t('shtesaSideRight');
-  String get shtesaSideBottom => _t('shtesaSideBottom');
-  String get shtesaSideLeft => _t('shtesaSideLeft');
-  String get shtesaNoOptions => _t('shtesaNoOptions');
   String catalogAddTitle(String type) =>
       _t('catalogAddTitle').replaceAll('{type}', type);
   String catalogEditTitle(String name) =>
