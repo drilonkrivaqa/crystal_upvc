@@ -65,6 +65,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   String? notes;
   int verticalSections = 1;
   int horizontalSections = 1;
+  List<int> shtesaSelections = List<int>.filled(4, -1);
   List<int> sectionHeights = [0];
   List<bool> horizontalAdapters = [];
   List<int> rowVerticalSections = [1];
@@ -92,6 +93,20 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
       return length - 1;
     }
     return value;
+  }
+
+  List<ShtesaOption> _shtesaOptionsForProfile(int index) {
+    final profile = profileSetBox.getAt(index);
+    return profile?.shtesaOptions ?? const [];
+  }
+
+  void _sanitizeShtesaSelections() {
+    final options = _shtesaOptionsForProfile(profileSetIndex);
+    for (int i = 0; i < shtesaSelections.length; i++) {
+      if (shtesaSelections[i] >= options.length) {
+        shtesaSelections[i] = -1;
+      }
+    }
   }
 
   @override
@@ -152,6 +167,12 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     extra1Desc = widget.existingItem?.extra1Desc;
     extra2Desc = widget.existingItem?.extra2Desc;
     notes = widget.existingItem?.notes;
+    final existingShtesa = widget.existingItem?.shtesaSelections;
+    if (existingShtesa != null && existingShtesa.isNotEmpty) {
+      for (int i = 0; i < shtesaSelections.length && i < existingShtesa.length; i++) {
+        shtesaSelections[i] = existingShtesa[i];
+      }
+    }
     final existingItem = widget.existingItem;
     verticalSections = existingItem?.verticalSections ?? 1;
     horizontalSections = existingItem?.horizontalSections ?? 1;
@@ -236,6 +257,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
             .reduce((value, element) => element > value ? element : value)
         : verticalSections;
     verticalController.text = verticalSections.toString();
+    _sanitizeShtesaSelections();
     _ensureGridSize();
   }
 
@@ -395,6 +417,38 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                       ],
                     ),
                     const SizedBox(height: 16),
+                    if (_shtesaOptionsForProfile(profileSetIndex).isNotEmpty)
+                      _buildSectionCard(
+                        children: [
+                          _buildSectionTitle(
+                            context,
+                            'Shtesa (additions)',
+                            Icons.add_box_outlined,
+                          ),
+                          const SizedBox(height: 16),
+                          _buildFormGrid([
+                            _buildShtesaDropdown('Left side', 0, l10n),
+                            _buildShtesaDropdown('Right side', 1, l10n),
+                            _buildShtesaDropdown('Top side', 2, l10n),
+                            _buildShtesaDropdown('Bottom side', 3, l10n),
+                          ]),
+                        ],
+                      ),
+                    if (_shtesaOptionsForProfile(profileSetIndex).isEmpty)
+                      _buildSectionCard(
+                        children: [
+                          _buildSectionTitle(
+                            context,
+                            'Shtesa (additions)',
+                            Icons.add_box_outlined,
+                          ),
+                          const SizedBox(height: 16),
+                          const Text(
+                            'Configure shtesa lengths from the catalog to enable them for this item.',
+                          ),
+                        ],
+                      ),
+                    const SizedBox(height: 16),
                     _buildSectionCard(
                       children: [
                         _buildSectionTitle(
@@ -477,8 +531,10 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                                   ),
                                 ),
                             ],
-                            onChanged: (val) =>
-                                setState(() => profileSetIndex = val ?? 0),
+                            onChanged: (val) => setState(() {
+                              profileSetIndex = val ?? 0;
+                              _sanitizeShtesaSelections();
+                            }),
                           ),
                           DropdownButtonFormField<int>(
                             initialValue: glassIndex,
@@ -655,6 +711,44 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
               )
               .toList(),
         );
+      },
+    );
+  }
+
+  DropdownButtonFormField<int> _buildShtesaDropdown(
+      String label, int index, AppLocalizations l10n) {
+    final options = _shtesaOptionsForProfile(profileSetIndex);
+    final current =
+        (shtesaSelections[index] >= 0 &&
+                shtesaSelections[index] < options.length)
+            ? shtesaSelections[index]
+            : -1;
+
+    return DropdownButtonFormField<int>(
+      value: current,
+      isExpanded: true,
+      decoration: InputDecoration(labelText: label),
+      items: [
+        DropdownMenuItem<int>(
+          value: -1,
+          child: Text(l10n.none),
+        ),
+        for (int i = 0; i < options.length; i++)
+          DropdownMenuItem<int>(
+            value: i,
+            child: Text(
+                '${options[i].lengthMm}mm (€${options[i].pricePerM.toStringAsFixed(2)}/m)'),
+          ),
+      ],
+      onChanged: (val) {
+        setState(() {
+          final newValue = val ?? -1;
+          if (newValue >= 0 && newValue >= options.length) {
+            shtesaSelections[index] = -1;
+          } else {
+            shtesaSelections[index] = newValue;
+          }
+        });
       },
     );
   }
@@ -862,6 +956,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
             rowFixedSectors.map((row) => List<bool>.from(row)).toList(),
         perRowVerticalAdapters:
             rowVerticalAdapters.map((row) => List<bool>.from(row)).toList(),
+        shtesaSelections: List<int>.from(shtesaSelections),
       ),
     );
     return true;
