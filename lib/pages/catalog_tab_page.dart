@@ -480,6 +480,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                       int.tryParse(sashGlassController.text) ?? 10,
                       sashValue:
                       int.tryParse(sashValueController.text) ?? 22,
+                      shtesaOptions: item.shtesaOptions,
                     ),
                   );
                   break;
