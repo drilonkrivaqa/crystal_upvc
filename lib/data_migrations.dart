@@ -149,6 +149,8 @@ Future<bool> _migrateOffers() async {
     final profileBox = await Hive.openBox<ProfileSet>('profileSets');
     final glassBox = await Hive.openBox<Glass>('glasses');
     final blindBox = await Hive.openBox<Blind>('blinds');
+    final mechanismBox = await Hive.openBox<Mechanism>('mechanisms');
+    final accessoryBox = await Hive.openBox<Accessory>('accessories');
     int normalize(int value, int length, {bool allowNegative = false}) {
       if (length <= 0) {
         return allowNegative ? -1 : 0;
@@ -159,6 +161,13 @@ Future<bool> _migrateOffers() async {
       if (value >= length) {
         return length - 1;
       }
+      return value;
+    }
+
+    int? normalizeOptional(int? value, int length) {
+      if (value == null) return null;
+      if (length <= 0 || value < 0) return null;
+      if (value >= length) return length - 1;
       return value;
     }
 
@@ -195,6 +204,38 @@ Future<bool> _migrateOffers() async {
         offer.defaultBlindIndex = normalizedBlind;
         changed = true;
       }
+      for (final item in offer.items) {
+        final normalizedItemProfile =
+            normalize(item.profileSetIndex, profileBox.length);
+        final normalizedItemGlass = normalize(item.glassIndex, glassBox.length);
+        final normalizedItemBlind =
+            normalizeOptional(item.blindIndex, blindBox.length);
+        final normalizedItemMechanism =
+            normalizeOptional(item.mechanismIndex, mechanismBox.length);
+        final normalizedItemAccessory =
+            normalizeOptional(item.accessoryIndex, accessoryBox.length);
+
+        if (normalizedItemProfile != item.profileSetIndex) {
+          item.profileSetIndex = normalizedItemProfile;
+          changed = true;
+        }
+        if (normalizedItemGlass != item.glassIndex) {
+          item.glassIndex = normalizedItemGlass;
+          changed = true;
+        }
+        if (normalizedItemBlind != item.blindIndex) {
+          item.blindIndex = normalizedItemBlind;
+          changed = true;
+        }
+        if (normalizedItemMechanism != item.mechanismIndex) {
+          item.mechanismIndex = normalizedItemMechanism;
+          changed = true;
+        }
+        if (normalizedItemAccessory != item.accessoryIndex) {
+          item.accessoryIndex = normalizedItemAccessory;
+          changed = true;
+        }
+      }
       for (final version in offer.versions) {
         final normalizedVersionProfile =
             normalize(version.defaultProfileSetIndex, profileBox.length);
@@ -214,6 +255,38 @@ Future<bool> _migrateOffers() async {
         if (normalizedVersionBlind != version.defaultBlindIndex) {
           version.defaultBlindIndex = normalizedVersionBlind;
           changed = true;
+        }
+        for (final item in version.items) {
+          final normalizedItemProfile =
+              normalize(item.profileSetIndex, profileBox.length);
+          final normalizedItemGlass = normalize(item.glassIndex, glassBox.length);
+          final normalizedItemBlind =
+              normalizeOptional(item.blindIndex, blindBox.length);
+          final normalizedItemMechanism =
+              normalizeOptional(item.mechanismIndex, mechanismBox.length);
+          final normalizedItemAccessory =
+              normalizeOptional(item.accessoryIndex, accessoryBox.length);
+
+          if (normalizedItemProfile != item.profileSetIndex) {
+            item.profileSetIndex = normalizedItemProfile;
+            changed = true;
+          }
+          if (normalizedItemGlass != item.glassIndex) {
+            item.glassIndex = normalizedItemGlass;
+            changed = true;
+          }
+          if (normalizedItemBlind != item.blindIndex) {
+            item.blindIndex = normalizedItemBlind;
+            changed = true;
+          }
+          if (normalizedItemMechanism != item.mechanismIndex) {
+            item.mechanismIndex = normalizedItemMechanism;
+            changed = true;
+          }
+          if (normalizedItemAccessory != item.accessoryIndex) {
+            item.accessoryIndex = normalizedItemAccessory;
+            changed = true;
+          }
         }
       }
       if (offer.offerNumber <= 0) {
