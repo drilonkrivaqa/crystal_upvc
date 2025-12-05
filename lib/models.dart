@@ -49,7 +49,7 @@ class ProfileSet extends HiveObject {
   double priceAdapter; // Adapter (for double sash)
   @HiveField(5)
   double priceLlajsne; // Glazing bead
-  @HiveField(6, defaultValue: 0)
+  @HiveField(6, defaultValue: 6500)
   int pipeLength; // Standard pipe length in mm
   @HiveField(26, defaultValue: 6000)
   int hekriPipeLength; // Standard hekri pipe length in mm
