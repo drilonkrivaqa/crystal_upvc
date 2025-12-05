@@ -246,8 +246,8 @@ Future<bool> _migrateOffers() async {
         changed = true;
       }
       ProfileSet? offerProfileSet(int index) {
-        if (index < 0 || index >= profiles.length) return null;
-        return profiles.getAt(index);
+        if (index < 0 || index >= profileBox.length) return null;
+        return profileBox.getAt(index);
       }
       for (final item in offer.items) {
         final normalizedItemProfile =
