@@ -105,9 +105,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get catalogAccessory => 'Zubehör';
 
   @override
-  String get catalogShtesa => 'Shtesa (Zusatz)';
-
-  @override
   String catalogAddTitle(Object type) {
     return '$type hinzufügen';
   }
@@ -350,48 +347,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get defaultBlind => 'Standardrollladen';
-
-  @override
-  String get shtesaLabel => 'Shtesa (Zusatz)';
-
-  @override
-  String get shtesaNone => 'Keine';
-
-  @override
-  String get shtesaNoOptions => 'Keine Shtesa-Größen für dieses Profil konfiguriert.';
-
-  @override
-  String get shtesaLeft => 'Shtesa links (mm)';
-
-  @override
-  String get shtesaRight => 'Shtesa rechts (mm)';
-
-  @override
-  String get shtesaTop => 'Shtesa oben (mm)';
-
-  @override
-  String get shtesaBottom => 'Shtesa unten (mm)';
-
-  @override
-  String shtesaFinalSize(Object width, Object height) {
-    return 'Endgültige Größe: $width x $height mm';
-  }
-
-  @override
-  String shtesaVerticalLength(Object length) {
-    return 'Vertikale Shtesa-Länge: $length mm';
-  }
-
-  @override
-  String shtesaHorizontalLength(Object length) {
-    return 'Horizontale Shtesa-Länge: $length mm';
-  }
-
-  @override
-  String get shtesaLengthLabel => 'Shtesa Größe (mm)';
-
-  @override
-  String get shtesaPriceLabel => 'Preis pro Meter';
 
   @override
   String get applyDefaultsMessage =>

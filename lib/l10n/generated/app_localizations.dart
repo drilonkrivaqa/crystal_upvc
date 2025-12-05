@@ -279,12 +279,6 @@ abstract class AppLocalizations {
   /// **'Accessories'**
   String get catalogAccessory;
 
-  /// No description provided for @catalogShtesa.
-  ///
-  /// In en, this message translates to:
-  /// **'Shtesa (Addition)'**
-  String get catalogShtesa;
-
   /// No description provided for @catalogAddTitle.
   ///
   /// In en, this message translates to:
@@ -764,78 +758,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Default blind'**
   String get defaultBlind;
-
-  /// No description provided for @shtesaLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Shtesa (Addition)'**
-  String get shtesaLabel;
-
-  /// No description provided for @shtesaNone.
-  ///
-  /// In en, this message translates to:
-  /// **'None'**
-  String get shtesaNone;
-
-  /// No description provided for @shtesaNoOptions.
-  ///
-  /// In en, this message translates to:
-  /// **'No shtesa sizes configured for this profile.'**
-  String get shtesaNoOptions;
-
-  /// No description provided for @shtesaLeft.
-  ///
-  /// In en, this message translates to:
-  /// **'Left shtesa (mm)'**
-  String get shtesaLeft;
-
-  /// No description provided for @shtesaRight.
-  ///
-  /// In en, this message translates to:
-  /// **'Right shtesa (mm)'**
-  String get shtesaRight;
-
-  /// No description provided for @shtesaTop.
-  ///
-  /// In en, this message translates to:
-  /// **'Top shtesa (mm)'**
-  String get shtesaTop;
-
-  /// No description provided for @shtesaBottom.
-  ///
-  /// In en, this message translates to:
-  /// **'Bottom shtesa (mm)'**
-  String get shtesaBottom;
-
-  /// No description provided for @shtesaFinalSize.
-  ///
-  /// In en, this message translates to:
-  /// **'Final window size: {width} x {height} mm'**
-  String shtesaFinalSize(Object width, Object height);
-
-  /// No description provided for @shtesaVerticalLength.
-  ///
-  /// In en, this message translates to:
-  /// **'Vertical shtesa length: {length} mm'**
-  String shtesaVerticalLength(Object length);
-
-  /// No description provided for @shtesaHorizontalLength.
-  ///
-  /// In en, this message translates to:
-  /// **'Horizontal shtesa length: {length} mm'**
-  String shtesaHorizontalLength(Object length);
-
-  /// No description provided for @shtesaLengthLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Shtesa size (mm)'**
-  String get shtesaLengthLabel;
-
-  /// No description provided for @shtesaPriceLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Price per meter'**
-  String get shtesaPriceLabel;
 
   /// No description provided for @applyDefaultsMessage.
   ///

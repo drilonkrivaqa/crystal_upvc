@@ -962,8 +962,6 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
             double glassCost = item.calculateGlassCost(profileSet, glass,
                     boxHeight: blind?.boxHeight ?? 0) *
                 item.quantity;
-            double shtesaCost =
-                item.calculateShtesaCost(profileSet) * item.quantity;
             double blindCost = (blind != null)
                 ? (item.calculateBlindPricingArea() *
                     blind.pricePerM2 *
@@ -979,7 +977,6 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                     item.quantity;
             double base = profileCost +
                 glassCost +
-                shtesaCost +
                 blindCost +
                 mechanismCost +
                 accessoryCost;
@@ -990,7 +987,10 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                     boxHeight: blind?.boxHeight ?? 0) *
                 item.quantity;
             final blindMass = (blind != null)
-                ? (item.calculateTotalArea() * blind.massPerM2 * item.quantity)
+                ? ((item.width / 1000.0) *
+                    (item.height / 1000.0) *
+                    blind.massPerM2 *
+                    item.quantity)
                 : 0;
             final mechanismMass = (mechanism != null)
                 ? mechanism.mass * item.quantity * item.openings
@@ -1376,8 +1376,6 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 double glassCostPer = item.calculateGlassCost(profileSet, glass,
                     boxHeight: blind?.boxHeight ?? 0);
                 double glassCost = glassCostPer * item.quantity;
-                double shtesaCostPer = item.calculateShtesaCost(profileSet);
-                double shtesaCost = shtesaCostPer * item.quantity;
                 double blindCostPer = (blind != null)
                     ? (item.calculateBlindPricingArea() * blind.pricePerM2)
                     : 0;
@@ -1397,7 +1395,9 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 double glassMassPer = item.calculateGlassMass(profileSet, glass,
                     boxHeight: blind?.boxHeight ?? 0);
                 double blindMassPer = (blind != null)
-                    ? (item.calculateTotalArea() * blind.massPerM2)
+                    ? ((item.width / 1000.0) *
+                        (item.height / 1000.0) *
+                        blind.massPerM2)
                     : 0;
                 double mechanismMassPer =
                     (mechanism != null) ? mechanism.mass * item.openings : 0;
@@ -1412,7 +1412,6 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
 
                 double basePer = profileCostPer +
                     glassCostPer +
-                    shtesaCostPer +
                     blindCostPer +
                     mechanismCostPer +
                     accessoryCostPer;
@@ -1448,8 +1447,6 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                   profileCost: profileCost,
                   glassCostPer: glassCostPer,
                   glassCost: glassCost,
-                  shtesaCost: shtesaCost,
-                  shtesaCostPer: shtesaCostPer,
                   blindCost: blindCost,
                   mechanismCost: mechanismCost,
                   accessoryCost: accessoryCost,
@@ -2311,8 +2308,6 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
     required double profileCost,
     required double glassCostPer,
     required double glassCost,
-    required double shtesaCostPer,
-    required double shtesaCost,
     required double blindCost,
     required double mechanismCost,
     required double accessoryCost,
@@ -2338,19 +2333,6 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
           'Sections', '${item.horizontalSections}x${item.verticalSections}'),
       _DetailEntry('Mass', '${totalMass.toStringAsFixed(2)} kg'),
     ];
-    if (item.shtesa != null) {
-      generalEntries.add(
-        _DetailEntry(
-          'Final size', '${item.netWidth()} x ${item.netHeight()} mm'),
-      );
-      generalEntries.add(
-        _DetailEntry(
-          'Shtesa lengths',
-          'Vertical: ${item.height} mm • Horizontal: ${item.netWidth()} mm',
-          spanFullWidth: true,
-        ),
-      );
-    }
     if (item.notes != null && item.notes!.isNotEmpty) {
       generalEntries.add(
         _DetailEntry('Notes', item.notes!, spanFullWidth: true),
@@ -2426,14 +2408,6 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
         '€${glassCostPer.toStringAsFixed(2)} / pc · €${glassCost.toStringAsFixed(2)} (${item.quantity}pcs)',
       ),
     ];
-    if (shtesaCost > 0) {
-      componentEntries.add(
-        _DetailEntry(
-          'Shtesa',
-          '€${shtesaCostPer.toStringAsFixed(2)} / pc · €${shtesaCost.toStringAsFixed(2)} (${item.quantity}pcs)',
-        ),
-      );
-    }
     if (blind != null) {
       componentEntries.add(
         _DetailEntry('Roller shutter',

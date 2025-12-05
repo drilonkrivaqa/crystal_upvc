@@ -105,9 +105,6 @@ class AppLocalizationsSq extends AppLocalizations {
   String get catalogAccessory => 'Aksesorë';
 
   @override
-  String get catalogShtesa => 'Shtesa (Shtesë)';
-
-  @override
   String catalogAddTitle(Object type) {
     return 'Shto $type';
   }
@@ -351,48 +348,6 @@ class AppLocalizationsSq extends AppLocalizations {
 
   @override
   String get defaultBlind => 'Roleta e paracaktuar';
-
-  @override
-  String get shtesaLabel => 'Shtesa (Shtesë)';
-
-  @override
-  String get shtesaNone => 'Asnjë';
-
-  @override
-  String get shtesaNoOptions => 'Nuk ka madhësi shtese të konfiguruara për këtë profil.';
-
-  @override
-  String get shtesaLeft => 'Shtesa majtas (mm)';
-
-  @override
-  String get shtesaRight => 'Shtesa djathtas (mm)';
-
-  @override
-  String get shtesaTop => 'Shtesa sipër (mm)';
-
-  @override
-  String get shtesaBottom => 'Shtesa poshtë (mm)';
-
-  @override
-  String shtesaFinalSize(Object width, Object height) {
-    return 'Përmasa finale: $width x $height mm';
-  }
-
-  @override
-  String shtesaVerticalLength(Object length) {
-    return 'Gjatësia vertikale e shtesës: $length mm';
-  }
-
-  @override
-  String shtesaHorizontalLength(Object length) {
-    return 'Gjatësia horizontale e shtesës: $length mm';
-  }
-
-  @override
-  String get shtesaLengthLabel => 'Madhësia e shtesës (mm)';
-
-  @override
-  String get shtesaPriceLabel => 'Çmimi për metër';
 
   @override
   String get applyDefaultsMessage =>
