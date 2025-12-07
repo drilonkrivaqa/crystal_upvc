@@ -131,8 +131,6 @@ flutter run
 
 Complete UI redesign for commercial look
 
-Firebase integration as optional cloud sync
-
 Cutting optimizer module
 
 Window/Door Designer with schematic preview
