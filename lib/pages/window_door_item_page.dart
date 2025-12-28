@@ -8,6 +8,8 @@ import '../models.dart';
 import '../theme/app_colors.dart';
 import 'window_door_designer_page.dart';
 import '../l10n/app_localizations.dart';
+import '../utils/design_template_store.dart';
+import '../utils/sash_type.dart';
 
 class WindowDoorItemPage extends StatefulWidget {
   final void Function(WindowDoorItem) onSave;
@@ -261,6 +263,11 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                     ? l10n.addWindowDoor
                     : l10n.editWindowDoor),
                 actions: [
+                  IconButton(
+                    tooltip: 'Insert template',
+                    icon: const Icon(Icons.library_add_outlined),
+                    onPressed: _openTemplatePicker,
+                  ),
                   IconButton(
                     tooltip: l10n.designWindowDoor,
                     icon: const Icon(Icons.design_services),
@@ -891,6 +898,106 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
       return _saveItem();
     }
     return true;
+  }
+
+  Future<void> _openTemplatePicker() async {
+    await DesignTemplateStore.ensureBox();
+    final templates = DesignTemplateStore.loadAll();
+    if (!mounted) return;
+    if (templates.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No saved templates yet.')),
+      );
+      return;
+    }
+
+    final selected = await showModalBottomSheet<WindowDoorDesignTemplate>(
+      context: context,
+      showDragHandle: true,
+      builder: (ctx) {
+        return ListView.builder(
+          itemCount: templates.length,
+          itemBuilder: (context, index) {
+            final template = templates[index];
+            return ListTile(
+              leading: template.previewBytes != null
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.memory(
+                        template.previewBytes!,
+                        width: 52,
+                        height: 52,
+                        fit: BoxFit.cover,
+                      ),
+                    )
+                  : const Icon(Icons.window),
+              title: Text(template.name),
+              subtitle: Text(
+                  '${template.widthMm.toStringAsFixed(0)} x ${template.heightMm.toStringAsFixed(0)} mm • ${template.cols} x ${template.rows}'),
+              onTap: () => Navigator.of(context).pop(template),
+            );
+          },
+        );
+      },
+    );
+
+    if (selected != null) {
+      _applyTemplateToForm(selected);
+    }
+  }
+
+  void _applyTemplateToForm(WindowDoorDesignTemplate template) {
+    setState(() {
+      widthController.text = template.widthMm.round().toString();
+      heightController.text = template.heightMm.round().toString();
+      verticalSections = template.cols;
+      horizontalSections = template.rows;
+      verticalController.text = verticalSections.toString();
+      horizontalController.text = horizontalSections.toString();
+      rowVerticalSections =
+          List<int>.filled(horizontalSections, verticalSections, growable: true);
+      sectionHeights = List<int>.generate(horizontalSections, (r) {
+        return r < template.rowSizesMm.length
+            ? template.rowSizesMm[r].round()
+            : 0;
+      });
+      rowSectionWidths = List<List<int>>.generate(horizontalSections, (_) {
+        return List<int>.generate(verticalSections, (c) {
+          return c < template.columnSizesMm.length
+              ? template.columnSizesMm[c].round()
+              : 0;
+        });
+      });
+      rowFixedSectors = List<List<bool>>.generate(horizontalSections, (r) {
+        return List<bool>.generate(verticalSections, (c) {
+          final idx = r * verticalSections + c;
+          if (idx < template.cells.length) {
+            return template.cells[idx] == SashType.fixed;
+          }
+          return true;
+        });
+      });
+      rowVerticalAdapters = List<List<bool>>.generate(horizontalSections, (_) {
+        return List<bool>.filled(
+            verticalSections > 1 ? verticalSections - 1 : 0, false);
+      });
+      horizontalAdapters = List<bool>.filled(
+          horizontalSections > 1 ? horizontalSections - 1 : 0, false);
+      _designImageBytes = template.previewBytes ?? _designImageBytes;
+    });
+    _ensureGridSize();
+    for (int r = 0; r < rowSectionWidthCtrls.length; r++) {
+      for (int c = 0; c < rowSectionWidthCtrls[r].length; c++) {
+        rowSectionWidthCtrls[r][c].text =
+            (rowSectionWidths[r][c]).toString();
+      }
+    }
+    for (int i = 0; i < sectionHeightCtrls.length; i++) {
+      sectionHeightCtrls[i].text = sectionHeights[i].toString();
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('${template.name} inserted into the offer.')),
+    );
   }
 
   void _updateGrid() {
