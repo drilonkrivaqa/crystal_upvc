@@ -15,6 +15,8 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show RenderRepaintBoundary;
+import '../utils/design_template_store.dart';
+import '../utils/sash_type.dart';
 import '../utils/design_image_saver_stub.dart'
     if (dart.library.io) '../utils/design_image_saver_io.dart' as design_saver;
 
@@ -73,23 +75,14 @@ const Color kSelectOutline = Color(0xFF1E88E5); // blue outline
 const double kSelectDash = 7.0;
 const double kSelectGap = 5.0;
 
+// Data + take-off helpers
+const double kGlassDeductionPerSideMm = 14.0;
+const double kSashPerimeterAllowanceMm = 4.0;
+const double kHardwareHingeOffsetMm = 200.0;
+const double kHardwareHandleRatio = 0.55;
+
 // -----------------------------------------------------------------------------
 // Model / types
-
-enum SashType {
-  fixed,
-  casementLeft,
-  casementRight,
-  tilt,
-  tiltLeft, // triangle apex LEFT (opens to the right)
-  tiltRight, // triangle apex RIGHT (opens to the left)
-  tiltTurnLeft, // triangles apex TOP + RIGHT
-  tiltTurnRight, // triangles apex TOP + LEFT
-  slidingLeft,
-  slidingRight,
-  slidingTiltLeft,
-  slidingTiltRight,
-}
 
 enum _ExportAction { close, save, useAsPhoto }
 
@@ -140,9 +133,14 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
   late _SimpleColorOption blindColor;
   late List<double> _columnSizes;
   late List<double> _rowSizes;
+  List<TextEditingController> _columnSizeCtrls = [];
+  List<TextEditingController> _rowSizeCtrls = [];
+
+  List<WindowDoorDesignTemplate> templates = [];
 
   late final TextEditingController _widthController;
   late final TextEditingController _heightController;
+  late final TextEditingController _templateNameController;
 
   final _repaintKey = GlobalKey();
 
@@ -158,6 +156,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
         TextEditingController(text: windowWidthMm.toStringAsFixed(0));
     _heightController =
         TextEditingController(text: windowHeightMm.toStringAsFixed(0));
+    _templateNameController = TextEditingController(text: 'Template 1');
     cells = List<SashType>.filled(rows * cols, SashType.fixed, growable: true);
     cellGlassColors = List<Color>.filled(
         rows * cols, _glassColorOptions.first.color,
@@ -171,12 +170,21 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     if (providedCells != null && providedCells.length == cells.length) {
       cells = List<SashType>.from(providedCells, growable: true);
     }
+    _syncSizeControllers();
+    _loadTemplates();
   }
 
   @override
   void dispose() {
     _widthController.dispose();
     _heightController.dispose();
+    _templateNameController.dispose();
+    for (final ctrl in _columnSizeCtrls) {
+      ctrl.dispose();
+    }
+    for (final ctrl in _rowSizeCtrls) {
+      ctrl.dispose();
+    }
     super.dispose();
   }
 
@@ -193,6 +201,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
       _columnSizes = List<double>.filled(cols, 1.0);
       _rowSizes = List<double>.filled(rows, 1.0);
     });
+    _syncSizeControllers();
   }
 
   void _applyToolToAll() {
@@ -208,6 +217,40 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     setState(() {
       cellGlassColors = List<Color>.filled(rows * cols, color, growable: true);
       selectedIndex = null;
+    });
+  }
+
+  void _syncSizeControllers() {
+    _columnSizeCtrls = _syncControllerList(_columnSizeCtrls, _columnSizes);
+    _rowSizeCtrls = _syncControllerList(_rowSizeCtrls, _rowSizes);
+  }
+
+  List<TextEditingController> _syncControllerList(
+      List<TextEditingController> ctrls, List<double> values) {
+    final result = <TextEditingController>[];
+    for (int i = 0; i < values.length; i++) {
+      if (i < ctrls.length) {
+        ctrls[i].text = values[i].toStringAsFixed(0);
+        result.add(ctrls[i]);
+      } else {
+        result.add(TextEditingController(text: values[i].toStringAsFixed(0)));
+      }
+    }
+    for (int i = values.length; i < ctrls.length; i++) {
+      ctrls[i].dispose();
+    }
+    return result;
+  }
+
+  Future<void> _loadTemplates() async {
+    await DesignTemplateStore.ensureBox();
+    final items = DesignTemplateStore.loadAll();
+    if (!mounted) return;
+    setState(() {
+      templates = items;
+      if (_templateNameController.text.trim().isEmpty) {
+        _templateNameController.text = 'Template ${templates.length + 1}';
+      }
     });
   }
 
@@ -608,6 +651,21 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
             onHeightChanged: _setHeightMm,
             totalCells: rows * cols,
           ),
+          const SizedBox(height: 12),
+          _SizeEditors(
+            columnCtrls: _columnSizeCtrls,
+            rowCtrls: _rowSizeCtrls,
+            onColumnChanged: (index, value) => setState(() {
+              if (index < _columnSizes.length) {
+                _columnSizes[index] = value;
+              }
+            }),
+            onRowChanged: (index, value) => setState(() {
+              if (index < _rowSizes.length) {
+                _rowSizes[index] = value;
+              }
+            }),
+          ),
           const SizedBox(height: 16),
           SwitchListTile.adaptive(
             contentPadding: EdgeInsets.zero,
@@ -720,6 +778,16 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
               ),
             ],
           ),
+          const SizedBox(height: 16),
+          _DataPanel(
+            structure: _buildStructureTree(),
+            profileRuns: _profileSegments(),
+            glassMetrics: _glassMetrics(),
+            hardwareGuides: _hardwareGuides(),
+            templateNameController: _templateNameController,
+            onSaveTemplate: _onSaveTemplate,
+            onLoadTemplate: _showTemplatePicker,
+          ),
         ],
       ),
     );
@@ -756,6 +824,24 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     return canvasHeightPx / totalMm;
   }
 
+  List<double> get _columnWidthsMm =>
+      _sizesForTotal(windowWidthMm, _columnSizes, cols);
+  List<double> get _rowHeightsMm =>
+      _sizesForTotal(windowHeightMm, _rowSizes, rows);
+
+  List<double> _sizesForTotal(double total, List<double> sizes, int count) {
+    if (count <= 0) return const <double>[];
+    final fractions = _normalizedFractions(sizes, count);
+    return List<double>.generate(
+        count, (i) => (total * fractions[i]).clamp(0, total));
+  }
+
+  Size _cellSizeMm(int row, int col) {
+    final w = col < _columnWidthsMm.length ? _columnWidthsMm[col] : 0;
+    final h = row < _rowHeightsMm.length ? _rowHeightsMm[row] : 0;
+    return Size(w, h);
+  }
+
   Widget _colorGroup({required String title, required List<Widget> chips}) {
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -771,6 +857,177 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
       ],
     );
   }
+
+  List<_StructureNode> _buildStructureTree() {
+    final nodes = <_StructureNode>[
+      _StructureNode(
+        'Frame',
+        '${windowWidthMm.toStringAsFixed(0)} x ${windowHeightMm.toStringAsFixed(0)} mm',
+        0,
+      ),
+    ];
+
+    for (int i = 1; i < cols; i++) {
+      nodes.add(_StructureNode(
+        'Mullion $i',
+        '${windowHeightMm.toStringAsFixed(0)} mm',
+        1,
+      ));
+    }
+    for (int i = 1; i < rows; i++) {
+      nodes.add(_StructureNode(
+        'Transom $i',
+        '${windowWidthMm.toStringAsFixed(0)} mm',
+        1,
+      ));
+    }
+
+    for (int r = 0; r < rows; r++) {
+      for (int c = 0; c < cols; c++) {
+        final idx = _xyToIndex(r, c);
+        final size = _cellSizeMm(r, c);
+        nodes.add(_StructureNode(
+          'Cell ${r + 1} x ${c + 1}',
+          '${_sashLabel(cells[idx])} • ${size.width.toStringAsFixed(0)} x ${size.height.toStringAsFixed(0)} mm',
+          1,
+        ));
+      }
+    }
+
+    return nodes;
+  }
+
+  List<_ProfileSegment> _profileSegments() {
+    final segments = <_ProfileSegment>[];
+    final frameMeters = 2 * (windowWidthMm + windowHeightMm) / 1000.0;
+    segments.add(_ProfileSegment('Frame perimeter', frameMeters));
+
+    for (int i = 1; i < cols; i++) {
+      segments.add(_ProfileSegment(
+          'Mullion $i', (windowHeightMm) / 1000.0));
+    }
+    for (int i = 1; i < rows; i++) {
+      segments.add(_ProfileSegment(
+          'Transom $i', (windowWidthMm) / 1000.0));
+    }
+
+    for (int r = 0; r < rows; r++) {
+      for (int c = 0; c < cols; c++) {
+        final idx = _xyToIndex(r, c);
+        if (!_isOperable(cells[idx])) continue;
+        final size = _cellSizeMm(r, c);
+        final sashW = (size.width - kSashPerimeterAllowanceMm * 2)
+            .clamp(0, size.width);
+        final sashH = (size.height - kSashPerimeterAllowanceMm * 2)
+            .clamp(0, size.height);
+        final sashMeters = 2 * (sashW + sashH) / 1000.0;
+        segments.add(_ProfileSegment(
+            'Sash ${r + 1}x${c + 1}', sashMeters));
+      }
+    }
+
+    return segments;
+  }
+
+  List<_GlassMetric> _glassMetrics() {
+    final metrics = <_GlassMetric>[];
+    for (int r = 0; r < rows; r++) {
+      for (int c = 0; c < cols; c++) {
+        final idx = _xyToIndex(r, c);
+        final size = _cellSizeMm(r, c);
+        final deduction = kGlassDeductionPerSideMm * 2;
+        final sashAllowance = _isOperable(cells[idx])
+            ? kSashPerimeterAllowanceMm * 2
+            : 0.0;
+        final glassW = (size.width - deduction - sashAllowance)
+            .clamp(0, size.width);
+        final glassH = (size.height - deduction - sashAllowance)
+            .clamp(0, size.height);
+        metrics.add(_GlassMetric(
+          row: r + 1,
+          col: c + 1,
+          widthMm: glassW,
+          heightMm: glassH,
+        ));
+      }
+    }
+    return metrics;
+  }
+
+  List<_HardwareGuide> _hardwareGuides() {
+    final guides = <_HardwareGuide>[];
+    for (int r = 0; r < rows; r++) {
+      for (int c = 0; c < cols; c++) {
+        final idx = _xyToIndex(r, c);
+        final type = cells[idx];
+        if (!_isOperable(type)) continue;
+        final size = _cellSizeMm(r, c);
+        final hingeSide = _hingeSideLabel(type);
+        final handleHeight = (size.height * kHardwareHandleRatio).round();
+        guides.add(_HardwareGuide(
+          label: 'R${r + 1}C${c + 1}',
+          type: _sashLabel(type),
+          hingeSide: hingeSide,
+          topHinge: kHardwareHingeOffsetMm.round(),
+          bottomHinge: (size.height - kHardwareHingeOffsetMm).round(),
+          handleFromTop: handleHeight,
+        ));
+      }
+    }
+    return guides;
+  }
+
+  String _hingeSideLabel(SashType type) {
+    switch (type) {
+      case SashType.casementLeft:
+      case SashType.tiltLeft:
+      case SashType.tiltTurnLeft:
+      case SashType.slidingLeft:
+      case SashType.slidingTiltLeft:
+        return outsideView ? 'Left' : 'Right (inside view)';
+      case SashType.casementRight:
+      case SashType.tiltRight:
+      case SashType.tiltTurnRight:
+      case SashType.slidingRight:
+      case SashType.slidingTiltRight:
+        return outsideView ? 'Right' : 'Left (inside view)';
+      case SashType.tilt:
+        return 'Top stay';
+      case SashType.fixed:
+        return 'Fixed';
+    }
+  }
+
+  String _sashLabel(SashType type) {
+    switch (type) {
+      case SashType.fixed:
+        return 'Fixed';
+      case SashType.casementLeft:
+        return 'Casement (hinge left)';
+      case SashType.casementRight:
+        return 'Casement (hinge right)';
+      case SashType.tilt:
+        return 'Tilt';
+      case SashType.tiltLeft:
+        return 'Tilt (apex left)';
+      case SashType.tiltRight:
+        return 'Tilt (apex right)';
+      case SashType.tiltTurnLeft:
+        return 'Tilt & turn (hinge left)';
+      case SashType.tiltTurnRight:
+        return 'Tilt & turn (hinge right)';
+      case SashType.slidingLeft:
+        return 'Sliding (left)';
+      case SashType.slidingRight:
+        return 'Sliding (right)';
+      case SashType.slidingTiltLeft:
+        return 'Sliding tilt (left)';
+      case SashType.slidingTiltRight:
+        return 'Sliding tilt (right)';
+    }
+  }
+
+  bool _isOperable(SashType type) => type != SashType.fixed;
 
   double _initialHeightMm(double? providedHeight) {
     if (providedHeight != null &&
@@ -803,6 +1060,114 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
       windowHeightMm = clamped;
       _heightController.text = clamped.toStringAsFixed(0);
     });
+  }
+
+  WindowDoorDesignTemplate _buildTemplate(
+      String name, Uint8List? previewBytes) {
+    return WindowDoorDesignTemplate(
+      name: name,
+      savedAt: DateTime.now(),
+      widthMm: windowWidthMm,
+      heightMm: windowHeightMm,
+      rows: rows,
+      cols: cols,
+      outsideView: outsideView,
+      showBlindBox: showBlindBox,
+      columnSizesMm: _columnWidthsMm,
+      rowSizesMm: _rowHeightsMm,
+      cells: List<SashType>.from(cells),
+      previewBytes: previewBytes,
+    );
+  }
+
+  Future<void> _onSaveTemplate() async {
+    final name = _templateNameController.text.trim().isEmpty
+        ? 'Template ${DateTime.now().millisecondsSinceEpoch}'
+        : _templateNameController.text.trim();
+    final previewBytes = await _captureDesignBytes();
+    final template = _buildTemplate(name, previewBytes);
+    await DesignTemplateStore.save(template);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Template "$name" saved for reuse.')));
+    await _loadTemplates();
+  }
+
+  Future<void> _showTemplatePicker() async {
+    await _loadTemplates();
+    if (!mounted) return;
+    if (templates.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No templates saved yet.')),
+      );
+      return;
+    }
+
+    final selected = await showModalBottomSheet<WindowDoorDesignTemplate>(
+      context: context,
+      showDragHandle: true,
+      builder: (ctx) {
+        return ListView.builder(
+          itemCount: templates.length,
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          itemBuilder: (context, index) {
+            final template = templates[index];
+            return ListTile(
+              leading: template.previewBytes != null
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.memory(
+                        template.previewBytes!,
+                        width: 52,
+                        height: 52,
+                        fit: BoxFit.cover,
+                      ),
+                    )
+                  : const Icon(Icons.window),
+              title: Text(template.name),
+              subtitle: Text(
+                  '${template.widthMm.toStringAsFixed(0)} x ${template.heightMm.toStringAsFixed(0)} mm  |  ${template.cols} x ${template.rows}'),
+              onTap: () => Navigator.of(context).pop(template),
+            );
+          },
+        );
+      },
+    );
+
+    if (selected != null) {
+      _applyTemplate(selected);
+    }
+  }
+
+  void _applyTemplate(WindowDoorDesignTemplate template) {
+    final targetRows = template.rows.clamp(1, 8);
+    final targetCols = template.cols.clamp(1, 8);
+    final totalCells = targetRows * targetCols;
+    final nextCells =
+        template.cells.length == totalCells && template.cells.isNotEmpty
+            ? List<SashType>.from(template.cells)
+            : List<SashType>.filled(totalCells, SashType.fixed,
+                growable: true);
+
+    setState(() {
+      rows = targetRows;
+      cols = targetCols;
+      windowWidthMm = template.widthMm > 0 ? template.widthMm : windowWidthMm;
+      windowHeightMm =
+          template.heightMm > 0 ? template.heightMm : windowHeightMm;
+      _widthController.text = windowWidthMm.toStringAsFixed(0);
+      _heightController.text = windowHeightMm.toStringAsFixed(0);
+      _columnSizes = _initialSizes(template.columnSizesMm, cols);
+      _rowSizes = _initialSizes(template.rowSizesMm, rows);
+      cells = nextCells;
+      cellGlassColors = List<Color>.filled(
+          rows * cols, _glassColorOptions.first.color,
+          growable: true);
+      outsideView = template.outsideView;
+      showBlindBox = template.showBlindBox;
+      selectedIndex = null;
+    });
+    _syncSizeControllers();
   }
 
   double _clampDimension(double value) => value.clamp(300.0, 4000.0);
@@ -1632,4 +1997,240 @@ class _ColorDot extends StatelessWidget {
       ),
     );
   }
+}
+
+class _SizeEditors extends StatelessWidget {
+  final List<TextEditingController> columnCtrls;
+  final List<TextEditingController> rowCtrls;
+  final void Function(int index, double value) onColumnChanged;
+  final void Function(int index, double value) onRowChanged;
+
+  const _SizeEditors({
+    required this.columnCtrls,
+    required this.rowCtrls,
+    required this.onColumnChanged,
+    required this.onRowChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Section sizes (mm)',
+            style: TextStyle(fontWeight: FontWeight.w600)),
+        const SizedBox(height: 4),
+        _SizeFieldRow(
+          label: 'Columns',
+          controllers: columnCtrls,
+          onChanged: onColumnChanged,
+        ),
+        const SizedBox(height: 8),
+        _SizeFieldRow(
+          label: 'Rows',
+          controllers: rowCtrls,
+          onChanged: onRowChanged,
+        ),
+      ],
+    );
+  }
+}
+
+class _SizeFieldRow extends StatelessWidget {
+  final String label;
+  final List<TextEditingController> controllers;
+  final void Function(int index, double value) onChanged;
+
+  const _SizeFieldRow({
+    required this.label,
+    required this.controllers,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: Theme.of(context).textTheme.bodySmall),
+        const SizedBox(height: 4),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (int i = 0; i < controllers.length; i++)
+              SizedBox(
+                width: 90,
+                child: TextField(
+                  controller: controllers[i],
+                  keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true, signed: false),
+                  decoration: InputDecoration(
+                    labelText: '${i + 1}',
+                    isDense: true,
+                    border: const OutlineInputBorder(),
+                  ),
+                  onChanged: (val) {
+                    final parsed = double.tryParse(val.trim());
+                    if (parsed != null) {
+                      onChanged(i, parsed);
+                    }
+                  },
+                ),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _DataPanel extends StatelessWidget {
+  final List<_StructureNode> structure;
+  final List<_ProfileSegment> profileRuns;
+  final List<_GlassMetric> glassMetrics;
+  final List<_HardwareGuide> hardwareGuides;
+  final TextEditingController templateNameController;
+  final Future<void> Function() onSaveTemplate;
+  final Future<void> Function() onLoadTemplate;
+
+  const _DataPanel({
+    required this.structure,
+    required this.profileRuns,
+    required this.glassMetrics,
+    required this.hardwareGuides,
+    required this.templateNameController,
+    required this.onSaveTemplate,
+    required this.onLoadTemplate,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return Card(
+      elevation: 0,
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Structure tree',
+                style: textTheme.titleSmall
+                    ?.copyWith(fontWeight: FontWeight.w700)),
+            const SizedBox(height: 6),
+            ...structure.map((n) => Padding(
+                  padding: EdgeInsets.only(left: n.depth * 12.0, bottom: 2),
+                  child: Text('${n.label}: ${n.detail}'),
+                )),
+            const SizedBox(height: 12),
+            Text('Profile meters',
+                style: textTheme.titleSmall
+                    ?.copyWith(fontWeight: FontWeight.w700)),
+            const SizedBox(height: 6),
+            Wrap(
+              spacing: 8,
+              runSpacing: 6,
+              children: profileRuns
+                  .map((p) => Chip(
+                        label: Text(
+                            '${p.label}: ${p.meters.toStringAsFixed(2)} m'),
+                      ))
+                  .toList(),
+            ),
+            const SizedBox(height: 12),
+            Text('Glass sizes',
+                style: textTheme.titleSmall
+                    ?.copyWith(fontWeight: FontWeight.w700)),
+            const SizedBox(height: 6),
+            ...glassMetrics.map((g) => Text(
+                'R${g.row}C${g.col}: ${g.widthMm.toStringAsFixed(0)} x ${g.heightMm.toStringAsFixed(0)} mm')),
+            const SizedBox(height: 12),
+            Text('Hardware placement',
+                style: textTheme.titleSmall
+                    ?.copyWith(fontWeight: FontWeight.w700)),
+            const SizedBox(height: 6),
+            ...hardwareGuides.map((h) => Text(
+                '${h.label} ${h.type}: hinges ${h.hingeSide} (${h.topHinge} / ${h.bottomHinge} mm), handle ~${h.handleFromTop} mm from top')),
+            const SizedBox(height: 14),
+            Text('Save template',
+                style: textTheme.titleSmall
+                    ?.copyWith(fontWeight: FontWeight.w700)),
+            const SizedBox(height: 6),
+            TextField(
+              controller: templateNameController,
+              decoration: const InputDecoration(
+                labelText: 'Template name',
+                isDense: true,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: FilledButton.icon(
+                    icon: const Icon(Icons.save_outlined),
+                    onPressed: onSaveTemplate,
+                    label: const Text('Save for sales'),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    icon: const Icon(Icons.library_add),
+                    onPressed: onLoadTemplate,
+                    label: const Text('Load template'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _StructureNode {
+  final String label;
+  final String detail;
+  final int depth;
+  const _StructureNode(this.label, this.detail, this.depth);
+}
+
+class _ProfileSegment {
+  final String label;
+  final double meters;
+  const _ProfileSegment(this.label, this.meters);
+}
+
+class _GlassMetric {
+  final int row;
+  final int col;
+  final double widthMm;
+  final double heightMm;
+
+  const _GlassMetric({
+    required this.row,
+    required this.col,
+    required this.widthMm,
+    required this.heightMm,
+  });
+}
+
+class _HardwareGuide {
+  final String label;
+  final String type;
+  final String hingeSide;
+  final int topHinge;
+  final int bottomHinge;
+  final int handleFromTop;
+
+  const _HardwareGuide({
+    required this.label,
+    required this.type,
+    required this.hingeSide,
+    required this.topHinge,
+    required this.bottomHinge,
+    required this.handleFromTop,
+  });
 }
