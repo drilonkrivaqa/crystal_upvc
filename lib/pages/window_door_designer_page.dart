@@ -837,8 +837,8 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
   }
 
   Size _cellSizeMm(int row, int col) {
-    final w = col < _columnWidthsMm.length ? _columnWidthsMm[col] : 0.0;
-    final h = row < _rowHeightsMm.length ? _rowHeightsMm[row] : 0.0;
+    final w = col < _columnWidthsMm.length ? _columnWidthsMm[col] : 0;
+    final h = row < _rowHeightsMm.length ? _rowHeightsMm[row] : 0;
     return Size(w, h);
   }
 
@@ -940,11 +940,9 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
             ? kSashPerimeterAllowanceMm * 2
             : 0.0;
         final glassW = (size.width - deduction - sashAllowance)
-            .clamp(0.0, size.width)
-            .toDouble();
+            .clamp(0, size.width);
         final glassH = (size.height - deduction - sashAllowance)
-            .clamp(0.0, size.height)
-            .toDouble();
+            .clamp(0, size.height);
         metrics.add(_GlassMetric(
           row: r + 1,
           col: c + 1,
