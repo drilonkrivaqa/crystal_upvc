@@ -736,8 +736,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     final h = windowHeightMm;
 
     if (w > 0 && h > 0) {
-      final totalHeight = h + (showBlindBox ? kBlindBoxHeightMm : 0);
-      final ratio = w / totalHeight;
+      final ratio = w / h;
       if (ratio.isFinite && ratio > 0) {
         return ratio;
       }
@@ -746,8 +745,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     const defaultAspect = 1.6;
     final defaultHeight = kFallbackWindowHeightMm;
     final defaultWidth = defaultAspect * defaultHeight;
-    final totalHeight = defaultHeight + (showBlindBox ? kBlindBoxHeightMm : 0);
-    return defaultWidth / totalHeight;
+    return defaultWidth / defaultHeight;
   }
 
   double get _windowHeightMm {
@@ -755,7 +753,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
   }
 
   double _mmToPx(double canvasHeightPx) {
-    final totalMm = _windowHeightMm + (showBlindBox ? kBlindBoxHeightMm : 0);
+    final totalMm = _windowHeightMm;
     if (totalMm <= 0) {
       return 0;
     }
@@ -847,8 +845,7 @@ class _WindowPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final totalHeightMm =
-        windowHeightMm + (showBlindBox ? kBlindBoxHeightMm : 0);
+    final totalHeightMm = windowHeightMm;
     final mmToPx = totalHeightMm > 0 ? size.height / totalHeightMm : 0.0;
     final blindHeightPx = showBlindBox ? kBlindBoxHeightMm * mmToPx : 0.0;
 
