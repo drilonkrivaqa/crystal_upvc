@@ -1286,21 +1286,28 @@ class _WindowPainter extends CustomPainter {
 
   void _drawSwingHinge(Canvas canvas, Rect r,
       {required bool hingeOnLeft, required Paint paint}) {
+    final thickPaint = Paint()
+      ..color = paint.color
+      ..style = paint.style
+      ..strokeWidth = paint.strokeWidth * 1.45
+      ..strokeCap = paint.strokeCap
+      ..isAntiAlias = paint.isAntiAlias;
+
     final stemX = hingeOnLeft
         ? r.left + r.width * 0.18
         : r.right - r.width * 0.18;
-    final stemTop = Offset(stemX, r.top + r.height * 0.18);
-    final stemBottom = Offset(stemX, r.bottom - r.height * 0.12);
+    final stemTop = Offset(stemX, r.top + r.height * 0.26);
+    final stemBottom = Offset(stemX, r.bottom - r.height * 0.26);
 
-    // Vertical stem
-    canvas.drawLine(stemTop, stemBottom, paint);
+    // Vertical stem (shorter)
+    canvas.drawLine(stemTop, stemBottom, thickPaint);
 
     // Horizontal run with arrow head
     final runStart = stemTop;
     final runEnd = hingeOnLeft
         ? Offset(r.right - r.width * 0.12, stemTop.dy)
         : Offset(r.left + r.width * 0.12, stemTop.dy);
-    canvas.drawLine(runStart, runEnd, paint);
+    canvas.drawLine(runStart, runEnd, thickPaint);
 
     final dir = hingeOnLeft ? 1 : -1;
     final ah = r.shortestSide * 0.08;
@@ -1309,8 +1316,8 @@ class _WindowPainter extends CustomPainter {
         Offset(arrowTip.dx - dir * ah, arrowTip.dy - ah * 0.55);
     final head2 =
         Offset(arrowTip.dx - dir * ah, arrowTip.dy + ah * 0.55);
-    canvas.drawLine(arrowTip, head1, paint);
-    canvas.drawLine(arrowTip, head2, paint);
+    canvas.drawLine(arrowTip, head1, thickPaint);
+    canvas.drawLine(arrowTip, head2, thickPaint);
   }
 
   @override
