@@ -1492,18 +1492,18 @@ class _OpeningDiagramPainter extends CustomPainter {
 
     final hingePaint = Paint()
       ..color = Colors.grey.shade600
-      ..strokeWidth = 6.5
+      ..strokeWidth = 5
       ..strokeCap = StrokeCap.round;
     final hingeX = hingeOnLeft ? frame.left : frame.right;
     canvas.drawLine(
-      Offset(hingeX, frame.top + frame.height * 0.24),
-      Offset(hingeX, frame.bottom - frame.height * 0.24),
+      Offset(hingeX, frame.top + frame.height * 0.18),
+      Offset(hingeX, frame.bottom - frame.height * 0.18),
       hingePaint,
     );
 
     final doorPaint = Paint()
       ..color = Colors.red.shade700
-      ..strokeWidth = 4.2
+      ..strokeWidth = 3.6
       ..strokeCap = StrokeCap.round;
 
     final hinge = Offset(hingeX, frame.center.dy);
