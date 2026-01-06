@@ -221,14 +221,14 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
         ? math.min(kBlindBoxHeightMm * mmToPx, size.height)
         : 0.0;
 
-    // Window opening sits beneath the blind box
-    final outer = Rect.fromLTWH(0, blindHeightPx, size.width,
-        math.max(0.0, size.height - blindHeightPx));
+    // Hit test inside the opening (frame inset)
+    final outer = Rect.fromLTWH(0, 0, size.width, size.height);
     final opening = outer.deflate(kFrameFace);
     final contentArea = opening.deflate(kRebateLip);
 
     if (showBlindBox) {
-      final blindRect = Rect.fromLTWH(0, 0, size.width, blindHeightPx);
+      final blindRect = Rect.fromLTWH(contentArea.left, contentArea.top,
+          contentArea.width, math.min(contentArea.height, blindHeightPx));
       if (blindRect.contains(localPos)) {
         setState(() => selectedIndex = null);
         return;
@@ -243,9 +243,9 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
 
     final cellArea = Rect.fromLTWH(
       contentArea.left,
-      contentArea.top,
+      contentArea.top + blindHeightPx,
       contentArea.width,
-      contentArea.height,
+      math.max(0.0, contentArea.height - blindHeightPx),
     );
 
     if (cellArea.height <= 0 || cellArea.width <= 0) {
@@ -896,9 +896,8 @@ class _WindowPainter extends CustomPainter {
       ..style = PaintingStyle.fill
       ..isAntiAlias = true;
 
-    // Window frame lives beneath the blind box (if present)
-    final windowOuter =
-        Rect.fromLTWH(0, blindHeightPx, size.width, windowHeightPx);
+    // Outer rect (whole widget)
+    final outer = Rect.fromLTWH(0, 0, size.width, size.height);
 
     // 1) Draw PVC frame body
     canvas.drawRect(windowOuter, paintFrameFill);
@@ -919,10 +918,15 @@ class _WindowPainter extends CustomPainter {
     // 3) Glass/sash area is even further deflated by rebate/bead lip
     final contentArea = opening.deflate(kRebateLip);
 
-    // 3a) Blind box sits above the frame and does not steal glass height
+    // 3a) Blind box lives inside the opening (does not add to exterior size)
     Rect glassArea = contentArea;
     if (showBlindBox) {
-      final blindRect = Rect.fromLTWH(0, 0, size.width, blindHeightPx);
+      final blindRect = Rect.fromLTWH(
+        contentArea.left,
+        contentArea.top,
+        contentArea.width,
+        math.min(contentArea.height, blindHeightPx),
+      );
       final blindFill = Paint()
         ..color = blindColor.color
         ..style = PaintingStyle.fill
@@ -935,7 +939,12 @@ class _WindowPainter extends CustomPainter {
       canvas.drawRect(blindRect, blindFill);
       canvas.drawRect(blindRect, blindOutline);
 
-      glassArea = contentArea;
+      glassArea = Rect.fromLTWH(
+        contentArea.left,
+        contentArea.top + blindRect.height,
+        contentArea.width,
+        math.max(0.0, contentArea.height - blindRect.height),
+      );
     }
 
     // 4) Draw cells (glass + glyphs) inside glassArea
