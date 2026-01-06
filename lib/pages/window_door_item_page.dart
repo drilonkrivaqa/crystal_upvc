@@ -299,6 +299,17 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                             ? sectionHeights[index].toDouble()
                             : 0.0,
                       );
+                      final initialRowColumnSizes =
+                          List<List<double>>.generate(initialRows, (row) {
+                        final rowWidths =
+                            row < rowSectionWidths.length ? rowSectionWidths[row] : const <int>[];
+                        return List<double>.generate(initialCols, (col) {
+                          if (col < rowWidths.length) {
+                            return rowWidths[col].toDouble();
+                          }
+                          return 0.0;
+                        });
+                      });
                       final designerPage = WindowDoorDesignerPage(
                         initialWidth: (widthValue != null && widthValue > 0)
                             ? widthValue
@@ -312,6 +323,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                         initialCells: initialCells,
                         initialColumnSizes: initialColumnSizes,
                         initialRowSizes: initialRowSizes,
+                        initialRowColumnSizes: initialRowColumnSizes,
                       );
 
                       final bytes = await Navigator.push<Uint8List>(
