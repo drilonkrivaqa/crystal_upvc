@@ -107,6 +107,7 @@ class WindowDoorDesignerPage extends StatefulWidget {
   final List<SashType>? initialCells;
   final List<double>? initialColumnSizes;
   final List<double>? initialRowSizes;
+  final List<List<double>>? initialRowColumnSizes;
 
   const WindowDoorDesignerPage({
     super.key,
@@ -118,6 +119,7 @@ class WindowDoorDesignerPage extends StatefulWidget {
     this.initialCells,
     this.initialColumnSizes,
     this.initialRowSizes,
+    this.initialRowColumnSizes,
   });
 
   @override
@@ -142,6 +144,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
   late _SimpleColorOption blindColor;
   late List<double> _columnSizes;
   late List<double> _rowSizes;
+  late List<List<double>> _rowColumnSizes;
 
   late final TextEditingController _widthController;
   late final TextEditingController _heightController;
@@ -168,6 +171,8 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     blindColor = _blindColorOptions.first;
     _columnSizes = _initialSizes(widget.initialColumnSizes, cols);
     _rowSizes = _initialSizes(widget.initialRowSizes, rows);
+    _rowColumnSizes = _initialRowColumnSizes(
+        widget.initialRowColumnSizes, rows, cols, _columnSizes);
 
     final providedCells = widget.initialCells;
     if (providedCells != null && providedCells.length == cells.length) {
@@ -194,6 +199,8 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
       selectedIndex = null;
       _columnSizes = List<double>.filled(cols, 1.0);
       _rowSizes = List<double>.filled(rows, 1.0);
+      _rowColumnSizes =
+          List<List<double>>.generate(rows, (_) => List<double>.filled(cols, 1.0));
     });
   }
 
@@ -236,12 +243,18 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     }
 
     final cellArea = opening.deflate(kRebateLip);
-    final columnFractions = _normalizedFractions(_columnSizes, cols);
+    final columnFractions =
+        _normalizedRowFractions(_rowColumnSizes, rows, cols);
     final rowFractions = _normalizedFractions(_rowSizes, rows);
-    final c = _hitTestAxis(
-        localPos.dx, cellArea.left, cellArea.width, columnFractions, cols);
     final r = _hitTestAxis(
         localPos.dy, cellArea.top, cellArea.height, rowFractions, rows);
+    final c = _hitTestAxis(
+      localPos.dx,
+      cellArea.left,
+      cellArea.width,
+      columnFractions[_clampRowIndex(r, columnFractions.length)],
+      cols,
+    );
     final idx = _xyToIndex(r, c);
 
     setState(() {
@@ -253,6 +266,13 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
       }
       cells[idx] = activeTool;
     });
+  }
+
+  int _clampRowIndex(int value, int length) {
+    if (length <= 0) return 0;
+    if (value < 0) return 0;
+    if (value >= length) return length - 1;
+    return value;
   }
 
   List<double> _initialSizes(List<double>? values, int count) {
@@ -285,6 +305,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     if (count <= 0) {
       return const <double>[];
     }
+
     final sanitized = List<double>.generate(count, (index) {
       if (index < sizes.length) {
         final value = sizes[index];
@@ -294,28 +315,75 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
       }
       return 0.0;
     });
-    double positiveSum = 0;
-    int positiveCount = 0;
-    for (final value in sanitized) {
-      if (value > 0) {
-        positiveSum += value;
-        positiveCount++;
-      }
-    }
-    if (positiveSum <= 0 || positiveCount <= 0) {
+
+    final positiveSum = sanitized.fold<double>(
+        0.0, (sum, value) => value > 0 ? sum + value : sum);
+    if (positiveSum <= 0) {
       return List<double>.filled(count, 1.0 / count);
     }
-    final fallbackValue = positiveSum / positiveCount;
-    for (int i = 0; i < sanitized.length; i++) {
-      if (sanitized[i] <= 0) {
-        sanitized[i] = fallbackValue;
+
+    return sanitized
+        .map((value) => value > 0 ? value / positiveSum : 0.0)
+        .toList(growable: false);
+  }
+
+  List<List<double>> _normalizedRowFractions(
+    List<List<double>> sizes,
+    int rows,
+    int cols,
+  ) {
+    if (rows <= 0 || cols <= 0) {
+      return const <List<double>>[];
+    }
+
+    return List<List<double>>.generate(rows, (row) {
+      final rowSizes = row < sizes.length ? sizes[row] : const <double>[];
+      final sanitized = List<double>.generate(cols, (col) {
+        if (col < rowSizes.length) {
+          final value = rowSizes[col];
+          if (value.isFinite && value > 0) {
+            return value;
+          }
+          if (value.isFinite && value == 0) {
+            return 0.0;
+          }
+        }
+        return 0.0;
+      });
+
+      final positiveSum = sanitized.fold<double>(
+          0.0, (sum, value) => value > 0 ? sum + value : sum);
+      if (positiveSum <= 0) {
+        return List<double>.filled(cols, 1.0 / cols, growable: false);
       }
+
+      return sanitized
+          .map((value) => value > 0 ? value / positiveSum : 0.0)
+          .toList(growable: false);
+    }, growable: false);
+  }
+
+  List<List<double>> _initialRowColumnSizes(
+    List<List<double>>? values,
+    int rows,
+    int cols,
+    List<double> fallback,
+  ) {
+    if (rows <= 0 || cols <= 0) {
+      return const <List<double>>[];
     }
-    final total = sanitized.fold<double>(0, (sum, value) => sum + value);
-    if (total <= 0) {
-      return List<double>.filled(count, 1.0 / count);
+
+    if (values == null || values.isEmpty) {
+      return List<List<double>>.generate(
+          rows, (_) => List<double>.from(fallback, growable: true));
     }
-    return sanitized.map((value) => value / total).toList(growable: false);
+
+    return List<List<double>>.generate(rows, (row) {
+      if (row < values.length) {
+        return _initialSizes(values[row], cols);
+      }
+      return List<double>.from(fallback, growable: true);
+    });
   }
 
   int _hitTestAxis(
@@ -568,7 +636,8 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
                     cellGlassColors: cellGlassColors,
                     profileColor: profileColor,
                     blindColor: blindColor,
-                    columnFractions: _normalizedFractions(_columnSizes, cols),
+                    rowColumnFractions:
+                        _normalizedRowFractions(_rowColumnSizes, rows, cols),
                     rowFractions: _normalizedFractions(_rowSizes, rows),
                   ),
                 ),
@@ -825,7 +894,7 @@ class _WindowPainter extends CustomPainter {
   final double windowHeightMm;
   final _ProfileColorOption profileColor;
   final _SimpleColorOption blindColor;
-  final List<double> columnFractions;
+  final List<List<double>> rowColumnFractions;
   final List<double> rowFractions;
 
   _WindowPainter({
@@ -839,7 +908,7 @@ class _WindowPainter extends CustomPainter {
     required this.windowHeightMm,
     required this.profileColor,
     required this.blindColor,
-    required this.columnFractions,
+    required this.rowColumnFractions,
     required this.rowFractions,
   });
 
@@ -916,17 +985,7 @@ class _WindowPainter extends CustomPainter {
     final glassArea = opening.deflate(kRebateLip);
 
     // 4) Draw cells (glass + glyphs) inside glassArea
-    final effectiveColumnFractions = _ensureFractions(columnFractions, cols);
     final effectiveRowFractions = _ensureFractions(rowFractions, rows);
-    final columnOffsets = List<double>.filled(cols, glassArea.left);
-    final columnWidths = List<double>.filled(cols, 0.0);
-    double cursorX = glassArea.left;
-    for (int c = 0; c < cols; c++) {
-      final width = glassArea.width * effectiveColumnFractions[c];
-      columnOffsets[c] = cursorX;
-      columnWidths[c] = width;
-      cursorX += width;
-    }
     final rowOffsets = List<double>.filled(rows, glassArea.top);
     final rowHeights = List<double>.filled(rows, 0.0);
     double cursorY = glassArea.top;
@@ -938,6 +997,18 @@ class _WindowPainter extends CustomPainter {
     }
 
     for (int r = 0; r < rows; r++) {
+      final columnOffsets = List<double>.filled(cols, glassArea.left);
+      final columnWidths = List<double>.filled(cols, 0.0);
+      double cursorX = glassArea.left;
+      final rowWidthFractions =
+          _ensureRowFractions(rowColumnFractions, r, cols, glassArea.width);
+      for (int c = 0; c < cols; c++) {
+        final width = rowWidthFractions[c];
+        columnOffsets[c] = cursorX;
+        columnWidths[c] = width;
+        cursorX += width;
+      }
+
       for (int c = 0; c < cols; c++) {
         final idx = r * cols + c;
         final rect = Rect.fromLTWH(
@@ -964,13 +1035,23 @@ class _WindowPainter extends CustomPainter {
     }
 
     // 5) Mullions between cells (over glass)
-    // verticals
-    double mullionX = glassArea.left;
-    for (int c = 0; c < cols - 1; c++) {
-      mullionX += columnWidths[c];
-      final x = mullionX;
-      canvas.drawLine(
-          Offset(x, glassArea.top), Offset(x, glassArea.bottom), paintMullion);
+    // verticals per row
+    for (int r = 0; r < rows; r++) {
+      double mullionX = glassArea.left;
+      final rowWidthFractions =
+          _ensureRowFractions(rowColumnFractions, r, cols, glassArea.width);
+      for (int c = 0; c < cols - 1; c++) {
+        final currentWidth = rowWidthFractions[c];
+        mullionX += currentWidth;
+        final nextWidth = rowWidthFractions[c + 1];
+        if (currentWidth <= 0 && nextWidth <= 0) {
+          continue;
+        }
+        final x = mullionX;
+        final top = rowOffsets[r];
+        final bottom = top + rowHeights[r];
+        canvas.drawLine(Offset(x, top), Offset(x, bottom), paintMullion);
+      }
     }
     // horizontals
     double mullionY = glassArea.top;
@@ -1017,6 +1098,47 @@ class _WindowPainter extends CustomPainter {
       return List<double>.filled(expectedLength, 1.0 / expectedLength);
     }
     return normalized.map((value) => value / sum).toList(growable: false);
+  }
+
+  List<double> _ensureRowFractions(
+    List<List<double>> fractions,
+    int row,
+    int expectedLength,
+    double totalWidth,
+  ) {
+    if (expectedLength <= 0) {
+      return const <double>[];
+    }
+    if (row < 0 || row >= fractions.length) {
+      final fallback = 1.0 / expectedLength;
+      return List<double>.filled(expectedLength, fallback * totalWidth);
+    }
+    final rowFractions = fractions[row];
+    if (rowFractions.length == expectedLength) {
+      return rowFractions.map((f) => f * totalWidth).toList();
+    }
+    if (rowFractions.isEmpty) {
+      final fallback = 1.0 / expectedLength;
+      return List<double>.filled(expectedLength, fallback * totalWidth);
+    }
+    final normalized = List<double>.generate(expectedLength, (index) {
+      if (index < rowFractions.length) {
+        final value = rowFractions[index];
+        if (value.isFinite && value > 0) {
+          return value;
+        }
+      }
+      return 0.0;
+    });
+    double sum = 0;
+    for (final value in normalized) {
+      sum += value;
+    }
+    if (sum <= 0) {
+      final fallback = 1.0 / expectedLength;
+      return List<double>.filled(expectedLength, fallback * totalWidth);
+    }
+    return normalized.map((value) => value / sum * totalWidth).toList();
   }
 
   // Selection outline helper
@@ -1328,7 +1450,9 @@ class _WindowPainter extends CustomPainter {
         profileColor != old.profileColor ||
         blindColor != old.blindColor ||
         !_listEquals(cells, old.cells) ||
-        !_listEquals(cellGlassColors, old.cellGlassColors);
+        !_listEquals(cellGlassColors, old.cellGlassColors) ||
+        !_listEquals(rowFractions, old.rowFractions) ||
+        !_list2dEquals(rowColumnFractions, old.rowColumnFractions);
   }
 
   bool _listEquals(List a, List b) {
@@ -1336,6 +1460,15 @@ class _WindowPainter extends CustomPainter {
     if (a.length != b.length) return false;
     for (int i = 0; i < a.length; i++) {
       if (a[i] != b[i]) return false;
+    }
+    return true;
+  }
+
+  bool _list2dEquals(List<List> a, List<List> b) {
+    if (identical(a, b)) return true;
+    if (a.length != b.length) return false;
+    for (int i = 0; i < a.length; i++) {
+      if (!_listEquals(a[i], b[i])) return false;
     }
     return true;
   }
