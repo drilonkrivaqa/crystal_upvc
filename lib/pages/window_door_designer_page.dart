@@ -327,65 +327,6 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
         .toList(growable: false);
   }
 
-  List<List<double>> _normalizedRowFractions(
-    List<List<double>> sizes,
-    int rows,
-    int cols,
-  ) {
-    if (rows <= 0 || cols <= 0) {
-      return const <List<double>>[];
-    }
-
-    return List<List<double>>.generate(rows, (row) {
-      final rowSizes = row < sizes.length ? sizes[row] : const <double>[];
-      final sanitized = List<double>.generate(cols, (col) {
-        if (col < rowSizes.length) {
-          final value = rowSizes[col];
-          if (value.isFinite && value > 0) {
-            return value;
-          }
-          if (value.isFinite && value == 0) {
-            return 0.0;
-          }
-        }
-        return 0.0;
-      });
-
-      final positiveSum = sanitized.fold<double>(
-          0.0, (sum, value) => value > 0 ? sum + value : sum);
-      if (positiveSum <= 0) {
-        return List<double>.filled(cols, 1.0 / cols, growable: false);
-      }
-
-      return sanitized
-          .map((value) => value > 0 ? value / positiveSum : 0.0)
-          .toList(growable: false);
-    }, growable: false);
-  }
-
-  List<List<double>> _initialRowColumnSizes(
-    List<List<double>>? values,
-    int rows,
-    int cols,
-    List<double> fallback,
-  ) {
-    if (rows <= 0 || cols <= 0) {
-      return const <List<double>>[];
-    }
-
-    if (values == null || values.isEmpty) {
-      return List<List<double>>.generate(
-          rows, (_) => List<double>.from(fallback, growable: true));
-    }
-
-    return List<List<double>>.generate(rows, (row) {
-      if (row < values.length) {
-        return _initialSizes(values[row], cols);
-      }
-      return List<double>.from(fallback, growable: true);
-    });
-  }
-
   int _hitTestAxis(
     double position,
     double origin,
