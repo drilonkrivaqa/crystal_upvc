@@ -217,17 +217,24 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
 
   void _onTapCanvas(Offset localPos, Size size) {
     final mmToPx = _mmToPx(size.height);
-    final blindHeightPx = showBlindBox ? kBlindBoxHeightMm * mmToPx : 0.0;
+    final blindHeightPx =
+        showBlindBox ? math.min(kBlindBoxHeightMm * mmToPx, size.height) : 0.0;
 
-    if (showBlindBox && localPos.dy < blindHeightPx) {
+    // Blind sits above the frame footprint
+    final blindRect = Rect.fromLTWH(0, 0, size.width, blindHeightPx);
+    if (showBlindBox && blindRect.height > 0 && blindRect.contains(localPos)) {
       setState(() => selectedIndex = null);
       return;
     }
 
-    // Hit test inside the opening (frame inset)
-    final outer = Rect.fromLTWH(
-        0, blindHeightPx, size.width, size.height - blindHeightPx);
-    final opening = outer.deflate(kFrameFace);
+    // Hit test inside the opening (frame inset) below the blind
+    final frameRect = Rect.fromLTWH(
+      0,
+      blindHeightPx,
+      size.width,
+      math.max(0, size.height - blindHeightPx),
+    );
+    final opening = frameRect.deflate(kFrameFace);
 
     if (!opening.contains(localPos)) {
       // Tapping the frame area: just clear selection
@@ -236,12 +243,19 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     }
 
     final cellArea = opening.deflate(kRebateLip);
+
+    final contentArea = cellArea;
     final columnFractions = _normalizedFractions(_columnSizes, cols);
     final rowFractions = _normalizedFractions(_rowSizes, rows);
-    final c = _hitTestAxis(
-        localPos.dx, cellArea.left, cellArea.width, columnFractions, cols);
-    final r = _hitTestAxis(
-        localPos.dy, cellArea.top, cellArea.height, rowFractions, rows);
+    if (!contentArea.contains(localPos)) {
+      setState(() => selectedIndex = null);
+      return;
+    }
+
+    final c = _hitTestAxis(localPos.dx, contentArea.left, contentArea.width,
+        columnFractions, cols);
+    final r = _hitTestAxis(localPos.dy, contentArea.top, contentArea.height,
+        rowFractions, rows);
     final idx = _xyToIndex(r, c);
 
     setState(() {
@@ -736,8 +750,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     final h = windowHeightMm;
 
     if (w > 0 && h > 0) {
-      final totalHeight = h + (showBlindBox ? kBlindBoxHeightMm : 0);
-      final ratio = w / totalHeight;
+      final ratio = w / h;
       if (ratio.isFinite && ratio > 0) {
         return ratio;
       }
@@ -746,8 +759,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     const defaultAspect = 1.6;
     final defaultHeight = kFallbackWindowHeightMm;
     final defaultWidth = defaultAspect * defaultHeight;
-    final totalHeight = defaultHeight + (showBlindBox ? kBlindBoxHeightMm : 0);
-    return defaultWidth / totalHeight;
+    return defaultWidth / defaultHeight;
   }
 
   double get _windowHeightMm {
@@ -755,7 +767,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
   }
 
   double _mmToPx(double canvasHeightPx) {
-    final totalMm = _windowHeightMm + (showBlindBox ? kBlindBoxHeightMm : 0);
+    final totalMm = _windowHeightMm;
     if (totalMm <= 0) {
       return 0;
     }
@@ -847,10 +859,10 @@ class _WindowPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final totalHeightMm =
-        windowHeightMm + (showBlindBox ? kBlindBoxHeightMm : 0);
+    final totalHeightMm = windowHeightMm;
     final mmToPx = totalHeightMm > 0 ? size.height / totalHeightMm : 0.0;
-    final blindHeightPx = showBlindBox ? kBlindBoxHeightMm * mmToPx : 0.0;
+    final blindHeightPx =
+        showBlindBox ? math.min(kBlindBoxHeightMm * mmToPx, size.height) : 0.0;
 
     // Paint objects
     final paintFrameFill = Paint()
@@ -880,8 +892,9 @@ class _WindowPainter extends CustomPainter {
       ..style = PaintingStyle.fill
       ..isAntiAlias = true;
 
-    if (showBlindBox) {
-      final blindRect = Rect.fromLTWH(0, 0, size.width, blindHeightPx);
+    // Blind above the frame footprint
+    final blindRect = Rect.fromLTWH(0, 0, size.width, blindHeightPx);
+    if (showBlindBox && blindRect.height > 0) {
       final blindFill = Paint()
         ..color = blindColor.color
         ..style = PaintingStyle.fill
@@ -895,16 +908,20 @@ class _WindowPainter extends CustomPainter {
       canvas.drawRect(blindRect, blindOutline);
     }
 
-    // Outer rect (whole widget)
-    final outer = Rect.fromLTWH(
-        0, blindHeightPx, size.width, size.height - blindHeightPx);
+    // Outer rect (frame footprint) sits below blind
+    final frameRect = Rect.fromLTWH(
+      0,
+      blindRect.height,
+      size.width,
+      math.max(0, size.height - blindRect.height),
+    );
 
     // 1) Draw PVC frame body
-    canvas.drawRect(outer, paintFrameFill);
-    canvas.drawRect(outer, paintFrameEdge);
+    canvas.drawRect(frameRect, paintFrameFill);
+    canvas.drawRect(frameRect, paintFrameEdge);
 
     // 2) Opening (where glass & sashes live), inset by frame face
-    final opening = outer.deflate(kFrameFace);
+    final opening = frameRect.deflate(kFrameFace);
 
     // A subtle inner shadow edge on the opening perimeter (to read as depth)
     final lipRect = opening; // same outline, just a slightly darker stroke
@@ -918,23 +935,25 @@ class _WindowPainter extends CustomPainter {
     // 3) Glass/sash area is even further deflated by rebate/bead lip
     final glassArea = opening.deflate(kRebateLip);
 
-    // 4) Draw cells (glass + glyphs) inside glassArea
+    final glassContent = glassArea;
+
+    // 4) Draw cells (glass + glyphs) inside glassContent
     final effectiveColumnFractions = _ensureFractions(columnFractions, cols);
     final effectiveRowFractions = _ensureFractions(rowFractions, rows);
-    final columnOffsets = List<double>.filled(cols, glassArea.left);
+    final columnOffsets = List<double>.filled(cols, glassContent.left);
     final columnWidths = List<double>.filled(cols, 0.0);
-    double cursorX = glassArea.left;
+    double cursorX = glassContent.left;
     for (int c = 0; c < cols; c++) {
-      final width = glassArea.width * effectiveColumnFractions[c];
+      final width = glassContent.width * effectiveColumnFractions[c];
       columnOffsets[c] = cursorX;
       columnWidths[c] = width;
       cursorX += width;
     }
-    final rowOffsets = List<double>.filled(rows, glassArea.top);
+    final rowOffsets = List<double>.filled(rows, glassContent.top);
     final rowHeights = List<double>.filled(rows, 0.0);
-    double cursorY = glassArea.top;
+    double cursorY = glassContent.top;
     for (int r = 0; r < rows; r++) {
-      final height = glassArea.height * effectiveRowFractions[r];
+      final height = glassContent.height * effectiveRowFractions[r];
       rowOffsets[r] = cursorY;
       rowHeights[r] = height;
       cursorY += height;
@@ -968,20 +987,22 @@ class _WindowPainter extends CustomPainter {
 
     // 5) Mullions between cells (over glass)
     // verticals
-    double mullionX = glassArea.left;
+    double mullionX = glassContent.left;
     for (int c = 0; c < cols - 1; c++) {
       mullionX += columnWidths[c];
       final x = mullionX;
       canvas.drawLine(
-          Offset(x, glassArea.top), Offset(x, glassArea.bottom), paintMullion);
+          Offset(x, glassContent.top), Offset(x, glassContent.bottom),
+          paintMullion);
     }
     // horizontals
-    double mullionY = glassArea.top;
+    double mullionY = glassContent.top;
     for (int r = 0; r < rows - 1; r++) {
       mullionY += rowHeights[r];
       final y = mullionY;
       canvas.drawLine(
-          Offset(glassArea.left, y), Offset(glassArea.right, y), paintMullion);
+          Offset(glassContent.left, y), Offset(glassContent.right, y),
+          paintMullion);
     }
 
     // 6) Small sash/bead stroke around the whole glass area (a clean inner frame look)
