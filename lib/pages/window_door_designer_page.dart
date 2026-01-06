@@ -217,7 +217,8 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
 
   void _onTapCanvas(Offset localPos, Size size) {
     final mmToPx = _mmToPx(size.height);
-    final blindHeightPx = showBlindBox ? kBlindBoxHeightMm * mmToPx : 0.0;
+    final blindHeightPx =
+        showBlindBox ? math.min(kBlindBoxHeightMm * mmToPx, size.height) : 0.0;
 
     // Hit test inside the opening (frame inset)
     final outer = Rect.fromLTWH(0, 0, size.width, size.height);
@@ -864,7 +865,8 @@ class _WindowPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final totalHeightMm = windowHeightMm;
     final mmToPx = totalHeightMm > 0 ? size.height / totalHeightMm : 0.0;
-    final blindHeightPx = showBlindBox ? kBlindBoxHeightMm * mmToPx : 0.0;
+    final blindHeightPx =
+        showBlindBox ? math.min(kBlindBoxHeightMm * mmToPx, size.height) : 0.0;
 
     // Paint objects
     final paintFrameFill = Paint()
@@ -898,11 +900,11 @@ class _WindowPainter extends CustomPainter {
     final outer = Rect.fromLTWH(0, 0, size.width, size.height);
 
     // 1) Draw PVC frame body
-    canvas.drawRect(outer, paintFrameFill);
-    canvas.drawRect(outer, paintFrameEdge);
+    canvas.drawRect(frameRect, paintFrameFill);
+    canvas.drawRect(frameRect, paintFrameEdge);
 
     // 2) Opening (where glass & sashes live), inset by frame face
-    final opening = outer.deflate(kFrameFace);
+    final opening = frameRect.deflate(kFrameFace);
 
     // A subtle inner shadow edge on the opening perimeter (to read as depth)
     final lipRect = opening; // same outline, just a slightly darker stroke
