@@ -219,37 +219,23 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     final mmToPx = _mmToPx(size.height);
     final blindHeightPx = showBlindBox ? kBlindBoxHeightMm * mmToPx : 0.0;
 
-    // Hit test inside the opening (frame inset)
-    final outer = Rect.fromLTWH(0, 0, size.width, size.height);
-    final opening = outer.deflate(kFrameFace);
-    final contentArea = opening.deflate(kRebateLip);
-
-    if (showBlindBox) {
-      final blindRect = Rect.fromLTWH(contentArea.left, contentArea.top,
-          contentArea.width, math.min(contentArea.height, blindHeightPx));
-      if (blindRect.contains(localPos)) {
-        setState(() => selectedIndex = null);
-        return;
-      }
+    if (showBlindBox && localPos.dy < blindHeightPx) {
+      setState(() => selectedIndex = null);
+      return;
     }
 
-    if (!contentArea.contains(localPos)) {
+    // Hit test inside the opening (frame inset)
+    final outer = Rect.fromLTWH(
+        0, blindHeightPx, size.width, size.height - blindHeightPx);
+    final opening = outer.deflate(kFrameFace);
+
+    if (!opening.contains(localPos)) {
       // Tapping the frame area: just clear selection
       setState(() => selectedIndex = null);
       return;
     }
 
-    final cellArea = Rect.fromLTWH(
-      contentArea.left,
-      contentArea.top + blindHeightPx,
-      contentArea.width,
-      math.max(0.0, contentArea.height - blindHeightPx),
-    );
-
-    if (cellArea.height <= 0 || cellArea.width <= 0) {
-      setState(() => selectedIndex = null);
-      return;
-    }
+    final cellArea = opening.deflate(kRebateLip);
     final columnFractions = _normalizedFractions(_columnSizes, cols);
     final rowFractions = _normalizedFractions(_rowSizes, rows);
     final c = _hitTestAxis(
@@ -750,7 +736,8 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     final h = windowHeightMm;
 
     if (w > 0 && h > 0) {
-      final ratio = w / h;
+      final totalHeight = h + (showBlindBox ? kBlindBoxHeightMm : 0);
+      final ratio = w / totalHeight;
       if (ratio.isFinite && ratio > 0) {
         return ratio;
       }
@@ -759,7 +746,8 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     const defaultAspect = 1.6;
     final defaultHeight = kFallbackWindowHeightMm;
     final defaultWidth = defaultAspect * defaultHeight;
-    return defaultWidth / defaultHeight;
+    final totalHeight = defaultHeight + (showBlindBox ? kBlindBoxHeightMm : 0);
+    return defaultWidth / totalHeight;
   }
 
   double get _windowHeightMm {
@@ -767,7 +755,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
   }
 
   double _mmToPx(double canvasHeightPx) {
-    final totalMm = _windowHeightMm;
+    final totalMm = _windowHeightMm + (showBlindBox ? kBlindBoxHeightMm : 0);
     if (totalMm <= 0) {
       return 0;
     }
@@ -859,7 +847,8 @@ class _WindowPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final totalHeightMm = windowHeightMm;
+    final totalHeightMm =
+        windowHeightMm + (showBlindBox ? kBlindBoxHeightMm : 0);
     final mmToPx = totalHeightMm > 0 ? size.height / totalHeightMm : 0.0;
     final blindHeightPx = showBlindBox ? kBlindBoxHeightMm * mmToPx : 0.0;
 
@@ -891,8 +880,24 @@ class _WindowPainter extends CustomPainter {
       ..style = PaintingStyle.fill
       ..isAntiAlias = true;
 
+    if (showBlindBox) {
+      final blindRect = Rect.fromLTWH(0, 0, size.width, blindHeightPx);
+      final blindFill = Paint()
+        ..color = blindColor.color
+        ..style = PaintingStyle.fill
+        ..isAntiAlias = true;
+      final blindOutline = Paint()
+        ..color = kLineColor.withOpacity(0.6)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.2
+        ..isAntiAlias = true;
+      canvas.drawRect(blindRect, blindFill);
+      canvas.drawRect(blindRect, blindOutline);
+    }
+
     // Outer rect (whole widget)
-    final outer = Rect.fromLTWH(0, 0, size.width, size.height);
+    final outer = Rect.fromLTWH(
+        0, blindHeightPx, size.width, size.height - blindHeightPx);
 
     // 1) Draw PVC frame body
     canvas.drawRect(outer, paintFrameFill);
@@ -911,36 +916,7 @@ class _WindowPainter extends CustomPainter {
     canvas.drawRect(lipRect, lipPaint);
 
     // 3) Glass/sash area is even further deflated by rebate/bead lip
-    final contentArea = opening.deflate(kRebateLip);
-
-    // 3a) Blind box lives inside the opening (does not add to exterior size)
-    Rect glassArea = contentArea;
-    if (showBlindBox) {
-      final blindRect = Rect.fromLTWH(
-        contentArea.left,
-        contentArea.top,
-        contentArea.width,
-        math.min(contentArea.height, blindHeightPx),
-      );
-      final blindFill = Paint()
-        ..color = blindColor.color
-        ..style = PaintingStyle.fill
-        ..isAntiAlias = true;
-      final blindOutline = Paint()
-        ..color = kLineColor.withOpacity(0.6)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.2
-        ..isAntiAlias = true;
-      canvas.drawRect(blindRect, blindFill);
-      canvas.drawRect(blindRect, blindOutline);
-
-      glassArea = Rect.fromLTWH(
-        contentArea.left,
-        contentArea.top + blindRect.height,
-        contentArea.width,
-        math.max(0.0, contentArea.height - blindRect.height),
-      );
-    }
+    final glassArea = opening.deflate(kRebateLip);
 
     // 4) Draw cells (glass + glyphs) inside glassArea
     final effectiveColumnFractions = _ensureFractions(columnFractions, cols);
