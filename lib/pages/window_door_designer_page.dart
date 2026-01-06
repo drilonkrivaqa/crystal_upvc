@@ -623,6 +623,10 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
             value: showBlindBox,
             onChanged: (v) => setState(() => showBlindBox = v),
           ),
+          const SizedBox(height: 16),
+          if (titleStyle != null) Text('Opening diagrams', style: titleStyle),
+          const SizedBox(height: 8),
+          const _OpeningDrawings(),
           const SizedBox(height: 20),
           _TipCard(
             headline: 'Quick tips',
@@ -1346,6 +1350,168 @@ class _ToolItem {
   final String label;
   final SashType type;
   _ToolItem(this.label, this.type);
+}
+
+class _OpeningDrawings extends StatelessWidget {
+  const _OpeningDrawings();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: const [
+        Expanded(
+          child: _OpeningDiagramCard(
+            label: 'Left hinge',
+            hingeOnLeft: true,
+          ),
+        ),
+        SizedBox(width: 10),
+        Expanded(
+          child: _OpeningDiagramCard(
+            label: 'Right hinge',
+            hingeOnLeft: false,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _OpeningDiagramCard extends StatelessWidget {
+  final String label;
+  final bool hingeOnLeft;
+
+  const _OpeningDiagramCard({required this.label, required this.hingeOnLeft});
+
+  @override
+  Widget build(BuildContext context) {
+    final cardColor = Theme.of(context).colorScheme.surfaceVariant;
+    final borderColor = Theme.of(context).dividerColor.withOpacity(0.6);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: cardColor,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: borderColor),
+          ),
+          padding: const EdgeInsets.all(8),
+          child: AspectRatio(
+            aspectRatio: 1,
+            child: CustomPaint(
+              painter: _OpeningDiagramPainter(hingeOnLeft: hingeOnLeft),
+            ),
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          label,
+          style: const TextStyle(fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          'Reference swing for the opening.',
+          style: Theme.of(context)
+              .textTheme
+              .bodySmall
+              ?.copyWith(color: Colors.black54),
+        ),
+      ],
+    );
+  }
+}
+
+class _OpeningDiagramPainter extends CustomPainter {
+  final bool hingeOnLeft;
+
+  _OpeningDiagramPainter({required this.hingeOnLeft});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final padding = 10.0;
+    final frame = Rect.fromLTWH(
+      padding,
+      padding,
+      size.width - padding * 2,
+      size.height - padding * 2,
+    );
+
+    final framePaint = Paint()
+      ..color = Colors.black.withOpacity(0.75)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.2;
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(frame, const Radius.circular(6)),
+      framePaint,
+    );
+
+    final hingePaint = Paint()
+      ..color = Colors.grey.shade600
+      ..strokeWidth = 5
+      ..strokeCap = StrokeCap.round;
+    final hingeX = hingeOnLeft ? frame.left : frame.right;
+    canvas.drawLine(
+      Offset(hingeX, frame.top + frame.height * 0.18),
+      Offset(hingeX, frame.bottom - frame.height * 0.18),
+      hingePaint,
+    );
+
+    final doorPaint = Paint()
+      ..color = Colors.red.shade700
+      ..strokeWidth = 3.6
+      ..strokeCap = StrokeCap.round;
+
+    final hinge = Offset(hingeX, frame.center.dy);
+    final radius = frame.shortestSide * 0.55;
+    const sweepAngle = math.pi * 2 / 3; // 120º swing reference
+    final closedAngle = math.pi / 2;
+    final openAngle = hingeOnLeft
+        ? closedAngle - sweepAngle
+        : closedAngle + sweepAngle;
+
+    final doorEnd = Offset(
+      hinge.dx + radius * math.cos(openAngle),
+      hinge.dy + radius * math.sin(openAngle),
+    );
+
+    canvas.drawLine(hinge, doorEnd, doorPaint);
+
+    final arcPaint = Paint()
+      ..color = doorPaint.color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.8;
+
+    final arcRect = Rect.fromCircle(center: hinge, radius: radius * 0.95);
+    final sweep = openAngle - closedAngle;
+    canvas.drawArc(arcRect, closedAngle, sweep, false, arcPaint);
+
+    final arrowBase = Offset(
+      hinge.dx + radius * math.cos(openAngle),
+      hinge.dy + radius * math.sin(openAngle),
+    );
+    _drawArrowhead(canvas, arrowBase, openAngle, doorPaint);
+  }
+
+  void _drawArrowhead(Canvas canvas, Offset pos, double angle, Paint p) {
+    const size = 8.0;
+    final left = Offset(
+      pos.dx - size * math.cos(angle - math.pi / 6),
+      pos.dy - size * math.sin(angle - math.pi / 6),
+    );
+    final right = Offset(
+      pos.dx - size * math.cos(angle + math.pi / 6),
+      pos.dy - size * math.sin(angle + math.pi / 6),
+    );
+    canvas.drawLine(pos, left, p);
+    canvas.drawLine(pos, right, p);
+  }
+
+  @override
+  bool shouldRepaint(covariant _OpeningDiagramPainter oldDelegate) {
+    return hingeOnLeft != oldDelegate.hingeOnLeft;
+  }
 }
 
 class _RowsColsPicker extends StatelessWidget {
