@@ -89,6 +89,8 @@ enum SashType {
   slidingRight,
   slidingTiltLeft,
   slidingTiltRight,
+  swingHingeLeft,
+  swingHingeRight,
 }
 
 enum _ExportAction { close, save, useAsPhoto }
@@ -1079,6 +1081,10 @@ class _WindowPainter extends CustomPainter {
         return SashType.slidingTiltRight;
       case SashType.slidingTiltRight:
         return SashType.slidingTiltLeft;
+      case SashType.swingHingeLeft:
+        return SashType.swingHingeRight;
+      case SashType.swingHingeRight:
+        return SashType.swingHingeLeft;
       default:
         return t;
     }
@@ -1123,6 +1129,12 @@ class _WindowPainter extends CustomPainter {
         break;
       case SashType.slidingTiltRight:
         _drawSlidingTilt(canvas, r, toLeft: false, paint: p);
+        break;
+      case SashType.swingHingeLeft:
+        _drawSwingHinge(canvas, r, hingeOnLeft: true, paint: p);
+        break;
+      case SashType.swingHingeRight:
+        _drawSwingHinge(canvas, r, hingeOnLeft: false, paint: p);
         break;
     }
   }
@@ -1272,6 +1284,35 @@ class _WindowPainter extends CustomPainter {
     canvas.drawLine(end, head2, paint);
   }
 
+  void _drawSwingHinge(Canvas canvas, Rect r,
+      {required bool hingeOnLeft, required Paint paint}) {
+    final stemX = hingeOnLeft
+        ? r.left + r.width * 0.18
+        : r.right - r.width * 0.18;
+    final stemTop = Offset(stemX, r.top + r.height * 0.18);
+    final stemBottom = Offset(stemX, r.bottom - r.height * 0.12);
+
+    // Vertical stem
+    canvas.drawLine(stemTop, stemBottom, paint);
+
+    // Horizontal run with arrow head
+    final runStart = stemTop;
+    final runEnd = hingeOnLeft
+        ? Offset(r.right - r.width * 0.12, stemTop.dy)
+        : Offset(r.left + r.width * 0.12, stemTop.dy);
+    canvas.drawLine(runStart, runEnd, paint);
+
+    final dir = hingeOnLeft ? 1 : -1;
+    final ah = r.shortestSide * 0.08;
+    final arrowTip = runEnd;
+    final head1 =
+        Offset(arrowTip.dx - dir * ah, arrowTip.dy - ah * 0.55);
+    final head2 =
+        Offset(arrowTip.dx - dir * ah, arrowTip.dy + ah * 0.55);
+    canvas.drawLine(arrowTip, head1, paint);
+    canvas.drawLine(arrowTip, head2, paint);
+  }
+
   @override
   bool shouldRepaint(covariant _WindowPainter old) {
     return rows != old.rows ||
@@ -1326,6 +1367,8 @@ class _ToolPalette extends StatelessWidget {
       _ToolItem('SR', SashType.slidingRight),
       _ToolItem('STL', SashType.slidingTiltLeft),
       _ToolItem('STR', SashType.slidingTiltRight),
+      _ToolItem('SHL', SashType.swingHingeLeft),
+      _ToolItem('SHR', SashType.swingHingeRight),
     ];
 
     return Padding(
