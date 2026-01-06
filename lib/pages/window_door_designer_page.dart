@@ -285,6 +285,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     if (count <= 0) {
       return const <double>[];
     }
+
     final sanitized = List<double>.generate(count, (index) {
       if (index < sizes.length) {
         final value = sizes[index];
@@ -294,28 +295,16 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
       }
       return 0.0;
     });
-    double positiveSum = 0;
-    int positiveCount = 0;
-    for (final value in sanitized) {
-      if (value > 0) {
-        positiveSum += value;
-        positiveCount++;
-      }
-    }
-    if (positiveSum <= 0 || positiveCount <= 0) {
+
+    final positiveSum = sanitized.fold<double>(
+        0.0, (sum, value) => value > 0 ? sum + value : sum);
+    if (positiveSum <= 0) {
       return List<double>.filled(count, 1.0 / count);
     }
-    final fallbackValue = positiveSum / positiveCount;
-    for (int i = 0; i < sanitized.length; i++) {
-      if (sanitized[i] <= 0) {
-        sanitized[i] = fallbackValue;
-      }
-    }
-    final total = sanitized.fold<double>(0, (sum, value) => sum + value);
-    if (total <= 0) {
-      return List<double>.filled(count, 1.0 / count);
-    }
-    return sanitized.map((value) => value / total).toList(growable: false);
+
+    return sanitized
+        .map((value) => value > 0 ? value / positiveSum : 0.0)
+        .toList(growable: false);
   }
 
   int _hitTestAxis(
