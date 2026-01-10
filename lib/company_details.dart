@@ -17,7 +17,7 @@ class CompanyInfo {
 }
 
 class CompanyDetails {
-  static const String appPassword = '1234';
+  static const String appPassword = '#Trocal88@';
 
   static const Map<String, CompanyInfo> _localizedDetails = {
     'sq': CompanyInfo(
