@@ -1293,8 +1293,8 @@ class _WindowPainter extends CustomPainter {
     final stemX = hingeOnLeft
         ? r.left + r.width * 0.18
         : r.right - r.width * 0.18;
-    final stemTop = Offset(stemX, r.top + r.height * 0.35);
-    final stemBottom = Offset(stemX, r.bottom - r.height * 0.35);
+    final stemTop = Offset(stemX, r.top + r.height * 0.4);
+    final stemBottom = Offset(stemX, r.bottom - r.height * 0.4);
 
     // Vertical stem (shorter)
     canvas.drawLine(stemTop, stemBottom, thickPaint);
