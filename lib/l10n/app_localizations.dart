@@ -13,6 +13,7 @@ class AppLocalizations {
       'homeCustomers': 'Klientët',
       'homeOffers': 'Ofertat',
       'homeProduction': 'Prodhimi',
+      'homeSettings': 'Cilësimet',
       'productionTitle': 'Prodhimi',
       'productionCutting': 'Prerja',
       'productionGlass': 'Xhami',
@@ -37,6 +38,21 @@ class AppLocalizations {
       'welcomePasswordLabel': 'Fjalëkalimi',
       'welcomePasswordHint': 'Shkruani fjalëkalimin',
       'welcomeInvalidPassword': 'Fjalëkalim i pasaktë',
+      'settingsTitle': 'Cilësimet',
+      'settingsCompanySection': 'Detajet e kompanisë',
+      'settingsCompanyName': 'Emri i kompanisë',
+      'settingsCompanyAddress': 'Adresa',
+      'settingsCompanyPhones': 'Telefonat',
+      'settingsCompanyWebsite': 'Uebsajti',
+      'settingsChangeLogo': 'Ndrysho logon',
+      'settingsRemoveLogo': 'Hiq logon',
+      'settingsFeaturesSection': 'Funksionet',
+      'settingsEnableProduction': 'Aktivizo faqen e prodhimit',
+      'settingsSave': 'Ruaj ndryshimet',
+      'settingsSavedMessage': 'Cilësimet u ruajtën.',
+      'settingsLogoUpdated': 'Logoja u përditësua.',
+      'settingsLogoRemoved': 'Logoja u hoq.',
+      'settingsLogoPickError': 'Nuk u gjet logo e vlefshme.',
       'catalogsTitle': 'Çmimorja',
       'catalogProfile': 'Profili',
       'catalogGlass': 'Xhami',
@@ -235,6 +251,7 @@ class AppLocalizations {
       'homeCustomers': 'Customers',
       'homeOffers': 'Offers',
       'homeProduction': 'Production',
+      'homeSettings': 'Settings',
       'productionTitle': 'Production',
       'productionCutting': 'Cutting',
       'productionGlass': 'Glass',
@@ -259,6 +276,21 @@ class AppLocalizations {
       'welcomePasswordLabel': 'Password',
       'welcomePasswordHint': 'Enter password',
       'welcomeInvalidPassword': 'Incorrect password',
+      'settingsTitle': 'Settings',
+      'settingsCompanySection': 'Company details',
+      'settingsCompanyName': 'Company name',
+      'settingsCompanyAddress': 'Address',
+      'settingsCompanyPhones': 'Phone numbers',
+      'settingsCompanyWebsite': 'Website',
+      'settingsChangeLogo': 'Change logo',
+      'settingsRemoveLogo': 'Remove logo',
+      'settingsFeaturesSection': 'Features',
+      'settingsEnableProduction': 'Enable production page',
+      'settingsSave': 'Save changes',
+      'settingsSavedMessage': 'Settings saved.',
+      'settingsLogoUpdated': 'Logo updated.',
+      'settingsLogoRemoved': 'Logo removed.',
+      'settingsLogoPickError': 'No valid logo found.',
       'catalogsTitle': 'Price List',
       'catalogProfile': 'Profile',
       'catalogGlass': 'Glass',
@@ -454,6 +486,7 @@ class AppLocalizations {
       'homeCustomers': 'Kunden',
       'homeOffers': 'Angebote',
       'homeProduction': 'Produktion',
+      'homeSettings': 'Einstellungen',
       'productionTitle': 'Produktion',
       'productionCutting': 'Zuschnitt',
       'productionGlass': 'Glas',
@@ -478,6 +511,21 @@ class AppLocalizations {
       'welcomePasswordLabel': 'Passwort',
       'welcomePasswordHint': 'Passwort eingeben',
       'welcomeInvalidPassword': 'Falsches Passwort',
+      'settingsTitle': 'Einstellungen',
+      'settingsCompanySection': 'Unternehmensdetails',
+      'settingsCompanyName': 'Firmenname',
+      'settingsCompanyAddress': 'Adresse',
+      'settingsCompanyPhones': 'Telefonnummern',
+      'settingsCompanyWebsite': 'Webseite',
+      'settingsChangeLogo': 'Logo ändern',
+      'settingsRemoveLogo': 'Logo entfernen',
+      'settingsFeaturesSection': 'Funktionen',
+      'settingsEnableProduction': 'Produktionsseite aktivieren',
+      'settingsSave': 'Änderungen speichern',
+      'settingsSavedMessage': 'Einstellungen gespeichert.',
+      'settingsLogoUpdated': 'Logo aktualisiert.',
+      'settingsLogoRemoved': 'Logo entfernt.',
+      'settingsLogoPickError': 'Kein gültiges Logo gefunden.',
       'catalogsTitle': 'Preisliste',
       'catalogProfile': 'Profil',
       'catalogGlass': 'Glas',
@@ -663,6 +711,7 @@ class AppLocalizations {
       'homeCustomers': 'Clients',
       'homeOffers': 'Offres',
       'homeProduction': 'Production',
+      'homeSettings': 'Paramètres',
       'productionTitle': 'Production',
       'productionCutting': 'Découpe',
       'productionGlass': 'Verre',
@@ -687,6 +736,21 @@ class AppLocalizations {
       'welcomePasswordLabel': 'Mot de passe',
       'welcomePasswordHint': 'Saisissez le mot de passe',
       'welcomeInvalidPassword': 'Mot de passe incorrect',
+      'settingsTitle': 'Paramètres',
+      'settingsCompanySection': "Détails de l'entreprise",
+      'settingsCompanyName': "Nom de l'entreprise",
+      'settingsCompanyAddress': 'Adresse',
+      'settingsCompanyPhones': 'Numéros de téléphone',
+      'settingsCompanyWebsite': 'Site web',
+      'settingsChangeLogo': 'Changer le logo',
+      'settingsRemoveLogo': 'Supprimer le logo',
+      'settingsFeaturesSection': 'Fonctionnalités',
+      'settingsEnableProduction': 'Activer la page de production',
+      'settingsSave': 'Enregistrer les modifications',
+      'settingsSavedMessage': 'Paramètres enregistrés.',
+      'settingsLogoUpdated': 'Logo mis à jour.',
+      'settingsLogoRemoved': 'Logo supprimé.',
+      'settingsLogoPickError': 'Aucun logo valide trouvé.',
       'catalogsTitle': 'Liste de prix',
       'catalogProfile': 'Profil',
       'catalogGlass': 'Verre',
@@ -874,6 +938,7 @@ class AppLocalizations {
       'homeCustomers': 'Clienti',
       'homeOffers': 'Offerte',
       'homeProduction': 'Produzione',
+      'homeSettings': 'Impostazioni',
       'productionTitle': 'Produzione',
       'productionCutting': 'Taglio',
       'productionGlass': 'Vetro',
@@ -898,6 +963,21 @@ class AppLocalizations {
       'welcomePasswordLabel': 'Password',
       'welcomePasswordHint': 'Inserisci la password',
       'welcomeInvalidPassword': 'Password errata',
+      'settingsTitle': 'Impostazioni',
+      'settingsCompanySection': "Dettagli dell'azienda",
+      'settingsCompanyName': "Nome dell'azienda",
+      'settingsCompanyAddress': 'Indirizzo',
+      'settingsCompanyPhones': 'Numeri di telefono',
+      'settingsCompanyWebsite': 'Sito web',
+      'settingsChangeLogo': 'Cambia logo',
+      'settingsRemoveLogo': 'Rimuovi logo',
+      'settingsFeaturesSection': 'Funzionalità',
+      'settingsEnableProduction': 'Abilita pagina produzione',
+      'settingsSave': 'Salva modifiche',
+      'settingsSavedMessage': 'Impostazioni salvate.',
+      'settingsLogoUpdated': 'Logo aggiornato.',
+      'settingsLogoRemoved': 'Logo rimosso.',
+      'settingsLogoPickError': 'Nessun logo valido trovato.',
       'catalogsTitle': 'Listino prezzi',
       'catalogProfile': 'Profilo',
       'catalogGlass': 'Vetro',
@@ -1099,6 +1179,7 @@ class AppLocalizations {
   String get homeCustomers => _t('homeCustomers');
   String get homeOffers => _t('homeOffers');
   String get homeProduction => _t('homeProduction');
+  String get homeSettings => _t('homeSettings');
   String get productionTitle => _t('productionTitle');
   String get productionCutting => _t('productionCutting');
   String get productionGlass => _t('productionGlass');
@@ -1152,6 +1233,21 @@ class AppLocalizations {
   String get welcomePasswordLabel => _t('welcomePasswordLabel');
   String get welcomePasswordHint => _t('welcomePasswordHint');
   String get welcomeInvalidPassword => _t('welcomeInvalidPassword');
+  String get settingsTitle => _t('settingsTitle');
+  String get settingsCompanySection => _t('settingsCompanySection');
+  String get settingsCompanyName => _t('settingsCompanyName');
+  String get settingsCompanyAddress => _t('settingsCompanyAddress');
+  String get settingsCompanyPhones => _t('settingsCompanyPhones');
+  String get settingsCompanyWebsite => _t('settingsCompanyWebsite');
+  String get settingsChangeLogo => _t('settingsChangeLogo');
+  String get settingsRemoveLogo => _t('settingsRemoveLogo');
+  String get settingsFeaturesSection => _t('settingsFeaturesSection');
+  String get settingsEnableProduction => _t('settingsEnableProduction');
+  String get settingsSave => _t('settingsSave');
+  String get settingsSavedMessage => _t('settingsSavedMessage');
+  String get settingsLogoUpdated => _t('settingsLogoUpdated');
+  String get settingsLogoRemoved => _t('settingsLogoRemoved');
+  String get settingsLogoPickError => _t('settingsLogoPickError');
   String get catalogsTitle => _t('catalogsTitle');
   String get catalogProfile => _t('catalogProfile');
   String get catalogGlass => _t('catalogGlass');

@@ -3,6 +3,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../theme/app_background.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../l10n/app_localizations.dart';
+import '../utils/company_settings.dart';
+import '../widgets/company_logo.dart';
 import '../widgets/glass_card.dart';
 
 class WelcomePage extends StatefulWidget {
@@ -127,10 +129,24 @@ class _WelcomePageState extends State<WelcomePage> {
                     const SizedBox(height: 12),
 
                     // Logo in the center
-                    Image.asset(
-                      l10n.companyLogoAsset,
-                      width: 200,
-                    ).animate().fadeIn(duration: 500.ms).slideY(begin: 0.2),
+                    ValueListenableBuilder(
+                      valueListenable: settingsBox.listenable(
+                        keys: [CompanySettings.keyLogoBytes],
+                      ),
+                      builder: (context, Box box, _) {
+                        final company = CompanySettings.read(
+                          box,
+                          Localizations.localeOf(context),
+                        );
+                        return CompanyLogo(
+                          company: company,
+                          width: 200,
+                        )
+                            .animate()
+                            .fadeIn(duration: 500.ms)
+                            .slideY(begin: 0.2);
+                      },
+                    ),
 
                     const SizedBox(height: 20),
 
@@ -143,33 +159,48 @@ class _WelcomePageState extends State<WelcomePage> {
                     const SizedBox(height: 16),
 
                     // Address / phone / website
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          l10n.welcomeAddress,
-                          textAlign: TextAlign.center,
-                          style: textTheme.bodyMedium?.copyWith(
-                            color: colors.onSurface.withOpacity(0.85),
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          l10n.welcomePhones,
-                          textAlign: TextAlign.center,
-                          style: textTheme.bodyMedium?.copyWith(
-                            color: colors.onSurface.withOpacity(0.8),
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          l10n.welcomeWebsite,
-                          textAlign: TextAlign.center,
-                          style: textTheme.bodyMedium?.copyWith(
-                            color: colors.onSurface.withOpacity(0.8),
-                          ),
-                        ),
-                      ],
+                    ValueListenableBuilder(
+                      valueListenable: settingsBox.listenable(
+                        keys: [
+                          CompanySettings.keyAddress,
+                          CompanySettings.keyPhones,
+                          CompanySettings.keyWebsite,
+                        ],
+                      ),
+                      builder: (context, Box box, _) {
+                        final company = CompanySettings.read(
+                          box,
+                          Localizations.localeOf(context),
+                        );
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              company.address,
+                              textAlign: TextAlign.center,
+                              style: textTheme.bodyMedium?.copyWith(
+                                color: colors.onSurface.withOpacity(0.85),
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              company.phones,
+                              textAlign: TextAlign.center,
+                              style: textTheme.bodyMedium?.copyWith(
+                                color: colors.onSurface.withOpacity(0.8),
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              company.website,
+                              textAlign: TextAlign.center,
+                              style: textTheme.bodyMedium?.copyWith(
+                                color: colors.onSurface.withOpacity(0.8),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
                     ),
 
                     const SizedBox(height: 26),

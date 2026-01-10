@@ -9,6 +9,7 @@ import 'package:printing/printing.dart';
 
 import '../l10n/app_localizations.dart';
 import '../models.dart';
+import '../utils/company_settings.dart';
 import '../utils/production_piece_detail.dart';
 
 int _barTotalWithSaw(List<ProductionPieceDetail> bar, int sawWidth) {
@@ -80,7 +81,14 @@ Future<void> _ensureLocaleInitialized(String locale) async {
   _initializedLocales.add(locale);
 }
 
-Future<pw.MemoryImage?> _loadCompanyLogo(String assetPath) async {
+Future<pw.MemoryImage?> _loadCompanyLogo(
+  String assetPath,
+  Box settingsBox,
+) async {
+  final logoBytes = CompanySettings.logoBytes(settingsBox);
+  if (logoBytes != null && logoBytes.isNotEmpty) {
+    return pw.MemoryImage(logoBytes);
+  }
   try {
     final data = await rootBundle.load(assetPath);
     return pw.MemoryImage(data.buffer.asUint8List());
@@ -91,6 +99,7 @@ Future<pw.MemoryImage?> _loadCompanyLogo(String assetPath) async {
 
 pw.Widget _buildDocumentHeader(
   AppLocalizations l10n,
+  CompanySettingsData company,
   String title, {
   required pw.MemoryImage? logoImage,
   required List<Customer> customers,
@@ -153,16 +162,16 @@ pw.Widget _buildDocumentHeader(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
                   pw.Text(
-                    l10n.appTitle,
+                    company.name,
                     style: pw.TextStyle(
                       fontSize: 16,
                       fontWeight: pw.FontWeight.bold,
                       color: PdfColors.blue800,
                     ),
                   ),
-                  pw.Text(l10n.welcomeAddress),
-                  pw.Text(l10n.welcomePhones),
-                  pw.Text(l10n.welcomeWebsite),
+                  pw.Text(company.address),
+                  pw.Text(company.phones),
+                  pw.Text(company.website),
                 ],
               ),
             ],
@@ -314,7 +323,10 @@ Future<void> exportGlassResultsPdf({
   if (results.isEmpty) return;
   await _ensureLocaleInitialized(l10n.localeName);
   final theme = await _loadPdfTheme();
-  final logoImage = await _loadCompanyLogo(l10n.companyLogoAsset);
+  final settingsBox = Hive.box('settings');
+  final company = CompanySettings.read(settingsBox, l10n.locale);
+  final logoImage =
+      await _loadCompanyLogo(company.fallbackLogoAsset, settingsBox);
   final doc = pw.Document(theme: theme);
 
   final entries = results.entries.toList()
@@ -332,6 +344,7 @@ Future<void> exportGlassResultsPdf({
         final widgets = <pw.Widget>[
           _buildDocumentHeader(
             l10n,
+            company,
             l10n.productionGlass,
             logoImage: logoImage,
             customers: customers,
@@ -436,7 +449,10 @@ Future<void> exportBlindResultsPdf({
   if (results.isEmpty) return;
   await _ensureLocaleInitialized(l10n.localeName);
   final theme = await _loadPdfTheme();
-  final logoImage = await _loadCompanyLogo(l10n.companyLogoAsset);
+  final settingsBox = Hive.box('settings');
+  final company = CompanySettings.read(settingsBox, l10n.locale);
+  final logoImage =
+      await _loadCompanyLogo(company.fallbackLogoAsset, settingsBox);
   final doc = pw.Document(theme: theme);
 
   final entries = results.entries.toList()
@@ -454,6 +470,7 @@ Future<void> exportBlindResultsPdf({
         final widgets = <pw.Widget>[
           _buildDocumentHeader(
             l10n,
+            company,
             l10n.productionRollerShutter,
             logoImage: logoImage,
             customers: customers,
@@ -559,7 +576,10 @@ Future<void> exportHekriResultsPdf({
   if (results.isEmpty) return;
   await _ensureLocaleInitialized(l10n.localeName);
   final theme = await _loadPdfTheme();
-  final logoImage = await _loadCompanyLogo(l10n.companyLogoAsset);
+  final settingsBox = Hive.box('settings');
+  final company = CompanySettings.read(settingsBox, l10n.locale);
+  final logoImage =
+      await _loadCompanyLogo(company.fallbackLogoAsset, settingsBox);
   final doc = pw.Document(theme: theme);
 
   final entries = results.entries.toList()
@@ -577,6 +597,7 @@ Future<void> exportHekriResultsPdf({
         final widgets = <pw.Widget>[
           _buildDocumentHeader(
             l10n,
+            company,
             l10n.productionIron,
             logoImage: logoImage,
             customers: customers,
@@ -670,7 +691,10 @@ Future<void> exportCuttingResultsPdf<T>({
   if (results.isEmpty) return;
   await _ensureLocaleInitialized(l10n.localeName);
   final theme = await _loadPdfTheme();
-  final logoImage = await _loadCompanyLogo(l10n.companyLogoAsset);
+  final settingsBox = Hive.box('settings');
+  final company = CompanySettings.read(settingsBox, l10n.locale);
+  final logoImage =
+      await _loadCompanyLogo(company.fallbackLogoAsset, settingsBox);
   final doc = pw.Document(theme: theme);
 
   final entries = results.entries.toList()
@@ -688,6 +712,7 @@ Future<void> exportCuttingResultsPdf<T>({
         final widgets = <pw.Widget>[
           _buildDocumentHeader(
             l10n,
+            company,
             l10n.productionCutting,
             logoImage: logoImage,
             customers: customers,
