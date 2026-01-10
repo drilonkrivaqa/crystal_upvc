@@ -10,6 +10,7 @@ import 'package:image/image.dart' as img;
 import '../models.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../l10n/app_localizations.dart';
+import '../utils/company_settings.dart';
 
 Future<void> printOfferPdf({
   required Offer offer,
@@ -28,14 +29,20 @@ Future<void> printOfferPdf({
   final baseFont = pw.Font.ttf(fontData);
   final boldFont = pw.Font.ttf(boldFontData);
 
-  // Load company logo
-  final logoAsset = l10n.companyLogoAsset;
+  final settingsBox = Hive.box('settings');
+  final company = CompanySettings.read(settingsBox, l10n.locale);
+  final logoAsset = company.fallbackLogoAsset;
+  final logoBytes = CompanySettings.logoBytes(settingsBox);
   pw.MemoryImage? logoImage;
-  try {
-    final logoData = await rootBundle.load(logoAsset);
-    logoImage = pw.MemoryImage(logoData.buffer.asUint8List());
-  } catch (_) {
-    logoImage = null;
+  if (logoBytes != null && logoBytes.isNotEmpty) {
+    logoImage = pw.MemoryImage(logoBytes);
+  } else {
+    try {
+      final logoData = await rootBundle.load(logoAsset);
+      logoImage = pw.MemoryImage(logoData.buffer.asUint8List());
+    } catch (_) {
+      logoImage = null;
+    }
   }
 
   final doc = pw.Document(
@@ -195,14 +202,14 @@ Future<void> printOfferPdf({
                       pw.Column(
                         crossAxisAlignment: pw.CrossAxisAlignment.start,
                         children: [
-                          pw.Text(l10n.appTitle,
+                          pw.Text(company.name,
                               style: pw.TextStyle(
                                   fontSize: 16,
                                   fontWeight: pw.FontWeight.bold,
                                   color: PdfColors.blue800)),
-                          pw.Text(l10n.welcomeAddress),
-                          pw.Text(l10n.welcomePhones),
-                          pw.Text(l10n.welcomeWebsite),
+                          pw.Text(company.address),
+                          pw.Text(company.phones),
+                          pw.Text(company.website),
                         ],
                       ),
                     ],

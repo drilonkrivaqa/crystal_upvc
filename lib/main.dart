@@ -13,6 +13,9 @@ import 'theme/app_theme.dart';
 import 'pages/welcome_page.dart';
 import 'data_migrations.dart';
 import 'l10n/app_localizations.dart';
+import 'pages/settings_page.dart';
+import 'utils/company_settings.dart';
+import 'widgets/company_logo.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() async {
@@ -77,11 +80,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
-      valueListenable: settingsBox.listenable(keys: ['locale']),
+      valueListenable:
+          settingsBox.listenable(keys: ['locale', CompanySettings.keyName]),
       builder: (context, Box box, _) {
         final code = box.get('locale', defaultValue: 'sq') as String;
+        final company = CompanySettings.read(box, Locale(code));
         return MaterialApp(
-          onGenerateTitle: (ctx) => AppLocalizations.of(ctx).appTitle,
+          onGenerateTitle: (ctx) => company.name,
           debugShowCheckedModeBanner: false,
           theme: AppTheme.light,
           locale: Locale(code),
@@ -121,15 +126,6 @@ class HomePage extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final textTheme = theme.textTheme;
-
-    final items = [
-      _NavItem(Icons.auto_awesome_motion_outlined, l10n.homeCatalogs,
-          const CatalogsPage()),
-      _NavItem(Icons.people_outline, l10n.homeCustomers, const CustomersPage()),
-      _NavItem(Icons.description_outlined, l10n.homeOffers, const OffersPage()),
-      _NavItem(Icons.precision_manufacturing, l10n.homeProduction,
-          const ProductionPage()),
-    ];
 
     return Scaffold(
       body: AppBackground(
@@ -199,32 +195,89 @@ class HomePage extends StatelessWidget {
                   const SizedBox(height: 28),
 
                   // Logo as a clean hero
-                  Image.asset(
-                    l10n.companyLogoAsset,
-                    width: 220,
-                  ).animate().fadeIn(duration: 450.ms).slideY(begin: 0.25),
+                  ValueListenableBuilder(
+                    valueListenable: settingsBox.listenable(
+                      keys: [CompanySettings.keyLogoBytes],
+                    ),
+                    builder: (context, Box box, _) {
+                      final company = CompanySettings.read(
+                        box,
+                        Localizations.localeOf(context),
+                      );
+                      return CompanyLogo(
+                        company: company,
+                        width: 220,
+                      )
+                          .animate()
+                          .fadeIn(duration: 450.ms)
+                          .slideY(begin: 0.25);
+                    },
+                  ),
 
                   const SizedBox(height: 36),
 
                   // Navigation cards
-                  Wrap(
-                    spacing: 16,
-                    runSpacing: 16,
-                    alignment: WrapAlignment.center,
-                    children: items
-                        .map(
-                          (item) => _FrostedMenuCard(
-                            icon: item.icon,
-                            label: item.label,
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (_) => item.page),
-                              );
-                            },
-                          ),
-                        )
-                        .toList(),
+                  ValueListenableBuilder(
+                    valueListenable: settingsBox.listenable(
+                      keys: [CompanySettings.keyEnableProduction],
+                    ),
+                    builder: (context, Box box, _) {
+                      final productionEnabled =
+                          CompanySettings.isProductionEnabled(box);
+                      final items = [
+                        _NavItem(
+                          Icons.auto_awesome_motion_outlined,
+                          l10n.homeCatalogs,
+                          const CatalogsPage(),
+                        ),
+                        _NavItem(
+                          Icons.people_outline,
+                          l10n.homeCustomers,
+                          const CustomersPage(),
+                        ),
+                        _NavItem(
+                          Icons.description_outlined,
+                          l10n.homeOffers,
+                          const OffersPage(),
+                        ),
+                        _NavItem(
+                          Icons.precision_manufacturing,
+                          l10n.homeProduction,
+                          const ProductionPage(),
+                          enabled: productionEnabled,
+                        ),
+                        _NavItem(
+                          Icons.settings_outlined,
+                          l10n.homeSettings,
+                          const SettingsPage(),
+                        ),
+                      ];
+
+                      return Wrap(
+                        spacing: 16,
+                        runSpacing: 16,
+                        alignment: WrapAlignment.center,
+                        children: items
+                            .map(
+                              (item) => _FrostedMenuCard(
+                                icon: item.icon,
+                                label: item.label,
+                                enabled: item.enabled,
+                                onTap: item.enabled
+                                    ? () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) => item.page,
+                                          ),
+                                        );
+                                      }
+                                    : null,
+                              ),
+                            )
+                            .toList(),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -239,12 +292,14 @@ class HomePage extends StatelessWidget {
 class _FrostedMenuCard extends StatelessWidget {
   final IconData icon;
   final String label;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
+  final bool enabled;
 
   const _FrostedMenuCard({
     required this.icon,
     required this.label,
     required this.onTap,
+    this.enabled = true,
   });
 
   @override
@@ -253,7 +308,7 @@ class _FrostedMenuCard extends StatelessWidget {
     final colors = theme.colorScheme;
     final textTheme = theme.textTheme;
 
-    return GlassCard(
+    final content = GlassCard(
       width: 150,
       height: 160,
       padding: const EdgeInsets.all(16),
@@ -294,6 +349,11 @@ class _FrostedMenuCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+
+    return Opacity(
+      opacity: enabled ? 1 : 0.45,
+      child: content,
     ).animate().fadeIn(duration: 500.ms).slideY(begin: 0.15);
   }
 }
@@ -302,6 +362,7 @@ class _NavItem {
   final IconData icon;
   final String label;
   final Widget page;
+  final bool enabled;
 
-  const _NavItem(this.icon, this.label, this.page);
+  const _NavItem(this.icon, this.label, this.page, {this.enabled = true});
 }
