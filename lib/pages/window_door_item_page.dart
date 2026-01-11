@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/foundation.dart';
-import 'dart:async';
 import 'dart:io' show File;
 import 'dart:math' as math;
 import '../models.dart';
@@ -84,9 +83,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   String? photoPath;
   Uint8List? photoBytes;
   Uint8List? _designImageBytes;
-  Uint8List? _autoPreviewBytes;
-  bool _autoDesignPreview = true;
-  Timer? _autoPreviewTimer;
   double? manualPrice;
   double? manualBasePrice;
   double? extra1Price;
@@ -177,10 +173,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     accessoryIndex = widget.existingItem?.accessoryIndex;
     photoPath = widget.existingItem?.photoPath;
     photoBytes = widget.existingItem?.photoBytes;
-    _autoDesignPreview = widget.existingItem?.autoDesignPreview ??
-        (widget.existingItem == null ||
-            (photoPath == null && photoBytes == null));
-    _autoPreviewBytes = _autoDesignPreview ? photoBytes : null;
     manualPrice = widget.existingItem?.manualPrice;
     manualBasePrice = widget.existingItem?.manualBasePrice;
     extra1Price = widget.existingItem?.extra1Price;
@@ -274,33 +266,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     verticalController.text = verticalSections.toString();
     _ensureGridSize();
     _autoSelectMechanism(rebuild: false);
-    _scheduleAutoPreviewRefresh();
-  }
-
-  bool get _shouldUseAutoPreview =>
-      _autoDesignPreview && _designImageBytes == null && photoPath == null;
-
-  void _scheduleAutoPreviewRefresh() {
-    if (!_shouldUseAutoPreview) {
-      return;
-    }
-    _autoPreviewTimer?.cancel();
-    _autoPreviewTimer = Timer(const Duration(milliseconds: 250), () {
-      _refreshAutoPreview();
-    });
-  }
-
-  Future<void> _refreshAutoPreview() async {
-    if (!_shouldUseAutoPreview) {
-      return;
-    }
-    final bytes = await _createDesignPreviewBytes();
-    if (!mounted || !_shouldUseAutoPreview) {
-      return;
-    }
-    setState(() {
-      _autoPreviewBytes = bytes;
-    });
   }
 
   bool _sectorMatchesMechanism(
@@ -521,8 +486,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                           _designImageBytes = bytes;
                           photoBytes = bytes;
                           photoPath = null;
-                          _autoDesignPreview = false;
-                          _autoPreviewBytes = null;
                         });
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text(l10n.designImageAttached)),
@@ -904,16 +867,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
 
   Widget _buildPhotoPicker(BuildContext context, AppLocalizations l10n) {
     final borderRadius = BorderRadius.circular(16);
-    final shouldUseAutoPreview = _shouldUseAutoPreview;
-    if (shouldUseAutoPreview && _autoPreviewBytes == null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          _scheduleAutoPreviewRefresh();
-        }
-      });
-    }
-    final imageBytes =
-        _designImageBytes ?? (shouldUseAutoPreview ? _autoPreviewBytes : photoBytes);
+    final imageBytes = _designImageBytes ?? photoBytes;
 
     Widget content;
     if (imageBytes != null) {
@@ -942,35 +896,19 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
       content = Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (shouldUseAutoPreview) ...[
-            const SizedBox(
-              width: 32,
-              height: 32,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              l10n.designWindowDoor,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey.shade600,
-                  ),
-            ),
-          ] else ...[
-            Icon(
-              Icons.add_a_photo_outlined,
-              color: Colors.grey.shade600,
-              size: 32,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              l10n.clickAddPhoto,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey.shade600,
-                  ),
-            ),
-          ],
+          Icon(
+            Icons.add_a_photo_outlined,
+            color: Colors.grey.shade600,
+            size: 32,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            l10n.clickAddPhoto,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Colors.grey.shade600,
+                ),
+          ),
         ],
       );
     }
@@ -985,8 +923,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
             photoPath = picked.path;
             photoBytes = bytes;
             _designImageBytes = null;
-            _autoDesignPreview = false;
-            _autoPreviewBytes = null;
           });
         }
       },
@@ -1031,11 +967,12 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     }
 
     Uint8List? generatedBytes;
-    if (_shouldUseAutoPreview) {
-      generatedBytes = _autoPreviewBytes ?? await _createDesignPreviewBytes();
+    if (_designImageBytes == null &&
+        photoBytes == null &&
+        photoPath == null) {
+      generatedBytes = await _createDesignPreviewBytes();
       if (generatedBytes != null && mounted) {
         setState(() {
-          _autoPreviewBytes = generatedBytes;
           photoBytes = generatedBytes;
           photoPath = null;
         });
@@ -1103,7 +1040,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
             rowFixedSectors.map((row) => List<bool>.from(row)).toList(),
         perRowVerticalAdapters:
             rowVerticalAdapters.map((row) => List<bool>.from(row)).toList(),
-        autoDesignPreview: _shouldUseAutoPreview,
       ),
     );
     return true;
@@ -1175,7 +1111,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
 
     _ensureGridSize();
     setState(() {});
-    _scheduleAutoPreviewRefresh();
   }
 
   void _ensureGridSize() {
@@ -1392,7 +1327,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     rowSectionWidthCtrls[row][columns - 1].text = last.toString();
     _autoSelectMechanism(rebuild: rebuild);
     if (rebuild && mounted) setState(() {});
-    _scheduleAutoPreviewRefresh();
   }
 
   void _recalculateAllWidths({bool showErrors = true}) {
@@ -1441,7 +1375,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     sectionHeightCtrls[horizontalSections - 1].text = last.toString();
     _autoSelectMechanism();
     if (mounted) setState(() {});
-    _scheduleAutoPreviewRefresh();
   }
 
   Widget _buildGrid() {
@@ -1493,7 +1426,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                               setState(() {
                                 rowFixedSectors[r][c] = !rowFixedSectors[r][c];
                               });
-                              _scheduleAutoPreviewRefresh();
                             },
                             child: Container(
                               margin: const EdgeInsets.all(4),
@@ -1569,7 +1501,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                               rowVerticalSections[r] = val;
                               _ensureGridSize();
                             });
-                            _scheduleAutoPreviewRefresh();
                           },
                         ),
                       ),
@@ -1727,7 +1658,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
 
   @override
   void dispose() {
-    _autoPreviewTimer?.cancel();
     nameController.dispose();
     widthController.dispose();
     heightController.dispose();

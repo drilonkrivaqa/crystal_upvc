@@ -283,8 +283,6 @@ class WindowDoorItem extends HiveObject {
   @HiveField(29)
   List<List<bool>>?
       perRowVerticalAdapters; // adapter flags between vertical sections per row
-  @HiveField(30)
-  bool autoDesignPreview; // true when the photo is auto-generated from settings
 
   WindowDoorItem({
     required this.name,
@@ -317,7 +315,6 @@ class WindowDoorItem extends HiveObject {
     this.perRowSectionWidths,
     this.perRowFixedSectors,
     this.perRowVerticalAdapters,
-    this.autoDesignPreview = false,
   })  : fixedSectors = fixedSectors ??
             List<bool>.filled(verticalSections * horizontalSections, false),
         sectionWidths = sectionWidths ?? List<int>.filled(verticalSections, 0),
@@ -536,7 +533,6 @@ class WindowDoorItem extends HiveObject {
       perRowVerticalAdapters: perRowVerticalAdapters != null
           ? _clone2d<bool>(perRowVerticalAdapters!)
           : null,
-      autoDesignPreview: autoDesignPreview,
     );
   }
 
