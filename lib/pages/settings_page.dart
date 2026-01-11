@@ -6,6 +6,10 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 import '../company_details.dart';
 import '../l10n/app_localizations.dart';
+import '../pages/catalogs_page.dart';
+import '../pages/customers_page.dart';
+import '../pages/offers_page.dart';
+import '../pages/production_page.dart';
 import '../theme/app_background.dart';
 import '../utils/company_settings.dart';
 import '../widgets/company_logo.dart';
@@ -136,6 +140,37 @@ class _SettingsPageState extends State<SettingsPage> {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+
+    Widget managementTile({
+      required IconData icon,
+      required String label,
+      required Widget page,
+      bool enabled = true,
+    }) {
+      return ListTile(
+        contentPadding: EdgeInsets.zero,
+        leading: Icon(
+          icon,
+          color: enabled
+              ? colors.primary
+              : colors.onSurface.withOpacity(0.35),
+        ),
+        title: Text(label),
+        trailing: Icon(
+          Icons.chevron_right,
+          color:
+              enabled ? colors.onSurface : colors.onSurface.withOpacity(0.35),
+        ),
+        enabled: enabled,
+        onTap: enabled
+            ? () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => page),
+                );
+              }
+            : null,
+      );
+    }
 
     if (!_settingsUnlocked) {
       return Scaffold(
@@ -317,6 +352,47 @@ class _SettingsPageState extends State<SettingsPage> {
                         onChanged: (val) {
                           setState(() => _productionEnabled = val);
                         },
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                GlassCard(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.settingsManagementSection,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      managementTile(
+                        icon: Icons.auto_awesome_motion_outlined,
+                        label: l10n.homeCatalogs,
+                        page: const CatalogsPage(),
+                      ),
+                      const Divider(height: 1),
+                      managementTile(
+                        icon: Icons.people_outline,
+                        label: l10n.homeCustomers,
+                        page: const CustomersPage(),
+                      ),
+                      const Divider(height: 1),
+                      managementTile(
+                        icon: Icons.description_outlined,
+                        label: l10n.homeOffers,
+                        page: const OffersPage(),
+                      ),
+                      const Divider(height: 1),
+                      managementTile(
+                        icon: Icons.precision_manufacturing,
+                        label: l10n.homeProduction,
+                        page: const ProductionPage(),
+                        enabled: _productionEnabled,
                       ),
                     ],
                   ),
