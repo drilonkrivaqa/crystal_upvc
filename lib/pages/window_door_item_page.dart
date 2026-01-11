@@ -227,10 +227,9 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
             verticalSections > 1 ? verticalSections - 1 : 0, false)
       ];
     }
-    _autoDesignEnabled = widget.existingItem == null &&
-        photoBytes == null &&
-        photoPath == null &&
-        _designImageBytes == null;
+    final hasManualPhoto = photoPath != null;
+    _designImageBytes = hasManualPhoto ? null : photoBytes;
+    _autoDesignEnabled = !hasManualPhoto;
 
     rowSectionWidthCtrls = List<List<TextEditingController>>.generate(
         rowSectionWidths.length,
