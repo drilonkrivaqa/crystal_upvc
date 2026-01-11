@@ -2261,6 +2261,10 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
           : 0.0,
     );
 
+    final profileColorIndex =
+        profileSetBox.getAt(item.profileSetIndex)?.colorIndex;
+    final glassColorIndex = glassBox.getAt(item.glassIndex)?.colorIndex;
+
     return buildWindowDoorDesignPreviewBytes(
       rows: initialRows,
       cols: initialCols,
@@ -2270,8 +2274,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
       widthMm: item.width.toDouble(),
       heightMm: item.height.toDouble(),
       showBlindBox: item.blindIndex != null,
-      profileColorIndex: item.profileSetIndex,
-      glassColorIndex: item.glassIndex,
+      profileColorIndex: profileColorIndex,
+      glassColorIndex: glassColorIndex,
     );
   }
 

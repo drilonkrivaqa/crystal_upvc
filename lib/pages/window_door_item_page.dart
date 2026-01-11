@@ -1113,6 +1113,10 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     final widthValue = double.tryParse(widthController.text);
     final heightValue = double.tryParse(heightController.text);
 
+    final profileColorIndex =
+        profileSetBox.getAt(profileSetIndex)?.colorIndex;
+    final glassColorIndex = glassBox.getAt(glassIndex)?.colorIndex;
+
     return buildWindowDoorDesignPreviewBytes(
       rows: initialRows,
       cols: initialCols,
@@ -1122,8 +1126,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
       widthMm: (widthValue != null && widthValue > 0) ? widthValue : null,
       heightMm: (heightValue != null && heightValue > 0) ? heightValue : null,
       showBlindBox: blindIndex != null,
-      profileColorIndex: profileSetIndex,
-      glassColorIndex: glassIndex,
+      profileColorIndex: profileColorIndex,
+      glassColorIndex: glassColorIndex,
     );
   }
 
