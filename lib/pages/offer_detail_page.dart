@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart';
 import '../models.dart';
 import 'window_door_item_page.dart';
+import 'window_door_designer_page.dart';
 import '../theme/app_colors.dart';
 import 'dart:io' show File;
 import 'dart:math' as math;
@@ -2104,6 +2105,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
       return;
     }
 
+    await _attachAutoDesignPreviews(createdItems);
     offer.items.addAll(createdItems);
     offer.lastEdited = DateTime.now();
     await offer.save();
@@ -2214,6 +2216,103 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
     }
 
     return items;
+  }
+
+  Future<void> _attachAutoDesignPreviews(
+      List<WindowDoorItem> items) async {
+    for (final item in items) {
+      if (item.photoBytes != null || item.photoPath != null) {
+        continue;
+      }
+      final bytes = await _buildAutoDesignPreviewBytes(item);
+      if (bytes != null) {
+        item.photoBytes = bytes;
+      }
+    }
+  }
+
+  Future<Uint8List?> _buildAutoDesignPreviewBytes(
+      WindowDoorItem item) async {
+    final initialRows =
+        item.horizontalSections < 1 ? 1 : item.horizontalSections.clamp(1, 8);
+    final initialCols =
+        item.verticalSections < 1 ? 1 : item.verticalSections.clamp(1, 8);
+    final initialCells =
+        _buildInitialDesignerCellsForItem(item, initialRows, initialCols);
+    final defaultWidths = List<int>.filled(initialCols, 0);
+    for (int r = 0; r < initialRows; r++) {
+      final rowWidths = item.widthsForRow(r);
+      for (int i = 0; i < rowWidths.length && i < defaultWidths.length; i++) {
+        if (rowWidths[i] > defaultWidths[i]) {
+          defaultWidths[i] = rowWidths[i];
+        }
+      }
+    }
+    final initialColumnSizes = List<double>.generate(
+      initialCols,
+      (index) => index < defaultWidths.length
+          ? defaultWidths[index].toDouble()
+          : 0.0,
+    );
+    final initialRowSizes = List<double>.generate(
+      initialRows,
+      (index) => index < item.sectionHeights.length
+          ? item.sectionHeights[index].toDouble()
+          : 0.0,
+    );
+
+    return buildWindowDoorDesignPreviewBytes(
+      rows: initialRows,
+      cols: initialCols,
+      cells: initialCells,
+      columnSizes: initialColumnSizes,
+      rowSizes: initialRowSizes,
+      widthMm: item.width.toDouble(),
+      heightMm: item.height.toDouble(),
+      showBlindBox: item.blindIndex != null,
+      profileColorIndex: item.profileSetIndex,
+      glassColorIndex: item.glassIndex,
+    );
+  }
+
+  List<SashType> _buildInitialDesignerCellsForItem(
+      WindowDoorItem item, int rows, int cols) {
+    final total = rows * cols;
+    if (total <= 0) {
+      return const <SashType>[];
+    }
+
+    final normalizedFixed = List<bool>.filled(total, true);
+    for (int r = 0; r < rows; r++) {
+      final rowCount = item.columnsInRow(r);
+      final rowFixed = item.fixedForRow(r);
+      for (int c = 0; c < rowCount && c < cols; c++) {
+        final idx = r * cols + c;
+        if (c < rowFixed.length) {
+          normalizedFixed[idx] = rowFixed[c];
+        }
+      }
+    }
+
+    final openingsCount = normalizedFixed.where((isFixed) => !isFixed).length;
+    final leftColumns = cols ~/ 2;
+
+    return List<SashType>.generate(total, (index) {
+      final isFixed = normalizedFixed[index];
+      if (isFixed || openingsCount == 0) {
+        return SashType.fixed;
+      }
+
+      if (total == 1 || cols == 1) {
+        return SashType.tiltTurnRight;
+      }
+
+      final column = index % cols;
+      if (column < leftColumns) {
+        return SashType.tiltTurnLeft;
+      }
+      return SashType.tiltTurnRight;
+    });
   }
 
   List<int> _splitEvenly(int total, int parts) {
