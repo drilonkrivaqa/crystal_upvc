@@ -120,7 +120,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   void _unlockSettings(AppLocalizations l10n) {
     final enteredPassword = _passwordController.text.trim();
-    final requiredPassword = l10n.companyAppPassword;
+    final requiredPassword = CompanyDetails.settingsPassword;
     if (enteredPassword == requiredPassword) {
       setState(() => _settingsUnlocked = true);
       return;
