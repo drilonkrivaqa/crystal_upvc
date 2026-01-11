@@ -59,6 +59,16 @@ class CompanySettings {
     return settingsBox.get(keyEnableProduction, defaultValue: true) as bool;
   }
 
+  static bool isProductionAvailable(Box settingsBox) {
+    if (!isProductionEnabled(settingsBox)) {
+      return false;
+    }
+    if (isLicenseExpired(settingsBox)) {
+      return false;
+    }
+    return true;
+  }
+
   static Uint8List? logoBytes(Box settingsBox) {
     return settingsBox.get(keyLogoBytes) as Uint8List?;
   }

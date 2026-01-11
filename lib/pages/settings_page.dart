@@ -236,6 +236,7 @@ class _SettingsPageState extends State<SettingsPage> {
     final colors = theme.colorScheme;
     final dateFormatter = MaterialLocalizations.of(context);
     final licenseExpired = CompanySettings.isLicenseExpired(settingsBox);
+    final productionAvailable = _productionEnabled && !licenseExpired;
 
     Widget managementTile({
       required IconData icon,
@@ -583,7 +584,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         icon: Icons.precision_manufacturing,
                         label: l10n.homeProduction,
                         page: const ProductionPage(),
-                        enabled: _productionEnabled,
+                        enabled: productionAvailable,
                       ),
                     ],
                   ),
