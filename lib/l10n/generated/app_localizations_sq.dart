@@ -197,6 +197,12 @@ class AppLocalizationsSq extends AppLocalizations {
   String get catalogFieldMassPerM2 => 'Masa kg/m²';
 
   @override
+  String get catalogFieldProfileColor => 'Ngjyra e profilit';
+
+  @override
+  String get catalogFieldGlassColor => 'Ngjyra e xhamit';
+
+  @override
   String get catalogFieldUg => 'Ug (W/m²K)';
 
   @override

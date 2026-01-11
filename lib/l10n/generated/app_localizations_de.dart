@@ -196,6 +196,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get catalogFieldMassPerM2 => 'Masse kg/m²';
 
   @override
+  String get catalogFieldProfileColor => 'Profilfarbe';
+
+  @override
+  String get catalogFieldGlassColor => 'Glasfarbe';
+
+  @override
   String get catalogFieldUg => 'Ug (W/m²K)';
 
   @override

@@ -87,13 +87,14 @@ class ProfileSetAdapter extends TypeAdapter<ProfileSet> {
       zOuterThickness: fields[23] == null ? 0 : fields[23] as int,
       tOuterThickness: fields[24] == null ? 0 : fields[24] as int,
       adapterOuterThickness: fields[25] == null ? 0 : fields[25] as int,
+      colorIndex: fields[27] == null ? 0 : fields[27] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, ProfileSet obj) {
     writer
-      ..writeByte(27)
+      ..writeByte(28)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -147,7 +148,9 @@ class ProfileSetAdapter extends TypeAdapter<ProfileSet> {
       ..writeByte(25)
       ..write(obj.adapterOuterThickness)
       ..writeByte(26)
-      ..write(obj.hekriPipeLength);
+      ..write(obj.hekriPipeLength)
+      ..writeByte(27)
+      ..write(obj.colorIndex);
   }
 
   @override
@@ -177,13 +180,14 @@ class GlassAdapter extends TypeAdapter<Glass> {
       massPerM2: fields[2] == null ? 0 : fields[2] as double,
       ug: fields[3] == null ? 0 : fields[3] as double?,
       psi: fields[4] == null ? 0 : fields[4] as double?,
+      colorIndex: fields[5] == null ? 0 : fields[5] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, Glass obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -193,7 +197,9 @@ class GlassAdapter extends TypeAdapter<Glass> {
       ..writeByte(3)
       ..write(obj.ug)
       ..writeByte(4)
-      ..write(obj.psi);
+      ..write(obj.psi)
+      ..writeByte(5)
+      ..write(obj.colorIndex);
   }
 
   @override
