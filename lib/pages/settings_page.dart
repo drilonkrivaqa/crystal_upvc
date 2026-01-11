@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
+import '../company_details.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_background.dart';
 import '../utils/company_settings.dart';
@@ -23,10 +24,12 @@ class _SettingsPageState extends State<SettingsPage> {
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _phonesController = TextEditingController();
   final TextEditingController _websiteController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   Uint8List? _logoBytes;
   String _fallbackLogoAsset = 'assets/logo.png';
   bool _productionEnabled = true;
   bool _initialized = false;
+  bool _settingsUnlocked = false;
 
   @override
   void initState() {
@@ -58,6 +61,7 @@ class _SettingsPageState extends State<SettingsPage> {
     _addressController.dispose();
     _phonesController.dispose();
     _websiteController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
@@ -114,11 +118,94 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
+  void _unlockSettings(AppLocalizations l10n) {
+    final enteredPassword = _passwordController.text.trim();
+    final requiredPassword = CompanyDetails.settingsPassword;
+    if (enteredPassword == requiredPassword) {
+      setState(() => _settingsUnlocked = true);
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.welcomeInvalidPassword)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+
+    if (!_settingsUnlocked) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(l10n.settingsTitle),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+        ),
+        extendBodyBehindAppBar: true,
+        body: AppBackground(
+          child: SafeArea(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: GlassCard(
+                  width: 360,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        l10n.settingsTitle,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      TextField(
+                        controller: _passwordController,
+                        obscureText: true,
+                        decoration: InputDecoration(
+                          labelText: l10n.welcomePasswordLabel,
+                          hintText: l10n.welcomePasswordHint,
+                        ),
+                        onSubmitted: (_) => _unlockSettings(l10n),
+                      ),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () => _unlockSettings(l10n),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: colors.surface.withOpacity(0.85),
+                            elevation: 8,
+                            shadowColor: Colors.black26,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(24),
+                            ),
+                          ),
+                          child: Text(
+                            l10n.welcomeEnter,
+                            style: theme.textTheme.labelLarge?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: colors.primary,
+                              letterSpacing: 0.4,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
