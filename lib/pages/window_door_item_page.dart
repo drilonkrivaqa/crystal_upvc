@@ -53,6 +53,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   int? blindIndex;
   int? mechanismIndex;
   int? accessoryIndex;
+  bool _allowAutoMechanism = true;
   String? photoPath;
   Uint8List? photoBytes;
   Uint8List? _designImageBytes;
@@ -142,6 +143,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
         allowNegative: true);
     blindIndex = normalizedBlindIndex >= 0 ? normalizedBlindIndex : null;
     mechanismIndex = widget.existingItem?.mechanismIndex;
+    _allowAutoMechanism = widget.existingItem?.mechanismIndex == null;
     accessoryIndex = widget.existingItem?.accessoryIndex;
     photoPath = widget.existingItem?.photoPath;
     photoBytes = widget.existingItem?.photoBytes;
@@ -237,6 +239,62 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
         : verticalSections;
     verticalController.text = verticalSections.toString();
     _ensureGridSize();
+    _autoSelectMechanism(rebuild: false);
+  }
+
+  bool _sectorMatchesMechanism(
+      int width, int height, Mechanism mechanism) {
+    if (width <= 0 || height <= 0) {
+      return false;
+    }
+    if (mechanism.minWidth > 0 && width < mechanism.minWidth) {
+      return false;
+    }
+    if (mechanism.maxWidth > 0 && width > mechanism.maxWidth) {
+      return false;
+    }
+    if (mechanism.minHeight > 0 && height < mechanism.minHeight) {
+      return false;
+    }
+    if (mechanism.maxHeight > 0 && height > mechanism.maxHeight) {
+      return false;
+    }
+    return true;
+  }
+
+  int? _findDefaultMechanismIndex() {
+    if (mechanismBox.isEmpty) {
+      return null;
+    }
+    for (int i = 0; i < mechanismBox.length; i++) {
+      final mechanism = mechanismBox.getAt(i);
+      if (mechanism == null) continue;
+      for (int r = 0; r < rowSectionWidths.length; r++) {
+        if (r >= sectionHeights.length) continue;
+        final rowHeight = sectionHeights[r];
+        final widths = rowSectionWidths[r];
+        for (final width in widths) {
+          if (_sectorMatchesMechanism(width, rowHeight, mechanism)) {
+            return i;
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  void _autoSelectMechanism({bool rebuild = true}) {
+    if (!_allowAutoMechanism) {
+      return;
+    }
+    final match = _findDefaultMechanismIndex();
+    if (match == mechanismIndex) {
+      return;
+    }
+    mechanismIndex = match;
+    if (rebuild && mounted) {
+      setState(() {});
+    }
   }
 
   @override
@@ -529,8 +587,10 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                                   ),
                                 ),
                             ],
-                            onChanged: (val) =>
-                                setState(() => mechanismIndex = val),
+                            onChanged: (val) => setState(() {
+                              mechanismIndex = val;
+                              _allowAutoMechanism = false;
+                            }),
                           ),
                           DropdownButtonFormField<int?>(
                             initialValue: blindIndex,
@@ -1157,6 +1217,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     }
     rowSectionWidths[row][columns - 1] = last;
     rowSectionWidthCtrls[row][columns - 1].text = last.toString();
+    _autoSelectMechanism(rebuild: rebuild);
     if (rebuild && mounted) setState(() {});
   }
 
@@ -1204,6 +1265,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     if (last < 0) last = 0;
     sectionHeights[horizontalSections - 1] = last;
     sectionHeightCtrls[horizontalSections - 1].text = last.toString();
+    _autoSelectMechanism();
     if (mounted) setState(() {});
   }
 

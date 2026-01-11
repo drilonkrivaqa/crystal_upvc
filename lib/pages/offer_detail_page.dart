@@ -2163,6 +2163,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
 
       final widthSegments = _splitEvenly(width, vertical);
       final heightSegments = _splitEvenly(height, horizontal);
+      final mechanismIndex =
+          _findDefaultMechanismIndex(widthSegments, heightSegments);
       final rowFixed = List<List<bool>>.generate(
           horizontal, (_) => List<bool>.filled(vertical, false));
       final flattenedFixed = <bool>[];
@@ -2183,6 +2185,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
           quantity: quantity,
           profileSetIndex: profileIndex,
           glassIndex: glassIndex,
+          mechanismIndex: mechanismIndex,
           openings: flattenedFixed.where((isFixed) => !isFixed).length,
           verticalSections: vertical,
           horizontalSections: horizontal,
@@ -2223,6 +2226,45 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
       parts,
       (index) => base + (index < remainder ? 1 : 0),
     );
+  }
+
+  bool _sectorMatchesMechanism(
+      int width, int height, Mechanism mechanism) {
+    if (width <= 0 || height <= 0) {
+      return false;
+    }
+    if (mechanism.minWidth > 0 && width < mechanism.minWidth) {
+      return false;
+    }
+    if (mechanism.maxWidth > 0 && width > mechanism.maxWidth) {
+      return false;
+    }
+    if (mechanism.minHeight > 0 && height < mechanism.minHeight) {
+      return false;
+    }
+    if (mechanism.maxHeight > 0 && height > mechanism.maxHeight) {
+      return false;
+    }
+    return true;
+  }
+
+  int? _findDefaultMechanismIndex(
+      List<int> widths, List<int> heights) {
+    if (mechanismBox.isEmpty) {
+      return null;
+    }
+    for (int i = 0; i < mechanismBox.length; i++) {
+      final mechanism = mechanismBox.getAt(i);
+      if (mechanism == null) continue;
+      for (final height in heights) {
+        for (final width in widths) {
+          if (_sectorMatchesMechanism(width, height, mechanism)) {
+            return i;
+          }
+        }
+      }
+    }
+    return null;
   }
 
   List<Widget> _buildDetailSectionWidgets(List<_DetailSection> sections) {

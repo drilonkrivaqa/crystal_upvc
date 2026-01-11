@@ -155,6 +155,18 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
           ? item.mass.toString()
           : "",
     );
+    final minWidthController = TextEditingController(
+      text: item is Mechanism ? item.minWidth.toString() : "",
+    );
+    final maxWidthController = TextEditingController(
+      text: item is Mechanism ? item.maxWidth.toString() : "",
+    );
+    final minHeightController = TextEditingController(
+      text: item is Mechanism ? item.minHeight.toString() : "",
+    );
+    final maxHeightController = TextEditingController(
+      text: item is Mechanism ? item.maxHeight.toString() : "",
+    );
     int profileColorIndex = item is ProfileSet ? item.colorIndex : 0;
     int glassColorIndex = item is Glass ? item.colorIndex : 0;
 
@@ -435,6 +447,34 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                       labelText: l10n.catalogFieldMass,
                     ),
                   ),
+                if (widget.type == CatalogType.mechanism)
+                  TextField(
+                    controller: minWidthController,
+                    decoration: InputDecoration(
+                      labelText: l10n.catalogFieldMinWidth,
+                    ),
+                  ),
+                if (widget.type == CatalogType.mechanism)
+                  TextField(
+                    controller: maxWidthController,
+                    decoration: InputDecoration(
+                      labelText: l10n.catalogFieldMaxWidth,
+                    ),
+                  ),
+                if (widget.type == CatalogType.mechanism)
+                  TextField(
+                    controller: minHeightController,
+                    decoration: InputDecoration(
+                      labelText: l10n.catalogFieldMinHeight,
+                    ),
+                  ),
+                if (widget.type == CatalogType.mechanism)
+                  TextField(
+                    controller: maxHeightController,
+                    decoration: InputDecoration(
+                      labelText: l10n.catalogFieldMaxHeight,
+                    ),
+                  ),
               ],
             ],
           ),
@@ -565,6 +605,14 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                       double.tryParse(priceController.text) ?? 0,
                       mass:
                       double.tryParse(massController.text) ?? 0,
+                      minWidth:
+                      int.tryParse(minWidthController.text) ?? 0,
+                      maxWidth:
+                      int.tryParse(maxWidthController.text) ?? 0,
+                      minHeight:
+                      int.tryParse(minHeightController.text) ?? 0,
+                      maxHeight:
+                      int.tryParse(maxHeightController.text) ?? 0,
                     ),
                   );
                   break;
@@ -625,6 +673,10 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
     final boxHeightController = TextEditingController();
     final priceController = TextEditingController();
     final massController = TextEditingController();
+    final minWidthController = TextEditingController();
+    final maxWidthController = TextEditingController();
+    final minHeightController = TextEditingController();
+    final maxHeightController = TextEditingController();
     int profileColorIndex = 0;
     int glassColorIndex = 0;
 
@@ -905,6 +957,34 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                       labelText: l10n.catalogFieldMass,
                     ),
                   ),
+                if (widget.type == CatalogType.mechanism)
+                  TextField(
+                    controller: minWidthController,
+                    decoration: InputDecoration(
+                      labelText: l10n.catalogFieldMinWidth,
+                    ),
+                  ),
+                if (widget.type == CatalogType.mechanism)
+                  TextField(
+                    controller: maxWidthController,
+                    decoration: InputDecoration(
+                      labelText: l10n.catalogFieldMaxWidth,
+                    ),
+                  ),
+                if (widget.type == CatalogType.mechanism)
+                  TextField(
+                    controller: minHeightController,
+                    decoration: InputDecoration(
+                      labelText: l10n.catalogFieldMinHeight,
+                    ),
+                  ),
+                if (widget.type == CatalogType.mechanism)
+                  TextField(
+                    controller: maxHeightController,
+                    decoration: InputDecoration(
+                      labelText: l10n.catalogFieldMaxHeight,
+                    ),
+                  ),
               ],
             ],
           ),
@@ -1017,6 +1097,14 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                       double.tryParse(priceController.text) ?? 0,
                       mass:
                       double.tryParse(massController.text) ?? 0,
+                      minWidth:
+                      int.tryParse(minWidthController.text) ?? 0,
+                      maxWidth:
+                      int.tryParse(maxWidthController.text) ?? 0,
+                      minHeight:
+                      int.tryParse(minHeightController.text) ?? 0,
+                      maxHeight:
+                      int.tryParse(maxHeightController.text) ?? 0,
                     ),
                   );
                   break;
@@ -1056,6 +1144,19 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
       case CatalogType.accessory:
         return l10n.catalogAccessory;
     }
+  }
+
+  String _formatRange(int min, int max, String unit) {
+    if (min <= 0 && max <= 0) {
+      return 'Any';
+    }
+    if (min > 0 && max > 0) {
+      return '$min-$max $unit';
+    }
+    if (min > 0) {
+      return '≥ $min $unit';
+    }
+    return '≤ $max $unit';
   }
 
   @override
@@ -1108,8 +1209,11 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                       ? "Price: €${item.pricePerM2.toStringAsFixed(2)}/m², Mass: ${item.massPerM2.toStringAsFixed(2)}kg/m²"
                       : widget.type == CatalogType.blind
                       ? "Price: €${item.pricePerM2.toStringAsFixed(2)}/m², Mass: ${item.massPerM2.toStringAsFixed(2)}kg/m², Box: ${item.boxHeight}mm"
-                      : widget.type == CatalogType.mechanism ||
-                      widget.type == CatalogType.accessory
+                      : widget.type == CatalogType.mechanism
+                      ? "Price: €${item.price.toStringAsFixed(2)}, Mass: ${item.mass.toStringAsFixed(2)}kg\n"
+                      "W: ${_formatRange(item.minWidth, item.maxWidth, 'mm')}, "
+                      "H: ${_formatRange(item.minHeight, item.maxHeight, 'mm')}"
+                      : widget.type == CatalogType.accessory
                       ? "Price: €${item.price.toStringAsFixed(2)}, Mass: ${item.mass.toStringAsFixed(2)}kg"
                       : null;
 

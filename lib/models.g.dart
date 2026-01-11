@@ -270,19 +270,31 @@ class MechanismAdapter extends TypeAdapter<Mechanism> {
       name: fields[0] as String,
       price: fields[1] as double,
       mass: fields[2] == null ? 0 : fields[2] as double,
+      minWidth: fields[3] == null ? 0 : fields[3] as int,
+      maxWidth: fields[4] == null ? 0 : fields[4] as int,
+      minHeight: fields[5] == null ? 0 : fields[5] as int,
+      maxHeight: fields[6] == null ? 0 : fields[6] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, Mechanism obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
       ..write(obj.price)
       ..writeByte(2)
-      ..write(obj.mass);
+      ..write(obj.mass)
+      ..writeByte(3)
+      ..write(obj.minWidth)
+      ..writeByte(4)
+      ..write(obj.maxWidth)
+      ..writeByte(5)
+      ..write(obj.minHeight)
+      ..writeByte(6)
+      ..write(obj.maxHeight);
   }
 
   @override
