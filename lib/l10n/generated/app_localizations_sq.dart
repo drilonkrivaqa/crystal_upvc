@@ -21,6 +21,14 @@ class AppLocalizationsSq extends AppLocalizations {
   String get homeProduction => 'Prodhimi';
 
   @override
+  String homeSubscriptionEndingSoon(Object days) {
+    return 'Abonimi përfundon pas $days ditësh';
+  }
+
+  @override
+  String get homeSubscriptionEndsToday => 'Abonimi përfundon sot';
+
+  @override
   String get productionTitle => 'Prodhimi';
 
   @override
@@ -197,10 +205,10 @@ class AppLocalizationsSq extends AppLocalizations {
   String get catalogFieldMassPerM2 => 'Masa kg/m²';
 
   @override
-  String get catalogFieldProfileColor => 'Ngjyra e profilit';
+  String get catalogFieldProfileColor => 'Profile color';
 
   @override
-  String get catalogFieldGlassColor => 'Ngjyra e xhamit';
+  String get catalogFieldGlassColor => 'Glass color';
 
   @override
   String get catalogFieldUg => 'Ug (W/m²K)';
@@ -358,4 +366,42 @@ class AppLocalizationsSq extends AppLocalizations {
   @override
   String get applyDefaultsMessage =>
       'Zgjidhni cilat dritare/dyer duhet të përdorin profilin, xhamin dhe roletën e re të paracaktuar. Hiqni shenjën nga ato që dëshironi t\'i përjashtoni.';
+
+  @override
+  String get settingsLicenseSection => 'Licenca';
+
+  @override
+  String get settingsLicenseUnlimited => 'Akses i pakufizuar';
+
+  @override
+  String get settingsLicenseUnlimitedActive =>
+      'Aksesi i pakufizuar është aktiv.';
+
+  @override
+  String settingsLicenseExpiresOn(Object date) {
+    return 'Licenca skadon më $date';
+  }
+
+  @override
+  String get settingsLicenseExtendYear => 'Zgjat me 1 vit';
+
+  @override
+  String get settingsLicenseSelectDate => 'Zgjidh datën';
+
+  @override
+  String get settingsLicenseEndNow => 'Ndalo abonimin tani';
+
+  @override
+  String get settingsLicenseRemoveLimit => 'Hiq limitin e kohës';
+
+  @override
+  String get settingsLicenseExpired => 'Skaduar';
+
+  @override
+  String get settingsLicenseNeedsDate =>
+      'Caktoni datën e skadimit për të aktivizuar licencën.';
+
+  @override
+  String get licenseExpiredMessage =>
+      'Licenca ka skaduar. Redaktimi është çaktivizuar derisa të rinovohet.';
 }

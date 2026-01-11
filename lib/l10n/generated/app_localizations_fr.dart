@@ -21,6 +21,15 @@ class AppLocalizationsFr extends AppLocalizations {
   String get homeProduction => 'Production';
 
   @override
+  String homeSubscriptionEndingSoon(Object days) {
+    return 'L\'abonnement se termine dans $days jours';
+  }
+
+  @override
+  String get homeSubscriptionEndsToday =>
+      'L\'abonnement se termine aujourd\'hui';
+
+  @override
   String get productionTitle => 'Production';
 
   @override
@@ -197,10 +206,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get catalogFieldMassPerM2 => 'Masse kg/m²';
 
   @override
-  String get catalogFieldProfileColor => 'Couleur du profil';
+  String get catalogFieldProfileColor => 'Profile color';
 
   @override
-  String get catalogFieldGlassColor => 'Couleur du verre';
+  String get catalogFieldGlassColor => 'Glass color';
 
   @override
   String get catalogFieldUg => 'Ug (W/m²K)';
@@ -358,4 +367,41 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get applyDefaultsMessage =>
       'Choisissez quelles fenêtres/portes doivent utiliser le profil, le vitrage et le volet par défaut mis à jour. Décochez les éléments à exclure.';
+
+  @override
+  String get settingsLicenseSection => 'License';
+
+  @override
+  String get settingsLicenseUnlimited => 'Unlimited access';
+
+  @override
+  String get settingsLicenseUnlimitedActive => 'Unlimited access is enabled.';
+
+  @override
+  String settingsLicenseExpiresOn(Object date) {
+    return 'License expires on $date';
+  }
+
+  @override
+  String get settingsLicenseExtendYear => 'Extend 1 year';
+
+  @override
+  String get settingsLicenseSelectDate => 'Select date';
+
+  @override
+  String get settingsLicenseEndNow => 'Mettre fin à l\'abonnement maintenant';
+
+  @override
+  String get settingsLicenseRemoveLimit => 'Remove time limit';
+
+  @override
+  String get settingsLicenseExpired => 'Expired';
+
+  @override
+  String get settingsLicenseNeedsDate =>
+      'Set an expiry date to start the license timer.';
+
+  @override
+  String get licenseExpiredMessage =>
+      'License expired. Editing is disabled until it is renewed.';
 }

@@ -21,6 +21,14 @@ class AppLocalizationsDe extends AppLocalizations {
   String get homeProduction => 'Produktion';
 
   @override
+  String homeSubscriptionEndingSoon(Object days) {
+    return 'Abo endet in $days Tagen';
+  }
+
+  @override
+  String get homeSubscriptionEndsToday => 'Abo endet heute';
+
+  @override
   String get productionTitle => 'Produktion';
 
   @override
@@ -196,10 +204,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get catalogFieldMassPerM2 => 'Masse kg/m²';
 
   @override
-  String get catalogFieldProfileColor => 'Profilfarbe';
+  String get catalogFieldProfileColor => 'Profile color';
 
   @override
-  String get catalogFieldGlassColor => 'Glasfarbe';
+  String get catalogFieldGlassColor => 'Glass color';
 
   @override
   String get catalogFieldUg => 'Ug (W/m²K)';
@@ -357,4 +365,41 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get applyDefaultsMessage =>
       'Wählen Sie, welche Fenster/Türen das aktualisierte Standardprofil, Glas und den Rollladen verwenden sollen. Entfernen Sie die Auswahl bei den Elementen, die ausgeschlossen werden sollen.';
+
+  @override
+  String get settingsLicenseSection => 'License';
+
+  @override
+  String get settingsLicenseUnlimited => 'Unlimited access';
+
+  @override
+  String get settingsLicenseUnlimitedActive => 'Unlimited access is enabled.';
+
+  @override
+  String settingsLicenseExpiresOn(Object date) {
+    return 'License expires on $date';
+  }
+
+  @override
+  String get settingsLicenseExtendYear => 'Extend 1 year';
+
+  @override
+  String get settingsLicenseSelectDate => 'Select date';
+
+  @override
+  String get settingsLicenseEndNow => 'Abonnement jetzt beenden';
+
+  @override
+  String get settingsLicenseRemoveLimit => 'Remove time limit';
+
+  @override
+  String get settingsLicenseExpired => 'Expired';
+
+  @override
+  String get settingsLicenseNeedsDate =>
+      'Set an expiry date to start the license timer.';
+
+  @override
+  String get licenseExpiredMessage =>
+      'License expired. Editing is disabled until it is renewed.';
 }

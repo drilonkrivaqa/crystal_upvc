@@ -128,6 +128,18 @@ abstract class AppLocalizations {
   /// **'Production'**
   String get homeProduction;
 
+  /// No description provided for @homeSubscriptionEndingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription ends in {days} days'**
+  String homeSubscriptionEndingSoon(Object days);
+
+  /// No description provided for @homeSubscriptionEndsToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription ends today'**
+  String get homeSubscriptionEndsToday;
+
   /// No description provided for @productionTitle.
   ///
   /// In en, this message translates to:
@@ -776,6 +788,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Choose which windows/doors should use the updated default profile, glass, and blind. Uncheck the items you want to exclude.'**
   String get applyDefaultsMessage;
+
+  /// No description provided for @settingsLicenseSection.
+  ///
+  /// In en, this message translates to:
+  /// **'License'**
+  String get settingsLicenseSection;
+
+  /// No description provided for @settingsLicenseUnlimited.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited access'**
+  String get settingsLicenseUnlimited;
+
+  /// No description provided for @settingsLicenseUnlimitedActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited access is enabled.'**
+  String get settingsLicenseUnlimitedActive;
+
+  /// No description provided for @settingsLicenseExpiresOn.
+  ///
+  /// In en, this message translates to:
+  /// **'License expires on {date}'**
+  String settingsLicenseExpiresOn(Object date);
+
+  /// No description provided for @settingsLicenseExtendYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Extend 1 year'**
+  String get settingsLicenseExtendYear;
+
+  /// No description provided for @settingsLicenseSelectDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Select date'**
+  String get settingsLicenseSelectDate;
+
+  /// No description provided for @settingsLicenseEndNow.
+  ///
+  /// In en, this message translates to:
+  /// **'End subscription now'**
+  String get settingsLicenseEndNow;
+
+  /// No description provided for @settingsLicenseRemoveLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove time limit'**
+  String get settingsLicenseRemoveLimit;
+
+  /// No description provided for @settingsLicenseExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired'**
+  String get settingsLicenseExpired;
+
+  /// No description provided for @settingsLicenseNeedsDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Set an expiry date to start the license timer.'**
+  String get settingsLicenseNeedsDate;
+
+  /// No description provided for @licenseExpiredMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'License expired. Editing is disabled until it is renewed.'**
+  String get licenseExpiredMessage;
 }
 
 class _AppLocalizationsDelegate

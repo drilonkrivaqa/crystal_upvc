@@ -21,6 +21,14 @@ class AppLocalizationsIt extends AppLocalizations {
   String get homeProduction => 'Produzione';
 
   @override
+  String homeSubscriptionEndingSoon(Object days) {
+    return 'L\'abbonamento termina tra $days giorni';
+  }
+
+  @override
+  String get homeSubscriptionEndsToday => 'L\'abbonamento termina oggi';
+
+  @override
   String get productionTitle => 'Produzione';
 
   @override
@@ -197,10 +205,10 @@ class AppLocalizationsIt extends AppLocalizations {
   String get catalogFieldMassPerM2 => 'Massa kg/m²';
 
   @override
-  String get catalogFieldProfileColor => 'Colore profilo';
+  String get catalogFieldProfileColor => 'Profile color';
 
   @override
-  String get catalogFieldGlassColor => 'Colore del vetro';
+  String get catalogFieldGlassColor => 'Glass color';
 
   @override
   String get catalogFieldUg => 'Ug (W/m²K)';
@@ -358,4 +366,41 @@ class AppLocalizationsIt extends AppLocalizations {
   @override
   String get applyDefaultsMessage =>
       'Scegli quali finestre/porte devono usare il profilo, il vetro e la tapparella predefiniti aggiornati. Deseleziona gli elementi da escludere.';
+
+  @override
+  String get settingsLicenseSection => 'License';
+
+  @override
+  String get settingsLicenseUnlimited => 'Unlimited access';
+
+  @override
+  String get settingsLicenseUnlimitedActive => 'Unlimited access is enabled.';
+
+  @override
+  String settingsLicenseExpiresOn(Object date) {
+    return 'License expires on $date';
+  }
+
+  @override
+  String get settingsLicenseExtendYear => 'Extend 1 year';
+
+  @override
+  String get settingsLicenseSelectDate => 'Select date';
+
+  @override
+  String get settingsLicenseEndNow => 'Termina l\'abbonamento ora';
+
+  @override
+  String get settingsLicenseRemoveLimit => 'Remove time limit';
+
+  @override
+  String get settingsLicenseExpired => 'Expired';
+
+  @override
+  String get settingsLicenseNeedsDate =>
+      'Set an expiry date to start the license timer.';
+
+  @override
+  String get licenseExpiredMessage =>
+      'License expired. Editing is disabled until it is renewed.';
 }

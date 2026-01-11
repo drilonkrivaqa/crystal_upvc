@@ -21,6 +21,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeProduction => 'Production';
 
   @override
+  String homeSubscriptionEndingSoon(Object days) {
+    return 'Subscription ends in $days days';
+  }
+
+  @override
+  String get homeSubscriptionEndsToday => 'Subscription ends today';
+
+  @override
   String get productionTitle => 'Production';
 
   @override
@@ -358,4 +366,41 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get applyDefaultsMessage =>
       'Choose which windows/doors should use the updated default profile, glass, and blind. Uncheck the items you want to exclude.';
+
+  @override
+  String get settingsLicenseSection => 'License';
+
+  @override
+  String get settingsLicenseUnlimited => 'Unlimited access';
+
+  @override
+  String get settingsLicenseUnlimitedActive => 'Unlimited access is enabled.';
+
+  @override
+  String settingsLicenseExpiresOn(Object date) {
+    return 'License expires on $date';
+  }
+
+  @override
+  String get settingsLicenseExtendYear => 'Extend 1 year';
+
+  @override
+  String get settingsLicenseSelectDate => 'Select date';
+
+  @override
+  String get settingsLicenseEndNow => 'End subscription now';
+
+  @override
+  String get settingsLicenseRemoveLimit => 'Remove time limit';
+
+  @override
+  String get settingsLicenseExpired => 'Expired';
+
+  @override
+  String get settingsLicenseNeedsDate =>
+      'Set an expiry date to start the license timer.';
+
+  @override
+  String get licenseExpiredMessage =>
+      'License expired. Editing is disabled until it is renewed.';
 }
