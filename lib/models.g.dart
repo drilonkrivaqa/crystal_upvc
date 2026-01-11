@@ -432,13 +432,14 @@ class WindowDoorItemAdapter extends TypeAdapter<WindowDoorItem> {
       perRowVerticalAdapters: (fields[29] as List?)
           ?.map<List<bool>>((dynamic row) => (row as List).cast<bool>())
           .toList(),
+      autoDesignPreview: fields[30] == null ? false : fields[30] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, WindowDoorItem obj) {
     writer
-      ..writeByte(30)
+      ..writeByte(31)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -498,7 +499,9 @@ class WindowDoorItemAdapter extends TypeAdapter<WindowDoorItem> {
       ..writeByte(28)
       ..write(obj.perRowFixedSectors)
       ..writeByte(29)
-      ..write(obj.perRowVerticalAdapters);
+      ..write(obj.perRowVerticalAdapters)
+      ..writeByte(30)
+      ..write(obj.autoDesignPreview);
   }
 
   @override
