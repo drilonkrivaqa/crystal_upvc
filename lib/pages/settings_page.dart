@@ -32,6 +32,8 @@ class _SettingsPageState extends State<SettingsPage> {
   Uint8List? _logoBytes;
   String _fallbackLogoAsset = 'assets/logo.png';
   bool _productionEnabled = true;
+  bool _licenseUnlimited = true;
+  DateTime? _licenseExpiresAt;
   bool _initialized = false;
   bool _settingsUnlocked = false;
 
@@ -56,6 +58,8 @@ class _SettingsPageState extends State<SettingsPage> {
     _logoBytes = company.logoBytes;
     _fallbackLogoAsset = company.fallbackLogoAsset;
     _productionEnabled = CompanySettings.isProductionEnabled(settingsBox);
+    _licenseUnlimited = CompanySettings.isLicenseUnlimited(settingsBox);
+    _licenseExpiresAt = CompanySettings.licenseExpiresAt(settingsBox);
     _initialized = true;
   }
 
@@ -122,6 +126,50 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
+  Future<void> _setLicenseUnlimited(bool value) async {
+    if (value) {
+      await settingsBox.put(CompanySettings.keyLicenseUnlimited, true);
+      await settingsBox.delete(CompanySettings.keyLicenseExpiresAt);
+      setState(() {
+        _licenseUnlimited = true;
+        _licenseExpiresAt = null;
+      });
+      return;
+    }
+
+    final now = DateTime.now();
+    final base = _licenseExpiresAt != null && _licenseExpiresAt!.isAfter(now)
+        ? _licenseExpiresAt!
+        : now;
+    final next = base.add(const Duration(days: 365));
+    await settingsBox.put(CompanySettings.keyLicenseUnlimited, false);
+    await settingsBox.put(
+      CompanySettings.keyLicenseExpiresAt,
+      next.millisecondsSinceEpoch,
+    );
+    setState(() {
+      _licenseUnlimited = false;
+      _licenseExpiresAt = next;
+    });
+  }
+
+  Future<void> _extendLicense() async {
+    final now = DateTime.now();
+    final base = _licenseExpiresAt != null && _licenseExpiresAt!.isAfter(now)
+        ? _licenseExpiresAt!
+        : now;
+    final next = base.add(const Duration(days: 365));
+    await settingsBox.put(CompanySettings.keyLicenseUnlimited, false);
+    await settingsBox.put(
+      CompanySettings.keyLicenseExpiresAt,
+      next.millisecondsSinceEpoch,
+    );
+    setState(() {
+      _licenseUnlimited = false;
+      _licenseExpiresAt = next;
+    });
+  }
+
   void _unlockSettings(AppLocalizations l10n) {
     final enteredPassword = _passwordController.text.trim();
     final requiredPassword = CompanyDetails.settingsPassword;
@@ -140,6 +188,8 @@ class _SettingsPageState extends State<SettingsPage> {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final dateFormatter = MaterialLocalizations.of(context);
+    final licenseExpired = CompanySettings.isLicenseExpired(settingsBox);
 
     Widget managementTile({
       required IconData icon,
@@ -352,6 +402,89 @@ class _SettingsPageState extends State<SettingsPage> {
                         onChanged: (val) {
                           setState(() => _productionEnabled = val);
                         },
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                GlassCard(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.settingsLicenseSection,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      SwitchListTile.adaptive(
+                        value: _licenseUnlimited,
+                        contentPadding: EdgeInsets.zero,
+                        activeColor: colors.primary,
+                        title: Text(l10n.settingsLicenseUnlimited),
+                        onChanged: (val) => _setLicenseUnlimited(val),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              _licenseUnlimited
+                                  ? l10n.settingsLicenseUnlimitedActive
+                                  : _licenseExpiresAt != null
+                                      ? l10n.settingsLicenseExpiresOn(
+                                          dateFormatter
+                                              .formatMediumDate(
+                                                _licenseExpiresAt!,
+                                              )
+                                              .toString(),
+                                        )
+                                      : l10n.settingsLicenseNeedsDate,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: licenseExpired
+                                    ? colors.error
+                                    : colors.onSurfaceVariant,
+                              ),
+                            ),
+                          ),
+                          if (licenseExpired)
+                            Padding(
+                              padding: const EdgeInsets.only(left: 8),
+                              child: Chip(
+                                label: Text(
+                                  l10n.settingsLicenseExpired,
+                                  style: theme.textTheme.labelSmall?.copyWith(
+                                    color: colors.error,
+                                  ),
+                                ),
+                                backgroundColor:
+                                    colors.error.withOpacity(0.12),
+                              ),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 12,
+                        runSpacing: 8,
+                        children: [
+                          OutlinedButton.icon(
+                            onPressed:
+                                _licenseUnlimited ? null : _extendLicense,
+                            icon: const Icon(Icons.schedule),
+                            label: Text(l10n.settingsLicenseExtendYear),
+                          ),
+                          OutlinedButton.icon(
+                            onPressed: _licenseUnlimited
+                                ? null
+                                : () => _setLicenseUnlimited(true),
+                            icon: const Icon(Icons.all_inclusive),
+                            label: Text(l10n.settingsLicenseRemoveLimit),
+                          ),
+                        ],
                       ),
                     ],
                   ),
