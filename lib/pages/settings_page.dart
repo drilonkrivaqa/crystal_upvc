@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
+import '../company_details.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_background.dart';
 import '../utils/company_settings.dart';
