@@ -270,6 +270,16 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     return 1e9;
   }
 
+  double _distanceOutsideRange(int size, int min, int max) {
+    if (min > 0 && size < min) {
+      return (min - size).abs().toDouble();
+    }
+    if (max > 0 && size > max) {
+      return (size - max).abs().toDouble();
+    }
+    return 0;
+  }
+
   double _rangeSpan(int min, int max) {
     if (min > 0 && max > 0) {
       return (max - min).abs().toDouble();
@@ -279,15 +289,15 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
 
   double _mechanismFitScore(
       int width, int height, Mechanism mechanism) {
-    if (!_sectorMatchesMechanism(width, height, mechanism)) {
-      return double.infinity;
-    }
+    final distanceOutside = _distanceOutsideRange(
+            width, mechanism.minWidth, mechanism.maxWidth) +
+        _distanceOutsideRange(height, mechanism.minHeight, mechanism.maxHeight);
     final centerDistance = _centerDistance(
             width, mechanism.minWidth, mechanism.maxWidth) +
         _centerDistance(height, mechanism.minHeight, mechanism.maxHeight);
     final rangeSpan = _rangeSpan(mechanism.minWidth, mechanism.maxWidth) +
         _rangeSpan(mechanism.minHeight, mechanism.maxHeight);
-    return centerDistance * 1000000 + rangeSpan;
+    return distanceOutside * 1000000 + centerDistance * 1000 + rangeSpan;
   }
 
   int? _findDefaultMechanismIndex() {
