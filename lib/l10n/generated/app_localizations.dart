@@ -453,6 +453,18 @@ abstract class AppLocalizations {
   /// **'Mass kg/m²'**
   String get catalogFieldMassPerM2;
 
+  /// No description provided for @catalogFieldProfileColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile color'**
+  String get catalogFieldProfileColor;
+
+  /// No description provided for @catalogFieldGlassColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Glass color'**
+  String get catalogFieldGlassColor;
+
   /// No description provided for @catalogFieldUg.
   ///
   /// In en, this message translates to:

@@ -104,6 +104,8 @@ class AppLocalizations {
       'catalogFieldProfileLength': 'Gjatësia e profilit (mm)',
       'catalogFieldPricePerM2': 'Çmimi €/m²',
       'catalogFieldMassPerM2': 'Masa kg/m²',
+      'catalogFieldProfileColor': 'Ngjyra e profilit',
+      'catalogFieldGlassColor': 'Ngjyra e xhamit',
       'catalogFieldUg': 'Ug (W/m²K)',
       'catalogFieldPsi': 'Psi (W/mK)',
       'catalogFieldBoxHeight': 'Lartësia e kutisë (mm)',
@@ -357,6 +359,8 @@ class AppLocalizations {
       'catalogFieldProfileLength': 'Profile length (mm)',
       'catalogFieldPricePerM2': 'Price €/m²',
       'catalogFieldMassPerM2': 'Mass kg/m²',
+      'catalogFieldProfileColor': 'Profile color',
+      'catalogFieldGlassColor': 'Glass color',
       'catalogFieldUg': 'Ug (W/m²K)',
       'catalogFieldPsi': 'Psi (W/mK)',
       'catalogFieldBoxHeight': 'Box height (mm)',
@@ -607,6 +611,8 @@ class AppLocalizations {
       'catalogFieldProfileLength': 'Profillänge (mm)',
       'catalogFieldPricePerM2': 'Preis €/m²',
       'catalogFieldMassPerM2': 'Masse kg/m²',
+      'catalogFieldProfileColor': 'Profilfarbe',
+      'catalogFieldGlassColor': 'Glasfarbe',
       'catalogFieldUg': 'Ug (W/m²K)',
       'catalogFieldPsi': 'Psi (W/mK)',
       'catalogFieldBoxHeight': 'Kastenhöhe (mm)',
@@ -849,6 +855,8 @@ class AppLocalizations {
       'catalogFieldProfileLength': 'Longueur profil (mm)',
       'catalogFieldPricePerM2': 'Prix €/m²',
       'catalogFieldMassPerM2': 'Masse kg/m²',
+      'catalogFieldProfileColor': 'Couleur du profil',
+      'catalogFieldGlassColor': 'Couleur du verre',
       'catalogFieldUg': 'Ug (W/m²K)',
       'catalogFieldPsi': 'Psi (W/mK)',
       'catalogFieldBoxHeight': 'Hauteur caisson (mm)',
@@ -1090,6 +1098,8 @@ class AppLocalizations {
       'catalogFieldProfileLength': 'Lunghezza profilo (mm)',
       'catalogFieldPricePerM2': 'Prezzo €/m²',
       'catalogFieldMassPerM2': 'Massa kg/m²',
+      'catalogFieldProfileColor': 'Colore profilo',
+      'catalogFieldGlassColor': 'Colore del vetro',
       'catalogFieldUg': 'Ug (W/m²K)',
       'catalogFieldPsi': 'Psi (W/mK)',
       'catalogFieldBoxHeight': 'Altezza cassonetto (mm)',
@@ -1380,6 +1390,8 @@ class AppLocalizations {
   String get catalogFieldProfileLength => _t('catalogFieldProfileLength');
   String get catalogFieldPricePerM2 => _t('catalogFieldPricePerM2');
   String get catalogFieldMassPerM2 => _t('catalogFieldMassPerM2');
+  String get catalogFieldProfileColor => _t('catalogFieldProfileColor');
+  String get catalogFieldGlassColor => _t('catalogFieldGlassColor');
   String get catalogFieldUg => _t('catalogFieldUg');
   String get catalogFieldPsi => _t('catalogFieldPsi');
   String get catalogFieldBoxHeight => _t('catalogFieldBoxHeight');

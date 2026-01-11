@@ -60,6 +60,8 @@
   "catalogFieldProfileLength": "Profile length (mm)",
   "catalogFieldPricePerM2": "Price €/m²",
   "catalogFieldMassPerM2": "Mass kg/m²",
+  "catalogFieldProfileColor": "Profile color",
+  "catalogFieldGlassColor": "Glass color",
   "catalogFieldUg": "Ug (W/m²K)",
   "catalogFieldPsi": "Psi (W/mK)",
   "catalogFieldBoxHeight": "Box height (mm)",

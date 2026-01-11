@@ -5,6 +5,7 @@ import '../models.dart';
 import 'catalogs_page.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_background.dart';
+import '../utils/color_options.dart';
 import '../widgets/glass_card.dart';
 import '../l10n/app_localizations.dart';
 
@@ -154,10 +155,13 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
           ? item.mass.toString()
           : "",
     );
+    int profileColorIndex = item is ProfileSet ? item.colorIndex : 0;
+    int glassColorIndex = item is Glass ? item.colorIndex : 0;
 
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (_) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
         title: Text(l10n.catalogEditTitle(item.name)),
         contentPadding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
         content: SingleChildScrollView(
@@ -177,6 +181,24 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                     TextField(
                       controller: nameController,
                       decoration: InputDecoration(labelText: l10n.name),
+                    ),
+                    DropdownButtonFormField<int>(
+                      value: profileColorIndex.clamp(
+                          0, profileColorOptions.length - 1),
+                      decoration: InputDecoration(
+                        labelText: l10n.catalogFieldProfileColor,
+                      ),
+                      items: [
+                        for (int i = 0;
+                            i < profileColorOptions.length;
+                            i++)
+                          DropdownMenuItem(
+                            value: i,
+                            child: Text(profileColorOptions[i].label),
+                          ),
+                      ],
+                      onChanged: (value) => setState(
+                          () => profileColorIndex = value ?? 0),
                     ),
                     TextField(
                       controller: priceLController,
@@ -343,6 +365,23 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                   controller: nameController,
                   decoration: InputDecoration(labelText: l10n.name),
                 ),
+                if (widget.type == CatalogType.glass)
+                  DropdownButtonFormField<int>(
+                    value:
+                        glassColorIndex.clamp(0, glassColorOptions.length - 1),
+                    decoration: InputDecoration(
+                      labelText: l10n.catalogFieldGlassColor,
+                    ),
+                    items: [
+                      for (int i = 0; i < glassColorOptions.length; i++)
+                        DropdownMenuItem(
+                          value: i,
+                          child: Text(glassColorOptions[i].label),
+                        ),
+                    ],
+                    onChanged: (value) =>
+                        setState(() => glassColorIndex = value ?? 0),
+                  ),
                 if (widget.type == CatalogType.glass ||
                     widget.type == CatalogType.blind)
                   TextField(
@@ -480,6 +519,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                       int.tryParse(sashGlassController.text) ?? 10,
                       sashValue:
                       int.tryParse(sashValueController.text) ?? 22,
+                      colorIndex: profileColorIndex,
                     ),
                   );
                   break;
@@ -496,6 +536,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                           0,
                       ug: double.tryParse(ugController.text),
                       psi: double.tryParse(psiController.text),
+                      colorIndex: glassColorIndex,
                     ),
                   );
                   break;
@@ -547,6 +588,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
           ),
         ],
       ),
+      ),
     );
   }
 
@@ -583,10 +625,13 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
     final boxHeightController = TextEditingController();
     final priceController = TextEditingController();
     final massController = TextEditingController();
+    int profileColorIndex = 0;
+    int glassColorIndex = 0;
 
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (_) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
         title: Text(l10n.catalogAddTitle(_typeLabel(l10n))),
         contentPadding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
         content: SingleChildScrollView(
@@ -606,6 +651,24 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                     TextField(
                       controller: nameController,
                       decoration: InputDecoration(labelText: l10n.name),
+                    ),
+                    DropdownButtonFormField<int>(
+                      value: profileColorIndex.clamp(
+                          0, profileColorOptions.length - 1),
+                      decoration: InputDecoration(
+                        labelText: l10n.catalogFieldProfileColor,
+                      ),
+                      items: [
+                        for (int i = 0;
+                            i < profileColorOptions.length;
+                            i++)
+                          DropdownMenuItem(
+                            value: i,
+                            child: Text(profileColorOptions[i].label),
+                          ),
+                      ],
+                      onChanged: (value) => setState(
+                          () => profileColorIndex = value ?? 0),
                     ),
                     TextField(
                       controller: priceLController,
@@ -772,6 +835,23 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                   controller: nameController,
                   decoration: InputDecoration(labelText: l10n.name),
                 ),
+                if (widget.type == CatalogType.glass)
+                  DropdownButtonFormField<int>(
+                    value:
+                        glassColorIndex.clamp(0, glassColorOptions.length - 1),
+                    decoration: InputDecoration(
+                      labelText: l10n.catalogFieldGlassColor,
+                    ),
+                    items: [
+                      for (int i = 0; i < glassColorOptions.length; i++)
+                        DropdownMenuItem(
+                          value: i,
+                          child: Text(glassColorOptions[i].label),
+                        ),
+                    ],
+                    onChanged: (value) =>
+                        setState(() => glassColorIndex = value ?? 0),
+                  ),
                 if (widget.type == CatalogType.glass ||
                     widget.type == CatalogType.blind)
                   TextField(
@@ -894,6 +974,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                       int.tryParse(sashGlassController.text) ?? 10,
                       sashValue:
                       int.tryParse(sashValueController.text) ?? 22,
+                      colorIndex: profileColorIndex,
                     ),
                   );
                   break;
@@ -909,6 +990,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                           0,
                       ug: double.tryParse(ugController.text),
                       psi: double.tryParse(psiController.text),
+                      colorIndex: glassColorIndex,
                     ),
                   );
                   break;
@@ -956,6 +1038,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
             child: Text(l10n.add),
           ),
         ],
+      ),
       ),
     );
   }

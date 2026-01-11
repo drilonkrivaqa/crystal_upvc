@@ -293,6 +293,14 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                             ? defaultWidths[index].toDouble()
                             : 0.0,
                       );
+                      final profileSet = profileSetIndex >= 0 &&
+                              profileSetIndex < profileSetBox.length
+                          ? profileSetBox.getAt(profileSetIndex)
+                          : null;
+                      final glass = glassIndex >= 0 &&
+                              glassIndex < glassBox.length
+                          ? glassBox.getAt(glassIndex)
+                          : null;
                       final initialRowSizes = List<double>.generate(
                         initialRows,
                         (index) => index < sectionHeights.length
@@ -312,6 +320,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                         initialCells: initialCells,
                         initialColumnSizes: initialColumnSizes,
                         initialRowSizes: initialRowSizes,
+                        initialProfileColorIndex: profileSet?.colorIndex,
+                        initialGlassColorIndex: glass?.colorIndex,
                       );
 
                       final bytes = await Navigator.push<Uint8List>(
