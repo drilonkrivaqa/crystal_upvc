@@ -47,6 +47,7 @@ class AppLocalizations {
       'settingsChangeLogo': 'Ndrysho logon',
       'settingsRemoveLogo': 'Hiq logon',
       'settingsFeaturesSection': 'Funksionet',
+      'settingsManagementSection': 'Menaxhimi i aplikacionit',
       'settingsEnableProduction': 'Aktivizo faqen e prodhimit',
       'settingsSave': 'Ruaj ndryshimet',
       'settingsSavedMessage': 'Cilësimet u ruajtën.',
@@ -285,6 +286,7 @@ class AppLocalizations {
       'settingsChangeLogo': 'Change logo',
       'settingsRemoveLogo': 'Remove logo',
       'settingsFeaturesSection': 'Features',
+      'settingsManagementSection': 'App management',
       'settingsEnableProduction': 'Enable production page',
       'settingsSave': 'Save changes',
       'settingsSavedMessage': 'Settings saved.',
@@ -520,6 +522,7 @@ class AppLocalizations {
       'settingsChangeLogo': 'Logo ändern',
       'settingsRemoveLogo': 'Logo entfernen',
       'settingsFeaturesSection': 'Funktionen',
+      'settingsManagementSection': 'App-Verwaltung',
       'settingsEnableProduction': 'Produktionsseite aktivieren',
       'settingsSave': 'Änderungen speichern',
       'settingsSavedMessage': 'Einstellungen gespeichert.',
@@ -745,6 +748,7 @@ class AppLocalizations {
       'settingsChangeLogo': 'Changer le logo',
       'settingsRemoveLogo': 'Supprimer le logo',
       'settingsFeaturesSection': 'Fonctionnalités',
+      'settingsManagementSection': "Gestion de l'application",
       'settingsEnableProduction': 'Activer la page de production',
       'settingsSave': 'Enregistrer les modifications',
       'settingsSavedMessage': 'Paramètres enregistrés.',
@@ -972,6 +976,7 @@ class AppLocalizations {
       'settingsChangeLogo': 'Cambia logo',
       'settingsRemoveLogo': 'Rimuovi logo',
       'settingsFeaturesSection': 'Funzionalità',
+      'settingsManagementSection': "Gestione dell'app",
       'settingsEnableProduction': 'Abilita pagina produzione',
       'settingsSave': 'Salva modifiche',
       'settingsSavedMessage': 'Impostazioni salvate.',
@@ -1242,6 +1247,7 @@ class AppLocalizations {
   String get settingsChangeLogo => _t('settingsChangeLogo');
   String get settingsRemoveLogo => _t('settingsRemoveLogo');
   String get settingsFeaturesSection => _t('settingsFeaturesSection');
+  String get settingsManagementSection => _t('settingsManagementSection');
   String get settingsEnableProduction => _t('settingsEnableProduction');
   String get settingsSave => _t('settingsSave');
   String get settingsSavedMessage => _t('settingsSavedMessage');
