@@ -216,6 +216,81 @@ class HomePage extends StatelessWidget {
 
                   const SizedBox(height: 36),
 
+                  ValueListenableBuilder(
+                    valueListenable: settingsBox.listenable(
+                      keys: [
+                        CompanySettings.keyLicenseExpiresAt,
+                        CompanySettings.keyLicenseUnlimited,
+                      ],
+                    ),
+                    builder: (context, Box box, _) {
+                      if (CompanySettings.isLicenseUnlimited(box)) {
+                        return const SizedBox.shrink();
+                      }
+                      final expiresAt = CompanySettings.licenseExpiresAt(box);
+                      if (expiresAt == null) {
+                        return const SizedBox.shrink();
+                      }
+                      final today = DateUtils.dateOnly(DateTime.now());
+                      final expiryDate = DateUtils.dateOnly(expiresAt);
+                      final daysLeft = expiryDate.difference(today).inDays;
+                      if (daysLeft < 0 || daysLeft > 10) {
+                        return const SizedBox.shrink();
+                      }
+
+                      final warningText = daysLeft == 0
+                          ? l10n.homeSubscriptionEndsToday
+                          : l10n.homeSubscriptionEndingSoon(daysLeft);
+                      final expiryText = l10n.settingsLicenseExpiresOn(
+                        MaterialLocalizations.of(context)
+                            .formatMediumDate(expiryDate),
+                      );
+
+                      return Column(
+                        children: [
+                          GlassCard(
+                            padding: const EdgeInsets.all(16),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Icon(
+                                  Icons.warning_amber_rounded,
+                                  color: colors.error,
+                                  size: 28,
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        warningText,
+                                        style: textTheme.titleSmall?.copyWith(
+                                          color: colors.error,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        expiryText,
+                                        style: textTheme.bodySmall?.copyWith(
+                                          color:
+                                              colors.onSurface.withOpacity(0.7),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                        ],
+                      );
+                    },
+                  ),
+
                   // Navigation cards
                   ValueListenableBuilder(
                     valueListenable: settingsBox.listenable(

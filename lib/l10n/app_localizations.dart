@@ -14,6 +14,8 @@ class AppLocalizations {
       'homeOffers': 'Ofertat',
       'homeProduction': 'Prodhimi',
       'homeSettings': 'Cilësimet',
+      'homeSubscriptionEndingSoon': 'Abonimi përfundon pas {days} ditësh',
+      'homeSubscriptionEndsToday': 'Abonimi përfundon sot',
       'productionTitle': 'Prodhimi',
       'productionCutting': 'Prerja',
       'productionGlass': 'Xhami',
@@ -266,6 +268,8 @@ class AppLocalizations {
       'homeOffers': 'Offers',
       'homeProduction': 'Production',
       'homeSettings': 'Settings',
+      'homeSubscriptionEndingSoon': 'Subscription ends in {days} days',
+      'homeSubscriptionEndsToday': 'Subscription ends today',
       'productionTitle': 'Production',
       'productionCutting': 'Cutting',
       'productionGlass': 'Glass',
@@ -514,6 +518,8 @@ class AppLocalizations {
       'homeOffers': 'Angebote',
       'homeProduction': 'Produktion',
       'homeSettings': 'Einstellungen',
+      'homeSubscriptionEndingSoon': 'Abo endet in {days} Tagen',
+      'homeSubscriptionEndsToday': 'Abo endet heute',
       'productionTitle': 'Produktion',
       'productionCutting': 'Zuschnitt',
       'productionGlass': 'Glas',
@@ -752,6 +758,9 @@ class AppLocalizations {
       'homeOffers': 'Offres',
       'homeProduction': 'Production',
       'homeSettings': 'Paramètres',
+      'homeSubscriptionEndingSoon':
+          "L'abonnement se termine dans {days} jours",
+      'homeSubscriptionEndsToday': "L'abonnement se termine aujourd'hui",
       'productionTitle': 'Production',
       'productionCutting': 'Découpe',
       'productionGlass': 'Verre',
@@ -992,6 +1001,8 @@ class AppLocalizations {
       'homeOffers': 'Offerte',
       'homeProduction': 'Produzione',
       'homeSettings': 'Impostazioni',
+      'homeSubscriptionEndingSoon': 'L\'abbonamento termina tra {days} giorni',
+      'homeSubscriptionEndsToday': 'L\'abbonamento termina oggi',
       'productionTitle': 'Produzione',
       'productionCutting': 'Taglio',
       'productionGlass': 'Vetro',
@@ -1246,6 +1257,9 @@ class AppLocalizations {
   String get homeOffers => _t('homeOffers');
   String get homeProduction => _t('homeProduction');
   String get homeSettings => _t('homeSettings');
+  String homeSubscriptionEndingSoon(int days) =>
+      _t('homeSubscriptionEndingSoon').replaceAll('{days}', days.toString());
+  String get homeSubscriptionEndsToday => _t('homeSubscriptionEndsToday');
   String get productionTitle => _t('productionTitle');
   String get productionCutting => _t('productionCutting');
   String get productionGlass => _t('productionGlass');
