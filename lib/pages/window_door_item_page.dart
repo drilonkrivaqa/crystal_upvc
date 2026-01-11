@@ -57,6 +57,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   String? photoPath;
   Uint8List? photoBytes;
   Uint8List? _designImageBytes;
+  bool _autoDesignEnabled = false;
+  int _autoDesignRequestId = 0;
   double? manualPrice;
   double? manualBasePrice;
   double? extra1Price;
@@ -225,6 +227,10 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
             verticalSections > 1 ? verticalSections - 1 : 0, false)
       ];
     }
+    _autoDesignEnabled = widget.existingItem == null &&
+        photoBytes == null &&
+        photoPath == null &&
+        _designImageBytes == null;
 
     rowSectionWidthCtrls = List<List<TextEditingController>>.generate(
         rowSectionWidths.length,
@@ -240,6 +246,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     verticalController.text = verticalSections.toString();
     _ensureGridSize();
     _autoSelectMechanism(rebuild: false);
+    _scheduleAutoDesignUpdate();
   }
 
   bool _sectorMatchesMechanism(
@@ -434,6 +441,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                       );
                       if (bytes != null && mounted) {
                         setState(() {
+                          _autoDesignEnabled = false;
                           _designImageBytes = bytes;
                           photoBytes = bytes;
                           photoPath = null;
@@ -591,8 +599,10 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                                   ),
                                 ),
                             ],
-                            onChanged: (val) =>
-                                setState(() => profileSetIndex = val ?? 0),
+                            onChanged: (val) => setState(() {
+                              profileSetIndex = val ?? 0;
+                              _scheduleAutoDesignUpdate();
+                            }),
                           ),
                           DropdownButtonFormField<int>(
                             initialValue: glassIndex,
@@ -609,8 +619,10 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                                   ),
                                 ),
                             ],
-                            onChanged: (val) =>
-                                setState(() => glassIndex = val ?? 0),
+                            onChanged: (val) => setState(() {
+                              glassIndex = val ?? 0;
+                              _scheduleAutoDesignUpdate();
+                            }),
                           ),
                           DropdownButtonFormField<int?>(
                             initialValue: mechanismIndex,
@@ -659,8 +671,10 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                                   ),
                                 ),
                             ],
-                            onChanged: (val) =>
-                                setState(() => blindIndex = val),
+                            onChanged: (val) => setState(() {
+                              blindIndex = val;
+                              _scheduleAutoDesignUpdate();
+                            }),
                           ),
                           DropdownButtonFormField<int?>(
                             initialValue: accessoryIndex,
@@ -871,6 +885,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
         if (picked != null) {
           final bytes = await picked.readAsBytes();
           setState(() {
+            _autoDesignEnabled = false;
             photoPath = picked.path;
             photoBytes = bytes;
             _designImageBytes = null;
@@ -1049,6 +1064,67 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
 
     _ensureGridSize();
     setState(() {});
+    _scheduleAutoDesignUpdate();
+  }
+
+  Future<void> _scheduleAutoDesignUpdate() async {
+    if (!_autoDesignEnabled) return;
+    final requestId = ++_autoDesignRequestId;
+    final bytes = await _buildAutoDesignBytes();
+    if (!mounted ||
+        !_autoDesignEnabled ||
+        requestId != _autoDesignRequestId ||
+        bytes == null) {
+      return;
+    }
+    setState(() {
+      _designImageBytes = bytes;
+    });
+  }
+
+  Future<Uint8List?> _buildAutoDesignBytes() async {
+    final initialCols = verticalSections < 1
+        ? 1
+        : (verticalSections > 8 ? 8 : verticalSections);
+    final initialRows = horizontalSections < 1
+        ? 1
+        : (horizontalSections > 8 ? 8 : horizontalSections);
+    final initialCells = _buildInitialDesignerCells(initialRows, initialCols);
+    final defaultWidths = List<int>.filled(initialCols, 0);
+    for (final row in rowSectionWidths) {
+      for (int i = 0; i < row.length && i < defaultWidths.length; i++) {
+        if (row[i] > defaultWidths[i]) {
+          defaultWidths[i] = row[i];
+        }
+      }
+    }
+    final initialColumnSizes = List<double>.generate(
+      initialCols,
+      (index) => index < defaultWidths.length
+          ? defaultWidths[index].toDouble()
+          : 0.0,
+    );
+    final initialRowSizes = List<double>.generate(
+      initialRows,
+      (index) => index < sectionHeights.length
+          ? sectionHeights[index].toDouble()
+          : 0.0,
+    );
+    final widthValue = double.tryParse(widthController.text);
+    final heightValue = double.tryParse(heightController.text);
+
+    return buildWindowDoorDesignPreviewBytes(
+      rows: initialRows,
+      cols: initialCols,
+      cells: initialCells,
+      columnSizes: initialColumnSizes,
+      rowSizes: initialRowSizes,
+      widthMm: (widthValue != null && widthValue > 0) ? widthValue : null,
+      heightMm: (heightValue != null && heightValue > 0) ? heightValue : null,
+      showBlindBox: blindIndex != null,
+      profileColorIndex: profileSetIndex,
+      glassColorIndex: glassIndex,
+    );
   }
 
   void _ensureGridSize() {
@@ -1271,6 +1347,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     for (int r = 0; r < horizontalSections; r++) {
       _recalculateRowWidths(r, showErrors: showErrors);
     }
+    _scheduleAutoDesignUpdate();
   }
 
   void _recalculateHeights({bool showErrors = true}) {
@@ -1313,6 +1390,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     sectionHeightCtrls[horizontalSections - 1].text = last.toString();
     _autoSelectMechanism();
     if (mounted) setState(() {});
+    _scheduleAutoDesignUpdate();
   }
 
   Widget _buildGrid() {
@@ -1363,6 +1441,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                             onTap: () {
                               setState(() {
                                 rowFixedSectors[r][c] = !rowFixedSectors[r][c];
+                                _scheduleAutoDesignUpdate();
                               });
                             },
                             child: Container(
