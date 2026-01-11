@@ -27,32 +27,6 @@ class WindowDoorItemPage extends StatefulWidget {
   State<WindowDoorItemPage> createState() => _WindowDoorItemPageState();
 }
 
-class _DesignerSettings {
-  final double? initialWidth;
-  final double? initialHeight;
-  final int initialRows;
-  final int initialCols;
-  final bool initialShowBlind;
-  final List<SashType> initialCells;
-  final List<double> initialColumnSizes;
-  final List<double> initialRowSizes;
-  final int? profileColorIndex;
-  final int? glassColorIndex;
-
-  const _DesignerSettings({
-    required this.initialWidth,
-    required this.initialHeight,
-    required this.initialRows,
-    required this.initialCols,
-    required this.initialShowBlind,
-    required this.initialCells,
-    required this.initialColumnSizes,
-    required this.initialRowSizes,
-    required this.profileColorIndex,
-    required this.glassColorIndex,
-  });
-}
-
 class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   late Box<ProfileSet> profileSetBox;
   late Box<Glass> glassBox;
@@ -369,74 +343,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     }
   }
 
-  _DesignerSettings _buildDesignerSettings() {
-    final widthValue = double.tryParse(widthController.text);
-    final heightValue = double.tryParse(heightController.text);
-    _ensureGridSize();
-    final initialCols =
-        verticalSections < 1 ? 1 : (verticalSections > 8 ? 8 : verticalSections);
-    final initialRows = horizontalSections < 1
-        ? 1
-        : (horizontalSections > 8 ? 8 : horizontalSections);
-    final initialCells = _buildInitialDesignerCells(initialRows, initialCols);
-    final defaultWidths = List<int>.filled(initialCols, 0);
-    for (final row in rowSectionWidths) {
-      for (int i = 0; i < row.length && i < defaultWidths.length; i++) {
-        if (row[i] > defaultWidths[i]) {
-          defaultWidths[i] = row[i];
-        }
-      }
-    }
-    final initialColumnSizes = List<double>.generate(
-      initialCols,
-      (index) => index < defaultWidths.length
-          ? defaultWidths[index].toDouble()
-          : 0.0,
-    );
-    final initialRowSizes = List<double>.generate(
-      initialRows,
-      (index) =>
-          index < sectionHeights.length ? sectionHeights[index].toDouble() : 0.0,
-    );
-    final profileSet = profileSetIndex >= 0 &&
-            profileSetIndex < profileSetBox.length
-        ? profileSetBox.getAt(profileSetIndex)
-        : null;
-    final glass = glassIndex >= 0 && glassIndex < glassBox.length
-        ? glassBox.getAt(glassIndex)
-        : null;
-
-    return _DesignerSettings(
-      initialWidth: (widthValue != null && widthValue > 0) ? widthValue : null,
-      initialHeight:
-          (heightValue != null && heightValue > 0) ? heightValue : null,
-      initialRows: initialRows,
-      initialCols: initialCols,
-      initialShowBlind: blindIndex != null,
-      initialCells: initialCells,
-      initialColumnSizes: initialColumnSizes,
-      initialRowSizes: initialRowSizes,
-      profileColorIndex: profileSet?.colorIndex,
-      glassColorIndex: glass?.colorIndex,
-    );
-  }
-
-  Future<Uint8List?> _createDesignPreviewBytes() async {
-    final settings = _buildDesignerSettings();
-    return generateWindowDoorDesignPreview(
-      rows: settings.initialRows,
-      cols: settings.initialCols,
-      cells: settings.initialCells,
-      columnSizes: settings.initialColumnSizes,
-      rowSizes: settings.initialRowSizes,
-      widthMm: settings.initialWidth,
-      heightMm: settings.initialHeight,
-      profileColorIndex: settings.profileColorIndex,
-      glassColorIndex: settings.glassColorIndex,
-      showBlindBox: settings.initialShowBlind,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -463,18 +369,63 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                     tooltip: l10n.designWindowDoor,
                     icon: const Icon(Icons.design_services),
                     onPressed: () async {
-                      final settings = _buildDesignerSettings();
+                      final widthValue = double.tryParse(widthController.text);
+                      final heightValue =
+                          double.tryParse(heightController.text);
+                      _ensureGridSize();
+                      final initialCols = verticalSections < 1
+                          ? 1
+                          : (verticalSections > 8 ? 8 : verticalSections);
+                      final initialRows = horizontalSections < 1
+                          ? 1
+                          : (horizontalSections > 8 ? 8 : horizontalSections);
+                      final initialCells =
+                          _buildInitialDesignerCells(initialRows, initialCols);
+                      final defaultWidths = List<int>.filled(initialCols, 0);
+                      for (final row in rowSectionWidths) {
+                        for (int i = 0;
+                            i < row.length && i < defaultWidths.length;
+                            i++) {
+                          if (row[i] > defaultWidths[i]) {
+                            defaultWidths[i] = row[i];
+                          }
+                        }
+                      }
+                      final initialColumnSizes = List<double>.generate(
+                        initialCols,
+                        (index) => index < defaultWidths.length
+                            ? defaultWidths[index].toDouble()
+                            : 0.0,
+                      );
+                      final profileSet = profileSetIndex >= 0 &&
+                              profileSetIndex < profileSetBox.length
+                          ? profileSetBox.getAt(profileSetIndex)
+                          : null;
+                      final glass = glassIndex >= 0 &&
+                              glassIndex < glassBox.length
+                          ? glassBox.getAt(glassIndex)
+                          : null;
+                      final initialRowSizes = List<double>.generate(
+                        initialRows,
+                        (index) => index < sectionHeights.length
+                            ? sectionHeights[index].toDouble()
+                            : 0.0,
+                      );
                       final designerPage = WindowDoorDesignerPage(
-                        initialWidth: settings.initialWidth,
-                        initialHeight: settings.initialHeight,
-                        initialRows: settings.initialRows,
-                        initialCols: settings.initialCols,
-                        initialShowBlind: settings.initialShowBlind,
-                        initialCells: settings.initialCells,
-                        initialColumnSizes: settings.initialColumnSizes,
-                        initialRowSizes: settings.initialRowSizes,
-                        initialProfileColorIndex: settings.profileColorIndex,
-                        initialGlassColorIndex: settings.glassColorIndex,
+                        initialWidth: (widthValue != null && widthValue > 0)
+                            ? widthValue
+                            : null,
+                        initialHeight: (heightValue != null && heightValue > 0)
+                            ? heightValue
+                            : null,
+                        initialRows: initialRows,
+                        initialCols: initialCols,
+                        initialShowBlind: blindIndex != null,
+                        initialCells: initialCells,
+                        initialColumnSizes: initialColumnSizes,
+                        initialRowSizes: initialRowSizes,
+                        initialProfileColorIndex: profileSet?.colorIndex,
+                        initialGlassColorIndex: glass?.colorIndex,
                       );
 
                       final bytes = await Navigator.push<Uint8List>(
@@ -779,8 +730,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: () async {
-                          if (await _saveItem()) {
+                        onPressed: () {
+                          if (_saveItem()) {
                             Navigator.pop(context);
                           }
                         },
@@ -947,7 +898,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     );
   }
 
-  Future<bool> _saveItem() async {
+  bool _saveItem() {
     final l10n = AppLocalizations.of(context);
     final name = nameController.text.trim();
     final width = int.tryParse(widthController.text) ?? 0;
@@ -964,19 +915,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
         SnackBar(content: Text(l10n.fillAllRequired)),
       );
       return false;
-    }
-
-    Uint8List? generatedBytes;
-    if (_designImageBytes == null &&
-        photoBytes == null &&
-        photoPath == null) {
-      generatedBytes = await _createDesignPreviewBytes();
-      if (generatedBytes != null && mounted) {
-        setState(() {
-          photoBytes = generatedBytes;
-          photoPath = null;
-        });
-      }
     }
 
     final maxVertical = rowVerticalSections.isNotEmpty
@@ -1025,7 +963,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
         verticalAdapters: defaultVerticalAdapters,
         horizontalAdapters: horizontalAdapters,
         photoPath: _designImageBytes != null ? null : photoPath,
-        photoBytes: _designImageBytes ?? photoBytes ?? generatedBytes,
+        photoBytes: _designImageBytes ?? photoBytes,
         manualPrice: mPrice,
         manualBasePrice: mBasePrice,
         extra1Price: double.tryParse(extra1Controller.text),
@@ -1066,7 +1004,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     );
 
     if (shouldSave == true) {
-      return await _saveItem();
+      return _saveItem();
     }
     return true;
   }
