@@ -262,25 +262,61 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     return true;
   }
 
+  double _centerDistance(int size, int min, int max) {
+    if (min > 0 && max > 0) {
+      final center = (min + max) / 2;
+      return (size - center).abs();
+    }
+    return 1e9;
+  }
+
+  double _rangeSpan(int min, int max) {
+    if (min > 0 && max > 0) {
+      return (max - min).abs().toDouble();
+    }
+    return 1e9;
+  }
+
+  double _mechanismFitScore(
+      int width, int height, Mechanism mechanism) {
+    if (!_sectorMatchesMechanism(width, height, mechanism)) {
+      return double.infinity;
+    }
+    final centerDistance = _centerDistance(
+            width, mechanism.minWidth, mechanism.maxWidth) +
+        _centerDistance(height, mechanism.minHeight, mechanism.maxHeight);
+    final rangeSpan = _rangeSpan(mechanism.minWidth, mechanism.maxWidth) +
+        _rangeSpan(mechanism.minHeight, mechanism.maxHeight);
+    return centerDistance * 1000000 + rangeSpan;
+  }
+
   int? _findDefaultMechanismIndex() {
     if (mechanismBox.isEmpty) {
       return null;
     }
+    double bestScore = double.infinity;
+    int? bestIndex;
     for (int i = 0; i < mechanismBox.length; i++) {
       final mechanism = mechanismBox.getAt(i);
       if (mechanism == null) continue;
+      double mechanismBestScore = double.infinity;
       for (int r = 0; r < rowSectionWidths.length; r++) {
         if (r >= sectionHeights.length) continue;
         final rowHeight = sectionHeights[r];
         final widths = rowSectionWidths[r];
         for (final width in widths) {
-          if (_sectorMatchesMechanism(width, rowHeight, mechanism)) {
-            return i;
+          final score = _mechanismFitScore(width, rowHeight, mechanism);
+          if (score < mechanismBestScore) {
+            mechanismBestScore = score;
           }
         }
       }
+      if (mechanismBestScore < bestScore) {
+        bestScore = mechanismBestScore;
+        bestIndex = i;
+      }
     }
-    return null;
+    return bestIndex;
   }
 
   void _autoSelectMechanism({bool rebuild = true}) {
