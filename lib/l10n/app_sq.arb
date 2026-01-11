@@ -115,6 +115,7 @@
   "settingsLicenseUnlimitedActive": "Aksesi i pakufizuar është aktiv.",
   "settingsLicenseExpiresOn": "Licenca skadon më {date}",
   "settingsLicenseExtendYear": "Zgjat me 1 vit",
+  "settingsLicenseSelectDate": "Zgjidh datën",
   "settingsLicenseRemoveLimit": "Hiq limitin e kohës",
   "settingsLicenseExpired": "Skaduar",
   "settingsLicenseNeedsDate": "Caktoni datën e skadimit për të aktivizuar licencën.",
