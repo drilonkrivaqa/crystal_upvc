@@ -84,6 +84,20 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
     return profileChanged || glassChanged || blindChanged;
   }
 
+  String _statusLabel(AppLocalizations l10n, String status) {
+    switch (status) {
+      case OfferStatus.sent:
+        return l10n.offerStatusSent;
+      case OfferStatus.accepted:
+        return l10n.offerStatusAccepted;
+      case OfferStatus.declined:
+        return l10n.offerStatusDeclined;
+      case OfferStatus.draft:
+      default:
+        return l10n.offerStatusDraft;
+    }
+  }
+
   Future<void> _saveDefaultCharacteristics(
     Offer offer,
     int? profileIndex,
@@ -273,14 +287,35 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
     final defaultName = l10n.versionDefaultName
         .replaceAll('{number}', '${offer.versions.length + 1}');
     final controller = TextEditingController(text: defaultName);
+    final noteController = TextEditingController();
+    final createdByController = TextEditingController();
     final result = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(l10n.saveVersionTitle),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          decoration: InputDecoration(labelText: l10n.saveVersionNameLabel),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: controller,
+                autofocus: true,
+                decoration: InputDecoration(labelText: l10n.saveVersionNameLabel),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: noteController,
+                decoration: InputDecoration(labelText: l10n.versionNoteLabel),
+                maxLines: 2,
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: createdByController,
+                decoration:
+                    InputDecoration(labelText: l10n.versionCreatedByLabel),
+              ),
+            ],
+          ),
         ),
         actions: [
           TextButton(
@@ -299,11 +334,19 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
         ],
       ),
     );
+    final noteText = noteController.text.trim();
+    final createdByText = createdByController.text.trim();
     controller.dispose();
+    noteController.dispose();
+    createdByController.dispose();
     if (result == null) {
       return;
     }
-    final version = offer.createVersion(name: result);
+    final version = offer.createVersion(
+      name: result,
+      note: noteText,
+      createdBy: createdByText,
+    );
     setState(() {
       offer.versions.add(version);
       offer.lastEdited = DateTime.now();
@@ -349,6 +392,53 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(l10n.versionApplied)),
+    );
+  }
+
+  Future<void> _revertToVersion(Offer offer, OfferVersion version) async {
+    final l10n = AppLocalizations.of(context);
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.versionRevertTitle),
+        content: Text(l10n.versionRevertConfirmation),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n.cancel),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(l10n.versionRevertAction),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true) {
+      return;
+    }
+    final backupName = l10n.versionRevertBackupName
+        .replaceAll('{name}', version.name);
+    final backupNote = l10n.versionRevertBackupNote
+        .replaceAll('{name}', version.name);
+    setState(() {
+      offer.versions.add(
+        offer.createVersion(
+          name: backupName,
+          note: backupNote,
+        ),
+      );
+      offer.applyVersion(version);
+      offer.lastEdited = DateTime.now();
+      _syncControllersFromOffer(offer);
+      _selectedDefaultProfileSetIndex = offer.defaultProfileSetIndex;
+      _selectedDefaultGlassIndex = offer.defaultGlassIndex;
+      _selectedDefaultBlindIndex = offer.defaultBlindIndex;
+    });
+    await offer.save();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.versionReverted)),
     );
   }
 
@@ -451,6 +541,14 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
               final createdText = formatter.format(version.createdAt);
               final subtitle =
                   l10n.versionCreatedOn.replaceAll('{date}', createdText);
+              final statusLabel = _statusLabel(l10n, version.status);
+              final metaParts = <String>[
+                '${l10n.offerStatusLabel}: $statusLabel',
+              ];
+              if (version.createdBy.trim().isNotEmpty) {
+                metaParts
+                    .add('${l10n.versionCreatedByLabel}: ${version.createdBy}');
+              }
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: Row(
@@ -469,6 +567,18 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                             subtitle,
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
+                          const SizedBox(height: 4),
+                          Text(
+                            metaParts.join(' • '),
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          if (version.note.trim().isNotEmpty) ...[
+                            const SizedBox(height: 4),
+                            Text(
+                              '${l10n.versionNoteLabel}: ${version.note}',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ],
                         ],
                       ),
                     ),
@@ -484,6 +594,10 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                             TextButton(
                               onPressed: () => _applyVersion(offer, version),
                               child: Text(l10n.useVersion),
+                            ),
+                            TextButton(
+                              onPressed: () => _revertToVersion(offer, version),
+                              child: Text(l10n.versionRevertAction),
                             ),
                             IconButton(
                               tooltip: l10n.delete,

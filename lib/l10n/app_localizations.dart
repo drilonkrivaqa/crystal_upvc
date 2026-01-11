@@ -193,16 +193,37 @@ class AppLocalizations {
       'saveVersionAction': 'Ruaj versionin',
       'saveVersionTitle': 'Ruaj ofertën aktuale si version',
       'saveVersionNameLabel': 'Emri i versionit',
+      'versionNoteLabel': 'Shënim i versionit',
+      'versionCreatedByLabel': 'Krijuar nga',
       'versionSaved': 'Versioni u ruajt.',
       'versionsEmpty': 'Ende nuk ka versione.',
       'useVersion': 'Ngarko versionin',
       'applyVersionConfirmation':
           'Të zëvendësohet oferta aktuale me këtë version? Ky veprim nuk mund të zhbëhet.',
       'versionApplied': 'Versioni u aplikua.',
+      'versionRevertTitle': 'Kthe versionin',
+      'versionRevertConfirmation':
+          'Kthehesh tek ky version dhe ruash një kopje të gjendjes aktuale?',
+      'versionRevertAction': 'Kthe',
+      'versionRevertBackupName': 'Kopje para {name}',
+      'versionRevertBackupNote': 'Kthim tek {name}',
+      'versionReverted': 'Versioni u kthye.',
       'deleteVersionConfirmation': 'Të fshihet ky version?',
       'versionDeleted': 'Versioni u fshi.',
       'versionDefaultName': 'Versioni {number}',
       'versionCreatedOn': 'Ndryshuar më {date}',
+      'offerStatusLabel': 'Statusi',
+      'offerStatusDraft': 'Draft',
+      'offerStatusSent': 'Dërguar',
+      'offerStatusAccepted': 'Pranuar',
+      'offerStatusDeclined': 'Refuzuar',
+      'offerStatusChange': 'Ndrysho statusin',
+      'offerStatusUpdated': 'Statusi u përditësua.',
+      'offerStatusAcceptedByLabel': 'Pranuar nga',
+      'offerStatusAcceptedByHint': 'Emri i personit',
+      'pdfRevisionSummary':
+          'Versione: {count} • Përditësimi i fundit: {date}',
+      'pdfRevisionSummaryEmpty': 'Pa versione të ruajtura',
       'setProfitPercent': 'Vendos përqindjen e fitimit',
       'editDeleteWindowDoor': 'Ndrysho/Fshij Dritare/Derë',
       'confirmDeleteQuestion': 'Dëshironi ta fshini këtë?',
@@ -451,16 +472,36 @@ class AppLocalizations {
       'saveVersionAction': 'Save version',
       'saveVersionTitle': 'Save current offer as version',
       'saveVersionNameLabel': 'Version name',
+      'versionNoteLabel': 'Revision note',
+      'versionCreatedByLabel': 'Created by',
       'versionSaved': 'Version saved.',
       'versionsEmpty': 'No versions yet.',
       'useVersion': 'Load version',
       'applyVersionConfirmation':
           'Replace the current offer with this version? This action cannot be undone.',
       'versionApplied': 'Version applied.',
+      'versionRevertTitle': 'Revert version',
+      'versionRevertConfirmation':
+          'Revert to this version and save a backup of the current state?',
+      'versionRevertAction': 'Revert',
+      'versionRevertBackupName': 'Backup before {name}',
+      'versionRevertBackupNote': 'Reverted to {name}',
+      'versionReverted': 'Version reverted.',
       'deleteVersionConfirmation': 'Delete this version?',
       'versionDeleted': 'Version deleted.',
       'versionDefaultName': 'Version {number}',
       'versionCreatedOn': 'Changed {date}',
+      'offerStatusLabel': 'Status',
+      'offerStatusDraft': 'Draft',
+      'offerStatusSent': 'Sent',
+      'offerStatusAccepted': 'Accepted',
+      'offerStatusDeclined': 'Declined',
+      'offerStatusChange': 'Change status',
+      'offerStatusUpdated': 'Status updated.',
+      'offerStatusAcceptedByLabel': 'Accepted by',
+      'offerStatusAcceptedByHint': 'Name of the approver',
+      'pdfRevisionSummary': 'Revisions: {count} • Last update: {date}',
+      'pdfRevisionSummaryEmpty': 'No saved revisions',
       'setProfitPercent': 'Set Profit Percentage',
       'editDeleteWindowDoor': 'Edit/Delete Window/Door',
       'confirmDeleteQuestion': 'Do you want to delete this?',
@@ -708,16 +749,36 @@ class AppLocalizations {
       'saveVersionAction': 'Version speichern',
       'saveVersionTitle': 'Aktuelles Angebot als Version speichern',
       'saveVersionNameLabel': 'Versionsname',
+      'versionNoteLabel': 'Versionsnotiz',
+      'versionCreatedByLabel': 'Erstellt von',
       'versionSaved': 'Version gespeichert.',
       'versionsEmpty': 'Noch keine Versionen.',
       'useVersion': 'Version laden',
       'applyVersionConfirmation':
           'Aktuelles Angebot durch diese Version ersetzen? Dies kann nicht rückgängig gemacht werden.',
       'versionApplied': 'Version übernommen.',
+      'versionRevertTitle': 'Version zurücksetzen',
+      'versionRevertConfirmation':
+          'Zu dieser Version zurückkehren und eine Sicherung des aktuellen Stands speichern?',
+      'versionRevertAction': 'Zurücksetzen',
+      'versionRevertBackupName': 'Backup vor {name}',
+      'versionRevertBackupNote': 'Zurückgesetzt auf {name}',
+      'versionReverted': 'Version zurückgesetzt.',
       'deleteVersionConfirmation': 'Diese Version löschen?',
       'versionDeleted': 'Version gelöscht.',
       'versionDefaultName': 'Version {number}',
       'versionCreatedOn': 'Geändert am {date}',
+      'offerStatusLabel': 'Status',
+      'offerStatusDraft': 'Entwurf',
+      'offerStatusSent': 'Gesendet',
+      'offerStatusAccepted': 'Angenommen',
+      'offerStatusDeclined': 'Abgelehnt',
+      'offerStatusChange': 'Status ändern',
+      'offerStatusUpdated': 'Status aktualisiert.',
+      'offerStatusAcceptedByLabel': 'Angenommen von',
+      'offerStatusAcceptedByHint': 'Name des Genehmigers',
+      'pdfRevisionSummary': 'Versionen: {count} • Letztes Update: {date}',
+      'pdfRevisionSummaryEmpty': 'Keine gespeicherten Versionen',
       'setProfitPercent': 'Gewinnprozentsatz festlegen',
       'editDeleteWindowDoor': 'Fenster/Tür bearbeiten/löschen',
       'confirmDeleteQuestion': 'Möchten Sie dies löschen?',
@@ -955,16 +1016,36 @@ class AppLocalizations {
       'saveVersionAction': 'Enregistrer la version',
       'saveVersionTitle': 'Enregistrer l\'offre actuelle comme version',
       'saveVersionNameLabel': 'Nom de la version',
+      'versionNoteLabel': 'Note de révision',
+      'versionCreatedByLabel': 'Créé par',
       'versionSaved': 'Version enregistrée.',
       'versionsEmpty': 'Aucune version pour le moment.',
       'useVersion': 'Charger la version',
       'applyVersionConfirmation':
           'Remplacer l\'offre actuelle par cette version ? Cette action est irréversible.',
       'versionApplied': 'Version appliquée.',
+      'versionRevertTitle': 'Rétablir la version',
+      'versionRevertConfirmation':
+          'Revenir à cette version et enregistrer une sauvegarde de l\'état actuel ?',
+      'versionRevertAction': 'Rétablir',
+      'versionRevertBackupName': 'Sauvegarde avant {name}',
+      'versionRevertBackupNote': 'Rétabli sur {name}',
+      'versionReverted': 'Version rétablie.',
       'deleteVersionConfirmation': 'Supprimer cette version ?',
       'versionDeleted': 'Version supprimée.',
       'versionDefaultName': 'Version {number}',
       'versionCreatedOn': 'Modifié le {date}',
+      'offerStatusLabel': 'Statut',
+      'offerStatusDraft': 'Brouillon',
+      'offerStatusSent': 'Envoyé',
+      'offerStatusAccepted': 'Accepté',
+      'offerStatusDeclined': 'Refusé',
+      'offerStatusChange': 'Changer le statut',
+      'offerStatusUpdated': 'Statut mis à jour.',
+      'offerStatusAcceptedByLabel': 'Accepté par',
+      'offerStatusAcceptedByHint': 'Nom de l\'approbateur',
+      'pdfRevisionSummary': 'Révisions : {count} • Dernière mise à jour : {date}',
+      'pdfRevisionSummaryEmpty': 'Aucune révision enregistrée',
       'setProfitPercent': 'Définir le pourcentage de bénéfice',
       'editDeleteWindowDoor': 'Modifier/Supprimer Fenêtre/Porte',
       'confirmDeleteQuestion': 'Voulez-vous supprimer ceci ?',
@@ -1202,16 +1283,36 @@ class AppLocalizations {
       'saveVersionAction': 'Salva versione',
       'saveVersionTitle': 'Salva l\'offerta attuale come versione',
       'saveVersionNameLabel': 'Nome versione',
+      'versionNoteLabel': 'Nota di revisione',
+      'versionCreatedByLabel': 'Creato da',
       'versionSaved': 'Versione salvata.',
       'versionsEmpty': 'Nessuna versione disponibile.',
       'useVersion': 'Carica versione',
       'applyVersionConfirmation':
           'Sostituire l\'offerta attuale con questa versione? Questa azione non può essere annullata.',
       'versionApplied': 'Versione applicata.',
+      'versionRevertTitle': 'Ripristina versione',
+      'versionRevertConfirmation':
+          'Tornare a questa versione e salvare un backup dello stato corrente?',
+      'versionRevertAction': 'Ripristina',
+      'versionRevertBackupName': 'Backup prima di {name}',
+      'versionRevertBackupNote': 'Ripristinato a {name}',
+      'versionReverted': 'Versione ripristinata.',
       'deleteVersionConfirmation': 'Eliminare questa versione?',
       'versionDeleted': 'Versione eliminata.',
       'versionDefaultName': 'Versione {number}',
       'versionCreatedOn': 'Cambiato il {date}',
+      'offerStatusLabel': 'Stato',
+      'offerStatusDraft': 'Bozza',
+      'offerStatusSent': 'Inviata',
+      'offerStatusAccepted': 'Accettata',
+      'offerStatusDeclined': 'Rifiutata',
+      'offerStatusChange': 'Cambia stato',
+      'offerStatusUpdated': 'Stato aggiornato.',
+      'offerStatusAcceptedByLabel': 'Accettata da',
+      'offerStatusAcceptedByHint': 'Nome del referente',
+      'pdfRevisionSummary': 'Revisioni: {count} • Ultimo aggiornamento: {date}',
+      'pdfRevisionSummaryEmpty': 'Nessuna revisione salvata',
       'setProfitPercent': 'Imposta percentuale di profitto',
       'editDeleteWindowDoor': 'Modifica/Elimina Finestra/Porta',
       'confirmDeleteQuestion': 'Vuoi eliminare questo?',
@@ -1497,15 +1598,34 @@ class AppLocalizations {
   String get saveVersionAction => _t('saveVersionAction');
   String get saveVersionTitle => _t('saveVersionTitle');
   String get saveVersionNameLabel => _t('saveVersionNameLabel');
+  String get versionNoteLabel => _t('versionNoteLabel');
+  String get versionCreatedByLabel => _t('versionCreatedByLabel');
   String get versionSaved => _t('versionSaved');
   String get versionsEmpty => _t('versionsEmpty');
   String get useVersion => _t('useVersion');
   String get applyVersionConfirmation => _t('applyVersionConfirmation');
   String get versionApplied => _t('versionApplied');
+  String get versionRevertTitle => _t('versionRevertTitle');
+  String get versionRevertConfirmation => _t('versionRevertConfirmation');
+  String get versionRevertAction => _t('versionRevertAction');
+  String get versionRevertBackupName => _t('versionRevertBackupName');
+  String get versionRevertBackupNote => _t('versionRevertBackupNote');
+  String get versionReverted => _t('versionReverted');
   String get deleteVersionConfirmation => _t('deleteVersionConfirmation');
   String get versionDeleted => _t('versionDeleted');
   String get versionDefaultName => _t('versionDefaultName');
   String get versionCreatedOn => _t('versionCreatedOn');
+  String get offerStatusLabel => _t('offerStatusLabel');
+  String get offerStatusDraft => _t('offerStatusDraft');
+  String get offerStatusSent => _t('offerStatusSent');
+  String get offerStatusAccepted => _t('offerStatusAccepted');
+  String get offerStatusDeclined => _t('offerStatusDeclined');
+  String get offerStatusChange => _t('offerStatusChange');
+  String get offerStatusUpdated => _t('offerStatusUpdated');
+  String get offerStatusAcceptedByLabel => _t('offerStatusAcceptedByLabel');
+  String get offerStatusAcceptedByHint => _t('offerStatusAcceptedByHint');
+  String get pdfRevisionSummary => _t('pdfRevisionSummary');
+  String get pdfRevisionSummaryEmpty => _t('pdfRevisionSummaryEmpty');
   String get setProfitPercent => _t('setProfitPercent');
   String get editDeleteWindowDoor => _t('editDeleteWindowDoor');
   String get confirmDeleteQuestion => _t('confirmDeleteQuestion');

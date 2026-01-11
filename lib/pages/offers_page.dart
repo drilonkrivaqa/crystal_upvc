@@ -39,6 +39,92 @@ class _OffersPageState extends State<OffersPage> {
     return maxNumber + 1;
   }
 
+  String _statusLabel(AppLocalizations l10n, String status) {
+    switch (status) {
+      case OfferStatus.sent:
+        return l10n.offerStatusSent;
+      case OfferStatus.accepted:
+        return l10n.offerStatusAccepted;
+      case OfferStatus.declined:
+        return l10n.offerStatusDeclined;
+      case OfferStatus.draft:
+      default:
+        return l10n.offerStatusDraft;
+    }
+  }
+
+  Color _statusColor(ColorScheme colorScheme, String status) {
+    switch (status) {
+      case OfferStatus.sent:
+        return colorScheme.primary;
+      case OfferStatus.accepted:
+        return Colors.green;
+      case OfferStatus.declined:
+        return AppColors.delete;
+      case OfferStatus.draft:
+      default:
+        return colorScheme.onSurfaceVariant;
+    }
+  }
+
+  Future<void> _updateOfferStatus(Offer offer, String status) async {
+    final l10n = AppLocalizations.of(context);
+    if (offer.status == status) {
+      return;
+    }
+
+    String? acceptedBy;
+    if (status == OfferStatus.accepted) {
+      final controller = TextEditingController(text: offer.acceptedBy ?? '');
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(l10n.offerStatusAccepted),
+          content: TextField(
+            controller: controller,
+            decoration: InputDecoration(
+              labelText: l10n.offerStatusAcceptedByLabel,
+              hintText: l10n.offerStatusAcceptedByHint,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: Text(l10n.cancel),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: Text(l10n.save),
+            ),
+          ],
+        ),
+      );
+      acceptedBy = controller.text.trim();
+      controller.dispose();
+      if (confirmed != true) {
+        return;
+      }
+    }
+
+    setState(() {
+      offer.status = status;
+      offer.statusChangedAt = DateTime.now();
+      offer.lastEdited = DateTime.now();
+      if (status == OfferStatus.accepted) {
+        offer.acceptedAt = DateTime.now();
+        offer.acceptedBy = acceptedBy?.isNotEmpty == true ? acceptedBy : null;
+      } else {
+        offer.acceptedAt = null;
+        offer.acceptedBy = null;
+      }
+    });
+    await offer.save();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.offerStatusUpdated)),
+    );
+  }
+
   void _addOffer() {
     final l10n = AppLocalizations.of(context);
     if (CompanySettings.isLicenseExpired(settingsBox)) {
@@ -411,21 +497,100 @@ class _OffersPageState extends State<OffersPage> {
                                             ),
                                           ],
                                         ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          '${l10n.pdfClient}: ${customer?.name ?? "-"}',
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    '${l10n.pdfClient}: ${customer?.name ?? "-"}',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall
+                                        ?.copyWith(
+                                          color: colorScheme
+                                              .onSurfaceVariant,
+                                          height: 1.25,
+                                        ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Wrap(
+                                    spacing: 8,
+                                    runSpacing: 4,
+                                    crossAxisAlignment:
+                                        WrapCrossAlignment.center,
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 4,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: _statusColor(
+                                            colorScheme,
+                                            offer?.status ?? OfferStatus.draft,
+                                          ).withOpacity(0.12),
+                                          borderRadius:
+                                              BorderRadius.circular(999),
+                                        ),
+                                        child: Text(
+                                          _statusLabel(
+                                            l10n,
+                                            offer?.status ?? OfferStatus.draft,
+                                          ),
                                           style: Theme.of(context)
                                               .textTheme
-                                              .bodySmall
+                                              .labelSmall
                                               ?.copyWith(
-                                                color: colorScheme
-                                                    .onSurfaceVariant,
-                                                height: 1.25,
+                                                color: _statusColor(
+                                                  colorScheme,
+                                                  offer?.status ??
+                                                      OfferStatus.draft,
+                                                ),
+                                                fontWeight: FontWeight.w600,
                                               ),
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                      if (offer != null)
+                                        PopupMenuButton<String>(
+                                          tooltip: l10n.offerStatusChange,
+                                          enabled: !isExpired,
+                                          onSelected: (value) =>
+                                              _updateOfferStatus(offer, value),
+                                          itemBuilder: (_) => [
+                                            for (final status
+                                                in OfferStatus.values)
+                                              PopupMenuItem(
+                                                value: status,
+                                                child: Text(
+                                                  _statusLabel(l10n, status),
+                                                ),
+                                              ),
+                                          ],
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(
+                                                Icons.edit_outlined,
+                                                size: 16,
+                                                color: colorScheme
+                                                    .onSurfaceVariant,
+                                              ),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                l10n.offerStatusChange,
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .labelSmall
+                                                    ?.copyWith(
+                                                      color: colorScheme
+                                                          .onSurfaceVariant,
+                                                    ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                    ],
                                   ),
+                                ],
+                              ),
+                            ),
                                   const SizedBox(width: 4),
                                   Icon(
                                     isExpired
