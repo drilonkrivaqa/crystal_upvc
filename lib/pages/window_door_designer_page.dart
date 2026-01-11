@@ -67,6 +67,124 @@ enum _ExportAction { close, save, useAsPhoto }
 // -----------------------------------------------------------------------------
 // Page
 
+Future<Uint8List?> buildWindowDoorDesignPreviewBytes({
+  required int rows,
+  required int cols,
+  required List<SashType> cells,
+  required List<double> columnSizes,
+  required List<double> rowSizes,
+  double? widthMm,
+  double? heightMm,
+  bool showBlindBox = false,
+  int? profileColorIndex,
+  int? glassColorIndex,
+}) async {
+  final safeRows = rows.clamp(1, 8);
+  final safeCols = cols.clamp(1, 8);
+  final totalCells = safeRows * safeCols;
+  final resolvedHeightMm = _resolveHeightMm(heightMm);
+  final resolvedWidthMm = _resolveWidthMm(widthMm, resolvedHeightMm);
+  final aspectRatio =
+      resolvedHeightMm > 0 ? resolvedWidthMm / resolvedHeightMm : 1.6;
+
+  const baseHeight = 360.0;
+  double targetHeight = baseHeight;
+  double targetWidth = baseHeight * aspectRatio;
+  if (targetWidth > 640) {
+    targetWidth = 640;
+    targetHeight =
+        aspectRatio > 0 ? targetWidth / aspectRatio : baseHeight;
+  }
+
+  final effectiveCells = List<SashType>.generate(
+    totalCells,
+    (index) => index < cells.length ? cells[index] : SashType.fixed,
+    growable: false,
+  );
+  final glassColor = glassColorForIndex(glassColorIndex).color;
+  final cellGlassColors =
+      List<Color>.filled(totalCells, glassColor, growable: false);
+
+  final painter = _WindowPainter(
+    rows: safeRows,
+    cols: safeCols,
+    cells: effectiveCells,
+    selectedIndex: null,
+    outsideView: true,
+    showBlindBox: showBlindBox,
+    windowHeightMm: resolvedHeightMm,
+    cellGlassColors: cellGlassColors,
+    profileColor: profileColorForIndex(profileColorIndex),
+    blindColor: blindColorForIndex(null),
+    columnFractions: _normalizedFractionsForPreview(columnSizes, safeCols),
+    rowFractions: _normalizedFractionsForPreview(rowSizes, safeRows),
+  );
+
+  final recorder = ui.PictureRecorder();
+  final canvas = Canvas(recorder);
+  final size = Size(targetWidth, targetHeight);
+  painter.paint(canvas, size);
+  final picture = recorder.endRecording();
+  final img = await picture.toImage(
+    targetWidth.round().clamp(1, 4096),
+    targetHeight.round().clamp(1, 4096),
+  );
+  final byteData = await img.toByteData(format: ui.ImageByteFormat.png);
+  return byteData?.buffer.asUint8List();
+}
+
+double _resolveHeightMm(double? providedHeight) {
+  if (providedHeight != null && providedHeight.isFinite && providedHeight > 0) {
+    return providedHeight;
+  }
+  return kFallbackWindowHeightMm;
+}
+
+double _resolveWidthMm(double? providedWidth, double heightMm) {
+  if (providedWidth != null && providedWidth.isFinite && providedWidth > 0) {
+    return providedWidth;
+  }
+  const defaultAspect = 1.6;
+  return heightMm * defaultAspect;
+}
+
+List<double> _normalizedFractionsForPreview(List<double> sizes, int count) {
+  if (count <= 0) {
+    return const <double>[];
+  }
+  final sanitized = List<double>.generate(count, (index) {
+    if (index < sizes.length) {
+      final value = sizes[index];
+      if (value.isFinite && value > 0) {
+        return value;
+      }
+    }
+    return 0.0;
+  });
+  double positiveSum = 0;
+  int positiveCount = 0;
+  for (final value in sanitized) {
+    if (value > 0) {
+      positiveSum += value;
+      positiveCount++;
+    }
+  }
+  if (positiveSum <= 0 || positiveCount <= 0) {
+    return List<double>.filled(count, 1.0 / count);
+  }
+  final fallbackValue = positiveSum / positiveCount;
+  for (int i = 0; i < sanitized.length; i++) {
+    if (sanitized[i] <= 0) {
+      sanitized[i] = fallbackValue;
+    }
+  }
+  final total = sanitized.fold<double>(0, (sum, value) => sum + value);
+  if (total <= 0) {
+    return List<double>.filled(count, 1.0 / count);
+  }
+  return sanitized.map((value) => value / total).toList(growable: false);
+}
+
 class WindowDoorDesignerPage extends StatefulWidget {
   final double? initialWidth;
   final double? initialHeight;
