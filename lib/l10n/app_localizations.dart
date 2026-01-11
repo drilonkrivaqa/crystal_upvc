@@ -59,6 +59,7 @@ class AppLocalizations {
       'settingsLicenseUnlimitedActive': 'Aksesi i pakufizuar është aktiv.',
       'settingsLicenseExpiresOn': 'Licenca skadon më {date}',
       'settingsLicenseExtendYear': 'Zgjat me 1 vit',
+      'settingsLicenseSelectDate': 'Zgjidh datën',
       'settingsLicenseRemoveLimit': 'Hiq limitin e kohës',
       'settingsLicenseExpired': 'Skaduar',
       'settingsLicenseNeedsDate':
@@ -309,6 +310,7 @@ class AppLocalizations {
       'settingsLicenseUnlimitedActive': 'Unlimited access is enabled.',
       'settingsLicenseExpiresOn': 'License expires on {date}',
       'settingsLicenseExtendYear': 'Extend 1 year',
+      'settingsLicenseSelectDate': 'Select date',
       'settingsLicenseRemoveLimit': 'Remove time limit',
       'settingsLicenseExpired': 'Expired',
       'settingsLicenseNeedsDate': 'Set an expiry date to start the license timer.',
@@ -555,6 +557,7 @@ class AppLocalizations {
       'settingsLicenseUnlimitedActive': 'Unlimited access is enabled.',
       'settingsLicenseExpiresOn': 'License expires on {date}',
       'settingsLicenseExtendYear': 'Extend 1 year',
+      'settingsLicenseSelectDate': 'Select date',
       'settingsLicenseRemoveLimit': 'Remove time limit',
       'settingsLicenseExpired': 'Expired',
       'settingsLicenseNeedsDate': 'Set an expiry date to start the license timer.',
@@ -791,6 +794,7 @@ class AppLocalizations {
       'settingsLicenseUnlimitedActive': 'Unlimited access is enabled.',
       'settingsLicenseExpiresOn': 'License expires on {date}',
       'settingsLicenseExtendYear': 'Extend 1 year',
+      'settingsLicenseSelectDate': 'Select date',
       'settingsLicenseRemoveLimit': 'Remove time limit',
       'settingsLicenseExpired': 'Expired',
       'settingsLicenseNeedsDate': 'Set an expiry date to start the license timer.',
@@ -1029,6 +1033,7 @@ class AppLocalizations {
       'settingsLicenseUnlimitedActive': 'Unlimited access is enabled.',
       'settingsLicenseExpiresOn': 'License expires on {date}',
       'settingsLicenseExtendYear': 'Extend 1 year',
+      'settingsLicenseSelectDate': 'Select date',
       'settingsLicenseRemoveLimit': 'Remove time limit',
       'settingsLicenseExpired': 'Expired',
       'settingsLicenseNeedsDate': 'Set an expiry date to start the license timer.',
@@ -1312,6 +1317,7 @@ class AppLocalizations {
   String settingsLicenseExpiresOn(String date) =>
       _t('settingsLicenseExpiresOn').replaceAll('{date}', date);
   String get settingsLicenseExtendYear => _t('settingsLicenseExtendYear');
+  String get settingsLicenseSelectDate => _t('settingsLicenseSelectDate');
   String get settingsLicenseRemoveLimit => _t('settingsLicenseRemoveLimit');
   String get settingsLicenseExpired => _t('settingsLicenseExpired');
   String get settingsLicenseNeedsDate => _t('settingsLicenseNeedsDate');

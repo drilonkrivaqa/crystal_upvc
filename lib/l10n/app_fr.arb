@@ -115,6 +115,7 @@
   "settingsLicenseUnlimitedActive": "Unlimited access is enabled.",
   "settingsLicenseExpiresOn": "License expires on {date}",
   "settingsLicenseExtendYear": "Extend 1 year",
+  "settingsLicenseSelectDate": "Select date",
   "settingsLicenseRemoveLimit": "Remove time limit",
   "settingsLicenseExpired": "Expired",
   "settingsLicenseNeedsDate": "Set an expiry date to start the license timer.",

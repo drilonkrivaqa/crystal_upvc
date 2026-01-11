@@ -170,6 +170,39 @@ class _SettingsPageState extends State<SettingsPage> {
     });
   }
 
+  Future<void> _pickLicenseExpiryDate(AppLocalizations l10n) async {
+    final now = DateTime.now();
+    final base = _licenseExpiresAt != null && _licenseExpiresAt!.isAfter(now)
+        ? _licenseExpiresAt!
+        : now;
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: base,
+      firstDate: DateTime(now.year, now.month, now.day),
+      lastDate: DateTime(now.year + 20),
+    );
+    if (picked == null) {
+      return;
+    }
+    final selected = DateTime(
+      picked.year,
+      picked.month,
+      picked.day,
+      23,
+      59,
+      59,
+    );
+    await settingsBox.put(CompanySettings.keyLicenseUnlimited, false);
+    await settingsBox.put(
+      CompanySettings.keyLicenseExpiresAt,
+      selected.millisecondsSinceEpoch,
+    );
+    setState(() {
+      _licenseUnlimited = false;
+      _licenseExpiresAt = selected;
+    });
+  }
+
   void _unlockSettings(AppLocalizations l10n) {
     final enteredPassword = _passwordController.text.trim();
     final requiredPassword = CompanyDetails.settingsPassword;
@@ -437,7 +470,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                   : _licenseExpiresAt != null
                                       ? l10n.settingsLicenseExpiresOn(
                                           dateFormatter
-                                              .formatMediumDate(
+                                              .formatFullDate(
                                                 _licenseExpiresAt!,
                                               )
                                               .toString(),
@@ -476,6 +509,13 @@ class _SettingsPageState extends State<SettingsPage> {
                                 _licenseUnlimited ? null : _extendLicense,
                             icon: const Icon(Icons.schedule),
                             label: Text(l10n.settingsLicenseExtendYear),
+                          ),
+                          OutlinedButton.icon(
+                            onPressed: _licenseUnlimited
+                                ? null
+                                : () => _pickLicenseExpiryDate(l10n),
+                            icon: const Icon(Icons.edit_calendar_outlined),
+                            label: Text(l10n.settingsLicenseSelectDate),
                           ),
                           OutlinedButton.icon(
                             onPressed: _licenseUnlimited
