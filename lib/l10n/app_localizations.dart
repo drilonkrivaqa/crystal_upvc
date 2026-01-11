@@ -111,6 +111,10 @@ class AppLocalizations {
       'catalogFieldBoxHeight': 'Lartësia e kutisë (mm)',
       'catalogFieldPrice': 'Çmimi (€)',
       'catalogFieldMass': 'Masa (kg)',
+      'catalogFieldMinWidth': 'Gjerësia min (mm)',
+      'catalogFieldMaxWidth': 'Gjerësia max (mm)',
+      'catalogFieldMinHeight': 'Lartësia min (mm)',
+      'catalogFieldMaxHeight': 'Lartësia max (mm)',
       'calculate': 'Kalkulo',
       'pcs': 'copë',
       'savePdf': 'Ruaj PDF',
@@ -366,6 +370,10 @@ class AppLocalizations {
       'catalogFieldBoxHeight': 'Box height (mm)',
       'catalogFieldPrice': 'Price (€)',
       'catalogFieldMass': 'Mass (kg)',
+      'catalogFieldMinWidth': 'Min width (mm)',
+      'catalogFieldMaxWidth': 'Max width (mm)',
+      'catalogFieldMinHeight': 'Min height (mm)',
+      'catalogFieldMaxHeight': 'Max height (mm)',
       'calculate': 'Calculate',
       'pcs': 'pcs',
       'savePdf': 'Save PDF',
@@ -618,6 +626,10 @@ class AppLocalizations {
       'catalogFieldBoxHeight': 'Kastenhöhe (mm)',
       'catalogFieldPrice': 'Preis (€)',
       'catalogFieldMass': 'Masse (kg)',
+      'catalogFieldMinWidth': 'Min. Breite (mm)',
+      'catalogFieldMaxWidth': 'Max. Breite (mm)',
+      'catalogFieldMinHeight': 'Min. Höhe (mm)',
+      'catalogFieldMaxHeight': 'Max. Höhe (mm)',
       'calculate': 'Berechne',
       'pcs': 'Stk.',
       'savePdf': 'PDF speichern',
@@ -862,6 +874,10 @@ class AppLocalizations {
       'catalogFieldBoxHeight': 'Hauteur caisson (mm)',
       'catalogFieldPrice': 'Prix (€)',
       'catalogFieldMass': 'Masse (kg)',
+      'catalogFieldMinWidth': 'Largeur min (mm)',
+      'catalogFieldMaxWidth': 'Largeur max (mm)',
+      'catalogFieldMinHeight': 'Hauteur min (mm)',
+      'catalogFieldMaxHeight': 'Hauteur max (mm)',
       'calculate': 'Calculer',
       'pcs': 'pcs',
       'savePdf': 'Enregistrer le PDF',
@@ -1105,6 +1121,10 @@ class AppLocalizations {
       'catalogFieldBoxHeight': 'Altezza cassonetto (mm)',
       'catalogFieldPrice': 'Prezzo (€)',
       'catalogFieldMass': 'Massa (kg)',
+      'catalogFieldMinWidth': 'Larghezza min (mm)',
+      'catalogFieldMaxWidth': 'Larghezza max (mm)',
+      'catalogFieldMinHeight': 'Altezza min (mm)',
+      'catalogFieldMaxHeight': 'Altezza max (mm)',
       'calculate': 'Calcola',
       'pcs': 'pz',
       'savePdf': 'Salva PDF',
@@ -1397,6 +1417,10 @@ class AppLocalizations {
   String get catalogFieldBoxHeight => _t('catalogFieldBoxHeight');
   String get catalogFieldPrice => _t('catalogFieldPrice');
   String get catalogFieldMass => _t('catalogFieldMass');
+  String get catalogFieldMinWidth => _t('catalogFieldMinWidth');
+  String get catalogFieldMaxWidth => _t('catalogFieldMaxWidth');
+  String get catalogFieldMinHeight => _t('catalogFieldMinHeight');
+  String get catalogFieldMaxHeight => _t('catalogFieldMaxHeight');
   String get calculate => _t('calculate');
   String get pcs => _t('pcs');
   String get savePdf => _t('savePdf');

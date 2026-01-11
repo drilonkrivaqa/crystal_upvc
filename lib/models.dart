@@ -163,7 +163,23 @@ class Mechanism extends HiveObject {
   double price;
   @HiveField(2, defaultValue: 0)
   double mass;
-  Mechanism({required this.name, required this.price, this.mass = 0});
+  @HiveField(3, defaultValue: 0)
+  int minWidth;
+  @HiveField(4, defaultValue: 0)
+  int maxWidth;
+  @HiveField(5, defaultValue: 0)
+  int minHeight;
+  @HiveField(6, defaultValue: 0)
+  int maxHeight;
+  Mechanism({
+    required this.name,
+    required this.price,
+    this.mass = 0,
+    this.minWidth = 0,
+    this.maxWidth = 0,
+    this.minHeight = 0,
+    this.maxHeight = 0,
+  });
 }
 
 @HiveType(typeId: 5)
