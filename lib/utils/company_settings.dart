@@ -30,6 +30,8 @@ class CompanySettings {
   static const String keyWebsite = 'companyWebsite';
   static const String keyLogoBytes = 'companyLogoBytes';
   static const String keyEnableProduction = 'featureProductionEnabled';
+  static const String keyLicenseExpiresAt = 'licenseExpiresAt';
+  static const String keyLicenseUnlimited = 'licenseUnlimited';
 
   static CompanySettingsData read(Box settingsBox, Locale locale) {
     final fallback = CompanyDetails.ofLocale(locale);
@@ -59,5 +61,31 @@ class CompanySettings {
 
   static Uint8List? logoBytes(Box settingsBox) {
     return settingsBox.get(keyLogoBytes) as Uint8List?;
+  }
+
+  static bool isLicenseUnlimited(Box settingsBox) {
+    return settingsBox.get(keyLicenseUnlimited, defaultValue: true) as bool;
+  }
+
+  static DateTime? licenseExpiresAt(Box settingsBox) {
+    final value = settingsBox.get(keyLicenseExpiresAt);
+    if (value is int) {
+      return DateTime.fromMillisecondsSinceEpoch(value);
+    }
+    if (value is DateTime) {
+      return value;
+    }
+    return null;
+  }
+
+  static bool isLicenseExpired(Box settingsBox) {
+    if (isLicenseUnlimited(settingsBox)) {
+      return false;
+    }
+    final expiresAt = licenseExpiresAt(settingsBox);
+    if (expiresAt == null) {
+      return false;
+    }
+    return DateTime.now().isAfter(expiresAt);
   }
 }

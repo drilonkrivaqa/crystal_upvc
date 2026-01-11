@@ -54,6 +54,17 @@ class AppLocalizations {
       'settingsLogoUpdated': 'Logoja u përditësua.',
       'settingsLogoRemoved': 'Logoja u hoq.',
       'settingsLogoPickError': 'Nuk u gjet logo e vlefshme.',
+      'settingsLicenseSection': 'Licenca',
+      'settingsLicenseUnlimited': 'Akses i pakufizuar',
+      'settingsLicenseUnlimitedActive': 'Aksesi i pakufizuar është aktiv.',
+      'settingsLicenseExpiresOn': 'Licenca skadon më {date}',
+      'settingsLicenseExtendYear': 'Zgjat me 1 vit',
+      'settingsLicenseRemoveLimit': 'Hiq limitin e kohës',
+      'settingsLicenseExpired': 'Skaduar',
+      'settingsLicenseNeedsDate':
+          'Caktoni datën e skadimit për të aktivizuar licencën.',
+      'licenseExpiredMessage':
+          'Licenca ka skaduar. Redaktimi është çaktivizuar derisa të rinovohet.',
       'catalogsTitle': 'Çmimorja',
       'catalogProfile': 'Profili',
       'catalogGlass': 'Xhami',
@@ -293,6 +304,16 @@ class AppLocalizations {
       'settingsLogoUpdated': 'Logo updated.',
       'settingsLogoRemoved': 'Logo removed.',
       'settingsLogoPickError': 'No valid logo found.',
+      'settingsLicenseSection': 'License',
+      'settingsLicenseUnlimited': 'Unlimited access',
+      'settingsLicenseUnlimitedActive': 'Unlimited access is enabled.',
+      'settingsLicenseExpiresOn': 'License expires on {date}',
+      'settingsLicenseExtendYear': 'Extend 1 year',
+      'settingsLicenseRemoveLimit': 'Remove time limit',
+      'settingsLicenseExpired': 'Expired',
+      'settingsLicenseNeedsDate': 'Set an expiry date to start the license timer.',
+      'licenseExpiredMessage':
+          'License expired. Editing is disabled until it is renewed.',
       'catalogsTitle': 'Price List',
       'catalogProfile': 'Profile',
       'catalogGlass': 'Glass',
@@ -529,6 +550,16 @@ class AppLocalizations {
       'settingsLogoUpdated': 'Logo aktualisiert.',
       'settingsLogoRemoved': 'Logo entfernt.',
       'settingsLogoPickError': 'Kein gültiges Logo gefunden.',
+      'settingsLicenseSection': 'License',
+      'settingsLicenseUnlimited': 'Unlimited access',
+      'settingsLicenseUnlimitedActive': 'Unlimited access is enabled.',
+      'settingsLicenseExpiresOn': 'License expires on {date}',
+      'settingsLicenseExtendYear': 'Extend 1 year',
+      'settingsLicenseRemoveLimit': 'Remove time limit',
+      'settingsLicenseExpired': 'Expired',
+      'settingsLicenseNeedsDate': 'Set an expiry date to start the license timer.',
+      'licenseExpiredMessage':
+          'License expired. Editing is disabled until it is renewed.',
       'catalogsTitle': 'Preisliste',
       'catalogProfile': 'Profil',
       'catalogGlass': 'Glas',
@@ -755,6 +786,16 @@ class AppLocalizations {
       'settingsLogoUpdated': 'Logo mis à jour.',
       'settingsLogoRemoved': 'Logo supprimé.',
       'settingsLogoPickError': 'Aucun logo valide trouvé.',
+      'settingsLicenseSection': 'License',
+      'settingsLicenseUnlimited': 'Unlimited access',
+      'settingsLicenseUnlimitedActive': 'Unlimited access is enabled.',
+      'settingsLicenseExpiresOn': 'License expires on {date}',
+      'settingsLicenseExtendYear': 'Extend 1 year',
+      'settingsLicenseRemoveLimit': 'Remove time limit',
+      'settingsLicenseExpired': 'Expired',
+      'settingsLicenseNeedsDate': 'Set an expiry date to start the license timer.',
+      'licenseExpiredMessage':
+          'License expired. Editing is disabled until it is renewed.',
       'catalogsTitle': 'Liste de prix',
       'catalogProfile': 'Profil',
       'catalogGlass': 'Verre',
@@ -983,6 +1024,16 @@ class AppLocalizations {
       'settingsLogoUpdated': 'Logo aggiornato.',
       'settingsLogoRemoved': 'Logo rimosso.',
       'settingsLogoPickError': 'Nessun logo valido trovato.',
+      'settingsLicenseSection': 'License',
+      'settingsLicenseUnlimited': 'Unlimited access',
+      'settingsLicenseUnlimitedActive': 'Unlimited access is enabled.',
+      'settingsLicenseExpiresOn': 'License expires on {date}',
+      'settingsLicenseExtendYear': 'Extend 1 year',
+      'settingsLicenseRemoveLimit': 'Remove time limit',
+      'settingsLicenseExpired': 'Expired',
+      'settingsLicenseNeedsDate': 'Set an expiry date to start the license timer.',
+      'licenseExpiredMessage':
+          'License expired. Editing is disabled until it is renewed.',
       'catalogsTitle': 'Listino prezzi',
       'catalogProfile': 'Profilo',
       'catalogGlass': 'Vetro',
@@ -1254,6 +1305,17 @@ class AppLocalizations {
   String get settingsLogoUpdated => _t('settingsLogoUpdated');
   String get settingsLogoRemoved => _t('settingsLogoRemoved');
   String get settingsLogoPickError => _t('settingsLogoPickError');
+  String get settingsLicenseSection => _t('settingsLicenseSection');
+  String get settingsLicenseUnlimited => _t('settingsLicenseUnlimited');
+  String get settingsLicenseUnlimitedActive =>
+      _t('settingsLicenseUnlimitedActive');
+  String settingsLicenseExpiresOn(String date) =>
+      _t('settingsLicenseExpiresOn').replaceAll('{date}', date);
+  String get settingsLicenseExtendYear => _t('settingsLicenseExtendYear');
+  String get settingsLicenseRemoveLimit => _t('settingsLicenseRemoveLimit');
+  String get settingsLicenseExpired => _t('settingsLicenseExpired');
+  String get settingsLicenseNeedsDate => _t('settingsLicenseNeedsDate');
+  String get licenseExpiredMessage => _t('licenseExpiredMessage');
   String get catalogsTitle => _t('catalogsTitle');
   String get catalogProfile => _t('catalogProfile');
   String get catalogGlass => _t('catalogGlass');

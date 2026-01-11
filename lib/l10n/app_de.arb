@@ -109,5 +109,14 @@
   "defaultProfile": "Standardprofil",
   "defaultGlass": "Standardglas",
   "defaultBlind": "Standardrollladen",
-  "applyDefaultsMessage": "Wählen Sie, welche Fenster/Türen das aktualisierte Standardprofil, Glas und den Rollladen verwenden sollen. Entfernen Sie die Auswahl bei den Elementen, die ausgeschlossen werden sollen."
+  "applyDefaultsMessage": "Wählen Sie, welche Fenster/Türen das aktualisierte Standardprofil, Glas und den Rollladen verwenden sollen. Entfernen Sie die Auswahl bei den Elementen, die ausgeschlossen werden sollen.",
+  "settingsLicenseSection": "License",
+  "settingsLicenseUnlimited": "Unlimited access",
+  "settingsLicenseUnlimitedActive": "Unlimited access is enabled.",
+  "settingsLicenseExpiresOn": "License expires on {date}",
+  "settingsLicenseExtendYear": "Extend 1 year",
+  "settingsLicenseRemoveLimit": "Remove time limit",
+  "settingsLicenseExpired": "Expired",
+  "settingsLicenseNeedsDate": "Set an expiry date to start the license timer.",
+  "licenseExpiredMessage": "License expired. Editing is disabled until it is renewed."
 }

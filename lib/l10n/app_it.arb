@@ -109,5 +109,14 @@
   "catalogFieldPsi": "Psi (W/mK)",
   "catalogFieldBoxHeight": "Altezza cassonetto (mm)",
   "catalogFieldPrice": "Prezzo (€)",
-  "catalogFieldMass": "Massa (kg)"
+  "catalogFieldMass": "Massa (kg)",
+  "settingsLicenseSection": "License",
+  "settingsLicenseUnlimited": "Unlimited access",
+  "settingsLicenseUnlimitedActive": "Unlimited access is enabled.",
+  "settingsLicenseExpiresOn": "License expires on {date}",
+  "settingsLicenseExtendYear": "Extend 1 year",
+  "settingsLicenseRemoveLimit": "Remove time limit",
+  "settingsLicenseExpired": "Expired",
+  "settingsLicenseNeedsDate": "Set an expiry date to start the license timer.",
+  "licenseExpiredMessage": "License expired. Editing is disabled until it is renewed."
 }
