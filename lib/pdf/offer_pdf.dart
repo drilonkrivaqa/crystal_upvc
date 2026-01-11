@@ -89,6 +89,20 @@ Future<void> printOfferPdf({
     symbol: '€',
     decimalDigits: 2,
   );
+
+  String statusLabel(String status) {
+    switch (status) {
+      case OfferStatus.sent:
+        return l10n.offerStatusSent;
+      case OfferStatus.accepted:
+        return l10n.offerStatusAccepted;
+      case OfferStatus.declined:
+        return l10n.offerStatusDeclined;
+      case OfferStatus.draft:
+      default:
+        return l10n.offerStatusDraft;
+    }
+  }
   double itemsFinal = 0;
   int totalPcs = 0;
   double totalMass = 0;
@@ -178,6 +192,24 @@ Future<void> printOfferPdf({
   final detailsWidth = 230.0; // <--- add this: fixed width for Details!
   final imagePadding = 3.0; // Padding so image never touches border
   // ----------------------------------
+  final revisionCount = offer.versions.length;
+  final latestRevision = revisionCount > 0
+      ? offer.versions
+          .map((version) => version.createdAt)
+          .reduce((a, b) => a.isAfter(b) ? a : b)
+      : null;
+  final revisionLabel = revisionCount == 0
+      ? l10n.pdfRevisionSummaryEmpty
+      : l10n.pdfRevisionSummary
+          .replaceAll('{count}', revisionCount.toString())
+          .replaceAll(
+            '{date}',
+            latestRevision != null
+                ? DateFormat.yMMMd(l10n.locale.toString())
+                    .add_Hm()
+                    .format(latestRevision)
+                : '-',
+          );
 
   doc.addPage(
     pw.MultiPage(
@@ -210,6 +242,15 @@ Future<void> printOfferPdf({
                           pw.Text(company.address),
                           pw.Text(company.phones),
                           pw.Text(company.website),
+                          pw.SizedBox(height: 6),
+                          pw.Text(
+                            '${l10n.offerStatusLabel}: '
+                            '${statusLabel(offer.status)}',
+                            style: pw.TextStyle(
+                              fontWeight: pw.FontWeight.bold,
+                              color: PdfColors.blue800,
+                            ),
+                          ),
                         ],
                       ),
                     ],
@@ -231,11 +272,20 @@ Future<void> printOfferPdf({
               ),
             )
           : pw.SizedBox(),
-      footer: (context) => pw.Align(
+      footer: (context) => pw.Container(
         alignment: pw.Alignment.centerRight,
-        child: pw.Text(
-          '${l10n.pdfPage} ${context.pageNumber} / ${context.pagesCount}',
-          style: pw.TextStyle(fontSize: 12),
+        child: pw.Row(
+          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+          children: [
+            pw.Text(
+              revisionLabel,
+              style: pw.TextStyle(fontSize: 10),
+            ),
+            pw.Text(
+              '${l10n.pdfPage} ${context.pageNumber} / ${context.pagesCount}',
+              style: pw.TextStyle(fontSize: 12),
+            ),
+          ],
         ),
       ),
       build: (context) {

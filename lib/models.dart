@@ -217,6 +217,15 @@ class SectionInsets {
   });
 }
 
+class OfferStatus {
+  static const String draft = 'draft';
+  static const String sent = 'sent';
+  static const String accepted = 'accepted';
+  static const String declined = 'declined';
+
+  static const List<String> values = [draft, sent, accepted, declined];
+}
+
 // Window/Door Item in Offer
 @HiveType(typeId: 6)
 class WindowDoorItem extends HiveObject {
@@ -982,6 +991,14 @@ class Offer extends HiveObject {
   int offerNumber;
   @HiveField(14, defaultValue: -1)
   int defaultBlindIndex;
+  @HiveField(15, defaultValue: OfferStatus.draft)
+  String status;
+  @HiveField(16)
+  DateTime statusChangedAt;
+  @HiveField(17)
+  DateTime? acceptedAt;
+  @HiveField(18, defaultValue: '')
+  String? acceptedBy;
   Offer({
     required this.id,
     required this.customerIndex,
@@ -995,14 +1012,23 @@ class Offer extends HiveObject {
     this.defaultProfileSetIndex = 0,
     this.defaultGlassIndex = 0,
     this.defaultBlindIndex = -1,
+    this.status = OfferStatus.draft,
+    DateTime? statusChangedAt,
+    this.acceptedAt,
+    this.acceptedBy,
     List<OfferVersion>? versions,
     DateTime? lastEdited,
     this.offerNumber = 0,
   })  : lastEdited = lastEdited ?? DateTime.now(),
+        statusChangedAt = statusChangedAt ?? DateTime.now(),
         extraCharges = extraCharges ?? [],
         versions = versions ?? [];
 
-  OfferVersion createVersion({required String name}) {
+  OfferVersion createVersion({
+    required String name,
+    String? note,
+    String? createdBy,
+  }) {
     return OfferVersion(
       name: name,
       createdAt: DateTime.now(),
@@ -1016,6 +1042,9 @@ class Offer extends HiveObject {
       defaultGlassIndex: defaultGlassIndex,
       defaultBlindIndex: defaultBlindIndex,
       customerIndex: customerIndex,
+      status: status,
+      note: note ?? '',
+      createdBy: createdBy ?? '',
     );
   }
 
@@ -1030,6 +1059,14 @@ class Offer extends HiveObject {
     defaultProfileSetIndex = version.defaultProfileSetIndex;
     defaultGlassIndex = version.defaultGlassIndex;
     defaultBlindIndex = version.defaultBlindIndex;
+    if (status != version.status) {
+      status = version.status;
+      statusChangedAt = DateTime.now();
+      if (status != OfferStatus.accepted) {
+        acceptedAt = null;
+        acceptedBy = null;
+      }
+    }
   }
 }
 
@@ -1059,6 +1096,12 @@ class OfferVersion extends HiveObject {
   int defaultBlindIndex;
   @HiveField(11)
   int customerIndex;
+  @HiveField(12, defaultValue: OfferStatus.draft)
+  String status;
+  @HiveField(13, defaultValue: '')
+  String note;
+  @HiveField(14, defaultValue: '')
+  String createdBy;
 
   OfferVersion({
     required this.name,
@@ -1073,6 +1116,9 @@ class OfferVersion extends HiveObject {
     this.defaultGlassIndex = 0,
     this.defaultBlindIndex = -1,
     this.customerIndex = 0,
+    this.status = OfferStatus.draft,
+    this.note = '',
+    this.createdBy = '',
   })  : createdAt = createdAt ?? DateTime.now(),
         items = items != null
             ? items.map((item) => item.copy()).toList()

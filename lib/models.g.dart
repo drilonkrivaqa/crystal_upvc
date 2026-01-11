@@ -541,13 +541,17 @@ class OfferAdapter extends TypeAdapter<Offer> {
           fields[12] == null ? [] : (fields[12] as List).cast<OfferVersion>(),
       offerNumber: fields[13] == null ? 0 : fields[13] as int,
       defaultBlindIndex: fields[14] == null ? -1 : fields[14] as int,
+      status: fields[15] == null ? OfferStatus.draft : fields[15] as String,
+      statusChangedAt: fields[16] as DateTime?,
+      acceptedAt: fields[17] as DateTime?,
+      acceptedBy: fields[18] == null ? '' : fields[18] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Offer obj) {
     writer
-      ..writeByte(15)
+      ..writeByte(19)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -577,7 +581,15 @@ class OfferAdapter extends TypeAdapter<Offer> {
       ..writeByte(13)
       ..write(obj.offerNumber)
       ..writeByte(14)
-      ..write(obj.defaultBlindIndex);
+      ..write(obj.defaultBlindIndex)
+      ..writeByte(15)
+      ..write(obj.status)
+      ..writeByte(16)
+      ..write(obj.statusChangedAt)
+      ..writeByte(17)
+      ..write(obj.acceptedAt)
+      ..writeByte(18)
+      ..write(obj.acceptedBy);
   }
 
   @override
@@ -616,13 +628,16 @@ class OfferVersionAdapter extends TypeAdapter<OfferVersion> {
       defaultGlassIndex: fields[9] == null ? 0 : fields[9] as int,
       defaultBlindIndex: fields[10] == null ? -1 : fields[10] as int,
       customerIndex: fields[11] == null ? 0 : fields[11] as int,
+      status: fields[12] == null ? OfferStatus.draft : fields[12] as String,
+      note: fields[13] == null ? '' : fields[13] as String,
+      createdBy: fields[14] == null ? '' : fields[14] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, OfferVersion obj) {
     writer
-      ..writeByte(12)
+      ..writeByte(15)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -646,7 +661,13 @@ class OfferVersionAdapter extends TypeAdapter<OfferVersion> {
       ..writeByte(10)
       ..write(obj.defaultBlindIndex)
       ..writeByte(11)
-      ..write(obj.customerIndex);
+      ..write(obj.customerIndex)
+      ..writeByte(12)
+      ..write(obj.status)
+      ..writeByte(13)
+      ..write(obj.note)
+      ..writeByte(14)
+      ..write(obj.createdBy);
   }
 
   @override
