@@ -203,6 +203,19 @@ class _SettingsPageState extends State<SettingsPage> {
     });
   }
 
+  Future<void> _stopLicenseNow() async {
+    final now = DateTime.now().subtract(const Duration(seconds: 1));
+    await settingsBox.put(CompanySettings.keyLicenseUnlimited, false);
+    await settingsBox.put(
+      CompanySettings.keyLicenseExpiresAt,
+      now.millisecondsSinceEpoch,
+    );
+    setState(() {
+      _licenseUnlimited = false;
+      _licenseExpiresAt = now;
+    });
+  }
+
   void _unlockSettings(AppLocalizations l10n) {
     final enteredPassword = _passwordController.text.trim();
     final requiredPassword = CompanyDetails.settingsPassword;
@@ -504,6 +517,11 @@ class _SettingsPageState extends State<SettingsPage> {
                         spacing: 12,
                         runSpacing: 8,
                         children: [
+                          OutlinedButton.icon(
+                            onPressed: _stopLicenseNow,
+                            icon: const Icon(Icons.stop_circle_outlined),
+                            label: Text(l10n.settingsLicenseEndNow),
+                          ),
                           OutlinedButton.icon(
                             onPressed:
                                 _licenseUnlimited ? null : _extendLicense,

@@ -116,6 +116,7 @@
   "settingsLicenseExpiresOn": "License expires on {date}",
   "settingsLicenseExtendYear": "Extend 1 year",
   "settingsLicenseSelectDate": "Select date",
+  "settingsLicenseEndNow": "End subscription now",
   "settingsLicenseRemoveLimit": "Remove time limit",
   "settingsLicenseExpired": "Expired",
   "settingsLicenseNeedsDate": "Set an expiry date to start the license timer.",
