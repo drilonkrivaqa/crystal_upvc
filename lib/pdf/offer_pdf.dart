@@ -90,19 +90,6 @@ Future<void> printOfferPdf({
     decimalDigits: 2,
   );
 
-  String statusLabel(String status) {
-    switch (status) {
-      case OfferStatus.sent:
-        return l10n.offerStatusSent;
-      case OfferStatus.accepted:
-        return l10n.offerStatusAccepted;
-      case OfferStatus.declined:
-        return l10n.offerStatusDeclined;
-      case OfferStatus.draft:
-      default:
-        return l10n.offerStatusDraft;
-    }
-  }
   double itemsFinal = 0;
   int totalPcs = 0;
   double totalMass = 0;
@@ -243,14 +230,6 @@ Future<void> printOfferPdf({
                           pw.Text(company.phones),
                           pw.Text(company.website),
                           pw.SizedBox(height: 6),
-                          pw.Text(
-                            '${l10n.offerStatusLabel}: '
-                            '${statusLabel(offer.status)}',
-                            style: pw.TextStyle(
-                              fontWeight: pw.FontWeight.bold,
-                              color: PdfColors.blue800,
-                            ),
-                          ),
                         ],
                       ),
                     ],
