@@ -116,6 +116,7 @@
   "settingsLicenseExpiresOn": "Licenca skadon më {date}",
   "settingsLicenseExtendYear": "Zgjat me 1 vit",
   "settingsLicenseSelectDate": "Zgjidh datën",
+  "settingsLicenseEndNow": "Ndalo abonimin tani",
   "settingsLicenseRemoveLimit": "Hiq limitin e kohës",
   "settingsLicenseExpired": "Skaduar",
   "settingsLicenseNeedsDate": "Caktoni datën e skadimit për të aktivizuar licencën.",
