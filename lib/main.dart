@@ -294,11 +294,15 @@ class HomePage extends StatelessWidget {
                   // Navigation cards
                   ValueListenableBuilder(
                     valueListenable: settingsBox.listenable(
-                      keys: [CompanySettings.keyEnableProduction],
+                      keys: [
+                        CompanySettings.keyEnableProduction,
+                        CompanySettings.keyLicenseExpiresAt,
+                        CompanySettings.keyLicenseUnlimited,
+                      ],
                     ),
                     builder: (context, Box box, _) {
                       final productionEnabled =
-                          CompanySettings.isProductionEnabled(box);
+                          CompanySettings.isProductionAvailable(box);
                       final items = [
                         _NavItem(
                           Icons.auto_awesome_motion_outlined,
