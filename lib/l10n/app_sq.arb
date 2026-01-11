@@ -4,6 +4,8 @@
   "homeCustomers": "Klientët",
   "homeOffers": "Ofertat",
   "homeProduction": "Prodhimi",
+  "homeSubscriptionEndingSoon": "Abonimi përfundon pas {days} ditësh",
+  "homeSubscriptionEndsToday": "Abonimi përfundon sot",
   "productionTitle": "Prodhimi",
   "productionCutting": "Prerja",
   "productionGlass": "Xhami",

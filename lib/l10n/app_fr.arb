@@ -4,6 +4,8 @@
   "homeCustomers": "Clients",
   "homeOffers": "Offres",
   "homeProduction": "Production",
+  "homeSubscriptionEndingSoon": "L'abonnement se termine dans {days} jours",
+  "homeSubscriptionEndsToday": "L'abonnement se termine aujourd'hui",
   "productionTitle": "Production",
   "productionCutting": "Découpe",
   "productionGlass": "Verre",
