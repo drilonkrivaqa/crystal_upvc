@@ -15,6 +15,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show RenderRepaintBoundary;
+import 'package:flutter/services.dart';
 import '../utils/color_options.dart';
 import '../utils/design_image_saver_stub.dart'
     if (dart.library.io) '../utils/design_image_saver_io.dart' as design_saver;
@@ -233,6 +234,8 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
   late SimpleColorOption blindColor;
   late List<double> _columnSizes;
   late List<double> _rowSizes;
+  Color? _customProfileColor;
+  Color? _customGlassColor;
 
   late final TextEditingController _widthController;
   late final TextEditingController _heightController;
@@ -260,6 +263,8 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     blindColor = blindColorForIndex(null);
     _columnSizes = _initialSizes(widget.initialColumnSizes, cols);
     _rowSizes = _initialSizes(widget.initialRowSizes, rows);
+    _customProfileColor = null;
+    _customGlassColor = initialGlassColor.color;
 
     final providedCells = widget.initialCells;
     if (providedCells != null && providedCells.length == cells.length) {
@@ -561,6 +566,8 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
       showBlindBox = false;
       profileColor = initialProfileColor;
       blindColor = blindColorForIndex(null);
+      _customProfileColor = null;
+      _customGlassColor = initialGlassColor.color;
       windowHeightMm = _initialHeightMm(widget.initialHeight);
       windowWidthMm = _initialWidthMm(widget.initialWidth, windowHeightMm);
       _widthController.text = windowWidthMm.toStringAsFixed(0);
@@ -734,7 +741,23 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
                 selected: selected,
                 onSelected: (_) => setState(() => profileColor = opt),
               );
-            }).toList(),
+            }).toList()
+              ..add(
+                ChoiceChip(
+                  label: const Text('Custom'),
+                  avatar: _ColorDot(
+                      color: _customProfileColor ?? profileColor.base),
+                  selected: profileColor.label == 'Custom',
+                  onSelected: (_) async {
+                    final selected = await _showCustomColorPicker(
+                      title: 'Custom profile colour',
+                      initialColor: _customProfileColor ?? profileColor.base,
+                    );
+                    if (selected == null) return;
+                    _setCustomProfileColor(selected);
+                  },
+                ),
+              ),
           ),
           if (showBlindBox) ...[
             const SizedBox(height: 16),
@@ -768,7 +791,32 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
                         () => cellGlassColors[selectedIndex!] = opt.color)
                     : null,
               );
-            }).toList(),
+            }).toList()
+              ..add(
+                ChoiceChip(
+                  label: const Text('Custom'),
+                  avatar: _ColorDot(
+                      color: _customGlassColor ??
+                          glassColorForIndex(widget.initialGlassColorIndex)
+                              .color),
+                  selected: selectedIndex != null &&
+                      _customGlassColor != null &&
+                      cellGlassColors[selectedIndex!] == _customGlassColor,
+                  onSelected: selectedIndex != null
+                      ? (_) async {
+                          final selected = await _showCustomColorPicker(
+                            title: 'Custom glass colour',
+                            initialColor: _customGlassColor ??
+                                glassColorForIndex(
+                                        widget.initialGlassColorIndex)
+                                    .color,
+                          );
+                          if (selected == null) return;
+                          _setCustomGlassColor(selected);
+                        }
+                      : null,
+                ),
+              ),
           ),
           const SizedBox(height: 20),
           if (labelStyle != null) ...[
@@ -874,6 +922,140 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     );
   }
 
+  void _setCustomProfileColor(Color color) {
+    setState(() {
+      _customProfileColor = color;
+      profileColor =
+          ProfileColorOption('Custom', color, _shadowForColor(color));
+    });
+  }
+
+  void _setCustomGlassColor(Color color) {
+    if (selectedIndex == null) return;
+    setState(() {
+      _customGlassColor = color;
+      cellGlassColors[selectedIndex!] = color;
+    });
+  }
+
+  Future<Color?> _showCustomColorPicker({
+    required String title,
+    required Color initialColor,
+  }) async {
+    final controller = TextEditingController(
+      text: _colorToHex(initialColor),
+    );
+    final palette = _buildPaletteColors();
+    Color current = initialColor;
+    final result = await showDialog<Color>(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            void updateColor(Color color) {
+              setDialogState(() => current = color);
+              controller.value = TextEditingValue(
+                text: _colorToHex(color),
+                selection:
+                    TextSelection.collapsed(offset: _colorToHex(color).length),
+              );
+            }
+
+            return AlertDialog(
+              title: Text(title),
+              content: SizedBox(
+                width: 360,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      height: 44,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: current,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.black12),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Palette',
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleSmall
+                            ?.copyWith(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: palette.map((color) {
+                        return InkWell(
+                          onTap: () => updateColor(color),
+                          borderRadius: BorderRadius.circular(6),
+                          child: Container(
+                            width: 28,
+                            height: 28,
+                            decoration: BoxDecoration(
+                              color: color,
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(
+                                color: current == color
+                                    ? kSelectOutline
+                                    : Colors.black12,
+                                width: current == color ? 2 : 1,
+                              ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: controller,
+                      maxLength: 9,
+                      decoration: const InputDecoration(
+                        labelText: 'Hex colour',
+                        prefixText: '#',
+                        counterText: '',
+                      ),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'[0-9a-fA-F#]'),
+                        ),
+                      ],
+                      onChanged: (value) {
+                        final parsed = _tryParseHexColor(value);
+                        if (parsed != null) {
+                          setDialogState(() => current = parsed);
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancel'),
+                ),
+                FilledButton(
+                  onPressed: () => Navigator.pop(context, current),
+                  child: const Text('Use colour'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+    controller.dispose();
+    return result;
+  }
+
   double _initialHeightMm(double? providedHeight) {
     if (providedHeight != null &&
         providedHeight.isFinite &&
@@ -908,6 +1090,57 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
   }
 
   double _clampDimension(double value) => value.clamp(300.0, 4000.0);
+}
+
+Color _shadowForColor(Color base) {
+  final hsl = HSLColor.fromColor(base);
+  final darkened = hsl.withLightness((hsl.lightness - 0.2).clamp(0.0, 1.0));
+  return darkened.toColor();
+}
+
+String _colorToHex(Color color) {
+  final hex = color.value.toRadixString(16).padLeft(8, '0').toUpperCase();
+  return hex.substring(2);
+}
+
+Color? _tryParseHexColor(String input) {
+  final normalized = input.replaceAll('#', '').trim();
+  if (normalized.length != 6 && normalized.length != 8) {
+    return null;
+  }
+  try {
+    final value = int.parse(normalized, radix: 16);
+    if (normalized.length == 6) {
+      return Color(0xFF000000 | value);
+    }
+    return Color(value);
+  } catch (_) {
+    return null;
+  }
+}
+
+List<Color> _buildPaletteColors() {
+  const hues = <int>[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330];
+  const saturations = <double>[0.35, 0.6, 0.8, 1.0];
+  const values = <double>[0.95, 0.8];
+  final colors = <Color>[];
+  for (final value in values) {
+    for (final saturation in saturations) {
+      for (final hue in hues) {
+        colors.add(
+          HSVColor.fromAHSV(1, hue.toDouble(), saturation, value).toColor(),
+        );
+      }
+    }
+  }
+  colors.addAll(<Color>[
+    const Color(0xFF000000),
+    const Color(0xFF424242),
+    const Color(0xFF757575),
+    const Color(0xFFBDBDBD),
+    const Color(0xFFFFFFFF),
+  ]);
+  return colors;
 }
 
 // ── painter ───────────────────────────────────────────────────────────────────
