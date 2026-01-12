@@ -29,6 +29,8 @@ class _SettingsPageState extends State<SettingsPage> {
   final TextEditingController _phonesController = TextEditingController();
   final TextEditingController _websiteController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _mechanismCompanyController =
+      TextEditingController();
   Uint8List? _logoBytes;
   String _fallbackLogoAsset = 'assets/logo.png';
   bool _productionEnabled = true;
@@ -36,6 +38,7 @@ class _SettingsPageState extends State<SettingsPage> {
   DateTime? _licenseExpiresAt;
   bool _initialized = false;
   bool _settingsUnlocked = false;
+  List<String> _mechanismCompanies = [];
 
   @override
   void initState() {
@@ -60,6 +63,7 @@ class _SettingsPageState extends State<SettingsPage> {
     _productionEnabled = CompanySettings.isProductionEnabled(settingsBox);
     _licenseUnlimited = CompanySettings.isLicenseUnlimited(settingsBox);
     _licenseExpiresAt = CompanySettings.licenseExpiresAt(settingsBox);
+    _mechanismCompanies = CompanySettings.readMechanismCompanies(settingsBox);
     _initialized = true;
   }
 
@@ -70,6 +74,7 @@ class _SettingsPageState extends State<SettingsPage> {
     _phonesController.dispose();
     _websiteController.dispose();
     _passwordController.dispose();
+    _mechanismCompanyController.dispose();
     super.dispose();
   }
 
@@ -124,6 +129,45 @@ class _SettingsPageState extends State<SettingsPage> {
     } else {
       await settingsBox.put(key, trimmed);
     }
+  }
+
+  Future<void> _saveMechanismCompanies() async {
+    if (_mechanismCompanies.isEmpty) {
+      await settingsBox.delete(CompanySettings.keyMechanismCompanies);
+      return;
+    }
+    await settingsBox.put(
+      CompanySettings.keyMechanismCompanies,
+      _mechanismCompanies,
+    );
+  }
+
+  Future<void> _addMechanismCompany() async {
+    final trimmed = _mechanismCompanyController.text.trim();
+    if (trimmed.isEmpty) {
+      return;
+    }
+    final exists = _mechanismCompanies.any(
+      (company) => company.toLowerCase() == trimmed.toLowerCase(),
+    );
+    if (exists) {
+      _mechanismCompanyController.clear();
+      return;
+    }
+    setState(() {
+      _mechanismCompanies = [..._mechanismCompanies, trimmed]
+        ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+      _mechanismCompanyController.clear();
+    });
+    await _saveMechanismCompanies();
+  }
+
+  Future<void> _removeMechanismCompany(String company) async {
+    setState(() {
+      _mechanismCompanies =
+          _mechanismCompanies.where((item) => item != company).toList();
+    });
+    await _saveMechanismCompanies();
   }
 
   Future<void> _setLicenseUnlimited(bool value) async {
@@ -424,6 +468,63 @@ class _SettingsPageState extends State<SettingsPage> {
                         decoration:
                             InputDecoration(labelText: l10n.settingsCompanyWebsite),
                       ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                GlassCard(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.settingsMechanismCompaniesSection,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _mechanismCompanyController,
+                              decoration: InputDecoration(
+                                labelText: l10n.settingsMechanismCompaniesHint,
+                              ),
+                              onSubmitted: (_) => _addMechanismCompany(),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          IconButton(
+                            onPressed: _addMechanismCompany,
+                            icon: const Icon(Icons.add_circle_outline),
+                            tooltip: l10n.add,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      if (_mechanismCompanies.isEmpty)
+                        Text(
+                          l10n.settingsMechanismCompaniesEmpty,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: colors.onSurfaceVariant,
+                          ),
+                        )
+                      else
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            for (final company in _mechanismCompanies)
+                              InputChip(
+                                label: Text(company),
+                                onDeleted: () =>
+                                    _removeMechanismCompany(company),
+                              ),
+                          ],
+                        ),
                     ],
                   ),
                 ),
