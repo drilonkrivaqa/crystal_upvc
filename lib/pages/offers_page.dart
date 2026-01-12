@@ -18,6 +18,7 @@ class OffersPage extends StatefulWidget {
 class _OffersPageState extends State<OffersPage> {
   late Box<Offer> offerBox;
   late Box<Customer> customerBox;
+  late Box<Mechanism> mechanismBox;
   late Box settingsBox;
   String _searchQuery = '';
 
@@ -26,6 +27,7 @@ class _OffersPageState extends State<OffersPage> {
     super.initState();
     offerBox = Hive.box<Offer>('offers');
     customerBox = Hive.box<Customer>('customers');
+    mechanismBox = Hive.box<Mechanism>('mechanisms');
     settingsBox = Hive.box('settings');
   }
 
@@ -143,6 +145,15 @@ class _OffersPageState extends State<OffersPage> {
     String customerSearch = '';
     final TextEditingController profitController =
     TextEditingController(text: '0');
+    final mechanismCompanies = <String>{};
+    for (final mechanism in mechanismBox.values) {
+      final company = mechanism.company.trim();
+      if (company.isNotEmpty) {
+        mechanismCompanies.add(company);
+      }
+    }
+    final sortedCompanies = mechanismCompanies.toList()..sort();
+    String selectedMechanismCompany = '';
 
     showDialog(
       context: context,
@@ -214,6 +225,26 @@ class _OffersPageState extends State<OffersPage> {
                   const TextInputType.numberWithOptions(decimal: true),
                   decoration: InputDecoration(labelText: l10n.profitPercent),
                 ),
+                const SizedBox(height: 12),
+                DropdownButtonFormField<String>(
+                  value: selectedMechanismCompany,
+                  decoration: InputDecoration(labelText: l10n.mechanismCompany),
+                  isExpanded: true,
+                  items: [
+                    DropdownMenuItem<String>(
+                      value: '',
+                      child: Text(l10n.mechanismCompanyAny),
+                    ),
+                    for (final company in sortedCompanies)
+                      DropdownMenuItem<String>(
+                        value: company,
+                        child: Text(company),
+                      ),
+                  ],
+                  onChanged: (val) => setStateDialog(
+                        () => selectedMechanismCompany = val ?? '',
+                  ),
+                ),
               ],
             ),
           ),
@@ -235,6 +266,7 @@ class _OffersPageState extends State<OffersPage> {
                     profitPercent:
                     double.tryParse(profitController.text) ?? 0,
                     offerNumber: newOfferNumber,
+                    defaultMechanismCompany: selectedMechanismCompany,
                   ),
                 );
                 Navigator.pop(context);

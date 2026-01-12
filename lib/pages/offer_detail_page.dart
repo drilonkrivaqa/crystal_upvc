@@ -38,6 +38,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
   int? _selectedDefaultProfileSetIndex;
   int? _selectedDefaultGlassIndex;
   int? _selectedDefaultBlindIndex;
+  String? _selectedDefaultMechanismCompany;
 
   int _normalizeIndex(int index, int length, {bool allowNegative = false}) {
     if (length <= 0) {
@@ -74,14 +75,41 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
     return _normalizeIndex(index, length, allowNegative: true);
   }
 
+  String _effectiveSelectedMechanismCompany(Offer offer) {
+    return _selectedDefaultMechanismCompany ??
+        offer.defaultMechanismCompany.trim();
+  }
+
+  List<String> _mechanismCompanies() {
+    final companies = <String>{};
+    for (final mechanism in mechanismBox.values) {
+      final name = mechanism.company.trim();
+      if (name.isNotEmpty) {
+        companies.add(name);
+      }
+    }
+    final list = companies.toList()..sort();
+    return list;
+  }
+
   bool _hasPendingDefaultChange(
-      Offer offer, int? profileIndex, int? glassIndex, int blindIndex) {
+    Offer offer,
+    int? profileIndex,
+    int? glassIndex,
+    int blindIndex,
+    String mechanismCompany,
+  ) {
     final profileChanged =
         profileIndex != null && profileIndex != offer.defaultProfileSetIndex;
     final glassChanged =
         glassIndex != null && glassIndex != offer.defaultGlassIndex;
     final blindChanged = blindIndex != offer.defaultBlindIndex;
-    return profileChanged || glassChanged || blindChanged;
+    final mechanismCompanyChanged =
+        mechanismCompany != offer.defaultMechanismCompany;
+    return profileChanged ||
+        glassChanged ||
+        blindChanged ||
+        mechanismCompanyChanged;
   }
 
   String _statusLabel(AppLocalizations l10n, String status) {
@@ -103,6 +131,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
     int? profileIndex,
     int? glassIndex,
     int blindIndex,
+    String mechanismCompany,
   ) async {
     final l10n = AppLocalizations.of(context);
     final profileChanged =
@@ -110,13 +139,19 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
     final glassChanged =
         glassIndex != null && glassIndex != offer.defaultGlassIndex;
     final blindChanged = blindIndex != offer.defaultBlindIndex;
+    final mechanismCompanyChanged =
+        mechanismCompany != offer.defaultMechanismCompany;
 
-    if (!profileChanged && !glassChanged && !blindChanged) {
+    if (!profileChanged &&
+        !glassChanged &&
+        !blindChanged &&
+        !mechanismCompanyChanged) {
       return;
     }
 
     List<bool>? selection;
-    if (offer.items.isNotEmpty) {
+    if (offer.items.isNotEmpty &&
+        (profileChanged || glassChanged || blindChanged)) {
       selection = await _showApplyDefaultsDialog(
         offer,
       );
@@ -151,6 +186,9 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
     if (blindChanged) {
       offer.defaultBlindIndex = blindIndex;
     }
+    if (mechanismCompanyChanged) {
+      offer.defaultMechanismCompany = mechanismCompany;
+    }
     offer.lastEdited = DateTime.now();
     await offer.save();
     if (!mounted) return;
@@ -163,6 +201,9 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
       }
       if (blindChanged) {
         _selectedDefaultBlindIndex = blindIndex;
+      }
+      if (mechanismCompanyChanged) {
+        _selectedDefaultMechanismCompany = mechanismCompany;
       }
     });
     ScaffoldMessenger.of(context).showSnackBar(
@@ -387,6 +428,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
       _selectedDefaultProfileSetIndex = offer.defaultProfileSetIndex;
       _selectedDefaultGlassIndex = offer.defaultGlassIndex;
       _selectedDefaultBlindIndex = offer.defaultBlindIndex;
+      _selectedDefaultMechanismCompany = offer.defaultMechanismCompany;
+      _selectedDefaultMechanismCompany = offer.defaultMechanismCompany;
     });
     await offer.save();
     if (!mounted) return;
@@ -906,9 +949,18 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
     int? selectedProfileIndex,
     int? selectedGlassIndex,
     int selectedBlindIndex,
+    String selectedMechanismCompany,
     bool hasPendingDefaultChange,
   ) {
     final l10n = AppLocalizations.of(context);
+    final mechanismCompanies = _mechanismCompanies();
+    final mechanismCompanyOptions = [
+      '',
+      ...mechanismCompanies,
+      if (selectedMechanismCompany.isNotEmpty &&
+          !mechanismCompanies.contains(selectedMechanismCompany))
+        selectedMechanismCompany,
+    ];
     return GlassCard(
       margin: EdgeInsets.zero,
       padding: const EdgeInsets.all(16),
@@ -1002,6 +1054,31 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
               });
             },
           ),
+          const SizedBox(height: 12),
+          DropdownButtonFormField<String>(
+            value: selectedMechanismCompany,
+            decoration:
+                InputDecoration(labelText: l10n.defaultMechanismCompany),
+            isExpanded: true,
+            items: [
+              for (final company in mechanismCompanyOptions)
+                DropdownMenuItem<String>(
+                  value: company,
+                  child: Text(
+                    company.isEmpty ? l10n.mechanismCompanyAny : company,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+            ],
+            onChanged: (val) {
+              if (val == null) {
+                return;
+              }
+              setState(() {
+                _selectedDefaultMechanismCompany = val;
+              });
+            },
+          ),
           if (hasPendingDefaultChange) ...[
             const SizedBox(height: 12),
             Align(
@@ -1011,7 +1088,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                     offer,
                     selectedProfileIndex,
                     selectedGlassIndex,
-                    selectedBlindIndex),
+                    selectedBlindIndex,
+                    selectedMechanismCompany),
                 icon: const Icon(Icons.save),
                 label: Text(l10n.save),
               ),
@@ -1375,6 +1453,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
     _selectedDefaultProfileSetIndex = offer.defaultProfileSetIndex;
     _selectedDefaultGlassIndex = offer.defaultGlassIndex;
     _selectedDefaultBlindIndex = offer.defaultBlindIndex;
+    _selectedDefaultMechanismCompany = offer.defaultMechanismCompany;
   }
 
   @override
@@ -1404,8 +1483,14 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
         _effectiveSelectedGlassIndex(offer, glassBox.length);
     final selectedBlindIndex =
         _effectiveSelectedBlindIndexRaw(offer, blindBox.length);
+    final selectedMechanismCompany =
+        _effectiveSelectedMechanismCompany(offer);
     final hasPendingDefaultChange = _hasPendingDefaultChange(
-        offer, selectedProfileIndex, selectedGlassIndex, selectedBlindIndex);
+        offer,
+        selectedProfileIndex,
+        selectedGlassIndex,
+        selectedBlindIndex,
+        selectedMechanismCompany);
     return Scaffold(
       appBar: AppBar(
         title: Text('${l10n.pdfOffer} ${offer.offerNumber}'),
@@ -1449,12 +1534,14 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                       _buildVersionsCard(offer),
                       if (profileSetBox.isNotEmpty ||
                           glassBox.isNotEmpty ||
-                          blindBox.isNotEmpty)
+                          blindBox.isNotEmpty ||
+                          mechanismBox.isNotEmpty)
                         _buildDefaultCharacteristicsCard(
                           offer,
                           selectedProfileIndex,
                           selectedGlassIndex,
                           selectedBlindIndex,
+                          selectedMechanismCompany,
                           hasPendingDefaultChange,
                         ),
                     ];
@@ -1646,6 +1733,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                                         offer.defaultProfileSetIndex,
                                     defaultGlassIndex: offer.defaultGlassIndex,
                                     defaultBlindIndex: offer.defaultBlindIndex,
+                                    defaultMechanismCompany:
+                                        offer.defaultMechanismCompany,
                                   ),
                                 ),
                               );
@@ -1938,6 +2027,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
           defaultProfileSetIndex: offer.defaultProfileSetIndex,
           defaultGlassIndex: offer.defaultGlassIndex,
           defaultBlindIndex: offer.defaultBlindIndex,
+          defaultMechanismCompany: offer.defaultMechanismCompany,
         ),
       ),
     );
@@ -2246,6 +2336,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
         profileSetBox.length);
     final glassIndex = _normalizeIndex(
         _selectedDefaultGlassIndex ?? offer.defaultGlassIndex, glassBox.length);
+    final mechanismCompany = _effectiveSelectedMechanismCompany(offer);
     final items = <WindowDoorItem>[];
     final trimmedPrefix =
         prefix.trim().isEmpty ? l10n.bulkAddDialogDefaultPrefix : prefix.trim();
@@ -2279,8 +2370,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
 
       final widthSegments = _splitEvenly(width, vertical);
       final heightSegments = _splitEvenly(height, horizontal);
-      final mechanismIndex =
-          _findDefaultMechanismIndex(widthSegments, heightSegments);
+      final mechanismIndex = _findDefaultMechanismIndex(
+          widthSegments, heightSegments, mechanismCompany);
       final rowFixed = List<List<bool>>.generate(
           horizontal, (_) => List<bool>.filled(vertical, false));
       final flattenedFixed = <bool>[];
@@ -2504,7 +2595,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
   }
 
   int? _findDefaultMechanismIndex(
-      List<int> widths, List<int> heights) {
+      List<int> widths, List<int> heights, String mechanismCompany) {
     if (mechanismBox.isEmpty) {
       return null;
     }
@@ -2513,6 +2604,10 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
     for (int i = 0; i < mechanismBox.length; i++) {
       final mechanism = mechanismBox.getAt(i);
       if (mechanism == null) continue;
+      if (mechanismCompany.isNotEmpty &&
+          mechanism.company.trim() != mechanismCompany) {
+        continue;
+      }
       double mechanismBestScore = double.infinity;
       for (final height in heights) {
         for (final width in widths) {

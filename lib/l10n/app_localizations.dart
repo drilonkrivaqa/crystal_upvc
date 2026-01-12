@@ -182,6 +182,9 @@ class AppLocalizations {
       'defaultProfile': 'Profili i paracaktuar',
       'defaultGlass': 'Xhami i paracaktuar',
       'defaultBlind': 'Roleta e paracaktuar',
+      'defaultMechanismCompany': 'Default mechanism company',
+      'mechanismCompany': 'Mechanism company',
+      'mechanismCompanyAny': 'Any company',
       'applyDefaultsTitle': 'Aplikoni ndryshimet',
       'applyDefaultsMessage':
           'Zgjidhni cilat dritare/dyer duhet të përdorin profilin, xhamin dhe roletën e re të paracaktuar. Hiqni shenjën nga ato që dëshironi t\'i përjashtoni.',
@@ -461,6 +464,9 @@ class AppLocalizations {
       'defaultProfile': 'Default profile',
       'defaultGlass': 'Default glass',
       'defaultBlind': 'Default blind',
+      'defaultMechanismCompany': 'Default mechanism company',
+      'mechanismCompany': 'Mechanism company',
+      'mechanismCompanyAny': 'Any company',
       'applyDefaultsTitle': 'Apply changes',
       'applyDefaultsMessage':
           'Choose which windows/doors should use the updated default profile, glass, and blind. Uncheck the items you want to exclude.',
@@ -738,6 +744,9 @@ class AppLocalizations {
       'defaultProfile': 'Standardprofil',
       'defaultGlass': 'Standardglas',
       'defaultBlind': 'Standardrollladen',
+      'defaultMechanismCompany': 'Default mechanism company',
+      'mechanismCompany': 'Mechanism company',
+      'mechanismCompanyAny': 'Any company',
       'applyDefaultsTitle': 'Änderungen anwenden',
       'applyDefaultsMessage':
           'Wählen Sie, welche Fenster/Türen das aktualisierte Standardprofil, Glas und den Rollladen verwenden sollen. Entfernen Sie die Auswahl bei den Elementen, die ausgeschlossen werden sollen.',
@@ -1005,6 +1014,9 @@ class AppLocalizations {
       'defaultProfile': 'Profil par défaut',
       'defaultGlass': 'Vitrage par défaut',
       'defaultBlind': 'Volet par défaut',
+      'defaultMechanismCompany': 'Default mechanism company',
+      'mechanismCompany': 'Mechanism company',
+      'mechanismCompanyAny': 'Any company',
       'applyDefaultsTitle': 'Appliquer les modifications',
       'applyDefaultsMessage':
           'Choisissez quelles fenêtres/portes doivent utiliser le profil, le vitrage et le volet par défaut mis à jour. Décochez les éléments à exclure.',
@@ -1272,6 +1284,9 @@ class AppLocalizations {
       'defaultProfile': 'Profilo predefinito',
       'defaultGlass': 'Vetro predefinito',
       'defaultBlind': 'Tapparella predefinita',
+      'defaultMechanismCompany': 'Default mechanism company',
+      'mechanismCompany': 'Mechanism company',
+      'mechanismCompanyAny': 'Any company',
       'applyDefaultsTitle': 'Applica le modifiche',
       'applyDefaultsMessage':
           'Scegli quali finestre/porte devono usare il profilo, il vetro e la tapparella predefiniti aggiornati. Deseleziona gli elementi da escludere.',
@@ -1588,6 +1603,9 @@ class AppLocalizations {
   String get defaultProfile => _t('defaultProfile');
   String get defaultGlass => _t('defaultGlass');
   String get defaultBlind => _t('defaultBlind');
+  String get defaultMechanismCompany => _t('defaultMechanismCompany');
+  String get mechanismCompany => _t('mechanismCompany');
+  String get mechanismCompanyAny => _t('mechanismCompanyAny');
   String get applyDefaultsTitle => _t('applyDefaultsTitle');
   String get applyDefaultsMessage => _t('applyDefaultsMessage');
   String get selectAll => _t('selectAll');
