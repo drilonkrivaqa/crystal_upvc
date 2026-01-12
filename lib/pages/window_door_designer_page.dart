@@ -16,6 +16,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show RenderRepaintBoundary;
 import '../utils/color_options.dart';
+import '../widgets/color_picker_dialog.dart';
 import '../utils/design_image_saver_stub.dart'
     if (dart.library.io) '../utils/design_image_saver_io.dart' as design_saver;
 
@@ -77,7 +78,9 @@ Future<Uint8List?> buildWindowDoorDesignPreviewBytes({
   double? heightMm,
   bool showBlindBox = false,
   int? profileColorIndex,
+  int? profileCustomColorValue,
   int? glassColorIndex,
+  int? glassCustomColorValue,
 }) async {
   final safeRows = rows.clamp(1, 8);
   final safeCols = cols.clamp(1, 8);
@@ -101,7 +104,10 @@ Future<Uint8List?> buildWindowDoorDesignPreviewBytes({
     (index) => index < cells.length ? cells[index] : SashType.fixed,
     growable: false,
   );
-  final glassColor = glassColorForIndex(glassColorIndex).color;
+  final glassColor = glassColorForSelection(
+    index: glassColorIndex,
+    customColorValue: glassCustomColorValue,
+  ).color;
   final cellGlassColors =
       List<Color>.filled(totalCells, glassColor, growable: false);
 
@@ -114,7 +120,10 @@ Future<Uint8List?> buildWindowDoorDesignPreviewBytes({
     showBlindBox: showBlindBox,
     windowHeightMm: resolvedHeightMm,
     cellGlassColors: cellGlassColors,
-    profileColor: profileColorForIndex(profileColorIndex),
+    profileColor: profileColorForSelection(
+      index: profileColorIndex,
+      customColorValue: profileCustomColorValue,
+    ),
     blindColor: blindColorForIndex(null),
     columnFractions: _normalizedFractionsForPreview(columnSizes, safeCols),
     rowFractions: _normalizedFractionsForPreview(rowSizes, safeRows),
@@ -195,7 +204,9 @@ class WindowDoorDesignerPage extends StatefulWidget {
   final List<double>? initialColumnSizes;
   final List<double>? initialRowSizes;
   final int? initialProfileColorIndex;
+  final int? initialProfileCustomColorValue;
   final int? initialGlassColorIndex;
+  final int? initialGlassCustomColorValue;
 
   const WindowDoorDesignerPage({
     super.key,
@@ -208,7 +219,9 @@ class WindowDoorDesignerPage extends StatefulWidget {
     this.initialColumnSizes,
     this.initialRowSizes,
     this.initialProfileColorIndex,
+    this.initialProfileCustomColorValue,
     this.initialGlassColorIndex,
+    this.initialGlassCustomColorValue,
   });
 
   @override
@@ -233,6 +246,8 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
   late SimpleColorOption blindColor;
   late List<double> _columnSizes;
   late List<double> _rowSizes;
+  int? _customProfileColorValue;
+  int? _customGlassColorValue;
 
   late final TextEditingController _widthController;
   late final TextEditingController _heightController;
@@ -252,11 +267,19 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     _heightController =
         TextEditingController(text: windowHeightMm.toStringAsFixed(0));
     cells = List<SashType>.filled(rows * cols, SashType.fixed, growable: true);
-    final initialGlassColor = glassColorForIndex(widget.initialGlassColorIndex);
+    _customProfileColorValue = widget.initialProfileCustomColorValue;
+    _customGlassColorValue = widget.initialGlassCustomColorValue;
+    final initialGlassColor = glassColorForSelection(
+      index: widget.initialGlassColorIndex,
+      customColorValue: _customGlassColorValue,
+    );
     cellGlassColors = List<Color>.filled(
         rows * cols, initialGlassColor.color,
         growable: true);
-    profileColor = profileColorForIndex(widget.initialProfileColorIndex);
+    profileColor = profileColorForSelection(
+      index: widget.initialProfileColorIndex,
+      customColorValue: _customProfileColorValue,
+    );
     blindColor = blindColorForIndex(null);
     _columnSizes = _initialSizes(widget.initialColumnSizes, cols);
     _rowSizes = _initialSizes(widget.initialRowSizes, rows);
@@ -277,7 +300,10 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
   void _regrid(int r, int c) {
     final defaultGlassColor = cellGlassColors.isNotEmpty
         ? cellGlassColors.first
-        : glassColorForIndex(widget.initialGlassColorIndex).color;
+        : glassColorForSelection(
+            index: widget.initialGlassColorIndex,
+            customColorValue: _customGlassColorValue,
+          ).color;
     setState(() {
       rows = r.clamp(1, 8);
       cols = c.clamp(1, 8);
@@ -305,6 +331,45 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     setState(() {
       cellGlassColors = List<Color>.filled(rows * cols, color, growable: true);
       selectedIndex = null;
+    });
+  }
+
+  Future<void> _pickCustomProfileColor() async {
+    final initialColor = _customProfileColorValue != null
+        ? Color(_customProfileColorValue!)
+        : profileColor.base;
+    final picked = await showColorPickerDialog(
+      context,
+      initialColor: initialColor,
+      title: 'Custom profile color',
+    );
+    if (picked == null) {
+      return;
+    }
+    setState(() {
+      _customProfileColorValue = picked.value;
+      profileColor = profileColorForSelection(
+        customColorValue: picked.value,
+      );
+    });
+  }
+
+  Future<void> _pickCustomGlassColor() async {
+    if (selectedIndex == null) {
+      return;
+    }
+    final initialColor = cellGlassColors[selectedIndex!];
+    final picked = await showColorPickerDialog(
+      context,
+      initialColor: initialColor,
+      title: 'Custom glass color',
+    );
+    if (picked == null) {
+      return;
+    }
+    setState(() {
+      _customGlassColorValue = picked.value;
+      cellGlassColors[selectedIndex!] = picked;
     });
   }
 
@@ -546,9 +611,16 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
   }
 
   void _reset() {
-    final initialGlassColor = glassColorForIndex(widget.initialGlassColorIndex);
-    final initialProfileColor =
-        profileColorForIndex(widget.initialProfileColorIndex);
+    _customProfileColorValue = widget.initialProfileCustomColorValue;
+    _customGlassColorValue = widget.initialGlassCustomColorValue;
+    final initialGlassColor = glassColorForSelection(
+      index: widget.initialGlassColorIndex,
+      customColorValue: _customGlassColorValue,
+    );
+    final initialProfileColor = profileColorForSelection(
+      index: widget.initialProfileColorIndex,
+      customColorValue: _customProfileColorValue,
+    );
     setState(() {
       cells =
           List<SashType>.filled(rows * cols, SashType.fixed, growable: true);
@@ -726,15 +798,27 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
           const SizedBox(height: 16),
           _colorGroup(
             title: 'Profile colour',
-            chips: profileColorOptions.map((opt) {
-              final selected = profileColor == opt;
-              return ChoiceChip(
-                label: Text(opt.label),
-                avatar: _ColorDot(color: opt.base),
-                selected: selected,
-                onSelected: (_) => setState(() => profileColor = opt),
-              );
-            }).toList(),
+            chips: [
+              ...profileColorOptions.map((opt) {
+                final selected = profileColor == opt;
+                return ChoiceChip(
+                  label: Text(opt.label),
+                  avatar: _ColorDot(color: opt.base),
+                  selected: selected,
+                  onSelected: (_) => setState(() => profileColor = opt),
+                );
+              }),
+              ChoiceChip(
+                label: const Text('Custom'),
+                avatar: _ColorDot(
+                  color: _customProfileColorValue != null
+                      ? Color(_customProfileColorValue!)
+                      : profileColor.base,
+                ),
+                selected: !profileColorOptions.contains(profileColor),
+                onSelected: (_) => _pickCustomProfileColor(),
+              ),
+            ],
           ),
           if (showBlindBox) ...[
             const SizedBox(height: 16),
@@ -756,19 +840,37 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
             title: selectedIndex == null
                 ? 'Glass colour (select a section)'
                 : 'Glass colour',
-            chips: glassColorOptions.map((opt) {
-              final isSelected = selectedIndex != null &&
-                  cellGlassColors[selectedIndex!] == opt.color;
-              return ChoiceChip(
-                label: Text(opt.label),
-                avatar: _ColorDot(color: opt.color),
-                selected: isSelected,
-                onSelected: selectedIndex != null
-                    ? (_) => setState(
-                        () => cellGlassColors[selectedIndex!] = opt.color)
-                    : null,
-              );
-            }).toList(),
+            chips: [
+              ...glassColorOptions.map((opt) {
+                final isSelected = selectedIndex != null &&
+                    cellGlassColors[selectedIndex!] == opt.color;
+                return ChoiceChip(
+                  label: Text(opt.label),
+                  avatar: _ColorDot(color: opt.color),
+                  selected: isSelected,
+                  onSelected: selectedIndex != null
+                      ? (_) => setState(
+                          () => cellGlassColors[selectedIndex!] = opt.color)
+                      : null,
+                );
+              }),
+              ChoiceChip(
+                label: const Text('Custom'),
+                avatar: _ColorDot(
+                  color: selectedIndex != null
+                      ? cellGlassColors[selectedIndex!]
+                      : _customGlassColorValue != null
+                          ? Color(_customGlassColorValue!)
+                          : Colors.grey.shade400,
+                ),
+                selected: selectedIndex != null &&
+                    glassColorOptions.every(
+                      (opt) => cellGlassColors[selectedIndex!] != opt.color,
+                    ),
+                onSelected:
+                    selectedIndex != null ? (_) => _pickCustomGlassColor() : null,
+              ),
+            ],
           ),
           const SizedBox(height: 20),
           if (labelStyle != null) ...[
@@ -782,7 +884,10 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
               frameColor: profileColor.base,
               glassColor: selectedIndex != null
                   ? cellGlassColors[selectedIndex!]
-                  : glassColorForIndex(widget.initialGlassColorIndex).color,
+                  : glassColorForSelection(
+                      index: widget.initialGlassColorIndex,
+                      customColorValue: _customGlassColorValue,
+                    ).color,
             ),
           ),
           const SizedBox(height: 24),
