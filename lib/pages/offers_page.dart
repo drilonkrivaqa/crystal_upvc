@@ -145,9 +145,7 @@ class _OffersPageState extends State<OffersPage> {
     String customerSearch = '';
     final TextEditingController profitController =
     TextEditingController(text: '0');
-    final mechanismCompanies = <String>{
-      ...CompanySettings.readMechanismCompanies(settingsBox),
-    };
+    final mechanismCompanies = <String>{};
     for (final mechanism in mechanismBox.values) {
       final company = mechanism.company.trim();
       if (company.isNotEmpty) {

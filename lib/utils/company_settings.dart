@@ -29,7 +29,6 @@ class CompanySettings {
   static const String keyPhones = 'companyPhones';
   static const String keyWebsite = 'companyWebsite';
   static const String keyLogoBytes = 'companyLogoBytes';
-  static const String keyMechanismCompanies = 'mechanismCompanies';
   static const String keyEnableProduction = 'featureProductionEnabled';
   static const String keyLicenseExpiresAt = 'licenseExpiresAt';
   static const String keyLicenseUnlimited = 'licenseUnlimited';
@@ -58,25 +57,6 @@ class CompanySettings {
 
   static bool isProductionEnabled(Box settingsBox) {
     return settingsBox.get(keyEnableProduction, defaultValue: true) as bool;
-  }
-
-  static List<String> readMechanismCompanies(Box settingsBox) {
-    final raw = settingsBox.get(keyMechanismCompanies);
-    if (raw is! List) {
-      return [];
-    }
-    final companies = <String>{};
-    for (final entry in raw) {
-      if (entry is String) {
-        final trimmed = entry.trim();
-        if (trimmed.isNotEmpty) {
-          companies.add(trimmed);
-        }
-      }
-    }
-    final list = companies.toList()
-      ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
-    return list;
   }
 
   static bool isProductionAvailable(Box settingsBox) {
