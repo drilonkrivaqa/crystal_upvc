@@ -15,13 +15,15 @@ class WindowDoorItemPage extends StatefulWidget {
   final int? defaultProfileSetIndex;
   final int? defaultGlassIndex;
   final int? defaultBlindIndex;
+  final String? defaultMechanismCompany;
   const WindowDoorItemPage(
       {super.key,
       required this.onSave,
       this.existingItem,
       this.defaultProfileSetIndex,
       this.defaultGlassIndex,
-      this.defaultBlindIndex});
+      this.defaultBlindIndex,
+      this.defaultMechanismCompany});
 
   @override
   State<WindowDoorItemPage> createState() => _WindowDoorItemPageState();
@@ -95,6 +97,43 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
       return length - 1;
     }
     return value;
+  }
+
+  String get _selectedMechanismCompany =>
+      widget.defaultMechanismCompany?.trim() ?? '';
+
+  bool _matchesMechanismCompany(Mechanism mechanism) {
+    final selected = _selectedMechanismCompany;
+    if (selected.isEmpty) {
+      return true;
+    }
+    return mechanism.company.trim() == selected;
+  }
+
+  List<int> _mechanismIndicesForCompany({bool includeSelected = false}) {
+    final indices = <int>[];
+    for (int i = 0; i < mechanismBox.length; i++) {
+      final mechanism = mechanismBox.getAt(i);
+      if (mechanism == null) continue;
+      if (_matchesMechanismCompany(mechanism)) {
+        indices.add(i);
+      }
+    }
+    if (includeSelected && mechanismIndex != null) {
+      final selectedIndex = mechanismIndex!;
+      if (!indices.contains(selectedIndex)) {
+        indices.add(selectedIndex);
+      }
+    }
+    return indices;
+  }
+
+  String _mechanismLabel(Mechanism mechanism) {
+    final company = mechanism.company.trim();
+    if (company.isEmpty) {
+      return mechanism.name;
+    }
+    return '${mechanism.name} · $company';
   }
 
   @override
@@ -315,6 +354,9 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     for (int i = 0; i < mechanismBox.length; i++) {
       final mechanism = mechanismBox.getAt(i);
       if (mechanism == null) continue;
+      if (!_matchesMechanismCompany(mechanism)) {
+        continue;
+      }
       double mechanismBestScore = double.infinity;
       for (int r = 0; r < rowSectionWidths.length; r++) {
         if (r >= sectionHeights.length) continue;
@@ -635,11 +677,16 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                                     l10n.none,
                                     overflow: TextOverflow.ellipsis,
                                   )),
-                              for (int i = 0; i < mechanismBox.length; i++)
+                              for (final i
+                                  in _mechanismIndicesForCompany(
+                                      includeSelected: true))
                                 DropdownMenuItem<int>(
                                   value: i,
                                   child: Text(
-                                    mechanismBox.getAt(i)?.name ?? '',
+                                    _mechanismLabel(
+                                      mechanismBox.getAt(i) ??
+                                          Mechanism(name: '', price: 0),
+                                    ),
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ),

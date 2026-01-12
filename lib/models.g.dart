@@ -274,13 +274,14 @@ class MechanismAdapter extends TypeAdapter<Mechanism> {
       maxWidth: fields[4] == null ? 0 : fields[4] as int,
       minHeight: fields[5] == null ? 0 : fields[5] as int,
       maxHeight: fields[6] == null ? 0 : fields[6] as int,
+      company: fields[7] == null ? '' : fields[7] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, Mechanism obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -294,7 +295,9 @@ class MechanismAdapter extends TypeAdapter<Mechanism> {
       ..writeByte(5)
       ..write(obj.minHeight)
       ..writeByte(6)
-      ..write(obj.maxHeight);
+      ..write(obj.maxHeight)
+      ..writeByte(7)
+      ..write(obj.company);
   }
 
   @override
@@ -545,13 +548,15 @@ class OfferAdapter extends TypeAdapter<Offer> {
       statusChangedAt: fields[16] as DateTime?,
       acceptedAt: fields[17] as DateTime?,
       acceptedBy: fields[18] == null ? '' : fields[18] as String?,
+      defaultMechanismCompany:
+          fields[19] == null ? '' : fields[19] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, Offer obj) {
     writer
-      ..writeByte(19)
+      ..writeByte(20)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -589,7 +594,9 @@ class OfferAdapter extends TypeAdapter<Offer> {
       ..writeByte(17)
       ..write(obj.acceptedAt)
       ..writeByte(18)
-      ..write(obj.acceptedBy);
+      ..write(obj.acceptedBy)
+      ..writeByte(19)
+      ..write(obj.defaultMechanismCompany);
   }
 
   @override
@@ -631,13 +638,15 @@ class OfferVersionAdapter extends TypeAdapter<OfferVersion> {
       status: fields[12] == null ? OfferStatus.draft : fields[12] as String,
       note: fields[13] == null ? '' : fields[13] as String,
       createdBy: fields[14] == null ? '' : fields[14] as String,
+      defaultMechanismCompany:
+          fields[15] == null ? '' : fields[15] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, OfferVersion obj) {
     writer
-      ..writeByte(15)
+      ..writeByte(16)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -667,7 +676,9 @@ class OfferVersionAdapter extends TypeAdapter<OfferVersion> {
       ..writeByte(13)
       ..write(obj.note)
       ..writeByte(14)
-      ..write(obj.createdBy);
+      ..write(obj.createdBy)
+      ..writeByte(15)
+      ..write(obj.defaultMechanismCompany);
   }
 
   @override

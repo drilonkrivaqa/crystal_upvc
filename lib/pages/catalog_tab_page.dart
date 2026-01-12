@@ -62,6 +62,9 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
     final l10n = AppLocalizations.of(context);
 
     final nameController = TextEditingController(text: item.name);
+    final mechanismCompanyController = TextEditingController(
+      text: item is Mechanism ? item.company : "",
+    );
     final priceLController = TextEditingController(
       text: item is ProfileSet ? item.priceL.toString() : "",
     );
@@ -377,6 +380,12 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                   controller: nameController,
                   decoration: InputDecoration(labelText: l10n.name),
                 ),
+                if (widget.type == CatalogType.mechanism)
+                  TextField(
+                    controller: mechanismCompanyController,
+                    decoration:
+                        InputDecoration(labelText: l10n.mechanismCompany),
+                  ),
                 if (widget.type == CatalogType.glass)
                   DropdownButtonFormField<int>(
                     value:
@@ -601,6 +610,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                     index,
                     Mechanism(
                       name: nameController.text,
+                      company: mechanismCompanyController.text.trim(),
                       price:
                       double.tryParse(priceController.text) ?? 0,
                       mass:
@@ -677,6 +687,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
     final maxWidthController = TextEditingController();
     final minHeightController = TextEditingController();
     final maxHeightController = TextEditingController();
+    final mechanismCompanyController = TextEditingController();
     int profileColorIndex = 0;
     int glassColorIndex = 0;
 
@@ -887,6 +898,12 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                   controller: nameController,
                   decoration: InputDecoration(labelText: l10n.name),
                 ),
+                if (widget.type == CatalogType.mechanism)
+                  TextField(
+                    controller: mechanismCompanyController,
+                    decoration:
+                        InputDecoration(labelText: l10n.mechanismCompany),
+                  ),
                 if (widget.type == CatalogType.glass)
                   DropdownButtonFormField<int>(
                     value:
@@ -1093,6 +1110,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                   box.add(
                     Mechanism(
                       name: nameController.text,
+                      company: mechanismCompanyController.text.trim(),
                       price:
                       double.tryParse(priceController.text) ?? 0,
                       mass:
@@ -1198,6 +1216,8 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                 itemBuilder: (context, i) {
                   final item = box.getAt(i);
 
+                  final mechanismCompany =
+                      item is Mechanism ? item.company.trim() : '';
                   final subtitle = widget.type == CatalogType.profileSet
                       ? "Frame (L): €${item.priceL.toStringAsFixed(2)}/m, ${item.massL.toStringAsFixed(2)}kg/m\n"
                       "Sash (Z): €${item.priceZ.toStringAsFixed(2)}/m, ${item.massZ.toStringAsFixed(2)}kg/m\n"
@@ -1210,7 +1230,8 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                       : widget.type == CatalogType.blind
                       ? "Price: €${item.pricePerM2.toStringAsFixed(2)}/m², Mass: ${item.massPerM2.toStringAsFixed(2)}kg/m², Box: ${item.boxHeight}mm"
                       : widget.type == CatalogType.mechanism
-                      ? "Price: €${item.price.toStringAsFixed(2)}, Mass: ${item.mass.toStringAsFixed(2)}kg\n"
+                      ? "${mechanismCompany.isNotEmpty ? 'Company: $mechanismCompany\\n' : ''}"
+                      "Price: €${item.price.toStringAsFixed(2)}, Mass: ${item.mass.toStringAsFixed(2)}kg\n"
                       "W: ${_formatRange(item.minWidth, item.maxWidth, 'mm')}, "
                       "H: ${_formatRange(item.minHeight, item.maxHeight, 'mm')}"
                       : widget.type == CatalogType.accessory

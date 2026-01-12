@@ -171,6 +171,8 @@ class Mechanism extends HiveObject {
   int minHeight;
   @HiveField(6, defaultValue: 0)
   int maxHeight;
+  @HiveField(7, defaultValue: '')
+  String company;
   Mechanism({
     required this.name,
     required this.price,
@@ -179,6 +181,7 @@ class Mechanism extends HiveObject {
     this.maxWidth = 0,
     this.minHeight = 0,
     this.maxHeight = 0,
+    this.company = '',
   });
 }
 
@@ -999,6 +1002,8 @@ class Offer extends HiveObject {
   DateTime? acceptedAt;
   @HiveField(18, defaultValue: '')
   String? acceptedBy;
+  @HiveField(19, defaultValue: '')
+  String defaultMechanismCompany;
   Offer({
     required this.id,
     required this.customerIndex,
@@ -1012,6 +1017,7 @@ class Offer extends HiveObject {
     this.defaultProfileSetIndex = 0,
     this.defaultGlassIndex = 0,
     this.defaultBlindIndex = -1,
+    this.defaultMechanismCompany = '',
     this.status = OfferStatus.draft,
     DateTime? statusChangedAt,
     this.acceptedAt,
@@ -1041,6 +1047,7 @@ class Offer extends HiveObject {
       defaultProfileSetIndex: defaultProfileSetIndex,
       defaultGlassIndex: defaultGlassIndex,
       defaultBlindIndex: defaultBlindIndex,
+      defaultMechanismCompany: defaultMechanismCompany,
       customerIndex: customerIndex,
       status: status,
       note: note ?? '',
@@ -1059,6 +1066,7 @@ class Offer extends HiveObject {
     defaultProfileSetIndex = version.defaultProfileSetIndex;
     defaultGlassIndex = version.defaultGlassIndex;
     defaultBlindIndex = version.defaultBlindIndex;
+    defaultMechanismCompany = version.defaultMechanismCompany;
     if (status != version.status) {
       status = version.status;
       statusChangedAt = DateTime.now();
@@ -1102,6 +1110,8 @@ class OfferVersion extends HiveObject {
   String note;
   @HiveField(14, defaultValue: '')
   String createdBy;
+  @HiveField(15, defaultValue: '')
+  String defaultMechanismCompany;
 
   OfferVersion({
     required this.name,
@@ -1115,6 +1125,7 @@ class OfferVersion extends HiveObject {
     this.defaultProfileSetIndex = 0,
     this.defaultGlassIndex = 0,
     this.defaultBlindIndex = -1,
+    this.defaultMechanismCompany = '',
     this.customerIndex = 0,
     this.status = OfferStatus.draft,
     this.note = '',
