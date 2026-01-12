@@ -88,14 +88,13 @@ class ProfileSetAdapter extends TypeAdapter<ProfileSet> {
       tOuterThickness: fields[24] == null ? 0 : fields[24] as int,
       adapterOuterThickness: fields[25] == null ? 0 : fields[25] as int,
       colorIndex: fields[27] == null ? 0 : fields[27] as int,
-      customColorValue: fields[28] as int?,
     );
   }
 
   @override
   void write(BinaryWriter writer, ProfileSet obj) {
     writer
-      ..writeByte(29)
+      ..writeByte(28)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -151,9 +150,7 @@ class ProfileSetAdapter extends TypeAdapter<ProfileSet> {
       ..writeByte(26)
       ..write(obj.hekriPipeLength)
       ..writeByte(27)
-      ..write(obj.colorIndex)
-      ..writeByte(28)
-      ..write(obj.customColorValue);
+      ..write(obj.colorIndex);
   }
 
   @override
@@ -184,14 +181,13 @@ class GlassAdapter extends TypeAdapter<Glass> {
       ug: fields[3] == null ? 0 : fields[3] as double?,
       psi: fields[4] == null ? 0 : fields[4] as double?,
       colorIndex: fields[5] == null ? 0 : fields[5] as int,
-      customColorValue: fields[6] as int?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Glass obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -203,9 +199,7 @@ class GlassAdapter extends TypeAdapter<Glass> {
       ..writeByte(4)
       ..write(obj.psi)
       ..writeByte(5)
-      ..write(obj.colorIndex)
-      ..writeByte(6)
-      ..write(obj.customColorValue);
+      ..write(obj.colorIndex);
   }
 
   @override

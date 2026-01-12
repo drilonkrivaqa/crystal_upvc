@@ -6,7 +6,6 @@ import 'catalogs_page.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_background.dart';
 import '../utils/color_options.dart';
-import '../widgets/color_picker_dialog.dart';
 import '../widgets/glass_card.dart';
 import '../l10n/app_localizations.dart';
 
@@ -20,7 +19,6 @@ class CatalogTabPage extends StatefulWidget {
 
 class _CatalogTabPageState extends State<CatalogTabPage> {
   late Box box;
-  static const int _customColorSentinel = -1;
 
   @override
   void initState() {
@@ -57,77 +55,6 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
       case CatalogType.accessory:
         return Icons.layers_outlined;
     }
-  }
-
-  int _safeIndex(int index, int length) {
-    if (length <= 0) {
-      return 0;
-    }
-    if (index < 0) {
-      return 0;
-    }
-    if (index >= length) {
-      return length - 1;
-    }
-    return index;
-  }
-
-  Widget _colorLabel(String label, Color color) {
-    return Row(
-      children: [
-        Container(
-          width: 14,
-          height: 14,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-            border: Border.all(color: Colors.black26),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(child: Text(label)),
-      ],
-    );
-  }
-
-  List<DropdownMenuItem<int>> _profileColorItems(int? customColorValue) {
-    return [
-      for (int i = 0; i < profileColorOptions.length; i++)
-        DropdownMenuItem(
-          value: i,
-          child: _colorLabel(
-            profileColorOptions[i].label,
-            profileColorOptions[i].base,
-          ),
-        ),
-      DropdownMenuItem(
-        value: _customColorSentinel,
-        child: _colorLabel(
-          'Custom',
-          Color(customColorValue ?? Colors.grey.shade400.value),
-        ),
-      ),
-    ];
-  }
-
-  List<DropdownMenuItem<int>> _glassColorItems(int? customColorValue) {
-    return [
-      for (int i = 0; i < glassColorOptions.length; i++)
-        DropdownMenuItem(
-          value: i,
-          child: _colorLabel(
-            glassColorOptions[i].label,
-            glassColorOptions[i].color,
-          ),
-        ),
-      DropdownMenuItem(
-        value: _customColorSentinel,
-        child: _colorLabel(
-          'Custom',
-          Color(customColorValue ?? Colors.grey.shade400.value),
-        ),
-      ),
-    ];
   }
 
   void _editItem(int index) {
@@ -241,10 +168,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
       text: item is Mechanism ? item.maxHeight.toString() : "",
     );
     int profileColorIndex = item is ProfileSet ? item.colorIndex : 0;
-    int? profileCustomColorValue =
-        item is ProfileSet ? item.customColorValue : null;
     int glassColorIndex = item is Glass ? item.colorIndex : 0;
-    int? glassCustomColorValue = item is Glass ? item.customColorValue : null;
 
     showDialog(
       context: context,
@@ -271,41 +195,22 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                       decoration: InputDecoration(labelText: l10n.name),
                     ),
                     DropdownButtonFormField<int>(
-                      value: profileCustomColorValue != null
-                          ? _customColorSentinel
-                          : _safeIndex(
-                              profileColorIndex, profileColorOptions.length),
+                      value: profileColorIndex.clamp(
+                          0, profileColorOptions.length - 1),
                       decoration: InputDecoration(
                         labelText: l10n.catalogFieldProfileColor,
                       ),
-                      items: _profileColorItems(profileCustomColorValue),
-                      onChanged: (value) async {
-                        if (value == _customColorSentinel) {
-                          final initialColor = profileCustomColorValue != null
-                              ? Color(profileCustomColorValue!)
-                              : profileColorOptions.isNotEmpty
-                                  ? profileColorOptions[_safeIndex(
-                                          profileColorIndex,
-                                          profileColorOptions.length)]
-                                      .base
-                                  : Colors.white;
-                          final picked = await showColorPickerDialog(
-                            context,
-                            initialColor: initialColor,
-                            title: 'Custom profile color',
-                          );
-                          if (picked != null) {
-                            setState(() {
-                              profileCustomColorValue = picked.value;
-                            });
-                          }
-                        } else {
-                          setState(() {
-                            profileColorIndex = value ?? 0;
-                            profileCustomColorValue = null;
-                          });
-                        }
-                      },
+                      items: [
+                        for (int i = 0;
+                            i < profileColorOptions.length;
+                            i++)
+                          DropdownMenuItem(
+                            value: i,
+                            child: Text(profileColorOptions[i].label),
+                          ),
+                      ],
+                      onChanged: (value) => setState(
+                          () => profileColorIndex = value ?? 0),
                     ),
                     TextField(
                       controller: priceLController,
@@ -474,41 +379,20 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                 ),
                 if (widget.type == CatalogType.glass)
                   DropdownButtonFormField<int>(
-                    value: glassCustomColorValue != null
-                        ? _customColorSentinel
-                        : _safeIndex(
-                            glassColorIndex, glassColorOptions.length),
+                    value:
+                        glassColorIndex.clamp(0, glassColorOptions.length - 1),
                     decoration: InputDecoration(
                       labelText: l10n.catalogFieldGlassColor,
                     ),
-                    items: _glassColorItems(glassCustomColorValue),
-                    onChanged: (value) async {
-                      if (value == _customColorSentinel) {
-                        final initialColor = glassCustomColorValue != null
-                            ? Color(glassCustomColorValue!)
-                            : glassColorOptions.isNotEmpty
-                                ? glassColorOptions[_safeIndex(
-                                        glassColorIndex,
-                                        glassColorOptions.length)]
-                                    .color
-                                : Colors.white;
-                        final picked = await showColorPickerDialog(
-                          context,
-                          initialColor: initialColor,
-                          title: 'Custom glass color',
-                        );
-                        if (picked != null) {
-                          setState(() {
-                            glassCustomColorValue = picked.value;
-                          });
-                        }
-                      } else {
-                        setState(() {
-                          glassColorIndex = value ?? 0;
-                          glassCustomColorValue = null;
-                        });
-                      }
-                    },
+                    items: [
+                      for (int i = 0; i < glassColorOptions.length; i++)
+                        DropdownMenuItem(
+                          value: i,
+                          child: Text(glassColorOptions[i].label),
+                        ),
+                    ],
+                    onChanged: (value) =>
+                        setState(() => glassColorIndex = value ?? 0),
                   ),
                 if (widget.type == CatalogType.glass ||
                     widget.type == CatalogType.blind)
@@ -676,7 +560,6 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                       sashValue:
                       int.tryParse(sashValueController.text) ?? 22,
                       colorIndex: profileColorIndex,
-                      customColorValue: profileCustomColorValue,
                     ),
                   );
                   break;
@@ -694,7 +577,6 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                       ug: double.tryParse(ugController.text),
                       psi: double.tryParse(psiController.text),
                       colorIndex: glassColorIndex,
-                      customColorValue: glassCustomColorValue,
                     ),
                   );
                   break;
@@ -796,9 +678,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
     final minHeightController = TextEditingController();
     final maxHeightController = TextEditingController();
     int profileColorIndex = 0;
-    int? profileCustomColorValue;
     int glassColorIndex = 0;
-    int? glassCustomColorValue;
 
     showDialog(
       context: context,
@@ -825,41 +705,22 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                       decoration: InputDecoration(labelText: l10n.name),
                     ),
                     DropdownButtonFormField<int>(
-                      value: profileCustomColorValue != null
-                          ? _customColorSentinel
-                          : _safeIndex(
-                              profileColorIndex, profileColorOptions.length),
+                      value: profileColorIndex.clamp(
+                          0, profileColorOptions.length - 1),
                       decoration: InputDecoration(
                         labelText: l10n.catalogFieldProfileColor,
                       ),
-                      items: _profileColorItems(profileCustomColorValue),
-                      onChanged: (value) async {
-                        if (value == _customColorSentinel) {
-                          final initialColor = profileCustomColorValue != null
-                              ? Color(profileCustomColorValue!)
-                              : profileColorOptions.isNotEmpty
-                                  ? profileColorOptions[_safeIndex(
-                                          profileColorIndex,
-                                          profileColorOptions.length)]
-                                      .base
-                                  : Colors.white;
-                          final picked = await showColorPickerDialog(
-                            context,
-                            initialColor: initialColor,
-                            title: 'Custom profile color',
-                          );
-                          if (picked != null) {
-                            setState(() {
-                              profileCustomColorValue = picked.value;
-                            });
-                          }
-                        } else {
-                          setState(() {
-                            profileColorIndex = value ?? 0;
-                            profileCustomColorValue = null;
-                          });
-                        }
-                      },
+                      items: [
+                        for (int i = 0;
+                            i < profileColorOptions.length;
+                            i++)
+                          DropdownMenuItem(
+                            value: i,
+                            child: Text(profileColorOptions[i].label),
+                          ),
+                      ],
+                      onChanged: (value) => setState(
+                          () => profileColorIndex = value ?? 0),
                     ),
                     TextField(
                       controller: priceLController,
@@ -1028,41 +889,20 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                 ),
                 if (widget.type == CatalogType.glass)
                   DropdownButtonFormField<int>(
-                    value: glassCustomColorValue != null
-                        ? _customColorSentinel
-                        : _safeIndex(
-                            glassColorIndex, glassColorOptions.length),
+                    value:
+                        glassColorIndex.clamp(0, glassColorOptions.length - 1),
                     decoration: InputDecoration(
                       labelText: l10n.catalogFieldGlassColor,
                     ),
-                    items: _glassColorItems(glassCustomColorValue),
-                    onChanged: (value) async {
-                      if (value == _customColorSentinel) {
-                        final initialColor = glassCustomColorValue != null
-                            ? Color(glassCustomColorValue!)
-                            : glassColorOptions.isNotEmpty
-                                ? glassColorOptions[_safeIndex(
-                                        glassColorIndex,
-                                        glassColorOptions.length)]
-                                    .color
-                                : Colors.white;
-                        final picked = await showColorPickerDialog(
-                          context,
-                          initialColor: initialColor,
-                          title: 'Custom glass color',
-                        );
-                        if (picked != null) {
-                          setState(() {
-                            glassCustomColorValue = picked.value;
-                          });
-                        }
-                      } else {
-                        setState(() {
-                          glassColorIndex = value ?? 0;
-                          glassCustomColorValue = null;
-                        });
-                      }
-                    },
+                    items: [
+                      for (int i = 0; i < glassColorOptions.length; i++)
+                        DropdownMenuItem(
+                          value: i,
+                          child: Text(glassColorOptions[i].label),
+                        ),
+                    ],
+                    onChanged: (value) =>
+                        setState(() => glassColorIndex = value ?? 0),
                   ),
                 if (widget.type == CatalogType.glass ||
                     widget.type == CatalogType.blind)
@@ -1215,7 +1055,6 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                       sashValue:
                       int.tryParse(sashValueController.text) ?? 22,
                       colorIndex: profileColorIndex,
-                      customColorValue: profileCustomColorValue,
                     ),
                   );
                   break;
@@ -1232,7 +1071,6 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                       ug: double.tryParse(ugController.text),
                       psi: double.tryParse(psiController.text),
                       colorIndex: glassColorIndex,
-                      customColorValue: glassCustomColorValue,
                     ),
                   );
                   break;
