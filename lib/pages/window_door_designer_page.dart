@@ -945,20 +945,41 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     final controller = TextEditingController(
       text: _colorToHex(initialColor),
     );
-    final palette = _buildPaletteColors();
     Color current = initialColor;
+    HSVColor hsv = HSVColor.fromColor(initialColor);
     final result = await showDialog<Color>(
       context: context,
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setDialogState) {
-            void updateColor(Color color) {
-              setDialogState(() => current = color);
+            void syncController(Color color) {
               controller.value = TextEditingValue(
                 text: _colorToHex(color),
                 selection:
                     TextSelection.collapsed(offset: _colorToHex(color).length),
               );
+            }
+
+            void updateColor(Color color) {
+              setDialogState(() {
+                current = color;
+                hsv = HSVColor.fromColor(color);
+              });
+              syncController(color);
+            }
+
+            void updateFromHsv({
+              double? hue,
+              double? saturation,
+              double? value,
+            }) {
+              setDialogState(() {
+                hsv = hsv.withHue(hue ?? hsv.hue).withSaturation(
+                      saturation ?? hsv.saturation,
+                    ).withValue(value ?? hsv.value);
+                current = hsv.toColor();
+              });
+              syncController(current);
             }
 
             return AlertDialog(
@@ -981,7 +1002,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        'Palette',
+                        'Picker',
                         style: Theme.of(context)
                             .textTheme
                             .titleSmall
@@ -989,29 +1010,19 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 6,
-                      runSpacing: 6,
-                      children: palette.map((color) {
-                        return InkWell(
-                          onTap: () => updateColor(color),
-                          borderRadius: BorderRadius.circular(6),
-                          child: Container(
-                            width: 28,
-                            height: 28,
-                            decoration: BoxDecoration(
-                              color: color,
-                              borderRadius: BorderRadius.circular(6),
-                              border: Border.all(
-                                color: current == color
-                                    ? kSelectOutline
-                                    : Colors.black12,
-                                width: current == color ? 2 : 1,
-                              ),
-                            ),
-                          ),
-                        );
-                      }).toList(),
+                    _SaturationValuePicker(
+                      hue: hsv.hue,
+                      saturation: hsv.saturation,
+                      value: hsv.value,
+                      onChanged: (saturation, value) => updateFromHsv(
+                        saturation: saturation,
+                        value: value,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    _HuePickerBar(
+                      hue: hsv.hue,
+                      onChanged: (hue) => updateFromHsv(hue: hue),
                     ),
                     const SizedBox(height: 12),
                     TextField(
@@ -1030,7 +1041,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
                       onChanged: (value) {
                         final parsed = _tryParseHexColor(value);
                         if (parsed != null) {
-                          setDialogState(() => current = parsed);
+                          updateColor(parsed);
                         }
                       },
                     ),
@@ -1119,28 +1130,162 @@ Color? _tryParseHexColor(String input) {
   }
 }
 
-List<Color> _buildPaletteColors() {
-  const hues = <int>[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330];
-  const saturations = <double>[0.35, 0.6, 0.8, 1.0];
-  const values = <double>[0.95, 0.8];
-  final colors = <Color>[];
-  for (final value in values) {
-    for (final saturation in saturations) {
-      for (final hue in hues) {
-        colors.add(
-          HSVColor.fromAHSV(1, hue.toDouble(), saturation, value).toColor(),
+class _SaturationValuePicker extends StatelessWidget {
+  final double hue;
+  final double saturation;
+  final double value;
+  final void Function(double saturation, double value) onChanged;
+
+  const _SaturationValuePicker({
+    required this.hue,
+    required this.saturation,
+    required this.value,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final height = 180.0;
+
+        void updateFromOffset(Offset localPosition) {
+          final dx = localPosition.dx.clamp(0.0, width);
+          final dy = localPosition.dy.clamp(0.0, height);
+          final nextSaturation = (dx / width).clamp(0.0, 1.0);
+          final nextValue = (1 - (dy / height)).clamp(0.0, 1.0);
+          onChanged(nextSaturation, nextValue);
+        }
+
+        final thumbLeft = saturation * width;
+        final thumbTop = (1 - value) * height;
+
+        return GestureDetector(
+          onPanDown: (details) => updateFromOffset(details.localPosition),
+          onPanUpdate: (details) => updateFromOffset(details.localPosition),
+          child: Container(
+            height: height,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: Colors.black12),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Stack(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.white,
+                          HSVColor.fromAHSV(1, hue, 1, 1).toColor(),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Container(
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.transparent,
+                          Colors.black,
+                        ],
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    left: thumbLeft - 8,
+                    top: thumbTop - 8,
+                    child: Container(
+                      width: 16,
+                      height: 16,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white,
+                        border: Border.all(color: Colors.black54, width: 1.2),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         );
-      }
-    }
+      },
+    );
   }
-  colors.addAll(<Color>[
-    const Color(0xFF000000),
-    const Color(0xFF424242),
-    const Color(0xFF757575),
-    const Color(0xFFBDBDBD),
-    const Color(0xFFFFFFFF),
-  ]);
-  return colors;
+}
+
+class _HuePickerBar extends StatelessWidget {
+  final double hue;
+  final ValueChanged<double> onChanged;
+
+  const _HuePickerBar({
+    required this.hue,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        const height = 16.0;
+
+        void updateHue(Offset localPosition) {
+          final dx = localPosition.dx.clamp(0.0, width);
+          final nextHue = (dx / width) * 360;
+          onChanged(nextHue.clamp(0.0, 360.0));
+        }
+
+        final thumbLeft = (hue / 360) * width;
+
+        return GestureDetector(
+          onPanDown: (details) => updateHue(details.localPosition),
+          onPanUpdate: (details) => updateHue(details.localPosition),
+          child: SizedBox(
+            height: height,
+            child: Stack(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    gradient: const LinearGradient(
+                      colors: [
+                        Color(0xFFFF0000),
+                        Color(0xFFFFFF00),
+                        Color(0xFF00FF00),
+                        Color(0xFF00FFFF),
+                        Color(0xFF0000FF),
+                        Color(0xFFFF00FF),
+                        Color(0xFFFF0000),
+                      ],
+                    ),
+                  ),
+                ),
+                Positioned(
+                  left: thumbLeft - 9,
+                  top: -2,
+                  child: Container(
+                    width: 18,
+                    height: 18,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                      border: Border.all(color: Colors.black54, width: 1.2),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 }
 
 // ── painter ───────────────────────────────────────────────────────────────────
