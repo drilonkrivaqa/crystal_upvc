@@ -30,6 +30,8 @@ const glassColorOptions = <SimpleColorOption>[
   SimpleColorOption('Blue', Color(0xFFAEDCF2)),
   SimpleColorOption('White', Color(0xFFF7FAFC)),
   SimpleColorOption('Grey Blue', Color(0xFF9FB4C7)),
+  SimpleColorOption('Anthracite', Color(0xFF3C4047)),
+  SimpleColorOption('Golden Oak', Color(0xFF704D27)),
 ];
 
 ProfileColorOption profileColorForIndex(int? index) {
