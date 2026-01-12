@@ -1057,7 +1057,12 @@ class _WindowPainter extends CustomPainter {
 
         // Mirror L/R types when viewing from inside
         final t = _mirrorForInside(cells[idx], outsideView);
-        _drawGlyph(canvas, rect.deflate(8), t, paintSash);
+        _SashGlyphRenderer.drawGlyph(
+          canvas,
+          rect.deflate(8),
+          t,
+          paintSash,
+        );
       }
     }
 
@@ -1185,236 +1190,6 @@ class _WindowPainter extends CustomPainter {
     }
   }
 
-  void _drawGlyph(Canvas canvas, Rect r, SashType type, Paint p) {
-    switch (type) {
-      case SashType.fixed:
-        _drawFixed(canvas, r);
-        break;
-      case SashType.casementLeft:
-        _drawCasement(canvas, r, leftHinge: true, paint: p);
-        break;
-      case SashType.casementRight:
-        _drawCasement(canvas, r, leftHinge: false, paint: p);
-        break;
-      case SashType.tilt:
-        _drawTilt(canvas, r, p);
-        break;
-      case SashType.tiltLeft:
-        _drawTiltSide(canvas, r, apexLeft: true, paint: p);
-        break;
-      case SashType.tiltRight:
-        _drawTiltSide(canvas, r, apexLeft: false, paint: p);
-        break;
-      case SashType.tiltTurnLeft:
-        _drawTiltTurn(canvas, r,
-            sideApex: _SideApex.right, paint: p); // TOP + RIGHT
-        break;
-      case SashType.tiltTurnRight:
-        _drawTiltTurn(canvas, r,
-            sideApex: _SideApex.left, paint: p); // TOP + LEFT
-        break;
-      case SashType.slidingLeft:
-        _drawSliding(canvas, r, toLeft: true, paint: p);
-        break;
-      case SashType.slidingRight:
-        _drawSliding(canvas, r, toLeft: false, paint: p);
-        break;
-      case SashType.slidingTiltLeft:
-        _drawSlidingTilt(canvas, r, toLeft: true, paint: p);
-        break;
-      case SashType.slidingTiltRight:
-        _drawSlidingTilt(canvas, r, toLeft: false, paint: p);
-        break;
-      case SashType.swingHingeLeft:
-        _drawSwingHinge(canvas, r, hingeOnLeft: true, paint: p);
-        break;
-      case SashType.swingHingeRight:
-        _drawSwingHinge(canvas, r, hingeOnLeft: false, paint: p);
-        break;
-    }
-  }
-
-  // Fixed: big F in center
-  void _drawFixed(Canvas canvas, Rect r) {
-    final fontSize = math.max(24.0, math.min(r.width, r.height) * 0.6);
-    final tp = TextPainter(
-      text: TextSpan(
-        text: 'F',
-        style: TextStyle(
-            fontSize: fontSize,
-            fontWeight: FontWeight.w900,
-            color: Colors.black),
-      ),
-      textDirection: TextDirection.ltr,
-    )..layout();
-    tp.paint(canvas,
-        Offset(r.center.dx - tp.width / 2, r.center.dy - tp.height / 2));
-  }
-
-  // Casement: main diagonal + short legs at handle side
-  void _drawCasement(Canvas canvas, Rect r,
-      {required bool leftHinge, required Paint paint}) {
-    final path = Path();
-    if (leftHinge) {
-      path.moveTo(r.left, r.top);
-      path.lineTo(r.right, r.bottom);
-      final cx = r.right - r.width * 0.1;
-      path
-        ..moveTo(cx, r.top + r.height * 0.06)
-        ..lineTo(r.right, r.top)
-        ..moveTo(cx, r.bottom - r.height * 0.06)
-        ..lineTo(r.right, r.bottom);
-    } else {
-      path.moveTo(r.right, r.top);
-      path.lineTo(r.left, r.bottom);
-      final cx = r.left + r.width * 0.1;
-      path
-        ..moveTo(cx, r.top + r.height * 0.06)
-        ..lineTo(r.left, r.top)
-        ..moveTo(cx, r.bottom - r.height * 0.06)
-        ..lineTo(r.left, r.bottom);
-    }
-    canvas.drawPath(path, paint);
-  }
-
-  // Tilt: apex TOP, base on bottom
-  void _drawTilt(Canvas canvas, Rect r, Paint p) {
-    final path = Path()
-      ..moveTo(r.center.dx, r.top)
-      ..lineTo(r.left, r.bottom)
-      ..moveTo(r.center.dx, r.top)
-      ..lineTo(r.right, r.bottom)
-      ..moveTo(r.left, r.bottom)
-      ..lineTo(r.right, r.bottom);
-    canvas.drawPath(path, p);
-  }
-
-  // Tilt (horizontal): apex LEFT/RIGHT, base vertical
-  void _drawTiltSide(Canvas canvas, Rect r,
-      {required bool apexLeft, required Paint paint}) {
-    final apexX = apexLeft ? r.left : r.right;
-    final baseX = apexLeft ? r.right : r.left;
-    final path = Path()
-      ..moveTo(apexX, r.center.dy)
-      ..lineTo(baseX, r.top)
-      ..moveTo(apexX, r.center.dy)
-      ..lineTo(baseX, r.bottom)
-      ..moveTo(baseX, r.top)
-      ..lineTo(baseX, r.bottom);
-    canvas.drawPath(path, paint);
-  }
-
-  // Tilt&Turn: two clear triangles.
-  //   • TT RIGHT => triangles apex at TOP and LEFT
-  //   • TT LEFT  => triangles apex at TOP and RIGHT
-  void _drawTiltTurn(Canvas canvas, Rect r,
-      {required _SideApex sideApex, required Paint paint}) {
-    // Top triangle
-    canvas.drawLine(
-        Offset(r.center.dx, r.top), Offset(r.left, r.bottom), paint);
-    canvas.drawLine(
-        Offset(r.center.dx, r.top), Offset(r.right, r.bottom), paint);
-    canvas.drawLine(Offset(r.left, r.bottom), Offset(r.right, r.bottom), paint);
-
-    // Side triangle
-    if (sideApex == _SideApex.left) {
-      canvas.drawLine(
-          Offset(r.left, r.center.dy), Offset(r.right, r.top), paint);
-      canvas.drawLine(
-          Offset(r.left, r.center.dy), Offset(r.right, r.bottom), paint);
-      canvas.drawLine(Offset(r.right, r.top), Offset(r.right, r.bottom), paint);
-    } else {
-      canvas.drawLine(
-          Offset(r.right, r.center.dy), Offset(r.left, r.top), paint);
-      canvas.drawLine(
-          Offset(r.right, r.center.dy), Offset(r.left, r.bottom), paint);
-      canvas.drawLine(Offset(r.left, r.top), Offset(r.left, r.bottom), paint);
-    }
-  }
-
-  // Sliding: long arrow
-  void _drawSliding(Canvas canvas, Rect r,
-      {required bool toLeft, required Paint paint}) {
-    final y = r.center.dy;
-    final l = r.left + r.width * 0.12;
-    final ri = r.right - r.width * 0.12;
-    final start = Offset(toLeft ? ri : l, y);
-    final end = Offset(toLeft ? l : ri, y);
-
-    canvas.drawLine(start, end, paint);
-
-    final ah = r.shortestSide * 0.06; // arrow head size
-    final dir = toLeft ? -1 : 1;
-    final head1 = Offset(end.dx - dir * ah, end.dy - ah * 0.55);
-    final head2 = Offset(end.dx - dir * ah, end.dy + ah * 0.55);
-    canvas.drawLine(end, head1, paint);
-    canvas.drawLine(end, head2, paint);
-  }
-
-  void _drawSlidingTilt(Canvas canvas, Rect r,
-      {required bool toLeft, required Paint paint}) {
-    // Draw the tilt triangle using the full rect for easy recognition.
-    _drawTilt(canvas, r, paint);
-
-    // Overlay a shorter sliding arrow to indicate lateral movement + tilt.
-    final arrowRect = Rect.fromCenter(
-      center: r.center,
-      width: r.width * 0.85,
-      height: r.height * 0.5,
-    );
-
-    final y = arrowRect.center.dy;
-    final l = arrowRect.left;
-    final ri = arrowRect.right;
-    final start = Offset(toLeft ? ri : l, y);
-    final end = Offset(toLeft ? l : ri, y);
-
-    canvas.drawLine(start, end, paint);
-
-    final ah = arrowRect.shortestSide * 0.3;
-    final dir = toLeft ? -1 : 1;
-    final head1 = Offset(end.dx - dir * ah, end.dy - ah * 0.55);
-    final head2 = Offset(end.dx - dir * ah, end.dy + ah * 0.55);
-    canvas.drawLine(end, head1, paint);
-    canvas.drawLine(end, head2, paint);
-  }
-
-  void _drawSwingHinge(Canvas canvas, Rect r,
-      {required bool hingeOnLeft, required Paint paint}) {
-    final thickPaint = Paint()
-      ..color = paint.color
-      ..style = paint.style
-      ..strokeWidth = paint.strokeWidth * 1.45
-      ..strokeCap = paint.strokeCap
-      ..isAntiAlias = paint.isAntiAlias;
-
-    final stemX = hingeOnLeft
-        ? r.left + r.width * 0.18
-        : r.right - r.width * 0.18;
-    final stemTop = Offset(stemX, r.top + r.height * 0.4);
-    final stemBottom = Offset(stemX, r.bottom - r.height * 0.4);
-
-    // Vertical stem (shorter)
-    canvas.drawLine(stemTop, stemBottom, thickPaint);
-
-    // Horizontal run with arrow head
-    final runStart = stemTop;
-    final runEnd = hingeOnLeft
-        ? Offset(r.right - r.width * 0.12, stemTop.dy)
-        : Offset(r.left + r.width * 0.12, stemTop.dy);
-    canvas.drawLine(runStart, runEnd, thickPaint);
-
-    final dir = hingeOnLeft ? 1 : -1;
-    final ah = r.shortestSide * 0.08;
-    final arrowTip = runEnd;
-    final head1 =
-        Offset(arrowTip.dx - dir * ah, arrowTip.dy - ah * 0.55);
-    final head2 =
-        Offset(arrowTip.dx - dir * ah, arrowTip.dy + ah * 0.55);
-    canvas.drawLine(arrowTip, head1, thickPaint);
-    canvas.drawLine(arrowTip, head2, thickPaint);
-  }
-
   @override
   bool shouldRepaint(covariant _WindowPainter old) {
     return rows != old.rows ||
@@ -1441,6 +1216,210 @@ class _WindowPainter extends CustomPainter {
 
 enum _SideApex { left, right }
 
+class _SashGlyphRenderer {
+  static void drawGlyph(Canvas canvas, Rect r, SashType type, Paint paint) {
+    switch (type) {
+      case SashType.fixed:
+        _drawFixed(canvas, r, paint);
+        break;
+      case SashType.casementLeft:
+        _drawCasement(canvas, r, leftHinge: true, paint: paint);
+        break;
+      case SashType.casementRight:
+        _drawCasement(canvas, r, leftHinge: false, paint: paint);
+        break;
+      case SashType.tilt:
+        _drawTilt(canvas, r, paint);
+        break;
+      case SashType.tiltLeft:
+        _drawTiltSide(canvas, r, apexLeft: true, paint: paint);
+        break;
+      case SashType.tiltRight:
+        _drawTiltSide(canvas, r, apexLeft: false, paint: paint);
+        break;
+      case SashType.tiltTurnLeft:
+        _drawTiltTurn(canvas, r, sideApex: _SideApex.right, paint: paint);
+        break;
+      case SashType.tiltTurnRight:
+        _drawTiltTurn(canvas, r, sideApex: _SideApex.left, paint: paint);
+        break;
+      case SashType.slidingLeft:
+        _drawSliding(canvas, r, toLeft: true, paint: paint);
+        break;
+      case SashType.slidingRight:
+        _drawSliding(canvas, r, toLeft: false, paint: paint);
+        break;
+      case SashType.slidingTiltLeft:
+        _drawSlidingTilt(canvas, r, toLeft: true, paint: paint);
+        break;
+      case SashType.slidingTiltRight:
+        _drawSlidingTilt(canvas, r, toLeft: false, paint: paint);
+        break;
+      case SashType.swingHingeLeft:
+        _drawSwingHinge(canvas, r, hingeOnLeft: true, paint: paint);
+        break;
+      case SashType.swingHingeRight:
+        _drawSwingHinge(canvas, r, hingeOnLeft: false, paint: paint);
+        break;
+    }
+  }
+
+  static void _drawFixed(Canvas canvas, Rect r, Paint paint) {
+    final inset = r.shortestSide * 0.18;
+    final rect = r.deflate(inset);
+    canvas.drawRect(rect, paint);
+  }
+
+  static void _drawCasement(Canvas canvas, Rect r,
+      {required bool leftHinge, required Paint paint}) {
+    final path = Path();
+    if (leftHinge) {
+      path.moveTo(r.left, r.top);
+      path.lineTo(r.right, r.bottom);
+      final cx = r.right - r.width * 0.1;
+      path
+        ..moveTo(cx, r.top + r.height * 0.06)
+        ..lineTo(r.right, r.top)
+        ..moveTo(cx, r.bottom - r.height * 0.06)
+        ..lineTo(r.right, r.bottom);
+    } else {
+      path.moveTo(r.right, r.top);
+      path.lineTo(r.left, r.bottom);
+      final cx = r.left + r.width * 0.1;
+      path
+        ..moveTo(cx, r.top + r.height * 0.06)
+        ..lineTo(r.left, r.top)
+        ..moveTo(cx, r.bottom - r.height * 0.06)
+        ..lineTo(r.left, r.bottom);
+    }
+    canvas.drawPath(path, paint);
+  }
+
+  static void _drawTilt(Canvas canvas, Rect r, Paint paint) {
+    final path = Path()
+      ..moveTo(r.center.dx, r.top)
+      ..lineTo(r.left, r.bottom)
+      ..moveTo(r.center.dx, r.top)
+      ..lineTo(r.right, r.bottom)
+      ..moveTo(r.left, r.bottom)
+      ..lineTo(r.right, r.bottom);
+    canvas.drawPath(path, paint);
+  }
+
+  static void _drawTiltSide(Canvas canvas, Rect r,
+      {required bool apexLeft, required Paint paint}) {
+    final apexX = apexLeft ? r.left : r.right;
+    final baseX = apexLeft ? r.right : r.left;
+    final path = Path()
+      ..moveTo(apexX, r.center.dy)
+      ..lineTo(baseX, r.top)
+      ..moveTo(apexX, r.center.dy)
+      ..lineTo(baseX, r.bottom)
+      ..moveTo(baseX, r.top)
+      ..lineTo(baseX, r.bottom);
+    canvas.drawPath(path, paint);
+  }
+
+  static void _drawTiltTurn(Canvas canvas, Rect r,
+      {required _SideApex sideApex, required Paint paint}) {
+    canvas.drawLine(
+        Offset(r.center.dx, r.top), Offset(r.left, r.bottom), paint);
+    canvas.drawLine(
+        Offset(r.center.dx, r.top), Offset(r.right, r.bottom), paint);
+    canvas.drawLine(Offset(r.left, r.bottom), Offset(r.right, r.bottom), paint);
+
+    if (sideApex == _SideApex.left) {
+      canvas.drawLine(
+          Offset(r.left, r.center.dy), Offset(r.right, r.top), paint);
+      canvas.drawLine(
+          Offset(r.left, r.center.dy), Offset(r.right, r.bottom), paint);
+      canvas.drawLine(Offset(r.right, r.top), Offset(r.right, r.bottom), paint);
+    } else {
+      canvas.drawLine(
+          Offset(r.right, r.center.dy), Offset(r.left, r.top), paint);
+      canvas.drawLine(
+          Offset(r.right, r.center.dy), Offset(r.left, r.bottom), paint);
+      canvas.drawLine(Offset(r.left, r.top), Offset(r.left, r.bottom), paint);
+    }
+  }
+
+  static void _drawSliding(Canvas canvas, Rect r,
+      {required bool toLeft, required Paint paint}) {
+    final y = r.center.dy;
+    final l = r.left + r.width * 0.12;
+    final ri = r.right - r.width * 0.12;
+    final start = Offset(toLeft ? ri : l, y);
+    final end = Offset(toLeft ? l : ri, y);
+
+    canvas.drawLine(start, end, paint);
+
+    final ah = r.shortestSide * 0.06;
+    final dir = toLeft ? -1 : 1;
+    final head1 = Offset(end.dx - dir * ah, end.dy - ah * 0.55);
+    final head2 = Offset(end.dx - dir * ah, end.dy + ah * 0.55);
+    canvas.drawLine(end, head1, paint);
+    canvas.drawLine(end, head2, paint);
+  }
+
+  static void _drawSlidingTilt(Canvas canvas, Rect r,
+      {required bool toLeft, required Paint paint}) {
+    _drawTilt(canvas, r, paint);
+
+    final arrowRect = Rect.fromCenter(
+      center: r.center,
+      width: r.width * 0.85,
+      height: r.height * 0.5,
+    );
+
+    final y = arrowRect.center.dy;
+    final l = arrowRect.left;
+    final ri = arrowRect.right;
+    final start = Offset(toLeft ? ri : l, y);
+    final end = Offset(toLeft ? l : ri, y);
+
+    canvas.drawLine(start, end, paint);
+
+    final ah = arrowRect.shortestSide * 0.3;
+    final dir = toLeft ? -1 : 1;
+    final head1 = Offset(end.dx - dir * ah, end.dy - ah * 0.55);
+    final head2 = Offset(end.dx - dir * ah, end.dy + ah * 0.55);
+    canvas.drawLine(end, head1, paint);
+    canvas.drawLine(end, head2, paint);
+  }
+
+  static void _drawSwingHinge(Canvas canvas, Rect r,
+      {required bool hingeOnLeft, required Paint paint}) {
+    final thickPaint = Paint()
+      ..color = paint.color
+      ..style = paint.style
+      ..strokeWidth = paint.strokeWidth * 1.45
+      ..strokeCap = paint.strokeCap
+      ..isAntiAlias = paint.isAntiAlias;
+
+    final stemX = hingeOnLeft
+        ? r.left + r.width * 0.18
+        : r.right - r.width * 0.18;
+    final stemTop = Offset(stemX, r.top + r.height * 0.4);
+    final stemBottom = Offset(stemX, r.bottom - r.height * 0.4);
+
+    canvas.drawLine(stemTop, stemBottom, thickPaint);
+
+    final runStart = stemTop;
+    final runEnd = hingeOnLeft
+        ? Offset(r.right - r.width * 0.12, stemTop.dy)
+        : Offset(r.left + r.width * 0.12, stemTop.dy);
+    canvas.drawLine(runStart, runEnd, thickPaint);
+
+    final dir = hingeOnLeft ? 1 : -1;
+    final ah = r.shortestSide * 0.08;
+    final arrowTip = runEnd;
+    final head1 = Offset(arrowTip.dx - dir * ah, arrowTip.dy - ah * 0.55);
+    final head2 = Offset(arrowTip.dx - dir * ah, arrowTip.dy + ah * 0.55);
+    canvas.drawLine(arrowTip, head1, thickPaint);
+    canvas.drawLine(arrowTip, head2, thickPaint);
+  }
+}
+
 // ── UI helpers ────────────────────────────────────────────────────────────────
 
 class _ToolPalette extends StatelessWidget {
@@ -1457,20 +1436,20 @@ class _ToolPalette extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final items = <_ToolItem>[
-      _ToolItem('F', SashType.fixed),
-      _ToolItem('CL', SashType.casementLeft),
-      _ToolItem('CR', SashType.casementRight),
-      _ToolItem('T', SashType.tilt),
-      _ToolItem('R', SashType.tiltLeft),
-      _ToolItem('L', SashType.tiltRight),
-      _ToolItem('TTR', SashType.tiltTurnRight), // top + left
-      _ToolItem('TTL', SashType.tiltTurnLeft), // top + right
-      _ToolItem('SL', SashType.slidingLeft),
-      _ToolItem('SR', SashType.slidingRight),
-      _ToolItem('STL', SashType.slidingTiltLeft),
-      _ToolItem('STR', SashType.slidingTiltRight),
-      _ToolItem('SHL', SashType.swingHingeLeft),
-      _ToolItem('SHR', SashType.swingHingeRight),
+      _ToolItem('Fixed', SashType.fixed),
+      _ToolItem('Casement Left', SashType.casementLeft),
+      _ToolItem('Casement Right', SashType.casementRight),
+      _ToolItem('Tilt', SashType.tilt),
+      _ToolItem('Tilt Left', SashType.tiltLeft),
+      _ToolItem('Tilt Right', SashType.tiltRight),
+      _ToolItem('Tilt & Turn Right', SashType.tiltTurnRight),
+      _ToolItem('Tilt & Turn Left', SashType.tiltTurnLeft),
+      _ToolItem('Sliding Left', SashType.slidingLeft),
+      _ToolItem('Sliding Right', SashType.slidingRight),
+      _ToolItem('Sliding Tilt Left', SashType.slidingTiltLeft),
+      _ToolItem('Sliding Tilt Right', SashType.slidingTiltRight),
+      _ToolItem('Swing Hinge Left', SashType.swingHingeLeft),
+      _ToolItem('Swing Hinge Right', SashType.swingHingeRight),
     ];
 
     return Padding(
@@ -1480,10 +1459,16 @@ class _ToolPalette extends StatelessWidget {
         runSpacing: 8,
         children: items.map((ti) {
           final selected = ti.type == active;
-          return ChoiceChip(
-            label: Text(ti.label),
-            selected: selected,
-            onSelected: (_) => onChanged(ti.type),
+          return Tooltip(
+            message: ti.label,
+            child: ChoiceChip(
+              label: _ToolGlyphIcon(
+                type: ti.type,
+                selected: selected,
+              ),
+              selected: selected,
+              onSelected: (_) => onChanged(ti.type),
+            ),
           );
         }).toList(),
       ),
@@ -1495,6 +1480,76 @@ class _ToolItem {
   final String label;
   final SashType type;
   _ToolItem(this.label, this.type);
+}
+
+class _ToolGlyphIcon extends StatelessWidget {
+  final SashType type;
+  final bool selected;
+
+  const _ToolGlyphIcon({required this.type, required this.selected});
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final strokeColor =
+        selected ? colorScheme.onPrimary : colorScheme.onSurface;
+    final frameColor =
+        selected ? colorScheme.onPrimary : colorScheme.onSurface.withOpacity(0.8);
+
+    return SizedBox(
+      width: 36,
+      height: 36,
+      child: CustomPaint(
+        painter: _ToolGlyphPainter(
+          type: type,
+          strokeColor: strokeColor,
+          frameColor: frameColor,
+        ),
+      ),
+    );
+  }
+}
+
+class _ToolGlyphPainter extends CustomPainter {
+  final SashType type;
+  final Color strokeColor;
+  final Color frameColor;
+
+  _ToolGlyphPainter({
+    required this.type,
+    required this.strokeColor,
+    required this.frameColor,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = Offset.zero & size;
+    final frame = rect.deflate(4);
+    final framePaint = Paint()
+      ..color = frameColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.8
+      ..isAntiAlias = true;
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(frame, const Radius.circular(4)),
+      framePaint,
+    );
+
+    final glyphPaint = Paint()
+      ..color = strokeColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.1
+      ..strokeCap = StrokeCap.round
+      ..isAntiAlias = true;
+    _SashGlyphRenderer.drawGlyph(canvas, frame.deflate(5), type, glyphPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _ToolGlyphPainter oldDelegate) {
+    return type != oldDelegate.type ||
+        strokeColor != oldDelegate.strokeColor ||
+        frameColor != oldDelegate.frameColor;
+  }
 }
 
 class _OpeningDrawings extends StatelessWidget {
