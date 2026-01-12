@@ -343,9 +343,6 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
       initialColor: initialColor,
       title: 'Custom profile color',
     );
-    if (!mounted) {
-      return;
-    }
     if (picked == null) {
       return;
     }
@@ -367,9 +364,6 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
       initialColor: initialColor,
       title: 'Custom glass color',
     );
-    if (!mounted) {
-      return;
-    }
     if (picked == null) {
       return;
     }

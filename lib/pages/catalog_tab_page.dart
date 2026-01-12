@@ -294,15 +294,10 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                             initialColor: initialColor,
                             title: 'Custom profile color',
                           );
-                          if (!context.mounted) {
-                            return;
-                          }
                           if (picked != null) {
                             setState(() {
                               profileCustomColorValue = picked.value;
                             });
-                          } else if (profileCustomColorValue == null) {
-                            setState(() {});
                           }
                         } else {
                           setState(() {
@@ -502,15 +497,10 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                           initialColor: initialColor,
                           title: 'Custom glass color',
                         );
-                        if (!context.mounted) {
-                          return;
-                        }
                         if (picked != null) {
                           setState(() {
                             glassCustomColorValue = picked.value;
                           });
-                        } else if (glassCustomColorValue == null) {
-                          setState(() {});
                         }
                       } else {
                         setState(() {
@@ -858,15 +848,10 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                             initialColor: initialColor,
                             title: 'Custom profile color',
                           );
-                          if (!context.mounted) {
-                            return;
-                          }
                           if (picked != null) {
                             setState(() {
                               profileCustomColorValue = picked.value;
                             });
-                          } else if (profileCustomColorValue == null) {
-                            setState(() {});
                           }
                         } else {
                           setState(() {
@@ -1066,15 +1051,10 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                           initialColor: initialColor,
                           title: 'Custom glass color',
                         );
-                        if (!context.mounted) {
-                          return;
-                        }
                         if (picked != null) {
                           setState(() {
                             glassCustomColorValue = picked.value;
                           });
-                        } else if (glassCustomColorValue == null) {
-                          setState(() {});
                         }
                       } else {
                         setState(() {
