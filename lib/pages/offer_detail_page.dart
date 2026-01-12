@@ -13,7 +13,6 @@ import '../pdf/offer_pdf.dart';
 import '../widgets/glass_card.dart';
 import '../l10n/app_localizations.dart';
 import 'package:flutter/services.dart';
-import '../utils/company_settings.dart';
 
 class OfferDetailPage extends StatefulWidget {
   final int offerIndex;
@@ -31,7 +30,6 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
   late Box<Blind> blindBox;
   late Box<Mechanism> mechanismBox;
   late Box<Accessory> accessoryBox;
-  late Box settingsBox;
   late TextEditingController discountPercentController;
   late TextEditingController discountAmountController;
   late TextEditingController notesController;
@@ -83,9 +81,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
   }
 
   List<String> _mechanismCompanies() {
-    final companies = <String>{
-      ...CompanySettings.readMechanismCompanies(settingsBox),
-    };
+    final companies = <String>{};
     for (final mechanism in mechanismBox.values) {
       final name = mechanism.company.trim();
       if (name.isNotEmpty) {
@@ -1440,7 +1436,6 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
     blindBox = Hive.box<Blind>('blinds');
     mechanismBox = Hive.box<Mechanism>('mechanisms');
     accessoryBox = Hive.box<Accessory>('accessories');
-    settingsBox = Hive.box('settings');
     final offer = offerBox.getAt(widget.offerIndex)!;
     discountPercentController =
         TextEditingController(text: offer.discountPercent.toString());
