@@ -724,19 +724,6 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
             onChanged: (v) => setState(() => showBlindBox = v),
           ),
           const SizedBox(height: 16),
-          if (titleStyle != null) Text('Opening diagrams', style: titleStyle),
-          const SizedBox(height: 8),
-          const _OpeningDrawings(),
-          const SizedBox(height: 20),
-          _TipCard(
-            headline: 'Quick tips',
-            tips: const [
-              'Tap a cell to paint it with the active sash preset.',
-              'Toggle Outside view to preview interior vs exterior handing.',
-              'Use Copy glass to all after picking a cell colour.',
-            ],
-          ),
-          const SizedBox(height: 16),
           _colorGroup(
             title: 'Profile colour',
             chips: profileColorOptions.map((opt) {
@@ -822,6 +809,19 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
                   child: const Text('Copy glass to all'),
                 ),
               ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          if (titleStyle != null) Text('Opening diagrams', style: titleStyle),
+          const SizedBox(height: 8),
+          const _OpeningDrawings(),
+          const SizedBox(height: 20),
+          _TipCard(
+            headline: 'Quick tips',
+            tips: const [
+              'Tap a cell to paint it with the active sash preset.',
+              'Toggle Outside view to preview interior vs exterior handing.',
+              'Use Copy glass to all after picking a cell colour.',
             ],
           ),
         ],
