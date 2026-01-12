@@ -46,6 +46,10 @@ class AppLocalizations {
       'settingsCompanyAddress': 'Adresa',
       'settingsCompanyPhones': 'Telefonat',
       'settingsCompanyWebsite': 'Uebsajti',
+      'settingsMechanismCompaniesSection': 'Kompanitë e mekanizmave',
+      'settingsMechanismCompaniesHint': 'Shto kompani mekanizmi',
+      'settingsMechanismCompaniesEmpty':
+          'Nuk ka kompani mekanizmi të shtuara',
       'settingsChangeLogo': 'Ndrysho logon',
       'settingsRemoveLogo': 'Hiq logon',
       'settingsFeaturesSection': 'Funksionet',
@@ -330,6 +334,9 @@ class AppLocalizations {
       'settingsCompanyAddress': 'Address',
       'settingsCompanyPhones': 'Phone numbers',
       'settingsCompanyWebsite': 'Website',
+      'settingsMechanismCompaniesSection': 'Mechanism companies',
+      'settingsMechanismCompaniesHint': 'Add mechanism company',
+      'settingsMechanismCompaniesEmpty': 'No mechanism companies added yet',
       'settingsChangeLogo': 'Change logo',
       'settingsRemoveLogo': 'Remove logo',
       'settingsFeaturesSection': 'Features',
@@ -609,6 +616,10 @@ class AppLocalizations {
       'settingsCompanyAddress': 'Adresse',
       'settingsCompanyPhones': 'Telefonnummern',
       'settingsCompanyWebsite': 'Webseite',
+      'settingsMechanismCompaniesSection': 'Mechanismusfirmen',
+      'settingsMechanismCompaniesHint': 'Mechanismusfirma hinzufügen',
+      'settingsMechanismCompaniesEmpty':
+          'Noch keine Mechanismusfirmen hinzugefügt',
       'settingsChangeLogo': 'Logo ändern',
       'settingsRemoveLogo': 'Logo entfernen',
       'settingsFeaturesSection': 'Funktionen',
@@ -879,6 +890,10 @@ class AppLocalizations {
       'settingsCompanyAddress': 'Adresse',
       'settingsCompanyPhones': 'Numéros de téléphone',
       'settingsCompanyWebsite': 'Site web',
+      'settingsMechanismCompaniesSection': 'Sociétés de mécanismes',
+      'settingsMechanismCompaniesHint': 'Ajouter une société de mécanisme',
+      'settingsMechanismCompaniesEmpty':
+          'Aucune société de mécanisme ajoutée',
       'settingsChangeLogo': 'Changer le logo',
       'settingsRemoveLogo': 'Supprimer le logo',
       'settingsFeaturesSection': 'Fonctionnalités',
@@ -1150,6 +1165,10 @@ class AppLocalizations {
       'settingsCompanyAddress': 'Indirizzo',
       'settingsCompanyPhones': 'Numeri di telefono',
       'settingsCompanyWebsite': 'Sito web',
+      'settingsMechanismCompaniesSection': 'Aziende dei meccanismi',
+      'settingsMechanismCompaniesHint': 'Aggiungi azienda meccanismo',
+      'settingsMechanismCompaniesEmpty':
+          'Nessuna azienda di meccanismi aggiunta',
       'settingsChangeLogo': 'Cambia logo',
       'settingsRemoveLogo': 'Rimuovi logo',
       'settingsFeaturesSection': 'Funzionalità',
@@ -1465,6 +1484,11 @@ class AppLocalizations {
   String get settingsCompanyAddress => _t('settingsCompanyAddress');
   String get settingsCompanyPhones => _t('settingsCompanyPhones');
   String get settingsCompanyWebsite => _t('settingsCompanyWebsite');
+  String get settingsMechanismCompaniesSection =>
+      _t('settingsMechanismCompaniesSection');
+  String get settingsMechanismCompaniesHint => _t('settingsMechanismCompaniesHint');
+  String get settingsMechanismCompaniesEmpty =>
+      _t('settingsMechanismCompaniesEmpty');
   String get settingsChangeLogo => _t('settingsChangeLogo');
   String get settingsRemoveLogo => _t('settingsRemoveLogo');
   String get settingsFeaturesSection => _t('settingsFeaturesSection');

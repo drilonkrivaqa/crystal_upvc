@@ -125,5 +125,8 @@
   "settingsLicenseRemoveLimit": "Remove time limit",
   "settingsLicenseExpired": "Expired",
   "settingsLicenseNeedsDate": "Set an expiry date to start the license timer.",
-  "licenseExpiredMessage": "License expired. Editing is disabled until it is renewed."
+  "licenseExpiredMessage": "License expired. Editing is disabled until it is renewed.",
+  "settingsMechanismCompaniesSection": "Mechanism companies",
+  "settingsMechanismCompaniesHint": "Add mechanism company",
+  "settingsMechanismCompaniesEmpty": "No mechanism companies added yet"
 }

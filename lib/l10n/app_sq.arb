@@ -125,5 +125,8 @@
   "settingsLicenseRemoveLimit": "Hiq limitin e kohës",
   "settingsLicenseExpired": "Skaduar",
   "settingsLicenseNeedsDate": "Caktoni datën e skadimit për të aktivizuar licencën.",
-  "licenseExpiredMessage": "Licenca ka skaduar. Redaktimi është çaktivizuar derisa të rinovohet."
+  "licenseExpiredMessage": "Licenca ka skaduar. Redaktimi është çaktivizuar derisa të rinovohet.",
+  "settingsMechanismCompaniesSection": "Mechanism companies",
+  "settingsMechanismCompaniesHint": "Add mechanism company",
+  "settingsMechanismCompaniesEmpty": "No mechanism companies added yet"
 }
