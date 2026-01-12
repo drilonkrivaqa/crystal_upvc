@@ -431,7 +431,11 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                         initialColumnSizes: initialColumnSizes,
                         initialRowSizes: initialRowSizes,
                         initialProfileColorIndex: profileSet?.colorIndex,
+                        initialProfileCustomColorValue:
+                            profileSet?.customColorValue,
                         initialGlassColorIndex: glass?.colorIndex,
+                        initialGlassCustomColorValue:
+                            glass?.customColorValue,
                       );
 
                       final bytes = await Navigator.push<Uint8List>(
@@ -1115,6 +1119,10 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     final profileColorIndex =
         profileSetBox.getAt(profileSetIndex)?.colorIndex;
     final glassColorIndex = glassBox.getAt(glassIndex)?.colorIndex;
+    final profileCustomColorValue =
+        profileSetBox.getAt(profileSetIndex)?.customColorValue;
+    final glassCustomColorValue =
+        glassBox.getAt(glassIndex)?.customColorValue;
 
     return buildWindowDoorDesignPreviewBytes(
       rows: initialRows,
@@ -1127,6 +1135,8 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
       showBlindBox: blindIndex != null,
       profileColorIndex: profileColorIndex,
       glassColorIndex: glassColorIndex,
+      profileCustomColorValue: profileCustomColorValue,
+      glassCustomColorValue: glassCustomColorValue,
     );
   }
 
