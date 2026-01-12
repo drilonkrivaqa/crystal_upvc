@@ -2041,32 +2041,9 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const Text(
-                        "Add multiple items quickly by pasting lines in the format below.",
+                        "Enter lines like: width,height,vertical sections,horizontal sections,qty(optional)",
                       ),
-                      const SizedBox(height: 8),
-                      DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: Colors.blueGrey.withOpacity(0.08),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Padding(
-                          padding: EdgeInsets.all(10),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Format: width,height,vertical sections,horizontal sections,qty(optional)",
-                              ),
-                              SizedBox(height: 6),
-                              Text(
-                                "Example: 1200,1400,2,1,3",
-                                style: TextStyle(fontFamily: 'monospace'),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 10),
                       Wrap(
                         spacing: 8,
                         runSpacing: 8,
@@ -2098,7 +2075,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                           ),
                           OutlinedButton.icon(
                             icon: const Icon(Icons.lightbulb),
-                            label: const Text("Sample"),
+                            label: const Text("Poz."),
                             onPressed: () {
                               updateAndRecompute(() {
                                 itemsController.text = [
@@ -2111,28 +2088,16 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        "Name settings",
-                        style: TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 12),
                       TextField(
                         controller: prefixController,
                         decoration: const InputDecoration(
                           labelText: "Name prefix",
                           hintText: "Item",
-                          helperText:
-                              "The prefix is combined with the item number.",
                         ),
                         onChanged: (_) => updateAndRecompute(() {}),
                       ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        "Items",
-                        style: TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 12),
                       TextField(
                         controller: itemsController,
                         decoration: const InputDecoration(
@@ -2147,15 +2112,14 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                         style: const TextStyle(fontFamily: 'monospace'),
                         onChanged: (_) => updateAndRecompute(() {}),
                       ),
-                      const SizedBox(height: 12),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
+                      const SizedBox(height: 10),
+                      Row(
                         children: [
                           Chip(
                             label: Text("Valid: $validCount"),
                             avatar: const Icon(Icons.check_circle_outline),
                           ),
+                          const SizedBox(width: 8),
                           Chip(
                             label: Text("Invalid: $invalidCount"),
                             avatar: const Icon(Icons.error_outline),
