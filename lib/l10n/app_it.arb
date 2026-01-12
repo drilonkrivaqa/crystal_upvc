@@ -80,6 +80,7 @@
   "defaultMechanismCompany": "Default mechanism company",
   "mechanismCompany": "Mechanism company",
   "mechanismCompanyAny": "Any company",
+  "mechanismCompaniesTitle": "Mechanism companies",
   "applyDefaultsMessage": "Scegli quali finestre/porte devono usare il profilo, il vetro e la tapparella predefiniti aggiornati. Deseleziona gli elementi da escludere.",
   "catalogAddTitle": "Aggiungi {type}",
   "catalogEditTitle": "Modifica {name}",

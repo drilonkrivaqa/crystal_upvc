@@ -114,6 +114,7 @@
   "defaultMechanismCompany": "Default mechanism company",
   "mechanismCompany": "Mechanism company",
   "mechanismCompanyAny": "Any company",
+  "mechanismCompaniesTitle": "Mechanism companies",
   "applyDefaultsMessage": "Wählen Sie, welche Fenster/Türen das aktualisierte Standardprofil, Glas und den Rollladen verwenden sollen. Entfernen Sie die Auswahl bei den Elementen, die ausgeschlossen werden sollen.",
   "settingsLicenseSection": "License",
   "settingsLicenseUnlimited": "Unlimited access",

@@ -9,6 +9,13 @@ import '../utils/color_options.dart';
 import '../widgets/glass_card.dart';
 import '../l10n/app_localizations.dart';
 
+class _MechanismCompanyEntry {
+  final int index;
+  final String name;
+
+  const _MechanismCompanyEntry({required this.index, required this.name});
+}
+
 class CatalogTabPage extends StatefulWidget {
   final CatalogType type;
   const CatalogTabPage({super.key, required this.type});
@@ -19,6 +26,7 @@ class CatalogTabPage extends StatefulWidget {
 
 class _CatalogTabPageState extends State<CatalogTabPage> {
   late Box box;
+  Box<String>? mechanismCompanyBox;
 
   @override
   void initState() {
@@ -35,11 +43,68 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
         break;
       case CatalogType.mechanism:
         box = Hive.box<Mechanism>('mechanisms');
+        mechanismCompanyBox = Hive.box<String>('mechanismCompanies');
         break;
       case CatalogType.accessory:
         box = Hive.box<Accessory>('accessories');
         break;
     }
+  }
+
+  List<_MechanismCompanyEntry> _sortedMechanismCompanies() {
+    final box = mechanismCompanyBox;
+    if (box == null) {
+      return [];
+    }
+    final entries = <_MechanismCompanyEntry>[];
+    for (int i = 0; i < box.length; i++) {
+      final name = box.getAt(i);
+      if (name == null) continue;
+      final trimmed = name.trim();
+      if (trimmed.isEmpty) continue;
+      entries.add(_MechanismCompanyEntry(index: i, name: trimmed));
+    }
+    entries.sort(
+      (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()),
+    );
+    return entries;
+  }
+
+  Future<void> _addMechanismCompany() async {
+    final companyBox = mechanismCompanyBox;
+    if (companyBox == null) return;
+    final l10n = AppLocalizations.of(context);
+    final controller = TextEditingController();
+
+    await showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.mechanismCompaniesTitle),
+        content: TextField(
+          controller: controller,
+          decoration: InputDecoration(labelText: l10n.mechanismCompany),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(l10n.cancel),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final value = controller.text.trim();
+              if (value.isEmpty) return;
+              final existing = _sortedMechanismCompanies()
+                  .any((entry) => entry.name.toLowerCase() == value.toLowerCase());
+              if (!existing) {
+                companyBox.add(value);
+              }
+              Navigator.pop(context);
+            },
+            child: Text(l10n.add),
+          ),
+        ],
+      ),
+    );
   }
 
   IconData _iconForType() {
@@ -62,9 +127,10 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
     final l10n = AppLocalizations.of(context);
 
     final nameController = TextEditingController(text: item.name);
-    final mechanismCompanyController = TextEditingController(
-      text: item is Mechanism ? item.company : "",
-    );
+    final mechanismCompanies = _sortedMechanismCompanies();
+    final currentMechanismCompany =
+        item is Mechanism ? item.company.trim() : '';
+    String selectedMechanismCompany = currentMechanismCompany;
     final priceLController = TextEditingController(
       text: item is ProfileSet ? item.priceL.toString() : "",
     );
@@ -381,10 +447,33 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                   decoration: InputDecoration(labelText: l10n.name),
                 ),
                 if (widget.type == CatalogType.mechanism)
-                  TextField(
-                    controller: mechanismCompanyController,
+                  DropdownButtonFormField<String>(
+                    value: selectedMechanismCompany.isEmpty
+                        ? ''
+                        : selectedMechanismCompany,
                     decoration:
                         InputDecoration(labelText: l10n.mechanismCompany),
+                    items: [
+                      DropdownMenuItem(
+                        value: '',
+                        child: Text(l10n.mechanismCompanyAny),
+                      ),
+                      for (final entry in mechanismCompanies)
+                        DropdownMenuItem(
+                          value: entry.name,
+                          child: Text(entry.name),
+                        ),
+                      if (selectedMechanismCompany.isNotEmpty &&
+                          !mechanismCompanies
+                              .any((entry) => entry.name == selectedMechanismCompany))
+                        DropdownMenuItem(
+                          value: selectedMechanismCompany,
+                          child: Text(selectedMechanismCompany),
+                        ),
+                    ],
+                    onChanged: (value) => setState(
+                      () => selectedMechanismCompany = value ?? '',
+                    ),
                   ),
                 if (widget.type == CatalogType.glass)
                   DropdownButtonFormField<int>(
@@ -610,7 +699,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                     index,
                     Mechanism(
                       name: nameController.text,
-                      company: mechanismCompanyController.text.trim(),
+                      company: selectedMechanismCompany.trim(),
                       price:
                       double.tryParse(priceController.text) ?? 0,
                       mass:
@@ -687,7 +776,8 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
     final maxWidthController = TextEditingController();
     final minHeightController = TextEditingController();
     final maxHeightController = TextEditingController();
-    final mechanismCompanyController = TextEditingController();
+    final mechanismCompanies = _sortedMechanismCompanies();
+    String selectedMechanismCompany = '';
     int profileColorIndex = 0;
     int glassColorIndex = 0;
 
@@ -899,10 +989,24 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                   decoration: InputDecoration(labelText: l10n.name),
                 ),
                 if (widget.type == CatalogType.mechanism)
-                  TextField(
-                    controller: mechanismCompanyController,
+                  DropdownButtonFormField<String>(
+                    value: selectedMechanismCompany,
                     decoration:
                         InputDecoration(labelText: l10n.mechanismCompany),
+                    items: [
+                      DropdownMenuItem(
+                        value: '',
+                        child: Text(l10n.mechanismCompanyAny),
+                      ),
+                      for (final entry in mechanismCompanies)
+                        DropdownMenuItem(
+                          value: entry.name,
+                          child: Text(entry.name),
+                        ),
+                    ],
+                    onChanged: (value) => setState(
+                      () => selectedMechanismCompany = value ?? '',
+                    ),
                   ),
                 if (widget.type == CatalogType.glass)
                   DropdownButtonFormField<int>(
@@ -1110,7 +1214,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                   box.add(
                     Mechanism(
                       name: nameController.text,
-                      company: mechanismCompanyController.text.trim(),
+                      company: selectedMechanismCompany.trim(),
                       price:
                       double.tryParse(priceController.text) ?? 0,
                       mass:
@@ -1202,88 +1306,161 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
             valueListenable: box.listenable(),
             builder: (context, Box<dynamic> box, _) {
               if (box.isEmpty) {
-                return Center(
-                  child: Text(
-                    'No items yet',
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
-                );
+                if (widget.type != CatalogType.mechanism) {
+                  return Center(
+                    child: Text(
+                      'No items yet',
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                  );
+                }
               }
 
-              return ListView.builder(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
-                itemCount: box.length,
-                itemBuilder: (context, i) {
-                  final item = box.getAt(i);
+              return ValueListenableBuilder(
+                valueListenable:
+                    mechanismCompanyBox?.listenable() ?? box.listenable(),
+                builder: (context, Box<dynamic> _, __) {
+                  final companyEntries = _sortedMechanismCompanies();
 
-                  final mechanismCompany =
-                      item is Mechanism ? item.company.trim() : '';
-                  final subtitle = widget.type == CatalogType.profileSet
-                      ? "Frame (L): €${item.priceL.toStringAsFixed(2)}/m, ${item.massL.toStringAsFixed(2)}kg/m\n"
-                      "Sash (Z): €${item.priceZ.toStringAsFixed(2)}/m, ${item.massZ.toStringAsFixed(2)}kg/m\n"
-                      "T Profile: €${item.priceT.toStringAsFixed(2)}/m, ${item.massT.toStringAsFixed(2)}kg/m\n"
-                      "Adapter: €${item.priceAdapter.toStringAsFixed(2)}/m, ${item.massAdapter.toStringAsFixed(2)}kg/m\n"
-                      "Bead: €${item.priceLlajsne.toStringAsFixed(2)}/m, ${item.massLlajsne.toStringAsFixed(2)}kg/m\n"
-                      "Length: ${item.pipeLength}mm"
-                      : widget.type == CatalogType.glass
-                      ? "Price: €${item.pricePerM2.toStringAsFixed(2)}/m², Mass: ${item.massPerM2.toStringAsFixed(2)}kg/m²"
-                      : widget.type == CatalogType.blind
-                      ? "Price: €${item.pricePerM2.toStringAsFixed(2)}/m², Mass: ${item.massPerM2.toStringAsFixed(2)}kg/m², Box: ${item.boxHeight}mm"
-                      : widget.type == CatalogType.mechanism
-                      ? "${mechanismCompany.isNotEmpty ? 'Company: $mechanismCompany\\n' : ''}"
-                      "Price: €${item.price.toStringAsFixed(2)}, Mass: ${item.mass.toStringAsFixed(2)}kg\n"
-                      "W: ${_formatRange(item.minWidth, item.maxWidth, 'mm')}, "
-                      "H: ${_formatRange(item.minHeight, item.maxHeight, 'mm')}"
-                      : widget.type == CatalogType.accessory
-                      ? "Price: €${item.price.toStringAsFixed(2)}, Mass: ${item.mass.toStringAsFixed(2)}kg"
-                      : null;
-
-                  return GlassCard(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 10,
-                    ),
-                    onTap: () => _editItem(i),
-                    child: ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      leading: CircleAvatar(
-                        backgroundColor:
-                        colorScheme.primary.withOpacity(0.12),
-                        child: Icon(
-                          icon,
-                          color: colorScheme.primary,
+                  final items = <Widget>[
+                    if (widget.type == CatalogType.mechanism)
+                      GlassCard(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    l10n.mechanismCompaniesTitle,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium,
+                                  ),
+                                ),
+                                IconButton(
+                                  tooltip: l10n.add,
+                                  onPressed: _addMechanismCompany,
+                                  icon: const Icon(Icons.add),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            if (companyEntries.isEmpty)
+                              Text(
+                                'No companies yet',
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              )
+                            else
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: [
+                                  for (final entry in companyEntries)
+                                    Chip(
+                                      label: Text(entry.name),
+                                      onDeleted: () => mechanismCompanyBox
+                                          ?.deleteAt(entry.index),
+                                    ),
+                                ],
+                              ),
+                          ],
                         ),
                       ),
-                      title: Text(
-                        item.name,
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleMedium
-                            ?.copyWith(fontWeight: FontWeight.w600),
-                      ),
-                      subtitle: subtitle != null
-                          ? Padding(
-                        padding: const EdgeInsets.only(top: 4),
+                  ];
+
+                  if (box.isEmpty) {
+                    items.add(
+                      Center(
                         child: Text(
-                          subtitle,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(height: 1.25),
+                          'No items yet',
+                          style: Theme.of(context).textTheme.bodyLarge,
                         ),
-                      )
-                          : null,
-                      trailing: Icon(
-                        Icons.edit_rounded,
-                        color: colorScheme.primary,
                       ),
-                      isThreeLine: widget.type == CatalogType.profileSet,
-                    ),
-                  )
-                      .animate()
-                      .fadeIn(duration: 200.ms)
-                      .slideY(begin: 0.3);
+                    );
+                  } else {
+                    for (int i = 0; i < box.length; i++) {
+                      final item = box.getAt(i);
+                      if (item == null) continue;
+                      final mechanismCompany =
+                          item is Mechanism ? item.company.trim() : '';
+                      final subtitle = widget.type == CatalogType.profileSet
+                          ? "Frame (L): €${item.priceL.toStringAsFixed(2)}/m, ${item.massL.toStringAsFixed(2)}kg/m\n"
+                          "Sash (Z): €${item.priceZ.toStringAsFixed(2)}/m, ${item.massZ.toStringAsFixed(2)}kg/m\n"
+                          "T Profile: €${item.priceT.toStringAsFixed(2)}/m, ${item.massT.toStringAsFixed(2)}kg/m\n"
+                          "Adapter: €${item.priceAdapter.toStringAsFixed(2)}/m, ${item.massAdapter.toStringAsFixed(2)}kg/m\n"
+                          "Bead: €${item.priceLlajsne.toStringAsFixed(2)}/m, ${item.massLlajsne.toStringAsFixed(2)}kg/m\n"
+                          "Length: ${item.pipeLength}mm"
+                          : widget.type == CatalogType.glass
+                          ? "Price: €${item.pricePerM2.toStringAsFixed(2)}/m², Mass: ${item.massPerM2.toStringAsFixed(2)}kg/m²"
+                          : widget.type == CatalogType.blind
+                          ? "Price: €${item.pricePerM2.toStringAsFixed(2)}/m², Mass: ${item.massPerM2.toStringAsFixed(2)}kg/m², Box: ${item.boxHeight}mm"
+                          : widget.type == CatalogType.mechanism
+                          ? "${mechanismCompany.isNotEmpty ? 'Company: $mechanismCompany\\n' : ''}"
+                          "Price: €${item.price.toStringAsFixed(2)}, Mass: ${item.mass.toStringAsFixed(2)}kg\n"
+                          "W: ${_formatRange(item.minWidth, item.maxWidth, 'mm')}, "
+                          "H: ${_formatRange(item.minHeight, item.maxHeight, 'mm')}"
+                          : widget.type == CatalogType.accessory
+                          ? "Price: €${item.price.toStringAsFixed(2)}, Mass: ${item.mass.toStringAsFixed(2)}kg"
+                          : null;
+
+                      items.add(
+                        GlassCard(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 10,
+                          ),
+                          onTap: () => _editItem(i),
+                          child: ListTile(
+                            contentPadding: EdgeInsets.zero,
+                            leading: CircleAvatar(
+                              backgroundColor:
+                                  colorScheme.primary.withOpacity(0.12),
+                              child: Icon(
+                                icon,
+                                color: colorScheme.primary,
+                              ),
+                            ),
+                            title: Text(
+                              item.name,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(fontWeight: FontWeight.w600),
+                            ),
+                            subtitle: subtitle != null
+                                ? Padding(
+                                    padding: const EdgeInsets.only(top: 4),
+                                    child: Text(
+                                      subtitle,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall
+                                          ?.copyWith(height: 1.25),
+                                    ),
+                                  )
+                                : null,
+                            trailing: Icon(
+                              Icons.edit_rounded,
+                              color: colorScheme.primary,
+                            ),
+                            isThreeLine: widget.type == CatalogType.profileSet,
+                          ),
+                        )
+                            .animate()
+                            .fadeIn(duration: 200.ms)
+                            .slideY(begin: 0.3),
+                      );
+                    }
+                  }
+
+                  return ListView(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
+                    children: items,
+                  );
                 },
               );
             },
