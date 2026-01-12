@@ -185,6 +185,7 @@ class AppLocalizations {
       'defaultMechanismCompany': 'Default mechanism company',
       'mechanismCompany': 'Mechanism company',
       'mechanismCompanyAny': 'Any company',
+      'mechanismCompaniesTitle': 'Mechanism companies',
       'applyDefaultsTitle': 'Aplikoni ndryshimet',
       'applyDefaultsMessage':
           'Zgjidhni cilat dritare/dyer duhet të përdorin profilin, xhamin dhe roletën e re të paracaktuar. Hiqni shenjën nga ato që dëshironi t\'i përjashtoni.',
@@ -467,6 +468,7 @@ class AppLocalizations {
       'defaultMechanismCompany': 'Default mechanism company',
       'mechanismCompany': 'Mechanism company',
       'mechanismCompanyAny': 'Any company',
+      'mechanismCompaniesTitle': 'Mechanism companies',
       'applyDefaultsTitle': 'Apply changes',
       'applyDefaultsMessage':
           'Choose which windows/doors should use the updated default profile, glass, and blind. Uncheck the items you want to exclude.',
@@ -747,6 +749,7 @@ class AppLocalizations {
       'defaultMechanismCompany': 'Default mechanism company',
       'mechanismCompany': 'Mechanism company',
       'mechanismCompanyAny': 'Any company',
+      'mechanismCompaniesTitle': 'Mechanism companies',
       'applyDefaultsTitle': 'Änderungen anwenden',
       'applyDefaultsMessage':
           'Wählen Sie, welche Fenster/Türen das aktualisierte Standardprofil, Glas und den Rollladen verwenden sollen. Entfernen Sie die Auswahl bei den Elementen, die ausgeschlossen werden sollen.',
@@ -1017,6 +1020,7 @@ class AppLocalizations {
       'defaultMechanismCompany': 'Default mechanism company',
       'mechanismCompany': 'Mechanism company',
       'mechanismCompanyAny': 'Any company',
+      'mechanismCompaniesTitle': 'Mechanism companies',
       'applyDefaultsTitle': 'Appliquer les modifications',
       'applyDefaultsMessage':
           'Choisissez quelles fenêtres/portes doivent utiliser le profil, le vitrage et le volet par défaut mis à jour. Décochez les éléments à exclure.',
@@ -1287,6 +1291,7 @@ class AppLocalizations {
       'defaultMechanismCompany': 'Default mechanism company',
       'mechanismCompany': 'Mechanism company',
       'mechanismCompanyAny': 'Any company',
+      'mechanismCompaniesTitle': 'Mechanism companies',
       'applyDefaultsTitle': 'Applica le modifiche',
       'applyDefaultsMessage':
           'Scegli quali finestre/porte devono usare il profilo, il vetro e la tapparella predefiniti aggiornati. Deseleziona gli elementi da escludere.',
@@ -1606,6 +1611,7 @@ class AppLocalizations {
   String get defaultMechanismCompany => _t('defaultMechanismCompany');
   String get mechanismCompany => _t('mechanismCompany');
   String get mechanismCompanyAny => _t('mechanismCompanyAny');
+  String get mechanismCompaniesTitle => _t('mechanismCompaniesTitle');
   String get applyDefaultsTitle => _t('applyDefaultsTitle');
   String get applyDefaultsMessage => _t('applyDefaultsMessage');
   String get selectAll => _t('selectAll');

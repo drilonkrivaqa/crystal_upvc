@@ -114,6 +114,7 @@
   "defaultMechanismCompany": "Default mechanism company",
   "mechanismCompany": "Mechanism company",
   "mechanismCompanyAny": "Any company",
+  "mechanismCompaniesTitle": "Mechanism companies",
   "applyDefaultsMessage": "Choisissez quelles fenêtres/portes doivent utiliser le profil, le vitrage et le volet par défaut mis à jour. Décochez les éléments à exclure.",
   "settingsLicenseSection": "License",
   "settingsLicenseUnlimited": "Unlimited access",

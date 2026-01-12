@@ -53,6 +53,7 @@ void main() async {
   await openBoxSafe<Glass>('glasses');
   await openBoxSafe<Blind>('blinds');
   await openBoxSafe<Mechanism>('mechanisms');
+  await openBoxSafe<String>('mechanismCompanies');
   await openBoxSafe<Accessory>('accessories');
   await openBoxSafe<Offer>('offers');
   await openBoxSafe('settings');

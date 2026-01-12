@@ -114,6 +114,7 @@
   "defaultMechanismCompany": "Default mechanism company",
   "mechanismCompany": "Mechanism company",
   "mechanismCompanyAny": "Any company",
+  "mechanismCompaniesTitle": "Mechanism companies",
   "applyDefaultsMessage": "Zgjidhni cilat dritare/dyer duhet të përdorin profilin, xhamin dhe roletën e re të paracaktuar. Hiqni shenjën nga ato që dëshironi t'i përjashtoni.",
   "settingsLicenseSection": "Licenca",
   "settingsLicenseUnlimited": "Akses i pakufizuar",
