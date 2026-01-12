@@ -30,8 +30,6 @@ const glassColorOptions = <SimpleColorOption>[
   SimpleColorOption('Blue', Color(0xFFAEDCF2)),
   SimpleColorOption('White', Color(0xFFF7FAFC)),
   SimpleColorOption('Grey Blue', Color(0xFF9FB4C7)),
-  SimpleColorOption('Anthracite', Color(0xFF303338)),
-  SimpleColorOption('Golden Oak', Color(0xFF704D27)),
 ];
 
 ProfileColorOption profileColorForIndex(int? index) {
@@ -42,34 +40,12 @@ ProfileColorOption profileColorForIndex(int? index) {
   return profileColorOptions[safeIndex];
 }
 
-ProfileColorOption profileColorForSelection({
-  int? index,
-  int? customColorValue,
-}) {
-  if (customColorValue != null) {
-    final base = Color(customColorValue);
-    final shadow = _darkenColor(base, 0.18);
-    return ProfileColorOption('Custom', base, shadow);
-  }
-  return profileColorForIndex(index);
-}
-
 SimpleColorOption glassColorForIndex(int? index) {
   if (glassColorOptions.isEmpty) {
     return const SimpleColorOption('Default', Colors.white);
   }
   final safeIndex = _clampIndex(index, glassColorOptions.length);
   return glassColorOptions[safeIndex];
-}
-
-SimpleColorOption glassColorForSelection({
-  int? index,
-  int? customColorValue,
-}) {
-  if (customColorValue != null) {
-    return SimpleColorOption('Custom', Color(customColorValue));
-  }
-  return glassColorForIndex(index);
 }
 
 SimpleColorOption blindColorForIndex(int? index) {
@@ -92,10 +68,4 @@ int _clampIndex(int? index, int length) {
     return length - 1;
   }
   return value;
-}
-
-Color _darkenColor(Color color, double amount) {
-  final hsl = HSLColor.fromColor(color);
-  final lightness = (hsl.lightness - amount).clamp(0.0, 1.0);
-  return hsl.withLightness(lightness).toColor();
 }

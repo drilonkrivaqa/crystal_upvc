@@ -80,8 +80,6 @@ class ProfileSet extends HiveObject {
   int adapterOuterThickness; // Outer thickness of Adapter
   @HiveField(27, defaultValue: 0)
   int colorIndex; // Default profile color index
-  @HiveField(28)
-  int? customColorValue; // Optional custom profile color (ARGB)
 
   ProfileSet({
     required this.name,
@@ -112,7 +110,6 @@ class ProfileSet extends HiveObject {
     this.tOuterThickness = 0,
     this.adapterOuterThickness = 0,
     this.colorIndex = 0,
-    this.customColorValue,
   });
 }
 
@@ -130,8 +127,6 @@ class Glass extends HiveObject {
   double? psi; // Linear thermal transmittance of glass
   @HiveField(5, defaultValue: 0)
   int colorIndex; // Default glass color index
-  @HiveField(6)
-  int? customColorValue; // Optional custom glass color (ARGB)
   Glass({
     required this.name,
     required this.pricePerM2,
@@ -139,7 +134,6 @@ class Glass extends HiveObject {
     this.ug,
     this.psi,
     this.colorIndex = 0,
-    this.customColorValue,
   });
 }
 
