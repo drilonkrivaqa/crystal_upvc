@@ -1265,9 +1265,23 @@ class _SashGlyphRenderer {
   }
 
   static void _drawFixed(Canvas canvas, Rect r, Paint paint) {
-    final inset = r.shortestSide * 0.18;
-    final rect = r.deflate(inset);
-    canvas.drawRect(rect, paint);
+    final fontSize = r.shortestSide * 0.55;
+    final textPainter = TextPainter(
+      text: TextSpan(
+        text: 'F',
+        style: TextStyle(
+          color: paint.color,
+          fontSize: fontSize,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    final offset = Offset(
+      r.center.dx - textPainter.width / 2,
+      r.center.dy - textPainter.height / 2,
+    );
+    textPainter.paint(canvas, offset);
   }
 
   static void _drawCasement(Canvas canvas, Rect r,
