@@ -37,9 +37,6 @@ const double kSashStroke = 3;
 
 // Colors
 const Color kLineColor = Colors.black87;
-const double kGlassHighlightOpacity = 0.35;
-const double kGlassShadowOpacity = 0.18;
-const double kBevelWidth = 1.4;
 
 // Selection outline
 const Color kSelectOutline = Color(0xFF1E88E5); // blue outline
@@ -1112,18 +1109,6 @@ Color _shadowForColor(Color base) {
   return darkened.toColor();
 }
 
-Color _tintColor(Color base, double amount) {
-  final hsl = HSLColor.fromColor(base);
-  final next = (hsl.lightness + amount).clamp(0.0, 1.0);
-  return hsl.withLightness(next).toColor();
-}
-
-Color _shadeColor(Color base, double amount) {
-  final hsl = HSLColor.fromColor(base);
-  final next = (hsl.lightness - amount).clamp(0.0, 1.0);
-  return hsl.withLightness(next).toColor();
-}
-
 String _colorToHex(Color color) {
   final hex = color.value.toRadixString(16).padLeft(8, '0').toUpperCase();
   return hex.substring(2);
@@ -1390,13 +1375,6 @@ class _WindowPainter extends CustomPainter {
     // 1) Draw PVC frame body
     canvas.drawRect(outer, paintFrameFill);
     canvas.drawRect(outer, paintFrameEdge);
-    _drawBevel(
-      canvas,
-      outer.deflate(kFrameStroke / 2),
-      _tintColor(profileColor.base, 0.18),
-      profileColor.shadow,
-      kBevelWidth,
-    );
 
     // 2) Opening (where glass & sashes live), inset by frame face
     final opening = outer.deflate(kFrameFace);
@@ -1445,11 +1423,9 @@ class _WindowPainter extends CustomPainter {
           rowHeights[r],
         );
 
-        // Glass with subtle depth + highlight
-        paintGlass.shader = _glassShader(rect, cellGlassColors[idx]);
+        // Glass
+        paintGlass.color = cellGlassColors[idx];
         canvas.drawRect(rect, paintGlass);
-        paintGlass.shader = null;
-        _drawGlassHighlight(canvas, rect);
 
         // Selection (non-tint dashed outline, toggle-able)
         if (selectedIndex == idx) {
@@ -1493,14 +1469,6 @@ class _WindowPainter extends CustomPainter {
       ..strokeWidth = 1.4
       ..isAntiAlias = true;
     canvas.drawRect(glassArea, beadPaint);
-
-    _drawBevel(
-      canvas,
-      glassArea.deflate(0.5),
-      Colors.white.withOpacity(0.35),
-      Colors.black.withOpacity(0.22),
-      1.0,
-    );
   }
 
   List<double> _ensureFractions(List<double> fractions, int expectedLength) {
@@ -1566,72 +1534,6 @@ class _WindowPainter extends CustomPainter {
       canvas.drawLine(start, end, paint);
       traveled += dash + gap;
     }
-  }
-
-  ui.Gradient _glassShader(Rect rect, Color baseColor) {
-    final light = _tintColor(baseColor, 0.16);
-    final mid = baseColor.withOpacity(0.95);
-    final dark = _shadeColor(baseColor, 0.18);
-    return ui.Gradient.linear(
-      rect.topLeft,
-      rect.bottomRight,
-      [
-        light.withOpacity(0.95),
-        mid.withOpacity(0.9),
-        dark.withOpacity(0.92),
-      ],
-      [0.0, 0.55, 1.0],
-    );
-  }
-
-  void _drawGlassHighlight(Canvas canvas, Rect rect) {
-    final highlightPaint = Paint()
-      ..color = Colors.white.withOpacity(kGlassHighlightOpacity)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.2
-      ..strokeCap = StrokeCap.round
-      ..isAntiAlias = true;
-    final shadowPaint = Paint()
-      ..color = Colors.black.withOpacity(kGlassShadowOpacity)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.0
-      ..strokeCap = StrokeCap.round
-      ..isAntiAlias = true;
-
-    final inset = rect.deflate(2);
-    canvas.drawLine(
-        Offset(inset.left, inset.top), Offset(inset.right, inset.top), highlightPaint);
-    canvas.drawLine(
-        Offset(inset.left, inset.top), Offset(inset.left, inset.bottom), highlightPaint);
-    canvas.drawLine(
-        Offset(inset.left, inset.bottom), Offset(inset.right, inset.bottom), shadowPaint);
-    canvas.drawLine(
-        Offset(inset.right, inset.top), Offset(inset.right, inset.bottom), shadowPaint);
-  }
-
-  void _drawBevel(
-      Canvas canvas, Rect rect, Color light, Color dark, double width) {
-    final lightPaint = Paint()
-      ..color = light
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = width
-      ..strokeCap = StrokeCap.square
-      ..isAntiAlias = true;
-    final darkPaint = Paint()
-      ..color = dark
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = width
-      ..strokeCap = StrokeCap.square
-      ..isAntiAlias = true;
-
-    canvas.drawLine(Offset(rect.left, rect.top),
-        Offset(rect.right, rect.top), lightPaint);
-    canvas.drawLine(Offset(rect.left, rect.top),
-        Offset(rect.left, rect.bottom), lightPaint);
-    canvas.drawLine(Offset(rect.left, rect.bottom),
-        Offset(rect.right, rect.bottom), darkPaint);
-    canvas.drawLine(Offset(rect.right, rect.top),
-        Offset(rect.right, rect.bottom), darkPaint);
   }
 
   SashType _mirrorForInside(SashType t, bool outside) {
