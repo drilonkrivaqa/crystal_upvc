@@ -32,12 +32,16 @@ const double kFallbackWindowHeightMm =
     1200.0; // used when real dimensions absent
 
 // Lines
+const double kMullionStroke = 2;
 const double kSashStroke = 3;
-const double kMullionThickness = 8.0;
-const double kSashThickness = 6.0;
 
 // Colors
 const Color kLineColor = Colors.black87;
+
+// Selection outline
+const Color kSelectOutline = Color(0xFF1E88E5); // blue outline
+const double kSelectDash = 7.0;
+const double kSelectGap = 5.0;
 
 // -----------------------------------------------------------------------------
 // Model / types
@@ -63,33 +67,6 @@ enum _ExportAction { close, save, useAsPhoto }
 
 // -----------------------------------------------------------------------------
 // Page
-
-class _CadStyle {
-  final double scale;
-  final double innerStroke;
-  final double detailStroke;
-
-  const _CadStyle({
-    required this.scale,
-    this.innerStroke = 1.8,
-    this.detailStroke = 1.0,
-  });
-
-  Paint fill(Color color, {double alpha = 1}) {
-    return Paint()
-      ..color = color.withOpacity(alpha)
-      ..style = PaintingStyle.fill
-      ..isAntiAlias = true;
-  }
-
-  Paint stroke(Color color, double width, {double alpha = 1}) {
-    return Paint()
-      ..color = color.withOpacity(alpha)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = width
-      ..isAntiAlias = true;
-  }
-}
 
 Future<Uint8List?> buildWindowDoorDesignPreviewBytes({
   required int rows,
@@ -1344,9 +1321,6 @@ class _WindowPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final cadStyle = _CadStyle(scale: _resolveCadScale(size));
-    final mullionThickness = kMullionThickness / cadStyle.scale;
-    final sashThickness = kSashThickness / cadStyle.scale;
     final totalHeightMm = windowHeightMm;
     final mmToPx = totalHeightMm > 0 ? size.height / totalHeightMm : 0.0;
     final blindHeightPx = showBlindBox ? kBlindBoxHeightMm * mmToPx : 0.0;
@@ -1361,6 +1335,12 @@ class _WindowPainter extends CustomPainter {
       ..color = profileColor.shadow
       ..style = PaintingStyle.stroke
       ..strokeWidth = kFrameStroke
+      ..isAntiAlias = true;
+
+    final paintMullion = Paint()
+      ..color = kLineColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = kMullionStroke
       ..isAntiAlias = true;
 
     final paintSash = Paint()
@@ -1449,7 +1429,8 @@ class _WindowPainter extends CustomPainter {
 
         // Selection (non-tint dashed outline, toggle-able)
         if (selectedIndex == idx) {
-          _drawSelection(canvas, rect, cadStyle);
+          _drawDashedRect(canvas, rect.deflate(5), kSelectOutline, kSelectDash,
+              kSelectGap, 2.0);
         }
 
         // Mirror L/R types when viewing from inside
@@ -1469,57 +1450,25 @@ class _WindowPainter extends CustomPainter {
     for (int c = 0; c < cols - 1; c++) {
       mullionX += columnWidths[c];
       final x = mullionX;
-      final bar = Rect.fromLTWH(
-        x - (mullionThickness / 2),
-        glassArea.top,
-        mullionThickness,
-        glassArea.height,
-      );
-      _drawProfileBar(canvas, bar, cadStyle);
+      canvas.drawLine(
+          Offset(x, glassArea.top), Offset(x, glassArea.bottom), paintMullion);
     }
     // horizontals
     double mullionY = glassArea.top;
     for (int r = 0; r < rows - 1; r++) {
       mullionY += rowHeights[r];
       final y = mullionY;
-      final bar = Rect.fromLTWH(
-        glassArea.left,
-        y - (mullionThickness / 2),
-        glassArea.width,
-        mullionThickness,
-      );
-      _drawProfileBar(canvas, bar, cadStyle);
+      canvas.drawLine(
+          Offset(glassArea.left, y), Offset(glassArea.right, y), paintMullion);
     }
 
     // 6) Small sash/bead stroke around the whole glass area (a clean inner frame look)
-    final leftBar = Rect.fromLTWH(
-      glassArea.left - (sashThickness / 2),
-      glassArea.top,
-      sashThickness,
-      glassArea.height,
-    );
-    final rightBar = Rect.fromLTWH(
-      glassArea.right - (sashThickness / 2),
-      glassArea.top,
-      sashThickness,
-      glassArea.height,
-    );
-    final topBar = Rect.fromLTWH(
-      glassArea.left,
-      glassArea.top - (sashThickness / 2),
-      glassArea.width,
-      sashThickness,
-    );
-    final bottomBar = Rect.fromLTWH(
-      glassArea.left,
-      glassArea.bottom - (sashThickness / 2),
-      glassArea.width,
-      sashThickness,
-    );
-    _drawProfileBar(canvas, leftBar, cadStyle);
-    _drawProfileBar(canvas, rightBar, cadStyle);
-    _drawProfileBar(canvas, topBar, cadStyle);
-    _drawProfileBar(canvas, bottomBar, cadStyle);
+    final beadPaint = Paint()
+      ..color = kLineColor.withOpacity(0.8)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.4
+      ..isAntiAlias = true;
+    canvas.drawRect(glassArea, beadPaint);
   }
 
   List<double> _ensureFractions(List<double> fractions, int expectedLength) {
@@ -1551,73 +1500,40 @@ class _WindowPainter extends CustomPainter {
     return normalized.map((value) => value / sum).toList(growable: false);
   }
 
-  void _drawProfileBar(Canvas canvas, Rect bar, _CadStyle s) {
-    canvas.drawRect(bar, s.fill(const Color(0xFFDDE5F2), alpha: 1));
-    canvas.drawRect(
-      bar,
-      s.stroke(const Color(0xFF1E2A3A), s.innerStroke, alpha: 0.85),
-    );
-
-    final inset = bar.deflate(3 / s.scale);
-    canvas.drawRect(
-      inset,
-      s.stroke(const Color(0xFF1E2A3A), s.detailStroke, alpha: 0.20),
-    );
-  }
-
-  void _drawSelection(Canvas canvas, Rect bounds, _CadStyle s) {
-    final glow = Paint()
-      ..isAntiAlias = true
+  // Selection outline helper
+  void _drawDashedRect(Canvas canvas, Rect r, Color color, double dash,
+      double gap, double width) {
+    final paint = Paint()
+      ..color = color
       ..style = PaintingStyle.stroke
-      ..strokeWidth = (6 / s.scale)
-      ..color = const Color(0xFF4DA3FF).withOpacity(0.25)
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8);
+      ..strokeWidth = width;
 
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        bounds.inflate(2 / s.scale),
-        const Radius.circular(4),
-      ),
-      glow,
-    );
-
-    final outline =
-        s.stroke(const Color(0xFF4DA3FF), 2.2 / s.scale, alpha: 0.95);
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(bounds, const Radius.circular(4)),
-      outline,
-    );
-
-    final handleFill = s.fill(Colors.white, alpha: 1);
-    final handleStroke =
-        s.stroke(const Color(0xFF4DA3FF), 1.4 / s.scale, alpha: 1);
-
-    for (final p in [
-      bounds.topLeft,
-      bounds.topRight,
-      bounds.bottomLeft,
-      bounds.bottomRight,
-      Offset(bounds.center.dx, bounds.top),
-      Offset(bounds.center.dx, bounds.bottom),
-      Offset(bounds.left, bounds.center.dy),
-      Offset(bounds.right, bounds.center.dy),
-    ]) {
-      final hr = Rect.fromCenter(
-        center: p,
-        width: 10 / s.scale,
-        height: 10 / s.scale,
-      );
-      final handle = RRect.fromRectAndRadius(hr, const Radius.circular(3));
-      canvas.drawRRect(handle, handleFill);
-      canvas.drawRRect(handle, handleStroke);
-    }
+    // Top
+    _dashLine(canvas, Offset(r.left, r.top), Offset(r.right, r.top), paint,
+        dash, gap);
+    // Right
+    _dashLine(canvas, Offset(r.right, r.top), Offset(r.right, r.bottom), paint,
+        dash, gap);
+    // Bottom
+    _dashLine(canvas, Offset(r.right, r.bottom), Offset(r.left, r.bottom),
+        paint, dash, gap);
+    // Left
+    _dashLine(canvas, Offset(r.left, r.bottom), Offset(r.left, r.top), paint,
+        dash, gap);
   }
 
-  double _resolveCadScale(Size size) {
-    if (size.shortestSide <= 0) {
-      return 1.0;
+  void _dashLine(
+      Canvas canvas, Offset a, Offset b, Paint paint, double dash, double gap) {
+    final total = (b - a);
+    final length = total.distance;
+    final dir = total / length;
+    double traveled = 0;
+    while (traveled < length) {
+      final start = a + dir * traveled;
+      final end = a + dir * (traveled + dash).clamp(0, length);
+      canvas.drawLine(start, end, paint);
+      traveled += dash + gap;
     }
-    return (size.shortestSide / 600).clamp(0.6, 2.0);
   }
 
   SashType _mirrorForInside(SashType t, bool outside) {
