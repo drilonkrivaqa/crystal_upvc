@@ -65,55 +65,6 @@ enum SashType {
 
 enum _ExportAction { close, save, useAsPhoto }
 
-enum _ToolCategory { fixed, hinged, tilt, tiltTurn, sliding, swing }
-
-const Map<_ToolCategory, String> _toolCategoryLabels = {
-  _ToolCategory.fixed: 'Fixed',
-  _ToolCategory.hinged: 'Hinged',
-  _ToolCategory.tilt: 'Tilt',
-  _ToolCategory.tiltTurn: 'Tilt&Turn',
-  _ToolCategory.sliding: 'Sliding',
-  _ToolCategory.swing: 'Swing',
-};
-
-class _DesignerSnapshot {
-  final int rows;
-  final int cols;
-  final List<SashType> cells;
-  final List<Color> cellGlassColors;
-  final int? selectedIndex;
-  final SashType activeTool;
-  final List<double> columnSizes;
-  final List<double> rowSizes;
-  final bool outsideView;
-  final bool showBlindBox;
-  final double windowWidthMm;
-  final double windowHeightMm;
-  final ProfileColorOption profileColor;
-  final SimpleColorOption blindColor;
-  final Color? customProfileColor;
-  final Color? customGlassColor;
-
-  const _DesignerSnapshot({
-    required this.rows,
-    required this.cols,
-    required this.cells,
-    required this.cellGlassColors,
-    required this.selectedIndex,
-    required this.activeTool,
-    required this.columnSizes,
-    required this.rowSizes,
-    required this.outsideView,
-    required this.showBlindBox,
-    required this.windowWidthMm,
-    required this.windowHeightMm,
-    required this.profileColor,
-    required this.blindColor,
-    required this.customProfileColor,
-    required this.customGlassColor,
-  });
-}
-
 // -----------------------------------------------------------------------------
 // Page
 
@@ -266,20 +217,16 @@ class WindowDoorDesignerPage extends StatefulWidget {
 }
 
 class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
-  static const int _undoLimit = 20;
-
   int rows = 1;
   int cols = 2;
   bool outsideView = true;
   bool showBlindBox = false;
-  bool _fineStep = false;
 
   late double windowWidthMm;
   late double windowHeightMm;
 
   SashType activeTool = SashType.fixed;
   int? selectedIndex;
-  _ToolCategory _activeCategory = _ToolCategory.fixed;
 
   late List<SashType> cells;
   late List<Color> cellGlassColors;
@@ -290,7 +237,9 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
   Color? _customProfileColor;
   Color? _customGlassColor;
 
-  final List<_DesignerSnapshot> _undoStack = [];
+  late final TextEditingController _widthController;
+  late final TextEditingController _heightController;
+
   final _repaintKey = GlobalKey();
 
   @override
@@ -301,6 +250,10 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     showBlindBox = widget.initialShowBlind ?? showBlindBox;
     windowHeightMm = _initialHeightMm(widget.initialHeight);
     windowWidthMm = _initialWidthMm(widget.initialWidth, windowHeightMm);
+    _widthController =
+        TextEditingController(text: windowWidthMm.toStringAsFixed(0));
+    _heightController =
+        TextEditingController(text: windowHeightMm.toStringAsFixed(0));
     cells = List<SashType>.filled(rows * cols, SashType.fixed, growable: true);
     final initialGlassColor = glassColorForIndex(widget.initialGlassColorIndex);
     cellGlassColors = List<Color>.filled(
@@ -319,57 +272,14 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     }
   }
 
-  void _pushUndoState() {
-    _undoStack.add(
-      _DesignerSnapshot(
-        rows: rows,
-        cols: cols,
-        cells: List<SashType>.from(cells),
-        cellGlassColors: List<Color>.from(cellGlassColors),
-        selectedIndex: selectedIndex,
-        activeTool: activeTool,
-        columnSizes: List<double>.from(_columnSizes),
-        rowSizes: List<double>.from(_rowSizes),
-        outsideView: outsideView,
-        showBlindBox: showBlindBox,
-        windowWidthMm: windowWidthMm,
-        windowHeightMm: windowHeightMm,
-        profileColor: profileColor,
-        blindColor: blindColor,
-        customProfileColor: _customProfileColor,
-        customGlassColor: _customGlassColor,
-      ),
-    );
-    if (_undoStack.length > _undoLimit) {
-      _undoStack.removeAt(0);
-    }
-  }
-
-  void _undo() {
-    if (_undoStack.isEmpty) return;
-    final snapshot = _undoStack.removeLast();
-    setState(() {
-      rows = snapshot.rows;
-      cols = snapshot.cols;
-      cells = List<SashType>.from(snapshot.cells, growable: true);
-      cellGlassColors = List<Color>.from(snapshot.cellGlassColors, growable: true);
-      selectedIndex = snapshot.selectedIndex;
-      activeTool = snapshot.activeTool;
-      _columnSizes = List<double>.from(snapshot.columnSizes);
-      _rowSizes = List<double>.from(snapshot.rowSizes);
-      outsideView = snapshot.outsideView;
-      showBlindBox = snapshot.showBlindBox;
-      windowWidthMm = snapshot.windowWidthMm;
-      windowHeightMm = snapshot.windowHeightMm;
-      profileColor = snapshot.profileColor;
-      blindColor = snapshot.blindColor;
-      _customProfileColor = snapshot.customProfileColor;
-      _customGlassColor = snapshot.customGlassColor;
-    });
+  @override
+  void dispose() {
+    _widthController.dispose();
+    _heightController.dispose();
+    super.dispose();
   }
 
   void _regrid(int r, int c) {
-    _pushUndoState();
     final defaultGlassColor = cellGlassColors.isNotEmpty
         ? cellGlassColors.first
         : glassColorForIndex(widget.initialGlassColorIndex).color;
@@ -388,7 +298,6 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
   }
 
   void _applyToolToAll() {
-    _pushUndoState();
     setState(() {
       cells = List<SashType>.filled(rows * cols, activeTool, growable: true);
       selectedIndex = null;
@@ -397,7 +306,6 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
 
   void _applyGlassToAll() {
     if (selectedIndex == null) return;
-    _pushUndoState();
     final color = cellGlassColors[selectedIndex!];
     setState(() {
       cellGlassColors = List<Color>.filled(rows * cols, color, growable: true);
@@ -407,20 +315,24 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
 
   int _xyToIndex(int r, int c) => r * cols + c;
 
-  int? _cellIndexFromPosition(Offset localPos, Size size) {
+  void _onTapCanvas(Offset localPos, Size size) {
     final mmToPx = _mmToPx(size.height);
     final blindHeightPx = showBlindBox ? kBlindBoxHeightMm * mmToPx : 0.0;
 
     if (showBlindBox && localPos.dy < blindHeightPx) {
-      return null;
+      setState(() => selectedIndex = null);
+      return;
     }
 
+    // Hit test inside the opening (frame inset)
     final outer = Rect.fromLTWH(
         0, blindHeightPx, size.width, size.height - blindHeightPx);
     final opening = outer.deflate(kFrameFace);
 
     if (!opening.contains(localPos)) {
-      return null;
+      // Tapping the frame area: just clear selection
+      setState(() => selectedIndex = null);
+      return;
     }
 
     final cellArea = opening.deflate(kRebateLip);
@@ -430,25 +342,16 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
         localPos.dx, cellArea.left, cellArea.width, columnFractions, cols);
     final r = _hitTestAxis(
         localPos.dy, cellArea.top, cellArea.height, rowFractions, rows);
-    return _xyToIndex(r, c);
-  }
+    final idx = _xyToIndex(r, c);
 
-  void _paintCellAt(Offset localPos, Size size) {
-    final idx = _cellIndexFromPosition(localPos, size);
-    if (idx == null) {
-      setState(() => selectedIndex = null);
-      return;
-    }
-    _pushUndoState();
     setState(() {
+      // Toggle selection if same cell tapped, otherwise select and paint active tool
+      if (selectedIndex == idx) {
+        selectedIndex = null;
+      } else {
+        selectedIndex = idx;
+      }
       cells[idx] = activeTool;
-    });
-  }
-
-  void _selectCellAt(Offset localPos, Size size) {
-    final idx = _cellIndexFromPosition(localPos, size);
-    setState(() {
-      selectedIndex = idx;
     });
   }
 
@@ -648,7 +551,6 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
   }
 
   void _reset() {
-    _pushUndoState();
     final initialGlassColor = glassColorForIndex(widget.initialGlassColorIndex);
     final initialProfileColor =
         profileColorForIndex(widget.initialProfileColorIndex);
@@ -668,79 +570,9 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
       _customGlassColor = initialGlassColor.color;
       windowHeightMm = _initialHeightMm(widget.initialHeight);
       windowWidthMm = _initialWidthMm(widget.initialWidth, windowHeightMm);
+      _widthController.text = windowWidthMm.toStringAsFixed(0);
+      _heightController.text = windowHeightMm.toStringAsFixed(0);
     });
-  }
-
-  Future<void> _showHelpDialog() async {
-    final theme = Theme.of(context);
-    await showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      builder: (context) {
-        return SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Legend',
-                  style: theme.textTheme.titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w700),
-                ),
-                const SizedBox(height: 8),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: _Legend(
-                    theme: theme,
-                    frameColor: profileColor.base,
-                    glassColor: selectedIndex != null
-                        ? cellGlassColors[selectedIndex!]
-                        : glassColorForIndex(widget.initialGlassColorIndex)
-                            .color,
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Text(
-                  'Opening diagrams',
-                  style: theme.textTheme.titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w700),
-                ),
-                const SizedBox(height: 8),
-                const _OpeningDrawings(),
-                const SizedBox(height: 24),
-                _TipCard(
-                  headline: 'Quick tips',
-                  tips: const [
-                    'Tap a cell to paint it with the active sash preset.',
-                    'Long-press a cell to select it for glass colour editing.',
-                    'Toggle Outside view to preview interior vs exterior handing.',
-                    'Use Apply to all to roll a preset through the grid quickly.',
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  void _openSettingsSheet() {
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      builder: (context) {
-        return SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-            child: _buildSettingsContent(isWide: false),
-          ),
-        );
-      },
-    );
   }
 
   @override
@@ -752,16 +584,6 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
       appBar: AppBar(
         title: const Text('Window/Door Designer'),
         actions: [
-          IconButton(
-            onPressed: _undoStack.isNotEmpty ? _undo : null,
-            tooltip: 'Undo',
-            icon: const Icon(Icons.undo),
-          ),
-          IconButton(
-            onPressed: _showHelpDialog,
-            tooltip: 'Help',
-            icon: const Icon(Icons.help_outline),
-          ),
           IconButton(
               onPressed: _exportPng,
               tooltip: 'Export PNG',
@@ -777,11 +599,10 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
           builder: (context, constraints) {
             final isWide = constraints.maxWidth >= 900;
             final canvas = _buildCanvasArea(aspectRatio);
-            final toolbar = _buildToolbar(theme, isWide: isWide);
-            final selectedPane = _buildSelectedPanePanel(theme);
+            final controls = _buildControlsPanel(theme, isWide: isWide);
 
             if (isWide) {
-              final panelWidth = math.min(440.0, constraints.maxWidth * 0.4);
+              final panelWidth = math.min(420.0, constraints.maxWidth * 0.38);
               return Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -795,25 +616,16 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
                   const VerticalDivider(width: 1),
                   SizedBox(
                     width: panelWidth,
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          toolbar,
-                          if (selectedIndex != null) ...[
-                            const SizedBox(height: 16),
-                            selectedPane,
-                          ],
-                          const SizedBox(height: 20),
-                          _buildSettingsContent(isWide: true),
-                        ],
-                      ),
-                    ),
+                    child: controls,
                   ),
                 ],
               );
             }
+
+            final controlHeight = math.max(
+              280.0,
+              math.min(constraints.maxHeight * 0.55, 520.0),
+            );
 
             return Column(
               children: [
@@ -824,27 +636,9 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
                   ),
                 ),
                 const Divider(height: 1),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      toolbar,
-                      if (selectedIndex != null) ...[
-                        const SizedBox(height: 12),
-                        selectedPane,
-                      ],
-                      const SizedBox(height: 12),
-                      SizedBox(
-                        width: double.infinity,
-                        child: FilledButton.tonalIcon(
-                          onPressed: _openSettingsSheet,
-                          icon: const Icon(Icons.tune),
-                          label: const Text('Settings'),
-                        ),
-                      ),
-                    ],
-                  ),
+                SizedBox(
+                  height: controlHeight,
+                  child: controls,
                 ),
               ],
             );
@@ -865,9 +659,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onTapDown: (d) =>
-                    _paintCellAt(d.localPosition, constraints.biggest),
-                onLongPressStart: (d) =>
-                    _selectCellAt(d.localPosition, constraints.biggest),
+                    _onTapCanvas(d.localPosition, constraints.biggest),
                 child: CustomPaint(
                   size: constraints.biggest,
                   painter: _WindowPainter(
@@ -893,216 +685,53 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     );
   }
 
-  Widget _buildToolbar(ThemeData theme, {required bool isWide}) {
-    final activeItems = _toolItemsForCategory(_activeCategory);
-
-    return Card(
-      elevation: 0,
-      color: theme.colorScheme.surfaceVariant.withOpacity(0.5),
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(isWide ? 16 : 12, 12, isWide ? 16 : 12, 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Tools', style: theme.textTheme.titleMedium),
-            const SizedBox(height: 8),
-            SegmentedButton<_ToolCategory>(
-              segments: _ToolCategory.values
-                  .map(
-                    (cat) => ButtonSegment<_ToolCategory>(
-                      value: cat,
-                      label: Text(_toolCategoryLabels[cat] ?? ''),
-                    ),
-                  )
-                  .toList(),
-              selected: {_activeCategory},
-              onSelectionChanged: (value) {
-                if (value.isEmpty) return;
-                setState(() => _activeCategory = value.first);
-              },
-            ),
-            const SizedBox(height: 12),
-            _ToolPalette(
-              active: activeTool,
-              onChanged: (t) => setState(() => activeTool = t),
-              items: activeItems,
-              padding: EdgeInsets.zero,
-            ),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                Expanded(
-                  child: FilledButton.tonal(
-                    onPressed: _applyToolToAll,
-                    child: const Text('Apply tool to all'),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                IconButton(
-                  tooltip: 'Clear selection',
-                  onPressed:
-                      selectedIndex != null ? () => setState(() => selectedIndex = null) : null,
-                  icon: const Icon(Icons.hide_source_outlined),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                FilterChip(
-                  label: const Text('Outside view'),
-                  selected: outsideView,
-                  onSelected: (value) {
-                    _pushUndoState();
-                    setState(() => outsideView = value);
-                  },
-                ),
-                FilterChip(
-                  label: const Text('Roller blind box'),
-                  selected: showBlindBox,
-                  onSelected: (value) {
-                    _pushUndoState();
-                    setState(() => showBlindBox = value);
-                  },
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSelectedPanePanel(ThemeData theme) {
-    if (selectedIndex == null) {
-      return const SizedBox.shrink();
-    }
-    final row = (selectedIndex! ~/ cols) + 1;
-    final col = (selectedIndex! % cols) + 1;
-
-    return Card(
-      elevation: 0,
-      color: theme.colorScheme.surfaceVariant.withOpacity(0.5),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Selected pane',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            const SizedBox(height: 6),
-            Text('Row $row / Col $col'),
-            const SizedBox(height: 12),
-            _colorGroup(
-              title: 'Glass colour',
-              chips: glassColorOptions.map((opt) {
-                final isSelected = cellGlassColors[selectedIndex!] == opt.color;
-                return ChoiceChip(
-                  label: Text(opt.label),
-                  avatar: _ColorDot(color: opt.color),
-                  selected: isSelected,
-                  onSelected: (_) => _setGlassColorForSelected(opt.color),
-                );
-              }).toList()
-                ..add(
-                  ChoiceChip(
-                    label: const Text('Custom'),
-                    avatar: _ColorDot(
-                        color: _customGlassColor ??
-                            glassColorForIndex(widget.initialGlassColorIndex)
-                                .color),
-                    selected: _customGlassColor != null &&
-                        cellGlassColors[selectedIndex!] == _customGlassColor,
-                    onSelected: (_) async {
-                      final selected = await _showCustomColorPicker(
-                        title: 'Custom glass colour',
-                        initialColor: _customGlassColor ??
-                            glassColorForIndex(widget.initialGlassColorIndex)
-                                .color,
-                      );
-                      if (selected == null) return;
-                      _setCustomGlassColor(selected);
-                    },
-                  ),
-                ),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: FilledButton.tonal(
-                    onPressed: _applyGlassToAll,
-                    child: const Text('Apply this glass to all'),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                OutlinedButton(
-                  onPressed: () => setState(() => selectedIndex = null),
-                  child: const Text('Clear selection'),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSettingsContent({required bool isWide}) {
-    final theme = Theme.of(context);
+  Widget _buildControlsPanel(ThemeData theme, {required bool isWide}) {
     final titleStyle =
-        theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700);
+        theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600);
+    final labelStyle =
+        theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (titleStyle != null) ...[
-          Text('Settings', style: titleStyle),
-          const SizedBox(height: 12),
-        ],
-        _SectionCard(
-          title: 'Grid layout',
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _RowsColsPicker(
-                rows: rows,
-                cols: cols,
-                onChanged: (r, c) => _regrid(r, c),
-              ),
-              const SizedBox(height: 8),
-              _GridPresets(onTap: (r, c) => _regrid(r, c)),
-            ],
+    return SingleChildScrollView(
+      padding: EdgeInsets.fromLTRB(isWide ? 24 : 16, 16, isWide ? 24 : 16, 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (titleStyle != null) ...[
+            Text('Configuration', style: titleStyle),
+            const SizedBox(height: 12),
+          ],
+          _RowsColsPicker(
+            rows: rows,
+            cols: cols,
+            onChanged: (r, c) => _regrid(r, c),
           ),
-        ),
-        const SizedBox(height: 16),
-        _SectionCard(
-          title: 'Size',
-          child: _SizeCard(
-            widthMm: windowWidthMm,
-            heightMm: windowHeightMm,
-            fineStep: _fineStep,
+          const SizedBox(height: 8),
+          _GridPresets(onTap: (r, c) => _regrid(r, c)),
+          const SizedBox(height: 16),
+          _DimensionsPanel(
+            widthController: _widthController,
+            heightController: _heightController,
+            onWidthChanged: _setWidthMm,
+            onHeightChanged: _setHeightMm,
             totalCells: rows * cols,
-            onFineStepChanged: (value) => setState(() => _fineStep = value),
-            onPresetSelected: (width, height) {
-              _pushUndoState();
-              _setWidthMm(width, pushUndo: false);
-              _setHeightMm(height, pushUndo: false);
-            },
-            onWidthStep: (delta) => _setWidthMm(windowWidthMm + delta),
-            onHeightStep: (delta) => _setHeightMm(windowHeightMm + delta),
           ),
-        ),
-        const SizedBox(height: 16),
-        _SectionCard(
-          title: 'Profile colour',
-          child: _colorGroup(
+          const SizedBox(height: 16),
+          SwitchListTile.adaptive(
+            contentPadding: EdgeInsets.zero,
+            visualDensity: VisualDensity.compact,
+            title: const Text('Outside view'),
+            value: outsideView,
+            onChanged: (v) => setState(() => outsideView = v),
+          ),
+          SwitchListTile.adaptive(
+            contentPadding: EdgeInsets.zero,
+            visualDensity: VisualDensity.compact,
+            title: const Text('Roller blind box'),
+            value: showBlindBox,
+            onChanged: (v) => setState(() => showBlindBox = v),
+          ),
+          const SizedBox(height: 16),
+          _colorGroup(
             title: 'Profile colour',
             chips: profileColorOptions.map((opt) {
               final selected = profileColor == opt;
@@ -1110,10 +739,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
                 label: Text(opt.label),
                 avatar: _ColorDot(color: opt.base),
                 selected: selected,
-                onSelected: (_) {
-                  _pushUndoState();
-                  setState(() => profileColor = opt);
-                },
+                onSelected: (_) => setState(() => profileColor = opt),
               );
             }).toList()
               ..add(
@@ -1133,12 +759,9 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
                 ),
               ),
           ),
-        ),
-        if (showBlindBox) ...[
-          const SizedBox(height: 16),
-          _SectionCard(
-            title: 'Blind colour',
-            child: _colorGroup(
+          if (showBlindBox) ...[
+            const SizedBox(height: 16),
+            _colorGroup(
               title: 'Blind colour',
               chips: blindColorOptions.map((opt) {
                 final selected = blindColor == opt;
@@ -1146,16 +769,111 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
                   label: Text(opt.label),
                   avatar: _ColorDot(color: opt.color),
                   selected: selected,
-                  onSelected: (_) {
-                    _pushUndoState();
-                    setState(() => blindColor = opt);
-                  },
+                  onSelected: (_) => setState(() => blindColor = opt),
                 );
               }).toList(),
             ),
+          ],
+          const SizedBox(height: 16),
+          _colorGroup(
+            title: selectedIndex == null
+                ? 'Glass colour (select a section)'
+                : 'Glass colour',
+            chips: glassColorOptions.map((opt) {
+              final isSelected = selectedIndex != null &&
+                  cellGlassColors[selectedIndex!] == opt.color;
+              return ChoiceChip(
+                label: Text(opt.label),
+                avatar: _ColorDot(color: opt.color),
+                selected: isSelected,
+                onSelected: selectedIndex != null
+                    ? (_) => setState(
+                        () => cellGlassColors[selectedIndex!] = opt.color)
+                    : null,
+              );
+            }).toList()
+              ..add(
+                ChoiceChip(
+                  label: const Text('Custom'),
+                  avatar: _ColorDot(
+                      color: _customGlassColor ??
+                          glassColorForIndex(widget.initialGlassColorIndex)
+                              .color),
+                  selected: selectedIndex != null &&
+                      _customGlassColor != null &&
+                      cellGlassColors[selectedIndex!] == _customGlassColor,
+                  onSelected: selectedIndex != null
+                      ? (_) async {
+                          final selected = await _showCustomColorPicker(
+                            title: 'Custom glass colour',
+                            initialColor: _customGlassColor ??
+                                glassColorForIndex(
+                                        widget.initialGlassColorIndex)
+                                    .color,
+                          );
+                          if (selected == null) return;
+                          _setCustomGlassColor(selected);
+                        }
+                      : null,
+                ),
+              ),
+          ),
+          const SizedBox(height: 20),
+          if (labelStyle != null) ...[
+            Text('Legend', style: labelStyle),
+            const SizedBox(height: 8),
+          ],
+          Align(
+            alignment: Alignment.centerLeft,
+            child: _Legend(
+              theme: theme,
+              frameColor: profileColor.base,
+              glassColor: selectedIndex != null
+                  ? cellGlassColors[selectedIndex!]
+                  : glassColorForIndex(widget.initialGlassColorIndex).color,
+            ),
+          ),
+          const SizedBox(height: 24),
+          if (titleStyle != null) Text('Sash presets', style: titleStyle),
+          const SizedBox(height: 8),
+          _ToolPalette(
+            active: activeTool,
+            onChanged: (t) => setState(() => activeTool = t),
+            padding: EdgeInsets.zero,
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: FilledButton.tonal(
+                  onPressed: _applyToolToAll,
+                  child: const Text('Apply to entire layout'),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: FilledButton.tonal(
+                  onPressed: selectedIndex != null ? _applyGlassToAll : null,
+                  child: const Text('Copy glass to all'),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          if (titleStyle != null) Text('Opening diagrams', style: titleStyle),
+          const SizedBox(height: 8),
+          const _OpeningDrawings(),
+          const SizedBox(height: 20),
+          _TipCard(
+            headline: 'Quick tips',
+            tips: const [
+              'Tap a cell to paint it with the active sash preset.',
+              'Toggle Outside view to preview interior vs exterior handing.',
+              'Use Copy glass to all after picking a cell colour.',
+            ],
           ),
         ],
-      ],
+      ),
     );
   }
 
@@ -1204,16 +922,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     );
   }
 
-  void _setGlassColorForSelected(Color color) {
-    if (selectedIndex == null) return;
-    _pushUndoState();
-    setState(() {
-      cellGlassColors[selectedIndex!] = color;
-    });
-  }
-
   void _setCustomProfileColor(Color color) {
-    _pushUndoState();
     setState(() {
       _customProfileColor = color;
       profileColor =
@@ -1223,7 +932,6 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
 
   void _setCustomGlassColor(Color color) {
     if (selectedIndex == null) return;
-    _pushUndoState();
     setState(() {
       _customGlassColor = color;
       cellGlassColors[selectedIndex!] = color;
@@ -1376,23 +1084,19 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     return heightMm * defaultAspect;
   }
 
-  void _setWidthMm(double value, {bool pushUndo = true}) {
-    if (pushUndo) {
-      _pushUndoState();
-    }
+  void _setWidthMm(double value) {
     final clamped = _clampDimension(value);
     setState(() {
       windowWidthMm = clamped;
+      _widthController.text = clamped.toStringAsFixed(0);
     });
   }
 
-  void _setHeightMm(double value, {bool pushUndo = true}) {
-    if (pushUndo) {
-      _pushUndoState();
-    }
+  void _setHeightMm(double value) {
     final clamped = _clampDimension(value);
     setState(() {
       windowHeightMm = clamped;
+      _heightController.text = clamped.toStringAsFixed(0);
     });
   }
 
@@ -2114,17 +1818,32 @@ class _ToolPalette extends StatelessWidget {
   final SashType active;
   final ValueChanged<SashType> onChanged;
   final EdgeInsetsGeometry padding;
-  final List<_ToolItem> items;
 
   const _ToolPalette({
     required this.active,
     required this.onChanged,
-    required this.items,
     this.padding = const EdgeInsets.fromLTRB(8, 6, 8, 10),
   });
 
   @override
   Widget build(BuildContext context) {
+    final items = <_ToolItem>[
+      _ToolItem('Fixed', SashType.fixed),
+      _ToolItem('Casement Left', SashType.casementLeft),
+      _ToolItem('Casement Right', SashType.casementRight),
+      _ToolItem('Tilt', SashType.tilt),
+      _ToolItem('Tilt Left', SashType.tiltLeft),
+      _ToolItem('Tilt Right', SashType.tiltRight),
+      _ToolItem('Tilt & Turn Right', SashType.tiltTurnRight),
+      _ToolItem('Tilt & Turn Left', SashType.tiltTurnLeft),
+      _ToolItem('Sliding Left', SashType.slidingLeft),
+      _ToolItem('Sliding Right', SashType.slidingRight),
+      _ToolItem('Sliding Tilt Left', SashType.slidingTiltLeft),
+      _ToolItem('Sliding Tilt Right', SashType.slidingTiltRight),
+      _ToolItem('Swing Hinge Left', SashType.swingHingeLeft),
+      _ToolItem('Swing Hinge Right', SashType.swingHingeRight),
+    ];
+
     return Padding(
       padding: padding,
       child: Wrap(
@@ -2149,45 +1868,10 @@ class _ToolPalette extends StatelessWidget {
   }
 }
 
-List<_ToolItem> _toolItemsForCategory(_ToolCategory category) {
-  switch (category) {
-    case _ToolCategory.fixed:
-      return const [_ToolItem('Fixed', SashType.fixed)];
-    case _ToolCategory.hinged:
-      return const [
-        _ToolItem('Casement Left', SashType.casementLeft),
-        _ToolItem('Casement Right', SashType.casementRight),
-      ];
-    case _ToolCategory.tilt:
-      return const [
-        _ToolItem('Tilt', SashType.tilt),
-        _ToolItem('Tilt Left', SashType.tiltLeft),
-        _ToolItem('Tilt Right', SashType.tiltRight),
-      ];
-    case _ToolCategory.tiltTurn:
-      return const [
-        _ToolItem('Tilt & Turn Right', SashType.tiltTurnRight),
-        _ToolItem('Tilt & Turn Left', SashType.tiltTurnLeft),
-      ];
-    case _ToolCategory.sliding:
-      return const [
-        _ToolItem('Sliding Left', SashType.slidingLeft),
-        _ToolItem('Sliding Right', SashType.slidingRight),
-        _ToolItem('Sliding Tilt Left', SashType.slidingTiltLeft),
-        _ToolItem('Sliding Tilt Right', SashType.slidingTiltRight),
-      ];
-    case _ToolCategory.swing:
-      return const [
-        _ToolItem('Swing Hinge Left', SashType.swingHingeLeft),
-        _ToolItem('Swing Hinge Right', SashType.swingHingeRight),
-      ];
-  }
-}
-
 class _ToolItem {
   final String label;
   final SashType type;
-  const _ToolItem(this.label, this.type);
+  _ToolItem(this.label, this.type);
 }
 
 class _ToolGlyphIcon extends StatelessWidget {
@@ -2496,181 +2180,114 @@ class _GridPresets extends StatelessWidget {
   }
 }
 
-class _SizePreset {
-  final String label;
-  final double widthMm;
-  final double heightMm;
-  const _SizePreset(this.label, this.widthMm, this.heightMm);
-}
-
-class _SizeCard extends StatelessWidget {
-  final double widthMm;
-  final double heightMm;
-  final bool fineStep;
-  final ValueChanged<bool> onFineStepChanged;
+class _DimensionsPanel extends StatelessWidget {
+  final TextEditingController widthController;
+  final TextEditingController heightController;
+  final ValueChanged<double> onWidthChanged;
+  final ValueChanged<double> onHeightChanged;
   final int totalCells;
-  final void Function(double width, double height) onPresetSelected;
-  final ValueChanged<double> onWidthStep;
-  final ValueChanged<double> onHeightStep;
 
-  const _SizeCard({
-    required this.widthMm,
-    required this.heightMm,
-    required this.fineStep,
-    required this.onFineStepChanged,
+  const _DimensionsPanel({
+    required this.widthController,
+    required this.heightController,
+    required this.onWidthChanged,
+    required this.onHeightChanged,
     required this.totalCells,
-    required this.onPresetSelected,
-    required this.onWidthStep,
-    required this.onHeightStep,
   });
 
   @override
   Widget build(BuildContext context) {
-    const presets = <_SizePreset>[
-      _SizePreset('900×1200', 900, 1200),
-      _SizePreset('1000×1200', 1000, 1200),
-      _SizePreset('1200×1400', 1200, 1400),
-      _SizePreset('1500×1500', 1500, 1500),
-      _SizePreset('1800×2100', 1800, 2100),
-      _SizePreset('2000×2200', 2000, 2200),
-    ];
-
-    final step = fineStep ? 10.0 : 50.0;
+    final textStyle = Theme.of(context).textTheme.labelLarge;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: presets
-              .map(
-                (preset) => ActionChip(
-                  label: Text(preset.label),
-                  onPressed: () =>
-                      onPresetSelected(preset.widthMm, preset.heightMm),
-                ),
-              )
-              .toList(),
-        ),
-        const SizedBox(height: 12),
         Row(
           children: [
             Expanded(
-              child: _DimensionStepper(
-                label: 'Width',
-                value: widthMm,
-                step: step,
-                onStep: onWidthStep,
+              child: _NumberField(
+                label: 'Width (mm)',
+                controller: widthController,
+                onChanged: onWidthChanged,
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: _DimensionStepper(
-                label: 'Height',
-                value: heightMm,
-                step: step,
-                onStep: onHeightStep,
+              child: _NumberField(
+                label: 'Height (mm)',
+                controller: heightController,
+                onChanged: onHeightChanged,
               ),
             ),
           ],
         ),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            FilterChip(
-              label: const Text('Fine ±10'),
-              selected: fineStep,
-              onSelected: onFineStepChanged,
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                '${widthMm.toStringAsFixed(0)} × ${heightMm.toStringAsFixed(0)} mm • $totalCells panes',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ),
-          ],
+        const SizedBox(height: 6),
+        Text(
+          'The preview scales to your chosen size. ${totalCells.toString()} pane(s) are currently in use.',
+          style: textStyle,
         ),
       ],
     );
   }
 }
 
-class _DimensionStepper extends StatelessWidget {
+class _NumberField extends StatelessWidget {
   final String label;
-  final double value;
-  final double step;
-  final ValueChanged<double> onStep;
+  final TextEditingController controller;
+  final ValueChanged<double> onChanged;
 
-  const _DimensionStepper({
+  const _NumberField({
     required this.label,
-    required this.value,
-    required this.step,
-    required this.onStep,
+    required this.controller,
+    required this.onChanged,
   });
 
   @override
   Widget build(BuildContext context) {
-    final labelStyle = Theme.of(context)
-        .textTheme
-        .labelMedium
-        ?.copyWith(fontWeight: FontWeight.w600);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: labelStyle),
-        const SizedBox(height: 6),
-        Row(
-          children: [
-            Expanded(
-              child: OutlinedButton(
-                onPressed: () => onStep(-step),
-                child: Text('-${step.toStringAsFixed(0)}'),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: OutlinedButton(
-                onPressed: () => onStep(step),
-                child: Text('+${step.toStringAsFixed(0)}'),
-              ),
-            ),
-          ],
+    return TextField(
+      controller: controller,
+      keyboardType:
+          const TextInputType.numberWithOptions(decimal: false, signed: false),
+      decoration: InputDecoration(
+        labelText: label,
+        suffixIcon: _NumberFieldActions(
+          onChange: (delta) {
+            final current = double.tryParse(controller.text) ?? 0;
+            onChanged((current + delta).clamp(0, double.infinity));
+          },
         ),
-        const SizedBox(height: 6),
-        Text('${value.toStringAsFixed(0)} mm'),
-      ],
+      ),
+      onSubmitted: (value) {
+        final parsed = double.tryParse(value);
+        if (parsed != null) {
+          onChanged(parsed);
+        }
+      },
     );
   }
 }
 
-class _SectionCard extends StatelessWidget {
-  final String title;
-  final Widget child;
-
-  const _SectionCard({required this.title, required this.child});
+class _NumberFieldActions extends StatelessWidget {
+  final ValueChanged<double> onChange;
+  const _NumberFieldActions({required this.onChange});
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 0,
-      color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.45),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleSmall
-                  ?.copyWith(fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: 10),
-            child,
-          ],
-        ),
+    return SizedBox(
+      width: 90,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          IconButton(
+            tooltip: 'Decrease by 50mm',
+            icon: const Icon(Icons.remove),
+            onPressed: () => onChange(-50),
+          ),
+          IconButton(
+            tooltip: 'Increase by 50mm',
+            icon: const Icon(Icons.add),
+            onPressed: () => onChange(50),
+          ),
+        ],
       ),
     );
   }
