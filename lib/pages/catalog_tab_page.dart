@@ -732,6 +732,8 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                     ),
                   );
                   break;
+                case CatalogType.shtesa:
+                  break;
               }
               Navigator.pop(context);
               setState(() {});
@@ -1246,6 +1248,8 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                     ),
                   );
                   break;
+                case CatalogType.shtesa:
+                  break;
               }
               Navigator.pop(context);
               setState(() {});
@@ -1270,6 +1274,8 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
         return l10n.catalogMechanism;
       case CatalogType.accessory:
         return l10n.catalogAccessory;
+      case CatalogType.shtesa:
+        return 'Shtesa';
     }
   }
 
