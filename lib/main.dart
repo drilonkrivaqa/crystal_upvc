@@ -56,6 +56,7 @@ void main() async {
   await openBoxSafe<String>('mechanismCompanies');
   await openBoxSafe<Accessory>('accessories');
   await openBoxSafe<Offer>('offers');
+  await openBoxSafe('shtesaCatalog');
   await openBoxSafe('settings');
 
   final settingsBox = Hive.box('settings');

@@ -435,13 +435,24 @@ class WindowDoorItemAdapter extends TypeAdapter<WindowDoorItem> {
       perRowVerticalAdapters: (fields[29] as List?)
           ?.map<List<bool>>((dynamic row) => (row as List).cast<bool>())
           .toList(),
+      shtesaLeftSize: fields[30] == null ? 0 : fields[30] as int,
+      shtesaRightSize: fields[31] == null ? 0 : fields[31] as int,
+      shtesaTopSize: fields[32] == null ? 0 : fields[32] as int,
+      shtesaBottomSize: fields[33] == null ? 0 : fields[33] as int,
+      shtesaLeftPricePerMeter:
+          fields[34] == null ? 0 : fields[34] as double,
+      shtesaRightPricePerMeter:
+          fields[35] == null ? 0 : fields[35] as double,
+      shtesaTopPricePerMeter: fields[36] == null ? 0 : fields[36] as double,
+      shtesaBottomPricePerMeter:
+          fields[37] == null ? 0 : fields[37] as double,
     );
   }
 
   @override
   void write(BinaryWriter writer, WindowDoorItem obj) {
     writer
-      ..writeByte(30)
+      ..writeByte(38)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -501,7 +512,23 @@ class WindowDoorItemAdapter extends TypeAdapter<WindowDoorItem> {
       ..writeByte(28)
       ..write(obj.perRowFixedSectors)
       ..writeByte(29)
-      ..write(obj.perRowVerticalAdapters);
+      ..write(obj.perRowVerticalAdapters)
+      ..writeByte(30)
+      ..write(obj.shtesaLeftSize)
+      ..writeByte(31)
+      ..write(obj.shtesaRightSize)
+      ..writeByte(32)
+      ..write(obj.shtesaTopSize)
+      ..writeByte(33)
+      ..write(obj.shtesaBottomSize)
+      ..writeByte(34)
+      ..write(obj.shtesaLeftPricePerMeter)
+      ..writeByte(35)
+      ..write(obj.shtesaRightPricePerMeter)
+      ..writeByte(36)
+      ..write(obj.shtesaTopPricePerMeter)
+      ..writeByte(37)
+      ..write(obj.shtesaBottomPricePerMeter);
   }
 
   @override
