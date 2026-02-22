@@ -1160,6 +1160,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                     blind.pricePerM2 *
                     item.quantity)
                 : 0;
+            final shtesaCost = item.calculateShtesaCost() * item.quantity;
             double mechanismCost = (mechanism != null)
                 ? mechanism.price * item.quantity * item.openings
                 : 0;
@@ -1171,6 +1172,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
             double base = profileCost +
                 glassCost +
                 blindCost +
+                shtesaCost +
                 mechanismCost +
                 accessoryCost;
             final profileMass = item.calculateProfileMass(profileSet,
@@ -1581,7 +1583,9 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 double blindCostPer = (blind != null)
                     ? (item.calculateBlindPricingArea() * blind.pricePerM2)
                     : 0;
+                final shtesaCostPer = item.calculateShtesaCost();
                 double blindCost = blindCostPer * item.quantity;
+                double shtesaCost = shtesaCostPer * item.quantity;
                 double mechanismCostPer =
                     (mechanism != null) ? mechanism.price * item.openings : 0;
                 double mechanismCost = mechanismCostPer * item.quantity;
