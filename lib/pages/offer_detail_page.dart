@@ -1182,8 +1182,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                     boxHeight: blind?.boxHeight ?? 0) *
                 item.quantity;
             final blindMass = (blind != null)
-                ? ((item.calculationWidth / 1000.0) *
-                    (item.calculationHeight / 1000.0) *
+                ? ((item.width / 1000.0) *
+                    (item.height / 1000.0) *
                     blind.massPerM2 *
                     item.quantity)
                 : 0;
@@ -1601,8 +1601,8 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 double glassMassPer = item.calculateGlassMass(profileSet, glass,
                     boxHeight: blind?.boxHeight ?? 0);
                 double blindMassPer = (blind != null)
-                    ? ((item.calculationWidth / 1000.0) *
-                        (item.calculationHeight / 1000.0) *
+                    ? ((item.width / 1000.0) *
+                        (item.height / 1000.0) *
                         blind.massPerM2)
                     : 0;
                 double mechanismMassPer =

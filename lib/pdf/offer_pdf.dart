@@ -150,8 +150,8 @@ Future<void> printOfferPdf({
             boxHeight: blind?.boxHeight ?? 0) *
         item.quantity;
     final blindMass = blind != null
-        ? ((item.calculationWidth / 1000.0) *
-            (item.calculationHeight / 1000.0) *
+        ? ((item.width / 1000.0) *
+            (item.height / 1000.0) *
             blind.massPerM2 *
             item.quantity)
         : 0;
@@ -346,8 +346,8 @@ Future<void> printOfferPdf({
                   boxHeight: blind?.boxHeight ?? 0) *
               item.quantity;
           final blindMass = blind != null
-              ? ((item.calculationWidth / 1000.0) *
-                  (item.calculationHeight / 1000.0) *
+              ? ((item.width / 1000.0) *
+                  (item.height / 1000.0) *
                   blind.massPerM2 *
                   item.quantity)
               : 0;
