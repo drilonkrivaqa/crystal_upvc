@@ -126,12 +126,12 @@ class _ShtesaCatalogPageState extends State<ShtesaCatalogPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Shtesa')),
-      body: AnimatedBuilder(
-        animation: Listenable.merge([
+      body: ValueListenableBuilder(
+        valueListenable: Listenable.merge([
           profileBox.listenable(),
           shtesaBox.listenable(),
         ]),
-        builder: (context, _) {
+        builder: (context, _, __) {
           return ListView.builder(
             itemCount: profileBox.length,
             itemBuilder: (context, i) {
