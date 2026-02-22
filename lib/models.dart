@@ -295,6 +295,22 @@ class WindowDoorItem extends HiveObject {
   @HiveField(29)
   List<List<bool>>?
       perRowVerticalAdapters; // adapter flags between vertical sections per row
+  @HiveField(30, defaultValue: 0)
+  int shtesaLeftSize;
+  @HiveField(31, defaultValue: 0)
+  int shtesaRightSize;
+  @HiveField(32, defaultValue: 0)
+  int shtesaTopSize;
+  @HiveField(33, defaultValue: 0)
+  int shtesaBottomSize;
+  @HiveField(34, defaultValue: 0)
+  double shtesaLeftPricePerMeter;
+  @HiveField(35, defaultValue: 0)
+  double shtesaRightPricePerMeter;
+  @HiveField(36, defaultValue: 0)
+  double shtesaTopPricePerMeter;
+  @HiveField(37, defaultValue: 0)
+  double shtesaBottomPricePerMeter;
 
   WindowDoorItem({
     required this.name,
@@ -327,6 +343,14 @@ class WindowDoorItem extends HiveObject {
     this.perRowSectionWidths,
     this.perRowFixedSectors,
     this.perRowVerticalAdapters,
+    this.shtesaLeftSize = 0,
+    this.shtesaRightSize = 0,
+    this.shtesaTopSize = 0,
+    this.shtesaBottomSize = 0,
+    this.shtesaLeftPricePerMeter = 0,
+    this.shtesaRightPricePerMeter = 0,
+    this.shtesaTopPricePerMeter = 0,
+    this.shtesaBottomPricePerMeter = 0,
   })  : fixedSectors = fixedSectors ??
             List<bool>.filled(verticalSections * horizontalSections, false),
         sectionWidths = sectionWidths ?? List<int>.filled(verticalSections, 0),
@@ -545,7 +569,37 @@ class WindowDoorItem extends HiveObject {
       perRowVerticalAdapters: perRowVerticalAdapters != null
           ? _clone2d<bool>(perRowVerticalAdapters!)
           : null,
+      shtesaLeftSize: shtesaLeftSize,
+      shtesaRightSize: shtesaRightSize,
+      shtesaTopSize: shtesaTopSize,
+      shtesaBottomSize: shtesaBottomSize,
+      shtesaLeftPricePerMeter: shtesaLeftPricePerMeter,
+      shtesaRightPricePerMeter: shtesaRightPricePerMeter,
+      shtesaTopPricePerMeter: shtesaTopPricePerMeter,
+      shtesaBottomPricePerMeter: shtesaBottomPricePerMeter,
     );
+  }
+
+  int get innerWidth => (width - (shtesaLeftSize + shtesaRightSize)).clamp(0, width);
+
+  int get innerHeight =>
+      (height - (shtesaTopSize + shtesaBottomSize)).clamp(0, height);
+
+  int get shtesaLeftLength => shtesaLeftSize > 0 ? height : 0;
+
+  int get shtesaRightLength => shtesaRightSize > 0 ? height : 0;
+
+  int get shtesaTopLength => shtesaTopSize > 0 ? innerWidth : 0;
+
+  int get shtesaBottomLength => shtesaBottomSize > 0 ? innerWidth : 0;
+
+  double get shtesaCostPerPiece {
+    final leftCost = (shtesaLeftLength / 1000.0) * shtesaLeftPricePerMeter;
+    final rightCost = (shtesaRightLength / 1000.0) * shtesaRightPricePerMeter;
+    final topCost = (shtesaTopLength / 1000.0) * shtesaTopPricePerMeter;
+    final bottomCost =
+        (shtesaBottomLength / 1000.0) * shtesaBottomPricePerMeter;
+    return leftCost + rightCost + topCost + bottomCost;
   }
 
   SectionInsets sectionInsets(ProfileSet set, int row, int col) {

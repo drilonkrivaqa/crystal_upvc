@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'catalog_tab_page.dart';
+import 'shtesa_catalog_page.dart';
 import '../theme/app_background.dart';
 import '../widgets/glass_card.dart';
 import '../l10n/app_localizations.dart';
@@ -118,6 +119,19 @@ class CatalogsPage extends StatelessWidget {
                         MaterialPageRoute(
                           builder: (_) =>
                           const CatalogTabPage(type: CatalogType.accessory),
+                        ),
+                      );
+                    },
+                  ),
+                  _CatalogButton(
+                    label: 'Shtesa',
+                    icon: Icons.space_bar,
+                    index: 5,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const ShtesaCatalogPage(),
                         ),
                       );
                     },
