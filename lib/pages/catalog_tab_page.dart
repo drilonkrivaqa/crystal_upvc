@@ -48,9 +48,6 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
       case CatalogType.accessory:
         box = Hive.box<Accessory>('accessories');
         break;
-      case CatalogType.shtesa:
-        box = Hive.box<ShtesaOption>('shtesaOptions');
-        break;
     }
   }
 
@@ -122,8 +119,6 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
         return Icons.settings_applications_outlined;
       case CatalogType.accessory:
         return Icons.layers_outlined;
-      case CatalogType.shtesa:
-        return Icons.open_with_rounded;
     }
   }
 

@@ -117,14 +117,13 @@ Future<void> printOfferPdf({
         : 0;
     final mechanismCost =
         mechanism != null ? mechanism.price * item.quantity * item.openings : 0;
-    final shtesaCost = item.calculateShtesaCost() * item.quantity;
     final accessoryCost =
         accessory != null ? accessory.price * item.quantity : 0;
     final extras =
         ((item.extra1Price ?? 0) + (item.extra2Price ?? 0)) * item.quantity;
 
     double base =
-        profileCost + glassCost + blindCost + shtesaCost + mechanismCost + accessoryCost;
+        profileCost + glassCost + blindCost + mechanismCost + accessoryCost;
     if (item.manualBasePrice != null) {
       base = item.manualBasePrice!;
     }
@@ -329,7 +328,6 @@ Future<void> printOfferPdf({
           final mechanismCost = mechanism != null
               ? mechanism.price * item.quantity * item.openings
               : 0;
-          final shtesaCost = item.calculateShtesaCost() * item.quantity;
           final accessoryCost =
               accessory != null ? accessory.price * item.quantity : 0;
           final extras = ((item.extra1Price ?? 0) + (item.extra2Price ?? 0)) *
