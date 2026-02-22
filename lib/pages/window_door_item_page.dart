@@ -1136,25 +1136,10 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     final rightOption = selectedOption(shtesaRightIndex);
     final topOption = selectedOption(shtesaTopIndex);
     final bottomOption = selectedOption(shtesaBottomIndex);
-    final leftSize = (leftOption?['size'] as int?) ?? 0;
-    final rightSize = (rightOption?['size'] as int?) ?? 0;
-    final topSize = (topOption?['size'] as int?) ?? 0;
-    final bottomSize = (bottomOption?['size'] as int?) ?? 0;
-    final innerWidth = width - (leftSize + rightSize);
-    final innerHeight = height - (topSize + bottomSize);
 
     if (name.isEmpty || width <= 0 || height <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.fillAllRequired)),
-      );
-      return false;
-    }
-
-    if (innerWidth <= 0 || innerHeight <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Shtesa is too large for the entered dimensions.'),
-        ),
       );
       return false;
     }
@@ -1220,10 +1205,10 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
             rowFixedSectors.map((row) => List<bool>.from(row)).toList(),
         perRowVerticalAdapters:
             rowVerticalAdapters.map((row) => List<bool>.from(row)).toList(),
-        shtesaLeftSize: leftSize,
-        shtesaRightSize: rightSize,
-        shtesaTopSize: topSize,
-        shtesaBottomSize: bottomSize,
+        shtesaLeftSize: (leftOption?['size'] as int?) ?? 0,
+        shtesaRightSize: (rightOption?['size'] as int?) ?? 0,
+        shtesaTopSize: (topOption?['size'] as int?) ?? 0,
+        shtesaBottomSize: (bottomOption?['size'] as int?) ?? 0,
         shtesaLeftPricePerMeter:
             (leftOption?['pricePerMeter'] as double?) ?? 0,
         shtesaRightPricePerMeter:
