@@ -32,6 +32,7 @@ void main() async {
   Hive.registerAdapter(OfferVersionAdapter());
   Hive.registerAdapter(OfferAdapter());
   Hive.registerAdapter(ExtraChargeAdapter());
+  Hive.registerAdapter(ShtesaOptionAdapter());
 
   final migrationFailures = await runMigrations();
 
@@ -55,6 +56,7 @@ void main() async {
   await openBoxSafe<Mechanism>('mechanisms');
   await openBoxSafe<String>('mechanismCompanies');
   await openBoxSafe<Accessory>('accessories');
+  await openBoxSafe<ShtesaOption>('shtesaOptions');
   await openBoxSafe<Offer>('offers');
   await openBoxSafe('settings');
 

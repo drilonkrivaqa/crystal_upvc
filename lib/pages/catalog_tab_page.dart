@@ -48,6 +48,9 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
       case CatalogType.accessory:
         box = Hive.box<Accessory>('accessories');
         break;
+      case CatalogType.shtesa:
+        box = Hive.box<ShtesaOption>('shtesaOptions');
+        break;
     }
   }
 
@@ -119,6 +122,8 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
         return Icons.settings_applications_outlined;
       case CatalogType.accessory:
         return Icons.layers_outlined;
+      case CatalogType.shtesa:
+        return Icons.open_with_rounded;
     }
   }
 
@@ -727,6 +732,8 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                     ),
                   );
                   break;
+                case CatalogType.shtesa:
+                  break;
               }
               Navigator.pop(context);
               setState(() {});
@@ -1241,6 +1248,8 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                     ),
                   );
                   break;
+                case CatalogType.shtesa:
+                  break;
               }
               Navigator.pop(context);
               setState(() {});
@@ -1265,6 +1274,8 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
         return l10n.catalogMechanism;
       case CatalogType.accessory:
         return l10n.catalogAccessory;
+      case CatalogType.shtesa:
+        return 'Shtesa';
     }
   }
 
