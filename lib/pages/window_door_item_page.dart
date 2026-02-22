@@ -35,7 +35,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   late Box<Blind> blindBox;
   late Box<Mechanism> mechanismBox;
   late Box<Accessory> accessoryBox;
-  late Box<ShtesaOption> shtesaBox;
 
   late TextEditingController nameController;
   late TextEditingController widthController;
@@ -57,8 +56,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
   int? mechanismIndex;
   int? accessoryIndex;
   bool _allowAutoMechanism = true;
-  int shtesaLeft = 0, shtesaRight = 0, shtesaTop = 0, shtesaBottom = 0;
-  double shtesaLeftPrice = 0, shtesaRightPrice = 0, shtesaTopPrice = 0, shtesaBottomPrice = 0;
   String? photoPath;
   Uint8List? photoBytes;
   Uint8List? _designImageBytes;
@@ -147,7 +144,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     blindBox = Hive.box<Blind>('blinds');
     mechanismBox = Hive.box<Mechanism>('mechanisms');
     accessoryBox = Hive.box<Accessory>('accessories');
-    shtesaBox = Hive.box<ShtesaOption>('shtesaOptions');
 
     nameController =
         TextEditingController(text: widget.existingItem?.name ?? '');
@@ -199,14 +195,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     extra1Desc = widget.existingItem?.extra1Desc;
     extra2Desc = widget.existingItem?.extra2Desc;
     notes = widget.existingItem?.notes;
-    shtesaLeft = widget.existingItem?.shtesaLeft ?? 0;
-    shtesaRight = widget.existingItem?.shtesaRight ?? 0;
-    shtesaTop = widget.existingItem?.shtesaTop ?? 0;
-    shtesaBottom = widget.existingItem?.shtesaBottom ?? 0;
-    shtesaLeftPrice = widget.existingItem?.shtesaLeftPricePerM ?? 0;
-    shtesaRightPrice = widget.existingItem?.shtesaRightPricePerM ?? 0;
-    shtesaTopPrice = widget.existingItem?.shtesaTopPricePerM ?? 0;
-    shtesaBottomPrice = widget.existingItem?.shtesaBottomPricePerM ?? 0;
     final existingItem = widget.existingItem;
     verticalSections = existingItem?.verticalSections ?? 1;
     horizontalSections = existingItem?.horizontalSections ?? 1;
@@ -755,53 +743,9 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
                                   ),
                                 ),
                             ],
-
                             onChanged: (val) =>
                                 setState(() => accessoryIndex = val),
                           ),
-                          Builder(builder: (context) {
-                            final opts = _shtesaOptionsForProfile();
-                            List<DropdownMenuItem<int>> menu = [
-                              const DropdownMenuItem(value: 0, child: Text('Pa shtesë')),
-                              ...opts.map((e) => DropdownMenuItem<int>(
-                                    value: e.sizeMm,
-                                    child: Text('${e.sizeMm} mm · €${e.pricePerMeter.toStringAsFixed(2)}/m', overflow: TextOverflow.ellipsis),
-                                  )),
-                            ];
-                            double priceFor(int size) => opts
-                                .firstWhere((o) => o.sizeMm == size,
-                                    orElse: () => ShtesaOption(profileSetIndex: profileSetIndex, sizeMm: 0, pricePerMeter: 0))
-                                .pricePerMeter;
-                            return Column(
-                              children: [
-                                const SizedBox(height: 8),
-                                DropdownButtonFormField<int>(
-                                  value: shtesaLeft,
-                                  decoration: const InputDecoration(labelText: 'Shtesa majtas'),
-                                  items: menu,
-                                  onChanged: (v) => setState(() { shtesaLeft = v ?? 0; shtesaLeftPrice = priceFor(shtesaLeft); }),
-                                ),
-                                DropdownButtonFormField<int>(
-                                  value: shtesaRight,
-                                  decoration: const InputDecoration(labelText: 'Shtesa djathtas'),
-                                  items: menu,
-                                  onChanged: (v) => setState(() { shtesaRight = v ?? 0; shtesaRightPrice = priceFor(shtesaRight); }),
-                                ),
-                                DropdownButtonFormField<int>(
-                                  value: shtesaTop,
-                                  decoration: const InputDecoration(labelText: 'Shtesa sipër'),
-                                  items: menu,
-                                  onChanged: (v) => setState(() { shtesaTop = v ?? 0; shtesaTopPrice = priceFor(shtesaTop); }),
-                                ),
-                                DropdownButtonFormField<int>(
-                                  value: shtesaBottom,
-                                  decoration: const InputDecoration(labelText: 'Shtesa poshtë'),
-                                  items: menu,
-                                  onChanged: (v) => setState(() { shtesaBottom = v ?? 0; shtesaBottomPrice = priceFor(shtesaBottom); }),
-                                ),
-                              ],
-                            );
-                          }),
                         ]),
                       ],
                     ),
@@ -1015,32 +959,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     );
   }
 
-  List<ShtesaOption> _shtesaOptionsForProfile() {
-    return shtesaBox.values
-        .where((e) => e.profileSetIndex == profileSetIndex)
-        .toList()
-      ..sort((a, b) => a.sizeMm.compareTo(b.sizeMm));
-  }
-
-  List<int> _scaleInts(List<int> values, int from, int to) {
-    if (values.isEmpty || from <= 0 || to < 0 || from == to) {
-      return List<int>.from(values);
-    }
-    final scaled = <int>[];
-    int sum = 0;
-    for (int i = 0; i < values.length; i++) {
-      final isLast = i == values.length - 1;
-      if (isLast) {
-        scaled.add((to - sum).clamp(0, to));
-      } else {
-        final v = ((values[i] * to) / from).round();
-        scaled.add(v);
-        sum += v;
-      }
-    }
-    return scaled;
-  }
-
   bool _saveItem() {
     final l10n = AppLocalizations.of(context);
     final name = nameController.text.trim();
@@ -1086,13 +1004,6 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
       }
     }
 
-    final finalWidth = (width - shtesaLeft - shtesaRight).clamp(0, width);
-    final finalHeight = (height - shtesaTop - shtesaBottom).clamp(0, height);
-    final scaledRowSectionWidths = rowSectionWidths
-        .map((row) => _scaleInts(row, width, finalWidth))
-        .toList();
-    final scaledSectionHeights = _scaleInts(sectionHeights, height, finalHeight);
-
     widget.onSave(
       WindowDoorItem(
         name: name,
@@ -1109,7 +1020,7 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
         horizontalSections: horizontalSections,
         fixedSectors: flattenedFixed,
         sectionWidths: defaultSectionWidths,
-        sectionHeights: scaledSectionHeights,
+        sectionHeights: sectionHeights,
         verticalAdapters: defaultVerticalAdapters,
         horizontalAdapters: horizontalAdapters,
         photoPath: _designImageBytes != null ? null : photoPath,
@@ -1123,19 +1034,11 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
         notes: notesController.text,
         perRowVerticalSections: List<int>.from(rowVerticalSections),
         perRowSectionWidths:
-            scaledRowSectionWidths.map((row) => List<int>.from(row)).toList(),
+            rowSectionWidths.map((row) => List<int>.from(row)).toList(),
         perRowFixedSectors:
             rowFixedSectors.map((row) => List<bool>.from(row)).toList(),
         perRowVerticalAdapters:
             rowVerticalAdapters.map((row) => List<bool>.from(row)).toList(),
-        shtesaLeft: shtesaLeft,
-        shtesaRight: shtesaRight,
-        shtesaTop: shtesaTop,
-        shtesaBottom: shtesaBottom,
-        shtesaLeftPricePerM: shtesaLeftPrice,
-        shtesaRightPricePerM: shtesaRightPrice,
-        shtesaTopPricePerM: shtesaTopPrice,
-        shtesaBottomPricePerM: shtesaBottomPrice,
       ),
     );
     return true;

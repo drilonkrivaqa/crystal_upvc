@@ -4,9 +4,8 @@ import 'catalog_tab_page.dart';
 import '../theme/app_background.dart';
 import '../widgets/glass_card.dart';
 import '../l10n/app_localizations.dart';
-import 'shtesa_catalog_page.dart';
 
-enum CatalogType { profileSet, glass, blind, mechanism, accessory, shtesa }
+enum CatalogType { profileSet, glass, blind, mechanism, accessory }
 
 class CatalogsPage extends StatelessWidget {
   const CatalogsPage({super.key});
@@ -119,20 +118,6 @@ class CatalogsPage extends StatelessWidget {
                         MaterialPageRoute(
                           builder: (_) =>
                           const CatalogTabPage(type: CatalogType.accessory),
-                        ),
-                      );
-                    },
-                  ),
-
-                  _CatalogButton(
-                    label: 'Shtesa',
-                    icon: Icons.open_with_rounded,
-                    index: 5,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const ShtesaCatalogPage(),
                         ),
                       );
                     },
