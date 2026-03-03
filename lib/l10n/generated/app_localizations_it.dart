@@ -364,6 +364,18 @@ class AppLocalizationsIt extends AppLocalizations {
   String get defaultBlind => 'Tapparella predefinita';
 
   @override
+  String get defaultMechanismCompany => 'Default mechanism company';
+
+  @override
+  String get mechanismCompany => 'Mechanism company';
+
+  @override
+  String get mechanismCompanyAny => 'Any company';
+
+  @override
+  String get mechanismCompaniesTitle => 'Mechanism companies';
+
+  @override
   String get applyDefaultsMessage =>
       'Scegli quali finestre/porte devono usare il profilo, il vetro e la tapparella predefiniti aggiornati. Deseleziona gli elementi da escludere.';
 

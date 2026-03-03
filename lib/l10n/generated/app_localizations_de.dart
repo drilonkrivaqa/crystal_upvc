@@ -363,6 +363,18 @@ class AppLocalizationsDe extends AppLocalizations {
   String get defaultBlind => 'Standardrollladen';
 
   @override
+  String get defaultMechanismCompany => 'Default mechanism company';
+
+  @override
+  String get mechanismCompany => 'Mechanism company';
+
+  @override
+  String get mechanismCompanyAny => 'Any company';
+
+  @override
+  String get mechanismCompaniesTitle => 'Mechanism companies';
+
+  @override
   String get applyDefaultsMessage =>
       'Wählen Sie, welche Fenster/Türen das aktualisierte Standardprofil, Glas und den Rollladen verwenden sollen. Entfernen Sie die Auswahl bei den Elementen, die ausgeschlossen werden sollen.';
 

@@ -783,6 +783,30 @@ abstract class AppLocalizations {
   /// **'Default blind'**
   String get defaultBlind;
 
+  /// No description provided for @defaultMechanismCompany.
+  ///
+  /// In en, this message translates to:
+  /// **'Default mechanism company'**
+  String get defaultMechanismCompany;
+
+  /// No description provided for @mechanismCompany.
+  ///
+  /// In en, this message translates to:
+  /// **'Mechanism company'**
+  String get mechanismCompany;
+
+  /// No description provided for @mechanismCompanyAny.
+  ///
+  /// In en, this message translates to:
+  /// **'Any company'**
+  String get mechanismCompanyAny;
+
+  /// No description provided for @mechanismCompaniesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Mechanism companies'**
+  String get mechanismCompaniesTitle;
+
   /// No description provided for @applyDefaultsMessage.
   ///
   /// In en, this message translates to:

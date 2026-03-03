@@ -365,6 +365,18 @@ class AppLocalizationsFr extends AppLocalizations {
   String get defaultBlind => 'Volet par défaut';
 
   @override
+  String get defaultMechanismCompany => 'Default mechanism company';
+
+  @override
+  String get mechanismCompany => 'Mechanism company';
+
+  @override
+  String get mechanismCompanyAny => 'Any company';
+
+  @override
+  String get mechanismCompaniesTitle => 'Mechanism companies';
+
+  @override
   String get applyDefaultsMessage =>
       'Choisissez quelles fenêtres/portes doivent utiliser le profil, le vitrage et le volet par défaut mis à jour. Décochez les éléments à exclure.';
 

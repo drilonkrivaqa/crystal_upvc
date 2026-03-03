@@ -364,6 +364,18 @@ class AppLocalizationsSq extends AppLocalizations {
   String get defaultBlind => 'Roleta e paracaktuar';
 
   @override
+  String get defaultMechanismCompany => 'Default mechanism company';
+
+  @override
+  String get mechanismCompany => 'Mechanism company';
+
+  @override
+  String get mechanismCompanyAny => 'Any company';
+
+  @override
+  String get mechanismCompaniesTitle => 'Mechanism companies';
+
+  @override
   String get applyDefaultsMessage =>
       'Zgjidhni cilat dritare/dyer duhet të përdorin profilin, xhamin dhe roletën e re të paracaktuar. Hiqni shenjën nga ato që dëshironi t\'i përjashtoni.';
 
