@@ -1325,12 +1325,30 @@ class _WindowPainter extends CustomPainter {
     final mmToPx = totalHeightMm > 0 ? size.height / totalHeightMm : 0.0;
     final blindHeightPx = showBlindBox ? kBlindBoxHeightMm * mmToPx : 0.0;
 
-    final linePaint = Paint()
+    // Paint objects
+    final paintFrameFill = Paint()
+      ..color = profileColor.base
+      ..style = PaintingStyle.fill
+      ..isAntiAlias = true;
+
+    final paintFrameEdge = Paint()
+      ..color = profileColor.shadow
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = kFrameStroke
+      ..isAntiAlias = true;
+
+    final paintMullion = Paint()
       ..color = kLineColor
       ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.butt
-      ..strokeJoin = StrokeJoin.miter
+      ..strokeWidth = kMullionStroke
       ..isAntiAlias = true;
+
+    final paintSash = Paint()
+      ..color = kLineColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = kSashStroke
+      ..isAntiAlias = true;
+
     final paintGlass = Paint()
       ..style = PaintingStyle.fill
       ..isAntiAlias = true;
@@ -1354,26 +1372,42 @@ class _WindowPainter extends CustomPainter {
     final outer = Rect.fromLTWH(
         0, blindHeightPx, size.width, size.height - blindHeightPx);
 
-    final metrics = _CadMetrics.fromRect(outer);
-    final opening = drawOuterFrame(canvas, outer, linePaint, metrics);
+    // 1) Draw PVC frame body
+    canvas.drawRect(outer, paintFrameFill);
+    canvas.drawRect(outer, paintFrameEdge);
+
+    // 2) Opening (where glass & sashes live), inset by frame face
+    final opening = outer.deflate(kFrameFace);
+
+    // A subtle inner shadow edge on the opening perimeter (to read as depth)
+    final lipRect = opening; // same outline, just a slightly darker stroke
+    final lipPaint = Paint()
+      ..color = profileColor.shadow.withOpacity(0.8)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.3
+      ..isAntiAlias = true;
+    canvas.drawRect(lipRect, lipPaint);
+
+    // 3) Glass/sash area is even further deflated by rebate/bead lip
+    final glassArea = opening.deflate(kRebateLip);
 
     // 4) Draw cells (glass + glyphs) inside glassArea
     final effectiveColumnFractions = _ensureFractions(columnFractions, cols);
     final effectiveRowFractions = _ensureFractions(rowFractions, rows);
-    final columnOffsets = List<double>.filled(cols, opening.left);
+    final columnOffsets = List<double>.filled(cols, glassArea.left);
     final columnWidths = List<double>.filled(cols, 0.0);
-    double cursorX = opening.left;
+    double cursorX = glassArea.left;
     for (int c = 0; c < cols; c++) {
-      final width = opening.width * effectiveColumnFractions[c];
+      final width = glassArea.width * effectiveColumnFractions[c];
       columnOffsets[c] = cursorX;
       columnWidths[c] = width;
       cursorX += width;
     }
-    final rowOffsets = List<double>.filled(rows, opening.top);
+    final rowOffsets = List<double>.filled(rows, glassArea.top);
     final rowHeights = List<double>.filled(rows, 0.0);
-    double cursorY = opening.top;
+    double cursorY = glassArea.top;
     for (int r = 0; r < rows; r++) {
-      final height = opening.height * effectiveRowFractions[r];
+      final height = glassArea.height * effectiveRowFractions[r];
       rowOffsets[r] = cursorY;
       rowHeights[r] = height;
       cursorY += height;
@@ -1389,193 +1423,52 @@ class _WindowPainter extends CustomPainter {
           rowHeights[r],
         );
 
-        final t = _mirrorForInside(cells[idx], outsideView);
-        final cellMetrics = _CadMetrics.fromRect(rect);
-
-        if (_isFixed(t)) {
-          final fixedGlassRect = drawOuterFrame(canvas, rect, linePaint, cellMetrics);
-          drawGlass(canvas, fixedGlassRect, paintGlass, cellGlassColors[idx]);
-        } else if (_isSliding(t)) {
-          _drawSlidingSector(canvas, rect, t, linePaint, paintGlass, cellGlassColors[idx], cellMetrics);
-        } else {
-          final outerInner = drawOuterFrame(canvas, rect, linePaint, cellMetrics);
-          final subRect = _safeDeflate(outerInner, cellMetrics.insetSubFrame);
-          final subInner = drawSubFrame(canvas, subRect, linePaint, cellMetrics);
-          final sashRect = _safeDeflate(subInner, cellMetrics.insetSash);
-          final sashInner = drawSash(canvas, sashRect, linePaint, cellMetrics);
-          drawGlass(canvas, sashInner, paintGlass, cellGlassColors[idx]);
-          drawOperableX(canvas, sashInner, linePaint, cellMetrics);
-          _drawOperationCue(canvas, sashInner, t, linePaint, cellMetrics);
-        }
+        // Glass
+        paintGlass.color = cellGlassColors[idx];
+        canvas.drawRect(rect, paintGlass);
 
         // Selection (non-tint dashed outline, toggle-able)
         if (selectedIndex == idx) {
           _drawDashedRect(canvas, rect.deflate(5), kSelectOutline, kSelectDash,
               kSelectGap, 2.0);
         }
+
+        // Mirror L/R types when viewing from inside
+        final t = _mirrorForInside(cells[idx], outsideView);
+        _SashGlyphRenderer.drawGlyph(
+          canvas,
+          rect.deflate(8),
+          t,
+          paintSash,
+        );
       }
     }
 
-    // 5) Mullions between cells (over opening)
-    double mullionX = opening.left;
+    // 5) Mullions between cells (over glass)
+    // verticals
+    double mullionX = glassArea.left;
     for (int c = 0; c < cols - 1; c++) {
       mullionX += columnWidths[c];
-      final barRect = Rect.fromLTWH(
-        mullionX - metrics.mullionBarThickness / 2,
-        opening.top,
-        metrics.mullionBarThickness,
-        opening.height,
-      );
-      drawMullionBar(canvas, barRect, Axis.vertical, linePaint, metrics);
+      final x = mullionX;
+      canvas.drawLine(
+          Offset(x, glassArea.top), Offset(x, glassArea.bottom), paintMullion);
     }
-    double mullionY = opening.top;
+    // horizontals
+    double mullionY = glassArea.top;
     for (int r = 0; r < rows - 1; r++) {
       mullionY += rowHeights[r];
-      final barRect = Rect.fromLTWH(
-        opening.left,
-        mullionY - metrics.mullionBarThickness / 2,
-        opening.width,
-        metrics.mullionBarThickness,
-      );
-      drawMullionBar(canvas, barRect, Axis.horizontal, linePaint, metrics);
+      final y = mullionY;
+      canvas.drawLine(
+          Offset(glassArea.left, y), Offset(glassArea.right, y), paintMullion);
     }
-  }
 
-  Rect drawOuterFrame(Canvas canvas, Rect rect, Paint linePaint, _CadMetrics metrics) {
-    linePaint.strokeWidth = metrics.strokeOuter;
-    canvas.drawRect(rect, linePaint);
-    final inner = _safeDeflate(rect, metrics.insetOuterFrame);
-    canvas.drawRect(inner, linePaint);
-
-    linePaint.strokeWidth = metrics.strokeInner;
-    final rebate = _safeDeflate(inner, metrics.insetRebate);
-    canvas.drawRect(rebate, linePaint);
-    return rebate;
-  }
-
-  Rect drawSubFrame(Canvas canvas, Rect rect, Paint linePaint, _CadMetrics metrics) {
-    linePaint.strokeWidth = metrics.strokeInner;
-    canvas.drawRect(rect, linePaint);
-    final inner = _safeDeflate(rect, math.max(metrics.insetRebate, metrics.insetSubFrame * 0.45));
-    canvas.drawRect(inner, linePaint);
-    return inner;
-  }
-
-  Rect drawSash(Canvas canvas, Rect rect, Paint linePaint, _CadMetrics metrics) {
-    linePaint.strokeWidth = metrics.strokeInner;
-    canvas.drawRect(rect, linePaint);
-    final inner = _safeDeflate(rect, metrics.insetSash);
-    canvas.drawRect(inner, linePaint);
-    final rebate = _safeDeflate(inner, metrics.insetRebate * 0.9);
-    canvas.drawRect(rebate, linePaint);
-    return rebate;
-  }
-
-  void drawGlass(Canvas canvas, Rect rect, Paint glassPaint, Color color) {
-    glassPaint.color = color;
-    canvas.drawRect(rect, glassPaint);
-  }
-
-  void drawOperableX(Canvas canvas, Rect rect, Paint linePaint, _CadMetrics metrics) {
-    linePaint.strokeWidth = metrics.strokeSymbol;
-    final r = _safeDeflate(rect, metrics.insetRebate * 0.8);
-    canvas.drawLine(Offset(r.left, r.top), Offset(r.right, r.bottom), linePaint);
-    canvas.drawLine(Offset(r.right, r.top), Offset(r.left, r.bottom), linePaint);
-  }
-
-  void drawMullionBar(
-    Canvas canvas,
-    Rect rect,
-    Axis orientation,
-    Paint linePaint,
-    _CadMetrics metrics,
-  ) {
-    linePaint.strokeWidth = metrics.strokeInner;
-    canvas.drawRect(rect, linePaint);
-    final inner = _safeDeflate(rect, metrics.insetRebate * 0.6);
-    canvas.drawRect(inner, linePaint);
-    linePaint.strokeWidth = metrics.strokeSymbol;
-    if (orientation == Axis.vertical) {
-      final cx = rect.center.dx;
-      canvas.drawLine(Offset(cx, rect.top), Offset(cx, rect.bottom), linePaint);
-    } else {
-      final cy = rect.center.dy;
-      canvas.drawLine(Offset(rect.left, cy), Offset(rect.right, cy), linePaint);
-    }
-  }
-
-  void _drawSlidingSector(
-    Canvas canvas,
-    Rect rect,
-    SashType type,
-    Paint linePaint,
-    Paint glassPaint,
-    Color glassColor,
-    _CadMetrics metrics,
-  ) {
-    final outerInner = drawOuterFrame(canvas, rect, linePaint, metrics);
-    final subRect = _safeDeflate(outerInner, metrics.insetSubFrame);
-    final subInner = drawSubFrame(canvas, subRect, linePaint, metrics);
-
-    linePaint.strokeWidth = metrics.strokeSymbol;
-    final topTrackY = subInner.top + metrics.insetRebate;
-    final bottomTrackY = subInner.bottom - metrics.insetRebate;
-    canvas.drawLine(Offset(subInner.left, topTrackY), Offset(subInner.right, topTrackY), linePaint);
-    canvas.drawLine(Offset(subInner.left, bottomTrackY), Offset(subInner.right, bottomTrackY), linePaint);
-
-    final overlap = math.max(metrics.insetRebate, subInner.width * 0.06);
-    final halfWidth = subInner.width / 2;
-    final leftBase = Rect.fromLTWH(subInner.left, subInner.top, halfWidth + overlap / 2, subInner.height);
-    final rightBase = Rect.fromLTWH(subInner.left + halfWidth - overlap / 2, subInner.top, halfWidth + overlap / 2, subInner.height);
-
-    final leftSashRect = _safeDeflate(leftBase, metrics.insetSash);
-    final rightSashRect = _safeDeflate(rightBase, metrics.insetSash);
-
-    final leftFront = type == SashType.slidingLeft || type == SashType.slidingTiltLeft;
-    final frontRect = leftFront ? leftSashRect : rightSashRect;
-    final backRect = leftFront ? rightSashRect : leftSashRect;
-
-    final backGlass = drawSash(canvas, backRect, linePaint, metrics);
-    drawGlass(canvas, backGlass, glassPaint, glassColor);
-    final frontGlass = drawSash(canvas, frontRect, linePaint, metrics);
-    drawGlass(canvas, frontGlass, glassPaint, glassColor);
-  }
-
-  void _drawOperationCue(
-    Canvas canvas,
-    Rect rect,
-    SashType type,
-    Paint linePaint,
-    _CadMetrics metrics,
-  ) {
-    linePaint.strokeWidth = metrics.strokeSymbol;
-    if (type == SashType.tilt || type == SashType.tiltLeft || type == SashType.tiltRight) {
-      final y = rect.top + metrics.insetRebate;
-      final startX = rect.left + rect.width * 0.2;
-      final endX = rect.right - rect.width * 0.2;
-      canvas.drawLine(Offset(startX, y), Offset(endX, y), linePaint);
-      return;
-    }
-    if (type == SashType.tiltTurnLeft || type == SashType.casementLeft) {
-      final x = rect.right - metrics.insetRebate * 1.2;
-      canvas.drawLine(Offset(x, rect.top + rect.height * 0.25), Offset(x, rect.bottom - rect.height * 0.25), linePaint);
-    } else if (type == SashType.tiltTurnRight || type == SashType.casementRight) {
-      final x = rect.left + metrics.insetRebate * 1.2;
-      canvas.drawLine(Offset(x, rect.top + rect.height * 0.25), Offset(x, rect.bottom - rect.height * 0.25), linePaint);
-    }
-  }
-
-  bool _isFixed(SashType type) => type == SashType.fixed;
-
-  bool _isSliding(SashType type) =>
-      type == SashType.slidingLeft ||
-      type == SashType.slidingRight ||
-      type == SashType.slidingTiltLeft ||
-      type == SashType.slidingTiltRight;
-
-  Rect _safeDeflate(Rect rect, double inset) {
-    final maxInset = math.max(0.0, math.min(rect.width, rect.height) / 2 - 0.8);
-    return rect.deflate(inset.clamp(0.0, maxInset));
+    // 6) Small sash/bead stroke around the whole glass area (a clean inner frame look)
+    final beadPaint = Paint()
+      ..color = kLineColor.withOpacity(0.8)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.4
+      ..isAntiAlias = true;
+    canvas.drawRect(glassArea, beadPaint);
   }
 
   List<double> _ensureFractions(List<double> fractions, int expectedLength) {
@@ -1696,50 +1589,6 @@ class _WindowPainter extends CustomPainter {
       if (a[i] != b[i]) return false;
     }
     return true;
-  }
-}
-
-class _CadMetrics {
-  final double strokeOuter;
-  final double strokeInner;
-  final double strokeSymbol;
-  final double insetOuterFrame;
-  final double insetSubFrame;
-  final double insetSash;
-  final double insetRebate;
-  final double mullionBarThickness;
-
-  const _CadMetrics({
-    required this.strokeOuter,
-    required this.strokeInner,
-    required this.strokeSymbol,
-    required this.insetOuterFrame,
-    required this.insetSubFrame,
-    required this.insetSash,
-    required this.insetRebate,
-    required this.mullionBarThickness,
-  });
-
-  factory _CadMetrics.fromRect(Rect rect) {
-    final base = math.min(rect.width, rect.height);
-    final strokeOuter = (base * 0.006).clamp(1.0, 2.2);
-    final strokeInner = (strokeOuter * 0.8).clamp(0.8, 1.8);
-    final strokeSymbol = (strokeOuter * 0.7).clamp(0.7, 1.6);
-    final insetOuterFrame = (base * 0.04).clamp(6.0, 18.0);
-    final insetSubFrame = (base * 0.024).clamp(3.0, 12.0);
-    final insetSash = (base * 0.03).clamp(5.0, 15.0);
-    final insetRebate = (base * 0.012).clamp(2.0, 6.0);
-    final mullionBarThickness = (base * 0.028).clamp(5.0, 16.0);
-    return _CadMetrics(
-      strokeOuter: strokeOuter,
-      strokeInner: strokeInner,
-      strokeSymbol: strokeSymbol,
-      insetOuterFrame: insetOuterFrame,
-      insetSubFrame: insetSubFrame,
-      insetSash: insetSash,
-      insetRebate: insetRebate,
-      mullionBarThickness: mullionBarThickness,
-    );
   }
 }
 
