@@ -23,17 +23,17 @@ import '../utils/design_image_saver_stub.dart'
 // ---- appearance constants ----------------------------------------------------
 
 // Frame + opening geometry
-const double kFrameStroke = 1; // thin frame edge stroke
+const double kFrameStroke = 1.2; // thin technical line weight
 const double kFrameFace = 10.0; // visible PVC frame face (outer to opening)
-const double kRebateLip = 6.0; // small inner lip before glass (sash/bead look)
+const double kRebateLip = 6.0; // inner offset for sector glazing/sash geometry
 const double kBlindBoxHeightMm =
     200.0; // default blind box height in millimetres
 const double kFallbackWindowHeightMm =
     1200.0; // used when real dimensions absent
 
 // Lines
-const double kMullionStroke = 2;
-const double kSashStroke = 3;
+const double kMullionStroke = 1.2;
+const double kSashStroke = 1.2;
 
 // Colors
 const Color kLineColor = Colors.black87;
@@ -1326,13 +1326,8 @@ class _WindowPainter extends CustomPainter {
     final blindHeightPx = showBlindBox ? kBlindBoxHeightMm * mmToPx : 0.0;
 
     // Paint objects
-    final paintFrameFill = Paint()
-      ..color = profileColor.base
-      ..style = PaintingStyle.fill
-      ..isAntiAlias = true;
-
-    final paintFrameEdge = Paint()
-      ..color = profileColor.shadow
+    final linePaint = Paint()
+      ..color = kLineColor
       ..style = PaintingStyle.stroke
       ..strokeWidth = kFrameStroke
       ..isAntiAlias = true;
@@ -1372,42 +1367,36 @@ class _WindowPainter extends CustomPainter {
     final outer = Rect.fromLTWH(
         0, blindHeightPx, size.width, size.height - blindHeightPx);
 
-    // 1) Draw PVC frame body
-    canvas.drawRect(outer, paintFrameFill);
-    canvas.drawRect(outer, paintFrameEdge);
+    // 1) Draw outer frame as two technical lines.
+    canvas.drawRect(outer, linePaint);
 
-    // 2) Opening (where glass & sashes live), inset by frame face
+    // 2) Opening (inside edge of outer frame).
     final opening = outer.deflate(kFrameFace);
+    canvas.drawRect(opening, linePaint);
 
-    // A subtle inner shadow edge on the opening perimeter (to read as depth)
-    final lipRect = opening; // same outline, just a slightly darker stroke
-    final lipPaint = Paint()
-      ..color = profileColor.shadow.withOpacity(0.8)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.3
-      ..isAntiAlias = true;
-    canvas.drawRect(lipRect, lipPaint);
+    final mullionWidth = math.max(
+      4.0,
+      math.min(14.0, opening.shortestSide * 0.04),
+    );
+    final halfMullion = mullionWidth / 2;
 
-    // 3) Glass/sash area is even further deflated by rebate/bead lip
-    final glassArea = opening.deflate(kRebateLip);
-
-    // 4) Draw cells (glass + glyphs) inside glassArea
+    // 3) Draw cells inside opening (frame lines + sash where applicable).
     final effectiveColumnFractions = _ensureFractions(columnFractions, cols);
     final effectiveRowFractions = _ensureFractions(rowFractions, rows);
-    final columnOffsets = List<double>.filled(cols, glassArea.left);
+    final columnOffsets = List<double>.filled(cols, opening.left);
     final columnWidths = List<double>.filled(cols, 0.0);
-    double cursorX = glassArea.left;
+    double cursorX = opening.left;
     for (int c = 0; c < cols; c++) {
-      final width = glassArea.width * effectiveColumnFractions[c];
+      final width = opening.width * effectiveColumnFractions[c];
       columnOffsets[c] = cursorX;
       columnWidths[c] = width;
       cursorX += width;
     }
-    final rowOffsets = List<double>.filled(rows, glassArea.top);
+    final rowOffsets = List<double>.filled(rows, opening.top);
     final rowHeights = List<double>.filled(rows, 0.0);
-    double cursorY = glassArea.top;
+    double cursorY = opening.top;
     for (int r = 0; r < rows; r++) {
-      final height = glassArea.height * effectiveRowFractions[r];
+      final height = opening.height * effectiveRowFractions[r];
       rowOffsets[r] = cursorY;
       rowHeights[r] = height;
       cursorY += height;
@@ -1416,16 +1405,30 @@ class _WindowPainter extends CustomPainter {
     for (int r = 0; r < rows; r++) {
       for (int c = 0; c < cols; c++) {
         final idx = r * cols + c;
-        final rect = Rect.fromLTWH(
-          columnOffsets[c],
-          rowOffsets[r],
-          columnWidths[c],
-          rowHeights[r],
+        final rect = Rect.fromLTRB(
+          columnOffsets[c] + (c > 0 ? halfMullion : 0),
+          rowOffsets[r] + (r > 0 ? halfMullion : 0),
+          columnOffsets[c] + columnWidths[c] - (c < cols - 1 ? halfMullion : 0),
+          rowOffsets[r] + rowHeights[r] - (r < rows - 1 ? halfMullion : 0),
         );
+
+        final sectorFrame = rect.deflate(1.0);
+        final isOpening = _SashGlyphRenderer.isOpeningType(cells[idx]);
+
+        final glassRect = isOpening
+            ? sectorFrame.deflate(kRebateLip + 6)
+            : sectorFrame.deflate(kRebateLip + 2);
+
+        if (isOpening) {
+          final sashOuter = sectorFrame.deflate(kRebateLip);
+          final sashInner = sashOuter.deflate(4);
+          canvas.drawRect(sashOuter, linePaint);
+          canvas.drawRect(sashInner, linePaint);
+        }
 
         // Glass
         paintGlass.color = cellGlassColors[idx];
-        canvas.drawRect(rect, paintGlass);
+        canvas.drawRect(glassRect, paintGlass);
 
         // Selection (non-tint dashed outline, toggle-able)
         if (selectedIndex == idx) {
@@ -1437,38 +1440,40 @@ class _WindowPainter extends CustomPainter {
         final t = _mirrorForInside(cells[idx], outsideView);
         _SashGlyphRenderer.drawGlyph(
           canvas,
-          rect.deflate(8),
+          glassRect.deflate(5),
           t,
           paintSash,
         );
       }
     }
 
-    // 5) Mullions between cells (over glass)
-    // verticals
-    double mullionX = glassArea.left;
+    // 4) Mullions between sectors as frame bars (double-line rectangles).
+    // Vertical mullions
+    double mullionX = opening.left;
     for (int c = 0; c < cols - 1; c++) {
       mullionX += columnWidths[c];
-      final x = mullionX;
-      canvas.drawLine(
-          Offset(x, glassArea.top), Offset(x, glassArea.bottom), paintMullion);
+      final mullionRect = Rect.fromLTWH(
+        mullionX - halfMullion,
+        opening.top,
+        mullionWidth,
+        opening.height,
+      );
+      canvas.drawRect(mullionRect, paintMullion);
+      canvas.drawRect(mullionRect.deflate(2), paintMullion);
     }
-    // horizontals
-    double mullionY = glassArea.top;
+    // Horizontal mullions
+    double mullionY = opening.top;
     for (int r = 0; r < rows - 1; r++) {
       mullionY += rowHeights[r];
-      final y = mullionY;
-      canvas.drawLine(
-          Offset(glassArea.left, y), Offset(glassArea.right, y), paintMullion);
+      final mullionRect = Rect.fromLTWH(
+        opening.left,
+        mullionY - halfMullion,
+        opening.width,
+        mullionWidth,
+      );
+      canvas.drawRect(mullionRect, paintMullion);
+      canvas.drawRect(mullionRect.deflate(2), paintMullion);
     }
-
-    // 6) Small sash/bead stroke around the whole glass area (a clean inner frame look)
-    final beadPaint = Paint()
-      ..color = kLineColor.withOpacity(0.8)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.4
-      ..isAntiAlias = true;
-    canvas.drawRect(glassArea, beadPaint);
   }
 
   List<double> _ensureFractions(List<double> fractions, int expectedLength) {
@@ -1592,223 +1597,17 @@ class _WindowPainter extends CustomPainter {
   }
 }
 
-enum _SideApex { left, right }
-
 class _SashGlyphRenderer {
+  static bool isOpeningType(SashType type) => type != SashType.fixed;
+
   static void drawGlyph(Canvas canvas, Rect r, SashType type, Paint paint) {
-    switch (type) {
-      case SashType.fixed:
-        _drawFixed(canvas, r, paint);
-        break;
-      case SashType.casementLeft:
-        _drawCasement(canvas, r, leftHinge: true, paint: paint);
-        break;
-      case SashType.casementRight:
-        _drawCasement(canvas, r, leftHinge: false, paint: paint);
-        break;
-      case SashType.tilt:
-        _drawTilt(canvas, r, paint);
-        break;
-      case SashType.tiltLeft:
-        _drawTiltSide(canvas, r, apexLeft: true, paint: paint);
-        break;
-      case SashType.tiltRight:
-        _drawTiltSide(canvas, r, apexLeft: false, paint: paint);
-        break;
-      case SashType.tiltTurnLeft:
-        _drawTiltTurn(canvas, r, sideApex: _SideApex.right, paint: paint);
-        break;
-      case SashType.tiltTurnRight:
-        _drawTiltTurn(canvas, r, sideApex: _SideApex.left, paint: paint);
-        break;
-      case SashType.slidingLeft:
-        _drawSliding(canvas, r, toLeft: true, paint: paint);
-        break;
-      case SashType.slidingRight:
-        _drawSliding(canvas, r, toLeft: false, paint: paint);
-        break;
-      case SashType.slidingTiltLeft:
-        _drawSlidingTilt(canvas, r, toLeft: true, paint: paint);
-        break;
-      case SashType.slidingTiltRight:
-        _drawSlidingTilt(canvas, r, toLeft: false, paint: paint);
-        break;
-      case SashType.swingHingeLeft:
-        _drawSwingHinge(canvas, r, hingeOnLeft: true, paint: paint);
-        break;
-      case SashType.swingHingeRight:
-        _drawSwingHinge(canvas, r, hingeOnLeft: false, paint: paint);
-        break;
-    }
+    if (!isOpeningType(type)) return;
+    _drawOpeningX(canvas, r, paint);
   }
 
-  static void _drawFixed(Canvas canvas, Rect r, Paint paint) {
-    final fontSize = r.shortestSide * 0.55;
-    final textPainter = TextPainter(
-      text: TextSpan(
-        text: 'F',
-        style: TextStyle(
-          color: paint.color,
-          fontSize: fontSize,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-    )..layout();
-    final offset = Offset(
-      r.center.dx - textPainter.width / 2,
-      r.center.dy - textPainter.height / 2,
-    );
-    textPainter.paint(canvas, offset);
-  }
-
-  static void _drawCasement(Canvas canvas, Rect r,
-      {required bool leftHinge, required Paint paint}) {
-    final path = Path();
-    if (leftHinge) {
-      path.moveTo(r.left, r.top);
-      path.lineTo(r.right, r.bottom);
-      final cx = r.right - r.width * 0.1;
-      path
-        ..moveTo(cx, r.top + r.height * 0.06)
-        ..lineTo(r.right, r.top)
-        ..moveTo(cx, r.bottom - r.height * 0.06)
-        ..lineTo(r.right, r.bottom);
-    } else {
-      path.moveTo(r.right, r.top);
-      path.lineTo(r.left, r.bottom);
-      final cx = r.left + r.width * 0.1;
-      path
-        ..moveTo(cx, r.top + r.height * 0.06)
-        ..lineTo(r.left, r.top)
-        ..moveTo(cx, r.bottom - r.height * 0.06)
-        ..lineTo(r.left, r.bottom);
-    }
-    canvas.drawPath(path, paint);
-  }
-
-  static void _drawTilt(Canvas canvas, Rect r, Paint paint) {
-    final path = Path()
-      ..moveTo(r.center.dx, r.top)
-      ..lineTo(r.left, r.bottom)
-      ..moveTo(r.center.dx, r.top)
-      ..lineTo(r.right, r.bottom)
-      ..moveTo(r.left, r.bottom)
-      ..lineTo(r.right, r.bottom);
-    canvas.drawPath(path, paint);
-  }
-
-  static void _drawTiltSide(Canvas canvas, Rect r,
-      {required bool apexLeft, required Paint paint}) {
-    final apexX = apexLeft ? r.left : r.right;
-    final baseX = apexLeft ? r.right : r.left;
-    final path = Path()
-      ..moveTo(apexX, r.center.dy)
-      ..lineTo(baseX, r.top)
-      ..moveTo(apexX, r.center.dy)
-      ..lineTo(baseX, r.bottom)
-      ..moveTo(baseX, r.top)
-      ..lineTo(baseX, r.bottom);
-    canvas.drawPath(path, paint);
-  }
-
-  static void _drawTiltTurn(Canvas canvas, Rect r,
-      {required _SideApex sideApex, required Paint paint}) {
-    canvas.drawLine(
-        Offset(r.center.dx, r.top), Offset(r.left, r.bottom), paint);
-    canvas.drawLine(
-        Offset(r.center.dx, r.top), Offset(r.right, r.bottom), paint);
-    canvas.drawLine(Offset(r.left, r.bottom), Offset(r.right, r.bottom), paint);
-
-    if (sideApex == _SideApex.left) {
-      canvas.drawLine(
-          Offset(r.left, r.center.dy), Offset(r.right, r.top), paint);
-      canvas.drawLine(
-          Offset(r.left, r.center.dy), Offset(r.right, r.bottom), paint);
-      canvas.drawLine(Offset(r.right, r.top), Offset(r.right, r.bottom), paint);
-    } else {
-      canvas.drawLine(
-          Offset(r.right, r.center.dy), Offset(r.left, r.top), paint);
-      canvas.drawLine(
-          Offset(r.right, r.center.dy), Offset(r.left, r.bottom), paint);
-      canvas.drawLine(Offset(r.left, r.top), Offset(r.left, r.bottom), paint);
-    }
-  }
-
-  static void _drawSliding(Canvas canvas, Rect r,
-      {required bool toLeft, required Paint paint}) {
-    final y = r.center.dy;
-    final l = r.left + r.width * 0.12;
-    final ri = r.right - r.width * 0.12;
-    final start = Offset(toLeft ? ri : l, y);
-    final end = Offset(toLeft ? l : ri, y);
-
-    canvas.drawLine(start, end, paint);
-
-    final ah = r.shortestSide * 0.06;
-    final dir = toLeft ? -1 : 1;
-    final head1 = Offset(end.dx - dir * ah, end.dy - ah * 0.55);
-    final head2 = Offset(end.dx - dir * ah, end.dy + ah * 0.55);
-    canvas.drawLine(end, head1, paint);
-    canvas.drawLine(end, head2, paint);
-  }
-
-  static void _drawSlidingTilt(Canvas canvas, Rect r,
-      {required bool toLeft, required Paint paint}) {
-    _drawTilt(canvas, r, paint);
-
-    final arrowRect = Rect.fromCenter(
-      center: r.center,
-      width: r.width * 0.85,
-      height: r.height * 0.5,
-    );
-
-    final y = arrowRect.center.dy;
-    final l = arrowRect.left;
-    final ri = arrowRect.right;
-    final start = Offset(toLeft ? ri : l, y);
-    final end = Offset(toLeft ? l : ri, y);
-
-    canvas.drawLine(start, end, paint);
-
-    final ah = arrowRect.shortestSide * 0.3;
-    final dir = toLeft ? -1 : 1;
-    final head1 = Offset(end.dx - dir * ah, end.dy - ah * 0.55);
-    final head2 = Offset(end.dx - dir * ah, end.dy + ah * 0.55);
-    canvas.drawLine(end, head1, paint);
-    canvas.drawLine(end, head2, paint);
-  }
-
-  static void _drawSwingHinge(Canvas canvas, Rect r,
-      {required bool hingeOnLeft, required Paint paint}) {
-    final thickPaint = Paint()
-      ..color = paint.color
-      ..style = paint.style
-      ..strokeWidth = paint.strokeWidth * 1.45
-      ..strokeCap = paint.strokeCap
-      ..isAntiAlias = paint.isAntiAlias;
-
-    final stemX = hingeOnLeft
-        ? r.left + r.width * 0.18
-        : r.right - r.width * 0.18;
-    final stemTop = Offset(stemX, r.top + r.height * 0.4);
-    final stemBottom = Offset(stemX, r.bottom - r.height * 0.4);
-
-    canvas.drawLine(stemTop, stemBottom, thickPaint);
-
-    final runStart = stemTop;
-    final runEnd = hingeOnLeft
-        ? Offset(r.right - r.width * 0.12, stemTop.dy)
-        : Offset(r.left + r.width * 0.12, stemTop.dy);
-    canvas.drawLine(runStart, runEnd, thickPaint);
-
-    final dir = hingeOnLeft ? 1 : -1;
-    final ah = r.shortestSide * 0.08;
-    final arrowTip = runEnd;
-    final head1 = Offset(arrowTip.dx - dir * ah, arrowTip.dy - ah * 0.55);
-    final head2 = Offset(arrowTip.dx - dir * ah, arrowTip.dy + ah * 0.55);
-    canvas.drawLine(arrowTip, head1, thickPaint);
-    canvas.drawLine(arrowTip, head2, thickPaint);
+  static void _drawOpeningX(Canvas canvas, Rect r, Paint paint) {
+    canvas.drawLine(Offset(r.left, r.top), Offset(r.right, r.bottom), paint);
+    canvas.drawLine(Offset(r.right, r.top), Offset(r.left, r.bottom), paint);
   }
 }
 
