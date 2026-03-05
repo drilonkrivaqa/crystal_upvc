@@ -9,6 +9,7 @@ import 'pages/catalogs_page.dart';
 import 'pages/customers_page.dart';
 import 'pages/offers_page.dart';
 import 'pages/production_page.dart';
+import 'pages/engineering_toolkit_page.dart';
 import 'theme/app_theme.dart';
 import 'pages/welcome_page.dart';
 import 'data_migrations.dart';
@@ -132,91 +133,99 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       body: AppBackground(
         child: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Language selector as a small, clean chip
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: ValueListenableBuilder(
-                      valueListenable: settingsBox.listenable(keys: ['locale']),
+          child: ValueListenableBuilder(
+            valueListenable: settingsBox.listenable(
+              keys: [
+                CompanySettings.keyEnableProduction,
+                CompanySettings.keyLicenseExpiresAt,
+                CompanySettings.keyLicenseUnlimited,
+              ],
+            ),
+            builder: (context, Box box, _) {
+              final productionEnabled = CompanySettings.isProductionAvailable(box);
+              final modules = [
+                _NavItem(Icons.auto_awesome_motion_outlined, l10n.homeCatalogs,
+                    const CatalogsPage(),
+                    subtitle: 'Profiles, accessories, glasses and pricing'),
+                _NavItem(Icons.people_outline, l10n.homeCustomers,
+                    const CustomersPage(),
+                    subtitle: 'CRM, contacts and project history'),
+                _NavItem(Icons.description_outlined, l10n.homeOffers,
+                    const OffersPage(),
+                    subtitle: 'Generate offers and share ready-to-print PDFs'),
+                _NavItem(Icons.precision_manufacturing, l10n.homeProduction,
+                    const ProductionPage(),
+                    enabled: productionEnabled,
+                    subtitle: 'Cut optimization and fabrication planning'),
+                _NavItem(Icons.engineering, 'Engineering Toolkit',
+                    const EngineeringToolkitPage(),
+                    subtitle: 'Fast calculators and conversion tools'),
+                _NavItem(Icons.settings_outlined, l10n.homeSettings,
+                    const SettingsPage(),
+                    subtitle: 'Company identity, language and license settings'),
+              ];
+
+              return SingleChildScrollView(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Engineering Workspace',
+                            style: textTheme.headlineSmall?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: colors.onSurface,
+                            ),
+                          ),
+                        ),
+                        _LanguageSelector(settingsBox: settingsBox),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    ValueListenableBuilder(
+                      valueListenable: settingsBox.listenable(
+                        keys: [CompanySettings.keyLogoBytes],
+                      ),
                       builder: (context, Box box, _) {
-                        final code =
-                            box.get('locale', defaultValue: 'sq') as String;
-                        return Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: colors.surface.withOpacity(0.55),
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: colors.outline.withOpacity(0.3),
-                            ),
-                          ),
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton<String>(
-                              value: code,
-                              borderRadius: BorderRadius.circular(16),
-                              icon: Icon(
-                                Icons.language,
-                                size: 20,
-                                color: colors.onSurface.withOpacity(0.75),
-                              ),
-                              style: textTheme.bodyMedium?.copyWith(
-                                color: colors.onSurface.withOpacity(0.9),
-                              ),
-                              onChanged: (val) {
-                                if (val != null) {
-                                  box.put('locale', val);
-                                }
-                              },
-                              items: const [
-                                DropdownMenuItem(
-                                    value: 'sq', child: Text('Shqip')),
-                                DropdownMenuItem(
-                                    value: 'en', child: Text('English')),
-                                DropdownMenuItem(
-                                    value: 'de', child: Text('Deutsch')),
-                                DropdownMenuItem(
-                                    value: 'fr', child: Text('Français')),
-                                DropdownMenuItem(
-                                    value: 'it', child: Text('Italiano')),
-                              ],
-                            ),
-                          ),
+                        final company = CompanySettings.read(
+                          box,
+                          Localizations.localeOf(context),
                         );
+                        return GlassCard(
+                          padding: const EdgeInsets.all(20),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CompanyLogo(company: company, width: 200),
+                              const SizedBox(height: 12),
+                              Text(
+                                'Everything you need for design, costing, production and student engineering calculations in one place.',
+                                style: textTheme.bodyMedium?.copyWith(
+                                  color: colors.onSurface.withOpacity(0.78),
+                                  height: 1.45,
+                                ),
+                              ),
+                              const SizedBox(height: 14),
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: const [
+                                  _QuickBadge(label: 'Quick Data Entry'),
+                                  _QuickBadge(label: 'Visual Design'),
+                                  _QuickBadge(label: 'PDF Ready Output'),
+                                  _QuickBadge(label: 'Engineering Utilities'),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ).animate().fadeIn(duration: 450.ms).slideY(begin: 0.2);
                       },
                     ),
-                  ),
-
-                  const SizedBox(height: 28),
-
-                  // Logo as a clean hero
-                  ValueListenableBuilder(
-                    valueListenable: settingsBox.listenable(
-                      keys: [CompanySettings.keyLogoBytes],
-                    ),
-                    builder: (context, Box box, _) {
-                      final company = CompanySettings.read(
-                        box,
-                        Localizations.localeOf(context),
-                      );
-                      return CompanyLogo(
-                        company: company,
-                        width: 220,
-                      )
-                          .animate()
-                          .fadeIn(duration: 450.ms)
-                          .slideY(begin: 0.25);
-                    },
-                  ),
-
-                  const SizedBox(height: 36),
+                    const SizedBox(height: 18),
 
                   ValueListenableBuilder(
                     valueListenable: settingsBox.listenable(
@@ -293,76 +302,39 @@ class HomePage extends StatelessWidget {
                     },
                   ),
 
-                  // Navigation cards
-                  ValueListenableBuilder(
-                    valueListenable: settingsBox.listenable(
-                      keys: [
-                        CompanySettings.keyEnableProduction,
-                        CompanySettings.keyLicenseExpiresAt,
-                        CompanySettings.keyLicenseUnlimited,
-                      ],
+                    const Text(
+                      'Modules',
+                      style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
                     ),
-                    builder: (context, Box box, _) {
-                      final productionEnabled =
-                          CompanySettings.isProductionAvailable(box);
-                      final items = [
-                        _NavItem(
-                          Icons.auto_awesome_motion_outlined,
-                          l10n.homeCatalogs,
-                          const CatalogsPage(),
-                        ),
-                        _NavItem(
-                          Icons.people_outline,
-                          l10n.homeCustomers,
-                          const CustomersPage(),
-                        ),
-                        _NavItem(
-                          Icons.description_outlined,
-                          l10n.homeOffers,
-                          const OffersPage(),
-                        ),
-                        _NavItem(
-                          Icons.precision_manufacturing,
-                          l10n.homeProduction,
-                          const ProductionPage(),
-                          enabled: productionEnabled,
-                        ),
-                        _NavItem(
-                          Icons.settings_outlined,
-                          l10n.homeSettings,
-                          const SettingsPage(),
-                        ),
-                      ];
-
-                      return Wrap(
-                        spacing: 16,
-                        runSpacing: 16,
-                        alignment: WrapAlignment.center,
-                        children: items
-                            .map(
-                              (item) => _FrostedMenuCard(
-                                icon: item.icon,
-                                label: item.label,
-                                enabled: item.enabled,
-                                onTap: item.enabled
-                                    ? () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (_) => item.page,
-                                          ),
-                                        );
-                                      }
-                                    : null,
-                              ),
-                            )
-                            .toList(),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
+                    const SizedBox(height: 10),
+                    Wrap(
+                      spacing: 14,
+                      runSpacing: 14,
+                      children: modules
+                          .map(
+                            (item) => _FrostedMenuCard(
+                              icon: item.icon,
+                              label: item.label,
+                              subtitle: item.subtitle,
+                              enabled: item.enabled,
+                              onTap: item.enabled
+                                  ? () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => item.page,
+                                        ),
+                                      );
+                                    }
+                                  : null,
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
         ),
       ),
@@ -370,15 +342,89 @@ class HomePage extends StatelessWidget {
   }
 }
 
+class _LanguageSelector extends StatelessWidget {
+  const _LanguageSelector({required this.settingsBox});
+
+  final Box settingsBox;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    return ValueListenableBuilder(
+      valueListenable: settingsBox.listenable(keys: ['locale']),
+      builder: (context, Box box, _) {
+        final code = box.get('locale', defaultValue: 'sq') as String;
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          decoration: BoxDecoration(
+            color: colors.surface.withOpacity(0.55),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: colors.outline.withOpacity(0.3)),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              value: code,
+              borderRadius: BorderRadius.circular(16),
+              icon: Icon(
+                Icons.language,
+                size: 20,
+                color: colors.onSurface.withOpacity(0.75),
+              ),
+              style: textTheme.bodyMedium?.copyWith(
+                color: colors.onSurface.withOpacity(0.9),
+              ),
+              onChanged: (val) {
+                if (val != null) {
+                  box.put('locale', val);
+                }
+              },
+              items: const [
+                DropdownMenuItem(value: 'sq', child: Text('Shqip')),
+                DropdownMenuItem(value: 'en', child: Text('English')),
+                DropdownMenuItem(value: 'de', child: Text('Deutsch')),
+                DropdownMenuItem(value: 'fr', child: Text('Français')),
+                DropdownMenuItem(value: 'it', child: Text('Italiano')),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _QuickBadge extends StatelessWidget {
+  const _QuickBadge({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: colors.primary.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
+    );
+  }
+}
+
 class _FrostedMenuCard extends StatelessWidget {
   final IconData icon;
   final String label;
+  final String subtitle;
   final VoidCallback? onTap;
   final bool enabled;
 
   const _FrostedMenuCard({
     required this.icon,
     required this.label,
+    required this.subtitle,
     required this.onTap,
     this.enabled = true,
   });
@@ -390,8 +436,8 @@ class _FrostedMenuCard extends StatelessWidget {
     final textTheme = theme.textTheme;
 
     final content = GlassCard(
-      width: 150,
-      height: 160,
+      width: 220,
+      height: 170,
       padding: const EdgeInsets.all(16),
       onTap: onTap,
       child: Column(
@@ -418,15 +464,20 @@ class _FrostedMenuCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
+          Text(label,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: textTheme.bodyMedium
+                  ?.copyWith(fontSize: 15, fontWeight: FontWeight.w700)),
+          const SizedBox(height: 8),
           Text(
-            label,
+            subtitle,
             textAlign: TextAlign.center,
-            maxLines: 2,
+            maxLines: 3,
             overflow: TextOverflow.ellipsis,
-            style: textTheme.bodyMedium?.copyWith(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-            ),
+            style: textTheme.bodySmall
+                ?.copyWith(color: colors.onSurface.withOpacity(0.68)),
           ),
         ],
       ),
@@ -442,8 +493,10 @@ class _FrostedMenuCard extends StatelessWidget {
 class _NavItem {
   final IconData icon;
   final String label;
+  final String subtitle;
   final Widget page;
   final bool enabled;
 
-  const _NavItem(this.icon, this.label, this.page, {this.enabled = true});
+  const _NavItem(this.icon, this.label, this.page,
+      {this.enabled = true, required this.subtitle});
 }
