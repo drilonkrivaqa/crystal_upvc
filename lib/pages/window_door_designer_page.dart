@@ -8,6 +8,11 @@
 // - Correct Tilt&Turn glyphs per your requirement
 // - Export PNG via RepaintBoundary
 //
+// UPDATE (per your request):
+// - Fixed sectors keep current look (glass fills the cell)
+// - Operable sectors draw an additional PVC sash frame inside the cell + inset glass,
+//   so fixed vs opening looks different while keeping all other UI/logic the same.
+//
 // Dependencies: Flutter SDK only.
 
 import 'dart:math' as math;
@@ -18,7 +23,7 @@ import 'package:flutter/rendering.dart' show RenderRepaintBoundary;
 import 'package:flutter/services.dart';
 import '../utils/color_options.dart';
 import '../utils/design_image_saver_stub.dart'
-    if (dart.library.io) '../utils/design_image_saver_io.dart' as design_saver;
+if (dart.library.io) '../utils/design_image_saver_io.dart' as design_saver;
 
 // ---- appearance constants ----------------------------------------------------
 
@@ -26,10 +31,8 @@ import '../utils/design_image_saver_stub.dart'
 const double kFrameStroke = 1; // thin frame edge stroke
 const double kFrameFace = 10.0; // visible PVC frame face (outer to opening)
 const double kRebateLip = 6.0; // small inner lip before glass (sash/bead look)
-const double kBlindBoxHeightMm =
-    200.0; // default blind box height in millimetres
-const double kFallbackWindowHeightMm =
-    1200.0; // used when real dimensions absent
+const double kBlindBoxHeightMm = 200.0; // default blind box height in millimetres
+const double kFallbackWindowHeightMm = 1200.0; // used when real dimensions absent
 
 // Lines
 const double kMullionStroke = 2;
@@ -86,25 +89,24 @@ Future<Uint8List?> buildWindowDoorDesignPreviewBytes({
   final resolvedHeightMm = _resolveHeightMm(heightMm);
   final resolvedWidthMm = _resolveWidthMm(widthMm, resolvedHeightMm);
   final aspectRatio =
-      resolvedHeightMm > 0 ? resolvedWidthMm / resolvedHeightMm : 1.6;
+  resolvedHeightMm > 0 ? resolvedWidthMm / resolvedHeightMm : 1.6;
 
   const baseHeight = 360.0;
   double targetHeight = baseHeight;
   double targetWidth = baseHeight * aspectRatio;
   if (targetWidth > 640) {
     targetWidth = 640;
-    targetHeight =
-        aspectRatio > 0 ? targetWidth / aspectRatio : baseHeight;
+    targetHeight = aspectRatio > 0 ? targetWidth / aspectRatio : baseHeight;
   }
 
   final effectiveCells = List<SashType>.generate(
     totalCells,
-    (index) => index < cells.length ? cells[index] : SashType.fixed,
+        (index) => index < cells.length ? cells[index] : SashType.fixed,
     growable: false,
   );
   final glassColor = glassColorForIndex(glassColorIndex).color;
   final cellGlassColors =
-      List<Color>.filled(totalCells, glassColor, growable: false);
+  List<Color>.filled(totalCells, glassColor, growable: false);
 
   final painter = _WindowPainter(
     rows: safeRows,
@@ -250,15 +252,21 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     showBlindBox = widget.initialShowBlind ?? showBlindBox;
     windowHeightMm = _initialHeightMm(widget.initialHeight);
     windowWidthMm = _initialWidthMm(widget.initialWidth, windowHeightMm);
+
     _widthController =
         TextEditingController(text: windowWidthMm.toStringAsFixed(0));
     _heightController =
         TextEditingController(text: windowHeightMm.toStringAsFixed(0));
+
     cells = List<SashType>.filled(rows * cols, SashType.fixed, growable: true);
+
     final initialGlassColor = glassColorForIndex(widget.initialGlassColorIndex);
     cellGlassColors = List<Color>.filled(
-        rows * cols, initialGlassColor.color,
-        growable: true);
+      rows * cols,
+      initialGlassColor.color,
+      growable: true,
+    );
+
     profileColor = profileColorForIndex(widget.initialProfileColorIndex);
     blindColor = blindColorForIndex(null);
     _columnSizes = _initialSizes(widget.initialColumnSizes, cols);
@@ -286,10 +294,8 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     setState(() {
       rows = r.clamp(1, 8);
       cols = c.clamp(1, 8);
-      cells =
-          List<SashType>.filled(rows * cols, SashType.fixed, growable: true);
-      cellGlassColors = List<Color>.filled(
-          rows * cols, defaultGlassColor,
+      cells = List<SashType>.filled(rows * cols, SashType.fixed, growable: true);
+      cellGlassColors = List<Color>.filled(rows * cols, defaultGlassColor,
           growable: true);
       selectedIndex = null;
       _columnSizes = List<double>.filled(cols, 1.0);
@@ -325,8 +331,8 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     }
 
     // Hit test inside the opening (frame inset)
-    final outer = Rect.fromLTWH(
-        0, blindHeightPx, size.width, size.height - blindHeightPx);
+    final outer =
+    Rect.fromLTWH(0, blindHeightPx, size.width, size.height - blindHeightPx);
     final opening = outer.deflate(kFrameFace);
 
     if (!opening.contains(localPos)) {
@@ -356,9 +362,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
   }
 
   List<double> _initialSizes(List<double>? values, int count) {
-    if (count <= 0) {
-      return const <double>[];
-    }
+    if (count <= 0) return const <double>[];
     if (values == null || values.isEmpty) {
       return List<double>.filled(count, 1.0);
     }
@@ -382,18 +386,15 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
   }
 
   List<double> _normalizedFractions(List<double> sizes, int count) {
-    if (count <= 0) {
-      return const <double>[];
-    }
+    if (count <= 0) return const <double>[];
     final sanitized = List<double>.generate(count, (index) {
       if (index < sizes.length) {
         final value = sizes[index];
-        if (value.isFinite && value > 0) {
-          return value;
-        }
+        if (value.isFinite && value > 0) return value;
       }
       return 0.0;
     });
+
     double positiveSum = 0;
     int positiveCount = 0;
     for (final value in sanitized) {
@@ -405,12 +406,14 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     if (positiveSum <= 0 || positiveCount <= 0) {
       return List<double>.filled(count, 1.0 / count);
     }
+
     final fallbackValue = positiveSum / positiveCount;
     for (int i = 0; i < sanitized.length; i++) {
       if (sanitized[i] <= 0) {
         sanitized[i] = fallbackValue;
       }
     }
+
     final total = sanitized.fold<double>(0, (sum, value) => sum + value);
     if (total <= 0) {
       return List<double>.filled(count, 1.0 / count);
@@ -419,22 +422,18 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
   }
 
   int _hitTestAxis(
-    double position,
-    double origin,
-    double extent,
-    List<double> fractions,
-    int limit,
-  ) {
-    if (limit <= 1 || extent <= 0) {
-      return 0;
-    }
+      double position,
+      double origin,
+      double extent,
+      List<double> fractions,
+      int limit,
+      ) {
+    if (limit <= 1 || extent <= 0) return 0;
     double cursor = origin;
     for (int index = 0; index < limit; index++) {
       final width = extent * fractions[index];
       final end = cursor + width;
-      if (position < end || index == limit - 1) {
-        return index;
-      }
+      if (position < end || index == limit - 1) return index;
       cursor = end;
     }
     return limit - 1;
@@ -446,8 +445,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
       if (bytes == null) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Unable to capture the design preview.')),
+          const SnackBar(content: Text('Unable to capture the design preview.')),
         );
         return;
       }
@@ -497,9 +495,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
           await _saveDesignToStorage(bytes);
           break;
         case _ExportAction.useAsPhoto:
-          if (mounted) {
-            Navigator.of(context).pop(bytes);
-          }
+          if (mounted) Navigator.of(context).pop(bytes);
           break;
         default:
           break;
@@ -512,11 +508,9 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
   }
 
   Future<Uint8List?> _captureDesignBytes() async {
-    final boundary = _repaintKey.currentContext?.findRenderObject()
-        as RenderRepaintBoundary?;
-    if (boundary == null) {
-      return null;
-    }
+    final boundary =
+    _repaintKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+    if (boundary == null) return null;
 
     final img = await boundary.toImage(pixelRatio: 3);
     final bd = await img.toByteData(format: ui.ImageByteFormat.png);
@@ -528,9 +522,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     try {
       final savedPath = await design_saver.saveDesignImage(bytes, fileName);
       if (!mounted) return;
-      if (savedPath == null) {
-        return;
-      }
+      if (savedPath == null) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Design saved to $savedPath')),
@@ -539,26 +531,24 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text(
-                e.message ?? 'Saving PNG is not supported on this platform.')),
+          content: Text(
+              e.message ?? 'Saving PNG is not supported on this platform.'),
+        ),
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Save failed: $e')),
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Save failed: $e')));
     }
   }
 
   void _reset() {
     final initialGlassColor = glassColorForIndex(widget.initialGlassColorIndex);
     final initialProfileColor =
-        profileColorForIndex(widget.initialProfileColorIndex);
+    profileColorForIndex(widget.initialProfileColorIndex);
     setState(() {
-      cells =
-          List<SashType>.filled(rows * cols, SashType.fixed, growable: true);
-      cellGlassColors = List<Color>.filled(
-          rows * cols, initialGlassColor.color,
+      cells = List<SashType>.filled(rows * cols, SashType.fixed, growable: true);
+      cellGlassColors = List<Color>.filled(rows * cols, initialGlassColor.color,
           growable: true);
       selectedIndex = null;
       activeTool = SashType.fixed;
@@ -585,13 +575,15 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
         title: const Text('Window/Door Designer'),
         actions: [
           IconButton(
-              onPressed: _exportPng,
-              tooltip: 'Export PNG',
-              icon: const Icon(Icons.download)),
+            onPressed: _exportPng,
+            tooltip: 'Export PNG',
+            icon: const Icon(Icons.download),
+          ),
           IconButton(
-              onPressed: _reset,
-              tooltip: 'Reset',
-              icon: const Icon(Icons.refresh)),
+            onPressed: _reset,
+            tooltip: 'Reset',
+            icon: const Icon(Icons.refresh),
+          ),
         ],
       ),
       body: SafeArea(
@@ -614,10 +606,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
                     ),
                   ),
                   const VerticalDivider(width: 1),
-                  SizedBox(
-                    width: panelWidth,
-                    child: controls,
-                  ),
+                  SizedBox(width: panelWidth, child: controls),
                 ],
               );
             }
@@ -636,10 +625,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
                   ),
                 ),
                 const Divider(height: 1),
-                SizedBox(
-                  height: controlHeight,
-                  child: controls,
-                ),
+                SizedBox(height: controlHeight, child: controls),
               ],
             );
           },
@@ -658,8 +644,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
               key: _repaintKey,
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
-                onTapDown: (d) =>
-                    _onTapCanvas(d.localPosition, constraints.biggest),
+                onTapDown: (d) => _onTapCanvas(d.localPosition, constraints.biggest),
                 child: CustomPaint(
                   size: constraints.biggest,
                   painter: _WindowPainter(
@@ -687,9 +672,9 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
 
   Widget _buildControlsPanel(ThemeData theme, {required bool isWide}) {
     final titleStyle =
-        theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600);
+    theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600);
     final labelStyle =
-        theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600);
+    theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600);
 
     return SingleChildScrollView(
       padding: EdgeInsets.fromLTRB(isWide ? 24 : 16, 16, isWide ? 24 : 16, 24),
@@ -700,11 +685,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
             Text('Configuration', style: titleStyle),
             const SizedBox(height: 12),
           ],
-          _RowsColsPicker(
-            rows: rows,
-            cols: cols,
-            onChanged: (r, c) => _regrid(r, c),
-          ),
+          _RowsColsPicker(rows: rows, cols: cols, onChanged: (r, c) => _regrid(r, c)),
           const SizedBox(height: 8),
           _GridPresets(onTap: (r, c) => _regrid(r, c)),
           const SizedBox(height: 16),
@@ -731,6 +712,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
             onChanged: (v) => setState(() => showBlindBox = v),
           ),
           const SizedBox(height: 16),
+
           _colorGroup(
             title: 'Profile colour',
             chips: profileColorOptions.map((opt) {
@@ -745,8 +727,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
               ..add(
                 ChoiceChip(
                   label: const Text('Custom'),
-                  avatar: _ColorDot(
-                      color: _customProfileColor ?? profileColor.base),
+                  avatar: _ColorDot(color: _customProfileColor ?? profileColor.base),
                   selected: profileColor.label == 'Custom',
                   onSelected: (_) async {
                     final selected = await _showCustomColorPicker(
@@ -759,6 +740,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
                 ),
               ),
           ),
+
           if (showBlindBox) ...[
             const SizedBox(height: 16),
             _colorGroup(
@@ -774,6 +756,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
               }).toList(),
             ),
           ],
+
           const SizedBox(height: 16),
           _colorGroup(
             title: selectedIndex == null
@@ -787,8 +770,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
                 avatar: _ColorDot(color: opt.color),
                 selected: isSelected,
                 onSelected: selectedIndex != null
-                    ? (_) => setState(
-                        () => cellGlassColors[selectedIndex!] = opt.color)
+                    ? (_) => setState(() => cellGlassColors[selectedIndex!] = opt.color)
                     : null,
               );
             }).toList()
@@ -796,28 +778,27 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
                 ChoiceChip(
                   label: const Text('Custom'),
                   avatar: _ColorDot(
-                      color: _customGlassColor ??
-                          glassColorForIndex(widget.initialGlassColorIndex)
-                              .color),
+                    color: _customGlassColor ??
+                        glassColorForIndex(widget.initialGlassColorIndex).color,
+                  ),
                   selected: selectedIndex != null &&
                       _customGlassColor != null &&
                       cellGlassColors[selectedIndex!] == _customGlassColor,
                   onSelected: selectedIndex != null
                       ? (_) async {
-                          final selected = await _showCustomColorPicker(
-                            title: 'Custom glass colour',
-                            initialColor: _customGlassColor ??
-                                glassColorForIndex(
-                                        widget.initialGlassColorIndex)
-                                    .color,
-                          );
-                          if (selected == null) return;
-                          _setCustomGlassColor(selected);
-                        }
+                    final selected = await _showCustomColorPicker(
+                      title: 'Custom glass colour',
+                      initialColor: _customGlassColor ??
+                          glassColorForIndex(widget.initialGlassColorIndex).color,
+                    );
+                    if (selected == null) return;
+                    _setCustomGlassColor(selected);
+                  }
                       : null,
                 ),
               ),
           ),
+
           const SizedBox(height: 20),
           if (labelStyle != null) ...[
             Text('Legend', style: labelStyle),
@@ -833,6 +814,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
                   : glassColorForIndex(widget.initialGlassColorIndex).color,
             ),
           ),
+
           const SizedBox(height: 24),
           if (titleStyle != null) Text('Sash presets', style: titleStyle),
           const SizedBox(height: 8),
@@ -859,10 +841,12 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
               ),
             ],
           ),
+
           const SizedBox(height: 24),
           if (titleStyle != null) Text('Opening diagrams', style: titleStyle),
           const SizedBox(height: 8),
           const _OpeningDrawings(),
+
           const SizedBox(height: 20),
           _TipCard(
             headline: 'Quick tips',
@@ -880,29 +864,21 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
   double _aspectRatioFromDimensions() {
     final w = windowWidthMm;
     final h = windowHeightMm;
-
     if (w > 0 && h > 0) {
       final ratio = w / h;
-      if (ratio.isFinite && ratio > 0) {
-        return ratio;
-      }
+      if (ratio.isFinite && ratio > 0) return ratio;
     }
-
     const defaultAspect = 1.6;
     final defaultHeight = kFallbackWindowHeightMm;
     final defaultWidth = defaultAspect * defaultHeight;
     return defaultWidth / defaultHeight;
   }
 
-  double get _windowHeightMm {
-    return windowHeightMm;
-  }
+  double get _windowHeightMm => windowHeightMm;
 
   double _mmToPx(double canvasHeightPx) {
     final totalMm = _windowHeightMm;
-    if (totalMm <= 0) {
-      return 0;
-    }
+    if (totalMm <= 0) return 0;
     return canvasHeightPx / totalMm;
   }
 
@@ -913,11 +889,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
       children: [
         Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
         const SizedBox(height: 4),
-        Wrap(
-          spacing: 6,
-          runSpacing: 6,
-          children: chips,
-        ),
+        Wrap(spacing: 6, runSpacing: 6, children: chips),
       ],
     );
   }
@@ -925,8 +897,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
   void _setCustomProfileColor(Color color) {
     setState(() {
       _customProfileColor = color;
-      profileColor =
-          ProfileColorOption('Custom', color, _shadowForColor(color));
+      profileColor = ProfileColorOption('Custom', color, _shadowForColor(color));
     });
   }
 
@@ -942,11 +913,10 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     required String title,
     required Color initialColor,
   }) async {
-    final controller = TextEditingController(
-      text: _colorToHex(initialColor),
-    );
+    final controller = TextEditingController(text: _colorToHex(initialColor));
     Color current = initialColor;
     HSVColor hsv = HSVColor.fromColor(initialColor);
+
     final result = await showDialog<Color>(
       context: context,
       builder: (context) {
@@ -956,7 +926,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
               controller.value = TextEditingValue(
                 text: _colorToHex(color),
                 selection:
-                    TextSelection.collapsed(offset: _colorToHex(color).length),
+                TextSelection.collapsed(offset: _colorToHex(color).length),
               );
             }
 
@@ -974,9 +944,10 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
               double? value,
             }) {
               setDialogState(() {
-                hsv = hsv.withHue(hue ?? hsv.hue).withSaturation(
-                      saturation ?? hsv.saturation,
-                    ).withValue(value ?? hsv.value);
+                hsv = hsv
+                    .withHue(hue ?? hsv.hue)
+                    .withSaturation(saturation ?? hsv.saturation)
+                    .withValue(value ?? hsv.value);
                 current = hsv.toColor();
               });
               syncController(current);
@@ -1014,10 +985,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
                       hue: hsv.hue,
                       saturation: hsv.saturation,
                       value: hsv.value,
-                      onChanged: (saturation, value) => updateFromHsv(
-                        saturation: saturation,
-                        value: value,
-                      ),
+                      onChanged: (s, v) => updateFromHsv(saturation: s, value: v),
                     ),
                     const SizedBox(height: 10),
                     _HuePickerBar(
@@ -1034,15 +1002,11 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
                         counterText: '',
                       ),
                       inputFormatters: [
-                        FilteringTextInputFormatter.allow(
-                          RegExp(r'[0-9a-fA-F#]'),
-                        ),
+                        FilteringTextInputFormatter.allow(RegExp(r'[0-9a-fA-F#]')),
                       ],
                       onChanged: (value) {
                         final parsed = _tryParseHexColor(value);
-                        if (parsed != null) {
-                          updateColor(parsed);
-                        }
+                        if (parsed != null) updateColor(parsed);
                       },
                     ),
                   ],
@@ -1063,14 +1027,13 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
         );
       },
     );
+
     controller.dispose();
     return result;
   }
 
   double _initialHeightMm(double? providedHeight) {
-    if (providedHeight != null &&
-        providedHeight.isFinite &&
-        providedHeight > 0) {
+    if (providedHeight != null && providedHeight.isFinite && providedHeight > 0) {
       return providedHeight;
     }
     return kFallbackWindowHeightMm;
@@ -1103,6 +1066,9 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
   double _clampDimension(double value) => value.clamp(300.0, 4000.0);
 }
 
+// -----------------------------------------------------------------------------
+// Color helpers
+
 Color _shadowForColor(Color base) {
   final hsl = HSLColor.fromColor(base);
   final darkened = hsl.withLightness((hsl.lightness - 0.2).clamp(0.0, 1.0));
@@ -1116,19 +1082,18 @@ String _colorToHex(Color color) {
 
 Color? _tryParseHexColor(String input) {
   final normalized = input.replaceAll('#', '').trim();
-  if (normalized.length != 6 && normalized.length != 8) {
-    return null;
-  }
+  if (normalized.length != 6 && normalized.length != 8) return null;
   try {
     final value = int.parse(normalized, radix: 16);
-    if (normalized.length == 6) {
-      return Color(0xFF000000 | value);
-    }
+    if (normalized.length == 6) return Color(0xFF000000 | value);
     return Color(value);
   } catch (_) {
     return null;
   }
 }
+
+// -----------------------------------------------------------------------------
+// Custom pickers
 
 class _SaturationValuePicker extends StatelessWidget {
   final double hue;
@@ -1189,10 +1154,7 @@ class _SaturationValuePicker extends StatelessWidget {
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.transparent,
-                          Colors.black,
-                        ],
+                        colors: [Colors.transparent, Colors.black],
                       ),
                     ),
                   ),
@@ -1353,6 +1315,13 @@ class _WindowPainter extends CustomPainter {
       ..style = PaintingStyle.fill
       ..isAntiAlias = true;
 
+    // Reused bead/rebate stroke
+    final beadPaint = Paint()
+      ..color = kLineColor.withOpacity(0.8)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.4
+      ..isAntiAlias = true;
+
     if (showBlindBox) {
       final blindRect = Rect.fromLTWH(0, 0, size.width, blindHeightPx);
       final blindFill = Paint()
@@ -1369,8 +1338,8 @@ class _WindowPainter extends CustomPainter {
     }
 
     // Outer rect (whole widget)
-    final outer = Rect.fromLTWH(
-        0, blindHeightPx, size.width, size.height - blindHeightPx);
+    final outer =
+    Rect.fromLTWH(0, blindHeightPx, size.width, size.height - blindHeightPx);
 
     // 1) Draw PVC frame body
     canvas.drawRect(outer, paintFrameFill);
@@ -1380,13 +1349,12 @@ class _WindowPainter extends CustomPainter {
     final opening = outer.deflate(kFrameFace);
 
     // A subtle inner shadow edge on the opening perimeter (to read as depth)
-    final lipRect = opening; // same outline, just a slightly darker stroke
     final lipPaint = Paint()
       ..color = profileColor.shadow.withOpacity(0.8)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.3
       ..isAntiAlias = true;
-    canvas.drawRect(lipRect, lipPaint);
+    canvas.drawRect(opening, lipPaint);
 
     // 3) Glass/sash area is even further deflated by rebate/bead lip
     final glassArea = opening.deflate(kRebateLip);
@@ -1394,6 +1362,7 @@ class _WindowPainter extends CustomPainter {
     // 4) Draw cells (glass + glyphs) inside glassArea
     final effectiveColumnFractions = _ensureFractions(columnFractions, cols);
     final effectiveRowFractions = _ensureFractions(rowFractions, rows);
+
     final columnOffsets = List<double>.filled(cols, glassArea.left);
     final columnWidths = List<double>.filled(cols, 0.0);
     double cursorX = glassArea.left;
@@ -1403,6 +1372,7 @@ class _WindowPainter extends CustomPainter {
       columnWidths[c] = width;
       cursorX += width;
     }
+
     final rowOffsets = List<double>.filled(rows, glassArea.top);
     final rowHeights = List<double>.filled(rows, 0.0);
     double cursorY = glassArea.top;
@@ -1423,24 +1393,62 @@ class _WindowPainter extends CustomPainter {
           rowHeights[r],
         );
 
-        // Glass
-        paintGlass.color = cellGlassColors[idx];
-        canvas.drawRect(rect, paintGlass);
+        final rawType = cells[idx];
+        final t = _mirrorForInside(rawType, outsideView);
+        final isFixed = rawType == SashType.fixed;
 
-        // Selection (non-tint dashed outline, toggle-able)
-        if (selectedIndex == idx) {
-          _drawDashedRect(canvas, rect.deflate(5), kSelectOutline, kSelectDash,
-              kSelectGap, 2.0);
+        if (isFixed) {
+          // Fixed: keep current behaviour (glass fills the whole cell)
+          paintGlass.color = cellGlassColors[idx];
+          canvas.drawRect(rect, paintGlass);
+
+          if (selectedIndex == idx) {
+            _drawDashedRect(
+              canvas,
+              rect.deflate(5),
+              kSelectOutline,
+              kSelectDash,
+              kSelectGap,
+              2.0,
+            );
+          }
+
+          _SashGlyphRenderer.drawGlyph(canvas, rect.deflate(8), t, paintSash);
+        } else {
+          // Operable: draw an additional sash PVC frame inside the cell + inset glass
+          final sashFace = (rect.shortestSide * 0.12).clamp(6.0, 14.0);
+
+          // PVC sash body
+          canvas.drawRect(rect, paintFrameFill);
+          canvas.drawRect(rect, paintFrameEdge);
+
+          // Inset glass area inside sash
+          final innerGlass = rect.deflate(sashFace);
+          paintGlass.color = cellGlassColors[idx];
+          canvas.drawRect(innerGlass, paintGlass);
+
+          // Bead/rebate line around inset glass
+          canvas.drawRect(innerGlass, beadPaint);
+
+          if (selectedIndex == idx) {
+            _drawDashedRect(
+              canvas,
+              rect.deflate(5),
+              kSelectOutline,
+              kSelectDash,
+              kSelectGap,
+              2.0,
+            );
+          }
+
+          // Glyph inside inner glass (reads correctly)
+          _SashGlyphRenderer.drawGlyph(
+            canvas,
+            innerGlass.deflate(8),
+            t,
+            paintSash,
+          );
         }
-
-        // Mirror L/R types when viewing from inside
-        final t = _mirrorForInside(cells[idx], outsideView);
-        _SashGlyphRenderer.drawGlyph(
-          canvas,
-          rect.deflate(8),
-          t,
-          paintSash,
-        );
       }
     }
 
@@ -1451,7 +1459,10 @@ class _WindowPainter extends CustomPainter {
       mullionX += columnWidths[c];
       final x = mullionX;
       canvas.drawLine(
-          Offset(x, glassArea.top), Offset(x, glassArea.bottom), paintMullion);
+        Offset(x, glassArea.top),
+        Offset(x, glassArea.bottom),
+        paintMullion,
+      );
     }
     // horizontals
     double mullionY = glassArea.top;
@@ -1459,34 +1470,26 @@ class _WindowPainter extends CustomPainter {
       mullionY += rowHeights[r];
       final y = mullionY;
       canvas.drawLine(
-          Offset(glassArea.left, y), Offset(glassArea.right, y), paintMullion);
+        Offset(glassArea.left, y),
+        Offset(glassArea.right, y),
+        paintMullion,
+      );
     }
 
-    // 6) Small sash/bead stroke around the whole glass area (a clean inner frame look)
-    final beadPaint = Paint()
-      ..color = kLineColor.withOpacity(0.8)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.4
-      ..isAntiAlias = true;
+    // 6) Small sash/bead stroke around the whole glass area (clean inner frame look)
     canvas.drawRect(glassArea, beadPaint);
   }
 
   List<double> _ensureFractions(List<double> fractions, int expectedLength) {
-    if (expectedLength <= 0) {
-      return const <double>[];
-    }
-    if (fractions.length == expectedLength) {
-      return fractions;
-    }
+    if (expectedLength <= 0) return const <double>[];
+    if (fractions.length == expectedLength) return fractions;
     if (fractions.isEmpty) {
       return List<double>.filled(expectedLength, 1.0 / expectedLength);
     }
     final normalized = List<double>.generate(expectedLength, (index) {
       if (index < fractions.length) {
         final value = fractions[index];
-        if (value.isFinite && value > 0) {
-          return value;
-        }
+        if (value.isFinite && value > 0) return value;
       }
       return 0.0;
     });
@@ -1508,24 +1511,16 @@ class _WindowPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = width;
 
-    // Top
-    _dashLine(canvas, Offset(r.left, r.top), Offset(r.right, r.top), paint,
-        dash, gap);
-    // Right
-    _dashLine(canvas, Offset(r.right, r.top), Offset(r.right, r.bottom), paint,
-        dash, gap);
-    // Bottom
-    _dashLine(canvas, Offset(r.right, r.bottom), Offset(r.left, r.bottom),
-        paint, dash, gap);
-    // Left
-    _dashLine(canvas, Offset(r.left, r.bottom), Offset(r.left, r.top), paint,
-        dash, gap);
+    _dashLine(canvas, Offset(r.left, r.top), Offset(r.right, r.top), paint, dash, gap);
+    _dashLine(canvas, Offset(r.right, r.top), Offset(r.right, r.bottom), paint, dash, gap);
+    _dashLine(canvas, Offset(r.right, r.bottom), Offset(r.left, r.bottom), paint, dash, gap);
+    _dashLine(canvas, Offset(r.left, r.bottom), Offset(r.left, r.top), paint, dash, gap);
   }
 
-  void _dashLine(
-      Canvas canvas, Offset a, Offset b, Paint paint, double dash, double gap) {
+  void _dashLine(Canvas canvas, Offset a, Offset b, Paint paint, double dash, double gap) {
     final total = (b - a);
     final length = total.distance;
+    if (length <= 0) return;
     final dir = total / length;
     double traveled = 0;
     while (traveled < length) {
@@ -1714,21 +1709,17 @@ class _SashGlyphRenderer {
 
   static void _drawTiltTurn(Canvas canvas, Rect r,
       {required _SideApex sideApex, required Paint paint}) {
-    canvas.drawLine(
-        Offset(r.center.dx, r.top), Offset(r.left, r.bottom), paint);
-    canvas.drawLine(
-        Offset(r.center.dx, r.top), Offset(r.right, r.bottom), paint);
+    canvas.drawLine(Offset(r.center.dx, r.top), Offset(r.left, r.bottom), paint);
+    canvas.drawLine(Offset(r.center.dx, r.top), Offset(r.right, r.bottom), paint);
     canvas.drawLine(Offset(r.left, r.bottom), Offset(r.right, r.bottom), paint);
 
     if (sideApex == _SideApex.left) {
-      canvas.drawLine(
-          Offset(r.left, r.center.dy), Offset(r.right, r.top), paint);
+      canvas.drawLine(Offset(r.left, r.center.dy), Offset(r.right, r.top), paint);
       canvas.drawLine(
           Offset(r.left, r.center.dy), Offset(r.right, r.bottom), paint);
       canvas.drawLine(Offset(r.right, r.top), Offset(r.right, r.bottom), paint);
     } else {
-      canvas.drawLine(
-          Offset(r.right, r.center.dy), Offset(r.left, r.top), paint);
+      canvas.drawLine(Offset(r.right, r.center.dy), Offset(r.left, r.top), paint);
       canvas.drawLine(
           Offset(r.right, r.center.dy), Offset(r.left, r.bottom), paint);
       canvas.drawLine(Offset(r.left, r.top), Offset(r.left, r.bottom), paint);
@@ -1788,9 +1779,7 @@ class _SashGlyphRenderer {
       ..strokeCap = paint.strokeCap
       ..isAntiAlias = paint.isAntiAlias;
 
-    final stemX = hingeOnLeft
-        ? r.left + r.width * 0.18
-        : r.right - r.width * 0.18;
+    final stemX = hingeOnLeft ? r.left + r.width * 0.18 : r.right - r.width * 0.18;
     final stemTop = Offset(stemX, r.top + r.height * 0.4);
     final stemBottom = Offset(stemX, r.bottom - r.height * 0.4);
 
@@ -1854,10 +1843,7 @@ class _ToolPalette extends StatelessWidget {
           return Tooltip(
             message: ti.label,
             child: ChoiceChip(
-              label: _ToolGlyphIcon(
-                type: ti.type,
-                selected: selected,
-              ),
+              label: _ToolGlyphIcon(type: ti.type, selected: selected),
               selected: selected,
               onSelected: (_) => onChanged(ti.type),
             ),
@@ -1883,10 +1869,10 @@ class _ToolGlyphIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final strokeColor =
-        selected ? colorScheme.onPrimary : colorScheme.onSurface;
-    final frameColor =
-        selected ? colorScheme.onPrimary : colorScheme.onSurface.withOpacity(0.8);
+    final strokeColor = selected ? colorScheme.onPrimary : colorScheme.onSurface;
+    final frameColor = selected
+        ? colorScheme.onPrimary
+        : colorScheme.onSurface.withOpacity(0.8);
 
     return SizedBox(
       width: 36,
@@ -1922,6 +1908,7 @@ class _ToolGlyphPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.8
       ..isAntiAlias = true;
+
     canvas.drawRRect(
       RRect.fromRectAndRadius(frame, const Radius.circular(4)),
       framePaint,
@@ -1933,6 +1920,7 @@ class _ToolGlyphPainter extends CustomPainter {
       ..strokeWidth = 2.1
       ..strokeCap = StrokeCap.round
       ..isAntiAlias = true;
+
     _SashGlyphRenderer.drawGlyph(canvas, frame.deflate(5), type, glyphPaint);
   }
 
@@ -1952,17 +1940,11 @@ class _OpeningDrawings extends StatelessWidget {
     return Row(
       children: const [
         Expanded(
-          child: _OpeningDiagramCard(
-            label: 'Left hinge',
-            hingeOnLeft: true,
-          ),
+          child: _OpeningDiagramCard(label: 'Left hinge', hingeOnLeft: true),
         ),
         SizedBox(width: 10),
         Expanded(
-          child: _OpeningDiagramCard(
-            label: 'Right hinge',
-            hingeOnLeft: false,
-          ),
+          child: _OpeningDiagramCard(label: 'Right hinge', hingeOnLeft: false),
         ),
       ],
     );
@@ -1990,18 +1972,15 @@ class _OpeningDiagramCard extends StatelessWidget {
             border: Border.all(color: borderColor),
           ),
           padding: const EdgeInsets.all(8),
-          child: AspectRatio(
+          child: const AspectRatio(
             aspectRatio: 1,
             child: CustomPaint(
-              painter: _OpeningDiagramPainter(hingeOnLeft: hingeOnLeft),
+              painter: _OpeningDiagramPainter(hingeOnLeft: true),
             ),
           ),
         ),
         const SizedBox(height: 6),
-        Text(
-          label,
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
+        Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
         const SizedBox(height: 2),
         Text(
           'Reference swing for the opening.',
@@ -2017,8 +1996,7 @@ class _OpeningDiagramCard extends StatelessWidget {
 
 class _OpeningDiagramPainter extends CustomPainter {
   final bool hingeOnLeft;
-
-  _OpeningDiagramPainter({required this.hingeOnLeft});
+  const _OpeningDiagramPainter({required this.hingeOnLeft});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -2059,9 +2037,7 @@ class _OpeningDiagramPainter extends CustomPainter {
     final radius = frame.shortestSide * 0.55;
     const sweepAngle = math.pi * 2 / 3; // 120º swing reference
     final closedAngle = math.pi / 2;
-    final openAngle = hingeOnLeft
-        ? closedAngle - sweepAngle
-        : closedAngle + sweepAngle;
+    final openAngle = hingeOnLeft ? closedAngle - sweepAngle : closedAngle + sweepAngle;
 
     final doorEnd = Offset(
       hinge.dx + radius * math.cos(openAngle),
@@ -2079,11 +2055,7 @@ class _OpeningDiagramPainter extends CustomPainter {
     final sweep = openAngle - closedAngle;
     canvas.drawArc(arcRect, closedAngle, sweep, false, arcPaint);
 
-    final arrowBase = Offset(
-      hinge.dx + radius * math.cos(openAngle),
-      hinge.dy + radius * math.sin(openAngle),
-    );
-    _drawArrowhead(canvas, arrowBase, openAngle, doorPaint);
+    _drawArrowhead(canvas, doorEnd, openAngle, doorPaint);
   }
 
   void _drawArrowhead(Canvas canvas, Offset pos, double angle, Paint p) {
@@ -2170,11 +2142,11 @@ class _GridPresets extends StatelessWidget {
       children: presets
           .map(
             (p) => ActionChip(
-              label: Text(p.$1),
-              visualDensity: VisualDensity.compact,
-              onPressed: () => onTap(p.$2, p.$3),
-            ),
-          )
+          label: Text(p.$1),
+          visualDensity: VisualDensity.compact,
+          onPressed: () => onTap(p.$2, p.$3),
+        ),
+      )
           .toList(),
     );
   }
@@ -2245,8 +2217,10 @@ class _NumberField extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextField(
       controller: controller,
-      keyboardType:
-          const TextInputType.numberWithOptions(decimal: false, signed: false),
+      keyboardType: const TextInputType.numberWithOptions(
+        decimal: false,
+        signed: false,
+      ),
       decoration: InputDecoration(
         labelText: label,
         suffixIcon: _NumberFieldActions(
@@ -2258,9 +2232,7 @@ class _NumberField extends StatelessWidget {
       ),
       onSubmitted: (value) {
         final parsed = double.tryParse(value);
-        if (parsed != null) {
-          onChanged(parsed);
-        }
+        if (parsed != null) onChanged(parsed);
       },
     );
   }
@@ -2312,15 +2284,15 @@ class _TipCard extends StatelessWidget {
             Text(headline, style: const TextStyle(fontWeight: FontWeight.w700)),
             const SizedBox(height: 6),
             ...tips.map((t) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 2.0),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.check_circle_outline, size: 16),
-                      const SizedBox(width: 8),
-                      Expanded(child: Text(t)),
-                    ],
-                  ),
-                )),
+              padding: const EdgeInsets.symmetric(vertical: 2.0),
+              child: Row(
+                children: [
+                  const Icon(Icons.check_circle_outline, size: 16),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(t)),
+                ],
+              ),
+            )),
           ],
         ),
       ),
@@ -2332,10 +2304,11 @@ class _Legend extends StatelessWidget {
   final ThemeData theme;
   final Color frameColor;
   final Color glassColor;
-  const _Legend(
-      {required this.theme,
-      required this.frameColor,
-      required this.glassColor});
+  const _Legend({
+    required this.theme,
+    required this.frameColor,
+    required this.glassColor,
+  });
 
   @override
   Widget build(BuildContext context) {
