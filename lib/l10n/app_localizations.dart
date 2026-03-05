@@ -251,7 +251,7 @@ class AppLocalizations {
       'bulkAddDialogNoItems':
           'Së pari shtoni të paktën një artikull të vlefshëm.',
       'bulkAddSnackSuccess': 'U shtuan {count} artikuj.',
-      'bulkAddDialogDefaultPrefix': 'Element',
+      'bulkAddDialogDefaultPrefix': 'Poz.',
       'editWindowDoor': 'Ndrysho Dritaren/Derën',
       'designWindowDoor': 'Dizajno dritare/derë',
       'designImageAttached': 'Imazhi i dizajnit u bashkangjit',
