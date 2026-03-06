@@ -2342,6 +2342,11 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
         profileSetBox.length);
     final glassIndex = _normalizeIndex(
         _selectedDefaultGlassIndex ?? offer.defaultGlassIndex, glassBox.length);
+    final normalizedBlindIndex = _normalizeIndex(
+        _selectedDefaultBlindIndex ?? offer.defaultBlindIndex,
+        blindBox.length,
+        allowNegative: true);
+    final blindIndex = normalizedBlindIndex >= 0 ? normalizedBlindIndex : null;
     final mechanismCompany = _effectiveSelectedMechanismCompany(offer);
     final items = <WindowDoorItem>[];
     final trimmedPrefix =
@@ -2398,6 +2403,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
           quantity: quantity,
           profileSetIndex: profileIndex,
           glassIndex: glassIndex,
+          blindIndex: blindIndex,
           mechanismIndex: mechanismIndex,
           openings: flattenedFixed.where((isFixed) => !isFixed).length,
           verticalSections: vertical,
