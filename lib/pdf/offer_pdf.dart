@@ -150,8 +150,7 @@ Future<void> printOfferPdf({
             boxHeight: blind?.boxHeight ?? 0) *
         item.quantity;
     final blindMass = blind != null
-        ? ((item.width / 1000.0) *
-            (item.height / 1000.0) *
+        ? (item.calculateTotalArea() *
             blind.massPerM2 *
             item.quantity)
         : 0;
@@ -346,8 +345,7 @@ Future<void> printOfferPdf({
                   boxHeight: blind?.boxHeight ?? 0) *
               item.quantity;
           final blindMass = blind != null
-              ? ((item.width / 1000.0) *
-                  (item.height / 1000.0) *
+              ? (item.calculateTotalArea() *
                   blind.massPerM2 *
                   item.quantity)
               : 0;
@@ -392,7 +390,7 @@ Future<void> printOfferPdf({
           final details = <pw.Widget>[
             pw.Text(item.name, style: headerStyle),
             pw.SizedBox(height: 2),
-            pw.Text('${l10n.pdfDimensions} ${item.width} x ${item.height} mm'),
+            pw.Text('${l10n.pdfDimensions} ${item.innerWidth} x ${item.innerHeight} mm'),
             pw.Text('${l10n.pdfPieces} ${item.quantity}'),
             pw.Text('${l10n.pdfProfileType} ${profile.name}'),
             pw.Text('${l10n.pdfGlass} ${glass.name}'),
