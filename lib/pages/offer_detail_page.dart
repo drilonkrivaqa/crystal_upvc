@@ -1741,6 +1741,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                                     defaultBlindIndex: offer.defaultBlindIndex,
                                     defaultMechanismCompany:
                                         offer.defaultMechanismCompany,
+                                    applyDefaultsOnlyOnCreate: false,
                                   ),
                                 ),
                               );
@@ -2034,6 +2035,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
           defaultGlassIndex: offer.defaultGlassIndex,
           defaultBlindIndex: offer.defaultBlindIndex,
           defaultMechanismCompany: offer.defaultMechanismCompany,
+          applyDefaultsOnlyOnCreate: true,
         ),
       ),
     );
