@@ -4,7 +4,6 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart';
 import '../models.dart';
 import 'window_door_item_page.dart';
-import 'window_door_designer_page.dart';
 import '../theme/app_colors.dart';
 import 'dart:io' show File;
 import 'dart:math' as math;
@@ -14,15 +13,19 @@ import '../widgets/glass_card.dart';
 import '../l10n/app_localizations.dart';
 import 'package:flutter/services.dart';
 
-class OfferDetailPage extends StatefulWidget {
+class OfferBuilderPage extends StatefulWidget {
   final int offerIndex;
-  const OfferDetailPage({super.key, required this.offerIndex});
+  const OfferBuilderPage({super.key, required this.offerIndex});
 
   @override
-  State<OfferDetailPage> createState() => _OfferDetailPageState();
+  State<OfferBuilderPage> createState() => _OfferBuilderPageState();
 }
 
-class _OfferDetailPageState extends State<OfferDetailPage> {
+class OfferDetailPage extends OfferBuilderPage {
+  const OfferDetailPage({super.key, required super.offerIndex});
+}
+
+class _OfferBuilderPageState extends State<OfferBuilderPage> {
   late Box<Offer> offerBox;
   late Box<Customer> customerBox;
   late Box<ProfileSet> profileSetBox;
@@ -1724,25 +1727,15 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                           TextButton(
                             onPressed: () async {
                               Navigator.pop(context);
-                              await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => WindowDoorItemPage(
-                                    existingItem: item,
-                                    onSave: (editedItem) {
-                                      offer.items[i] = editedItem;
-                                      offer.lastEdited = DateTime.now();
-                                      offer.save();
-                                      setState(() {});
-                                    },
-                                    defaultProfileSetIndex:
-                                        offer.defaultProfileSetIndex,
-                                    defaultGlassIndex: offer.defaultGlassIndex,
-                                    defaultBlindIndex: offer.defaultBlindIndex,
-                                    defaultMechanismCompany:
-                                        offer.defaultMechanismCompany,
-                                  ),
-                                ),
+                              await _openInlineWindowDoorEditor(
+                                offer: offer,
+                                onSave: (editedItem) {
+                                  offer.items[i] = editedItem;
+                                  offer.lastEdited = DateTime.now();
+                                  offer.save();
+                                  setState(() {});
+                                },
+                                existingItem: item,
                               );
                             },
                             child: Text(l10n.edit),
@@ -2020,22 +2013,39 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
   }
 
   Future<void> _openWindowDoorEditor(Offer offer) async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => WindowDoorItemPage(
-          onSave: (item) {
-            offer.items.add(item);
-            offer.lastEdited = DateTime.now();
-            offer.save();
-            setState(() {});
-          },
-          defaultProfileSetIndex: offer.defaultProfileSetIndex,
-          defaultGlassIndex: offer.defaultGlassIndex,
-          defaultBlindIndex: offer.defaultBlindIndex,
-          defaultMechanismCompany: offer.defaultMechanismCompany,
-        ),
-      ),
+    await _openInlineWindowDoorEditor(
+      offer: offer,
+      onSave: (item) {
+        offer.items.add(item);
+        offer.lastEdited = DateTime.now();
+        offer.save();
+        setState(() {});
+      },
+    );
+  }
+
+  Future<void> _openInlineWindowDoorEditor({
+    required Offer offer,
+    required void Function(WindowDoorItem item) onSave,
+    WindowDoorItem? existingItem,
+  }) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (ctx) {
+        return FractionallySizedBox(
+          heightFactor: 0.95,
+          child: WindowDoorItemPage(
+            existingItem: existingItem,
+            onSave: onSave,
+            defaultProfileSetIndex: offer.defaultProfileSetIndex,
+            defaultGlassIndex: offer.defaultGlassIndex,
+            defaultBlindIndex: offer.defaultBlindIndex,
+            defaultMechanismCompany: offer.defaultMechanismCompany,
+          ),
+        );
+      },
     );
   }
 
