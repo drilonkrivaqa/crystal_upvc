@@ -133,14 +133,18 @@ class _OffersPageState extends State<OffersPage> {
       _showLicenseExpired(l10n);
       return;
     }
+    if (customerBox.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.addCustomerFirst)),
+      );
+      return;
+    }
 
     // Default to the most recently added customer
-    int? selectedCustomer =
-        customerBox.isNotEmpty ? customerBox.length - 1 : null;
+    int? selectedCustomer = customerBox.length - 1;
     String customerSearch = '';
-    final TextEditingController profitController = TextEditingController(
-      text: '0',
-    );
+    final TextEditingController profitController =
+    TextEditingController(text: '0');
     final mechanismCompanies = <String>{};
     for (final mechanism in mechanismBox.values) {
       final company = mechanism.company.trim();
@@ -190,52 +194,35 @@ class _OffersPageState extends State<OffersPage> {
                       isExpanded: true,
                       items: filtered.isNotEmpty
                           ? [
-                              for (final i in filtered)
-                                DropdownMenuItem(
-                                  value: i,
-                                  child: Text(customerBox.getAt(i)?.name ?? ''),
-                                ),
-                            ]
+                        for (final i in filtered)
+                          DropdownMenuItem(
+                            value: i,
+                            child:
+                            Text(customerBox.getAt(i)?.name ?? ''),
+                          ),
+                      ]
                           : [
-                              DropdownMenuItem(
-                                value: null,
-                                enabled: false,
-                                child: Text(l10n.noResults),
-                              ),
-                            ],
+                        DropdownMenuItem(
+                          value: null,
+                          enabled: false,
+                          child: Text(l10n.noResults),
+                        ),
+                      ],
                       onChanged: filtered.isEmpty
                           ? null
                           : (val) {
-                              setStateDialog(() {
-                                selectedCustomer = val;
-                              });
-                            },
+                        setStateDialog(() {
+                          selectedCustomer = val;
+                        });
+                      },
                     );
                   },
-                ),
-                const SizedBox(height: 8),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton.icon(
-                    onPressed: () async {
-                      final newCustomerIndex = await _addCustomerFromOffer();
-                      if (newCustomerIndex == null) {
-                        return;
-                      }
-                      setStateDialog(() {
-                        selectedCustomer = newCustomerIndex;
-                        customerSearch = '';
-                      });
-                    },
-                    icon: const Icon(Icons.person_add_alt_1),
-                    label: Text(l10n.addCustomer),
-                  ),
                 ),
                 const SizedBox(height: 12),
                 TextField(
                   controller: profitController,
                   keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
+                  const TextInputType.numberWithOptions(decimal: true),
                   decoration: InputDecoration(labelText: l10n.profitPercent),
                 ),
                 const SizedBox(height: 12),
@@ -268,22 +255,16 @@ class _OffersPageState extends State<OffersPage> {
             ),
             ElevatedButton(
               onPressed: () {
-                if (selectedCustomer == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(l10n.addCustomerFirst)),
-                  );
-                  return;
-                }
                 final newOfferNumber = _nextOfferNumber();
                 offerBox.add(
                   Offer(
                     id: DateTime.now().millisecondsSinceEpoch.toString(),
-                    customerIndex: selectedCustomer,
+                    customerIndex: selectedCustomer ?? 0,
                     date: DateTime.now(),
                     lastEdited: DateTime.now(),
                     items: [],
                     profitPercent:
-                        double.tryParse(profitController.text) ?? 0,
+                    double.tryParse(profitController.text) ?? 0,
                     offerNumber: newOfferNumber,
                     defaultMechanismCompany: selectedMechanismCompany,
                   ),
@@ -297,74 +278,6 @@ class _OffersPageState extends State<OffersPage> {
         ),
       ),
     );
-  }
-
-  Future<int?> _addCustomerFromOffer() async {
-    final l10n = AppLocalizations.of(context);
-    final nameController = TextEditingController();
-    final addressController = TextEditingController();
-    final phoneController = TextEditingController();
-    final emailController = TextEditingController();
-
-    final result = await showDialog<int?>(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: Text(l10n.addCustomer),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: nameController,
-                decoration: InputDecoration(labelText: l10n.nameSurname),
-              ),
-              TextField(
-                controller: addressController,
-                decoration: InputDecoration(labelText: l10n.address),
-              ),
-              TextField(
-                controller: phoneController,
-                decoration: InputDecoration(labelText: l10n.phone),
-                keyboardType: TextInputType.phone,
-              ),
-              TextField(
-                controller: emailController,
-                decoration: InputDecoration(labelText: l10n.email),
-                keyboardType: TextInputType.emailAddress,
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(l10n.cancel),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              if (nameController.text.trim().isEmpty) return;
-              await customerBox.add(
-                Customer(
-                  name: nameController.text,
-                  address: addressController.text,
-                  phone: phoneController.text,
-                  email: emailController.text,
-                ),
-              );
-              if (!mounted) return;
-              Navigator.pop(context, customerBox.length - 1);
-            },
-            child: Text(l10n.add),
-          ),
-        ],
-      ),
-    );
-
-    nameController.dispose();
-    addressController.dispose();
-    phoneController.dispose();
-    emailController.dispose();
-    return result;
   }
 
   void _showLicenseExpired(AppLocalizations l10n) {
