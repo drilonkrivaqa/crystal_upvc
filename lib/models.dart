@@ -2,6 +2,12 @@ import 'dart:typed_data';
 import 'package:hive/hive.dart';
 part 'models.g.dart';
 
+/// Compatibility opening labels used by UI summary widgets.
+enum ItemSashType {
+  fixed,
+  open,
+}
+
 // Customer
 @HiveType(typeId: 0)
 class Customer extends HiveObject {
@@ -365,6 +371,14 @@ class WindowDoorItem extends HiveObject {
 
   bool get hasPerRowLayout =>
       perRowVerticalSections != null && perRowVerticalSections!.isNotEmpty;
+
+  /// Backward-compatible representation for legacy UI code that expects
+  /// `sashTypes` per sector.
+  List<ItemSashType> get sashTypes {
+    return fixedSectors
+        .map((isFixed) => isFixed ? ItemSashType.fixed : ItemSashType.open)
+        .toList(growable: false);
+  }
 
   int columnsInRow(int row) {
     if (horizontalSections <= 0) {
