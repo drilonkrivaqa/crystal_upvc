@@ -109,6 +109,8 @@ class ProfileSetAdapter extends TypeAdapter<ProfileSet> {
       ..write(obj.priceLlajsne)
       ..writeByte(6)
       ..write(obj.pipeLength)
+      ..writeByte(26)
+      ..write(obj.hekriPipeLength)
       ..writeByte(7)
       ..write(obj.hekriOffsetL)
       ..writeByte(8)
@@ -147,8 +149,6 @@ class ProfileSetAdapter extends TypeAdapter<ProfileSet> {
       ..write(obj.tOuterThickness)
       ..writeByte(25)
       ..write(obj.adapterOuterThickness)
-      ..writeByte(26)
-      ..write(obj.hekriPipeLength)
       ..writeByte(27)
       ..write(obj.colorIndex);
   }
@@ -427,25 +427,22 @@ class WindowDoorItemAdapter extends TypeAdapter<WindowDoorItem> {
       horizontalAdapters: (fields[22] as List?)?.cast<bool>(),
       perRowVerticalSections: (fields[26] as List?)?.cast<int>(),
       perRowSectionWidths: (fields[27] as List?)
-          ?.map<List<int>>((dynamic row) => (row as List).cast<int>())
-          .toList(),
+          ?.map((dynamic e) => (e as List).cast<int>())
+          ?.toList(),
       perRowFixedSectors: (fields[28] as List?)
-          ?.map<List<bool>>((dynamic row) => (row as List).cast<bool>())
-          .toList(),
+          ?.map((dynamic e) => (e as List).cast<bool>())
+          ?.toList(),
       perRowVerticalAdapters: (fields[29] as List?)
-          ?.map<List<bool>>((dynamic row) => (row as List).cast<bool>())
-          .toList(),
+          ?.map((dynamic e) => (e as List).cast<bool>())
+          ?.toList(),
       shtesaLeftSize: fields[30] == null ? 0 : fields[30] as int,
       shtesaRightSize: fields[31] == null ? 0 : fields[31] as int,
       shtesaTopSize: fields[32] == null ? 0 : fields[32] as int,
       shtesaBottomSize: fields[33] == null ? 0 : fields[33] as int,
-      shtesaLeftPricePerMeter:
-          fields[34] == null ? 0 : fields[34] as double,
-      shtesaRightPricePerMeter:
-          fields[35] == null ? 0 : fields[35] as double,
+      shtesaLeftPricePerMeter: fields[34] == null ? 0 : fields[34] as double,
+      shtesaRightPricePerMeter: fields[35] == null ? 0 : fields[35] as double,
       shtesaTopPricePerMeter: fields[36] == null ? 0 : fields[36] as double,
-      shtesaBottomPricePerMeter:
-          fields[37] == null ? 0 : fields[37] as double,
+      shtesaBottomPricePerMeter: fields[37] == null ? 0 : fields[37] as double,
     );
   }
 
@@ -564,19 +561,18 @@ class OfferAdapter extends TypeAdapter<Offer> {
       discountPercent: fields[6] == null ? 0 : fields[6] as double,
       discountAmount: fields[7] == null ? 0 : fields[7] as double,
       notes: fields[8] == null ? '' : fields[8] as String,
-      lastEdited: fields[9] as DateTime?,
       defaultProfileSetIndex: fields[10] == null ? 0 : fields[10] as int,
       defaultGlassIndex: fields[11] == null ? 0 : fields[11] as int,
-      versions:
-          fields[12] == null ? [] : (fields[12] as List).cast<OfferVersion>(),
-      offerNumber: fields[13] == null ? 0 : fields[13] as int,
       defaultBlindIndex: fields[14] == null ? -1 : fields[14] as int,
-      status: fields[15] == null ? OfferStatus.draft : fields[15] as String,
+      defaultMechanismCompany: fields[19] == null ? '' : fields[19] as String,
+      status: fields[15] == null ? 'draft' : fields[15] as String,
       statusChangedAt: fields[16] as DateTime?,
       acceptedAt: fields[17] as DateTime?,
       acceptedBy: fields[18] == null ? '' : fields[18] as String?,
-      defaultMechanismCompany:
-          fields[19] == null ? '' : fields[19] as String,
+      versions:
+          fields[12] == null ? [] : (fields[12] as List?)?.cast<OfferVersion>(),
+      lastEdited: fields[9] as DateTime?,
+      offerNumber: fields[13] == null ? 0 : fields[13] as int,
     );
   }
 
@@ -650,23 +646,20 @@ class OfferVersionAdapter extends TypeAdapter<OfferVersion> {
     return OfferVersion(
       name: fields[0] as String,
       createdAt: fields[1] as DateTime?,
-      items:
-          fields[2] == null ? [] : (fields[2] as List).cast<WindowDoorItem>(),
-      profitPercent: fields[3] == null ? 0 : fields[3] as double,
-      extraCharges:
-          fields[4] == null ? [] : (fields[4] as List).cast<ExtraCharge>(),
-      discountPercent: fields[5] == null ? 0 : fields[5] as double,
-      discountAmount: fields[6] == null ? 0 : fields[6] as double,
-      notes: fields[7] == null ? '' : fields[7] as String,
-      defaultProfileSetIndex: fields[8] == null ? 0 : fields[8] as int,
-      defaultGlassIndex: fields[9] == null ? 0 : fields[9] as int,
-      defaultBlindIndex: fields[10] == null ? -1 : fields[10] as int,
-      customerIndex: fields[11] == null ? 0 : fields[11] as int,
-      status: fields[12] == null ? OfferStatus.draft : fields[12] as String,
+      items: (fields[2] as List?)?.cast<WindowDoorItem>(),
+      profitPercent: fields[3] as double,
+      extraCharges: (fields[4] as List?)?.cast<ExtraCharge>(),
+      discountPercent: fields[5] as double,
+      discountAmount: fields[6] as double,
+      notes: fields[7] as String,
+      defaultProfileSetIndex: fields[8] as int,
+      defaultGlassIndex: fields[9] as int,
+      defaultBlindIndex: fields[10] as int,
+      defaultMechanismCompany: fields[15] == null ? '' : fields[15] as String,
+      customerIndex: fields[11] as int,
+      status: fields[12] == null ? 'draft' : fields[12] as String,
       note: fields[13] == null ? '' : fields[13] as String,
       createdBy: fields[14] == null ? '' : fields[14] as String,
-      defaultMechanismCompany:
-          fields[15] == null ? '' : fields[15] as String,
     );
   }
 
