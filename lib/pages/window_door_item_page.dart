@@ -233,8 +233,13 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     glassIndex = _normalizeIndex(
         widget.existingItem?.glassIndex ?? widget.defaultGlassIndex,
         glassBox.length);
-    final normalizedBlindIndex = _normalizeIndex(
-        widget.existingItem?.blindIndex ?? widget.defaultBlindIndex,
+    // Default blind preset is only for creation. While editing an existing
+    // item, we must preserve the saved blind state exactly (including explicit
+    // "none" via null) and never fall back to the offer preset.
+    final initialBlindSelection = widget.existingItem != null
+        ? widget.existingItem!.blindIndex
+        : widget.defaultBlindIndex;
+    final normalizedBlindIndex = _normalizeIndex(initialBlindSelection,
         blindBox.length,
         allowNegative: true);
     blindIndex = normalizedBlindIndex >= 0 ? normalizedBlindIndex : null;
