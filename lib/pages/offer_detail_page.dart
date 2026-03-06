@@ -1188,8 +1188,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                     boxHeight: blind?.boxHeight ?? 0) *
                 item.quantity;
             final blindMass = (blind != null)
-                ? ((item.width / 1000.0) *
-                    (item.height / 1000.0) *
+                ? (item.calculateTotalArea() *
                     blind.massPerM2 *
                     item.quantity)
                 : 0;
@@ -1607,8 +1606,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 double glassMassPer = item.calculateGlassMass(profileSet, glass,
                     boxHeight: blind?.boxHeight ?? 0);
                 double blindMassPer = (blind != null)
-                    ? ((item.width / 1000.0) *
-                        (item.height / 1000.0) *
+                    ? (item.calculateTotalArea() *
                         blind.massPerM2)
                     : 0;
                 double mechanismMassPer =
@@ -1875,7 +1873,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      'Size: ${item.width} x ${item.height} mm',
+                                      'Size: ${item.innerWidth} x ${item.innerHeight} mm',
                                       style: theme.textTheme.bodySmall,
                                     ),
                                     const SizedBox(height: 2),
