@@ -438,7 +438,7 @@ class _OffersPageState extends State<OffersPage> {
                                         context,
                                         MaterialPageRoute(
                                           builder: (_) =>
-                                              OfferBuilderPage(offerIndex: i),
+                                              OfferDetailPage(offerIndex: i),
                                         ),
                                       );
                                     },
