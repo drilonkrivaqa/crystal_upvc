@@ -82,6 +82,7 @@ Future<Uint8List?> buildWindowDoorDesignPreviewBytes({
   bool showBlindBox = false,
   int? profileColorIndex,
   int? glassColorIndex,
+  int? blindColorIndex,
 }) async {
   final safeRows = rows.clamp(1, 8);
   final safeCols = cols.clamp(1, 8);
@@ -118,7 +119,7 @@ Future<Uint8List?> buildWindowDoorDesignPreviewBytes({
     windowHeightMm: resolvedHeightMm,
     cellGlassColors: cellGlassColors,
     profileColor: profileColorForIndex(profileColorIndex),
-    blindColor: blindColorForIndex(null),
+    blindColor: blindColorForIndex(blindColorIndex),
     columnFractions: _normalizedFractionsForPreview(columnSizes, safeCols),
     rowFractions: _normalizedFractionsForPreview(rowSizes, safeRows),
   );
@@ -199,6 +200,7 @@ class WindowDoorDesignerPage extends StatefulWidget {
   final List<double>? initialRowSizes;
   final int? initialProfileColorIndex;
   final int? initialGlassColorIndex;
+  final int? initialBlindColorIndex;
 
   const WindowDoorDesignerPage({
     super.key,
@@ -212,6 +214,7 @@ class WindowDoorDesignerPage extends StatefulWidget {
     this.initialRowSizes,
     this.initialProfileColorIndex,
     this.initialGlassColorIndex,
+    this.initialBlindColorIndex,
   });
 
   @override
@@ -268,7 +271,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
     );
 
     profileColor = profileColorForIndex(widget.initialProfileColorIndex);
-    blindColor = blindColorForIndex(null);
+    blindColor = blindColorForIndex(widget.initialBlindColorIndex);
     _columnSizes = _initialSizes(widget.initialColumnSizes, cols);
     _rowSizes = _initialSizes(widget.initialRowSizes, rows);
     _customProfileColor = null;
@@ -555,7 +558,7 @@ class _WindowDoorDesignerPageState extends State<WindowDoorDesignerPage> {
       outsideView = true;
       showBlindBox = false;
       profileColor = initialProfileColor;
-      blindColor = blindColorForIndex(null);
+      blindColor = blindColorForIndex(widget.initialBlindColorIndex);
       _customProfileColor = null;
       _customGlassColor = initialGlassColor.color;
       windowHeightMm = _initialHeightMm(widget.initialHeight);

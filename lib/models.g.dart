@@ -228,13 +228,14 @@ class BlindAdapter extends TypeAdapter<Blind> {
       pricePerM2: fields[1] as double,
       boxHeight: fields[2] == null ? 0 : fields[2] as int,
       massPerM2: fields[3] == null ? 0 : fields[3] as double,
+      colorIndex: fields[4] == null ? 0 : fields[4] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, Blind obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -242,7 +243,9 @@ class BlindAdapter extends TypeAdapter<Blind> {
       ..writeByte(2)
       ..write(obj.boxHeight)
       ..writeByte(3)
-      ..write(obj.massPerM2);
+      ..write(obj.massPerM2)
+      ..writeByte(4)
+      ..write(obj.colorIndex);
   }
 
   @override

@@ -147,11 +147,14 @@ class Blind extends HiveObject {
   int boxHeight; // height of the box in mm
   @HiveField(3, defaultValue: 0)
   double massPerM2;
+  @HiveField(4, defaultValue: 0)
+  int colorIndex; // Default blind color index
   Blind({
     required this.name,
     required this.pricePerM2,
     this.boxHeight = 0,
     this.massPerM2 = 0,
+    this.colorIndex = 0,
   });
 }
 
