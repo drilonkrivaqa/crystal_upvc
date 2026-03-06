@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart';
+import 'dart:async';
 import '../models.dart';
 import 'window_door_item_page.dart';
 import 'window_door_designer_page.dart';
@@ -164,6 +165,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
       for (int i = 0; i < offer.items.length; i++) {
         if (!selection[i]) continue;
         final item = offer.items[i];
+        final originalItem = item.copy();
         if (profileChanged) {
           item.profileSetIndex = profileIndex!;
         }
@@ -173,6 +175,10 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
         if (blindChanged) {
           item.blindIndex = blindIndex >= 0 ? blindIndex : null;
         }
+        await _regenerateAutoPreviewIfAppearanceChanged(
+          previousItem: originalItem,
+          updatedItem: item,
+        );
         offer.items[i] = item;
       }
     }
@@ -1730,10 +1736,17 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                                   builder: (_) => WindowDoorItemPage(
                                     existingItem: item,
                                     onSave: (editedItem) {
-                                      offer.items[i] = editedItem;
-                                      offer.lastEdited = DateTime.now();
-                                      offer.save();
-                                      setState(() {});
+                                      unawaited(() async {
+                                        await _regenerateAutoPreviewIfAppearanceChanged(
+                                          previousItem: item,
+                                          updatedItem: editedItem,
+                                        );
+                                        offer.items[i] = editedItem;
+                                        offer.lastEdited = DateTime.now();
+                                        await offer.save();
+                                        if (!mounted) return;
+                                        setState(() {});
+                                      }());
                                     },
                                     defaultProfileSetIndex:
                                         offer.defaultProfileSetIndex,
@@ -2448,6 +2461,70 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
         item.photoBytes = bytes;
       }
     }
+  }
+
+  Future<void> _regenerateAutoPreviewIfAppearanceChanged({
+    required WindowDoorItem previousItem,
+    required WindowDoorItem updatedItem,
+  }) async {
+    if (updatedItem.photoPath != null) {
+      return;
+    }
+    if (!_hasAppearanceImpactChange(previousItem, updatedItem)) {
+      return;
+    }
+    final bytes = await _buildAutoDesignPreviewBytes(updatedItem);
+    if (bytes != null) {
+      updatedItem.photoBytes = bytes;
+    }
+  }
+
+  bool _hasAppearanceImpactChange(
+    WindowDoorItem previousItem,
+    WindowDoorItem updatedItem,
+  ) {
+    if (previousItem.width != updatedItem.width ||
+        previousItem.height != updatedItem.height ||
+        previousItem.profileSetIndex != updatedItem.profileSetIndex ||
+        previousItem.glassIndex != updatedItem.glassIndex ||
+        previousItem.blindIndex != updatedItem.blindIndex ||
+        previousItem.verticalSections != updatedItem.verticalSections ||
+        previousItem.horizontalSections != updatedItem.horizontalSections ||
+        !listEquals(previousItem.fixedSectors, updatedItem.fixedSectors) ||
+        !listEquals(previousItem.sectionWidths, updatedItem.sectionWidths) ||
+        !listEquals(previousItem.sectionHeights, updatedItem.sectionHeights) ||
+        !listEquals(previousItem.verticalAdapters, updatedItem.verticalAdapters) ||
+        !listEquals(
+            previousItem.horizontalAdapters, updatedItem.horizontalAdapters) ||
+        !listEquals(previousItem.perRowVerticalSections,
+            updatedItem.perRowVerticalSections) ||
+        !_listOfListEquals<int>(
+            previousItem.perRowSectionWidths, updatedItem.perRowSectionWidths) ||
+        !_listOfListEquals<bool>(
+            previousItem.perRowFixedSectors, updatedItem.perRowFixedSectors) ||
+        !_listOfListEquals<bool>(previousItem.perRowVerticalAdapters,
+            updatedItem.perRowVerticalAdapters)) {
+      return true;
+    }
+    return false;
+  }
+
+  bool _listOfListEquals<T>(List<List<T>>? a, List<List<T>>? b) {
+    if (identical(a, b)) {
+      return true;
+    }
+    if (a == null || b == null) {
+      return a == b;
+    }
+    if (a.length != b.length) {
+      return false;
+    }
+    for (int i = 0; i < a.length; i++) {
+      if (!listEquals(a[i], b[i])) {
+        return false;
+      }
+    }
+    return true;
   }
 
   Future<Uint8List?> _buildAutoDesignPreviewBytes(
