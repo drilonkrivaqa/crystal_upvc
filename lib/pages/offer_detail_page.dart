@@ -1175,13 +1175,6 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                 final item = offer.items[index];
                 final profileSet = profileSetBox.getAt(item.profileSetIndex);
                 final glass = glassBox.getAt(item.glassIndex);
-                final totalCells =
-                    item.horizontalSections * item.verticalSections;
-                final openCells =
-                    item.fixedSectors.where((isFixed) => !isFixed).length;
-                final openingSummary = totalCells <= 0
-                    ? '-'
-                    : '$openCells/$totalCells open';
                 final image = item.photoBytes != null
                     ? Image.memory(item.photoBytes!, width: 54, height: 54, fit: BoxFit.cover)
                     : (item.photoPath != null
@@ -1202,7 +1195,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                     leading: ClipRRect(borderRadius: BorderRadius.circular(8), child: image),
                     title: Text('${item.width} × ${item.height}'),
                     subtitle: Text(
-                      '${item.horizontalSections}×${item.verticalSections} • $openingSummary • ${profileSet?.name ?? '-'} • ${glass?.name ?? '-'}',
+                      '${item.horizontalSections}×${item.verticalSections} • ${item.sashTypes.isNotEmpty ? item.sashTypes.first.name : '-'} • ${profileSet?.name ?? '-'} • ${glass?.name ?? '-'}',
                     ),
                     trailing: SizedBox(
                       width: 260,
