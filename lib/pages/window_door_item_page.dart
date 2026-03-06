@@ -16,6 +16,7 @@ class WindowDoorItemPage extends StatefulWidget {
   final int? defaultGlassIndex;
   final int? defaultBlindIndex;
   final String? defaultMechanismCompany;
+  final bool applyDefaultsOnlyOnCreate;
   const WindowDoorItemPage(
       {super.key,
       required this.onSave,
@@ -23,7 +24,8 @@ class WindowDoorItemPage extends StatefulWidget {
       this.defaultProfileSetIndex,
       this.defaultGlassIndex,
       this.defaultBlindIndex,
-      this.defaultMechanismCompany});
+      this.defaultMechanismCompany,
+      this.applyDefaultsOnlyOnCreate = true});
 
   @override
   State<WindowDoorItemPage> createState() => _WindowDoorItemPageState();
@@ -227,19 +229,41 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     notesController =
         TextEditingController(text: widget.existingItem?.notes ?? '');
 
-    profileSetIndex = _normalizeIndex(
-        widget.existingItem?.profileSetIndex ?? widget.defaultProfileSetIndex,
-        profileSetBox.length);
-    glassIndex = _normalizeIndex(
-        widget.existingItem?.glassIndex ?? widget.defaultGlassIndex,
-        glassBox.length);
-    final normalizedBlindIndex = _normalizeIndex(
-        widget.existingItem?.blindIndex ?? widget.defaultBlindIndex,
+    final isEditMode = widget.existingItem != null;
+    final shouldApplyOfferDefaults =
+        !isEditMode || widget.applyDefaultsOnlyOnCreate;
+    final initialProfileIndex = isEditMode
+        ? widget.existingItem!.profileSetIndex
+        : (shouldApplyOfferDefaults ? widget.defaultProfileSetIndex : null);
+    final initialGlassIndex = isEditMode
+        ? widget.existingItem!.glassIndex
+        : (shouldApplyOfferDefaults ? widget.defaultGlassIndex : null);
+
+    profileSetIndex = _normalizeIndex(initialProfileIndex, profileSetBox.length);
+    glassIndex = _normalizeIndex(initialGlassIndex, glassBox.length);
+
+    if (isEditMode) {
+      final existingBlindIndex = widget.existingItem!.blindIndex;
+      if (existingBlindIndex == null) {
+        blindIndex = null;
+      } else {
+        final normalizedBlindIndex = _normalizeIndex(
+          existingBlindIndex,
+          blindBox.length,
+          allowNegative: true,
+        );
+        blindIndex = normalizedBlindIndex >= 0 ? normalizedBlindIndex : null;
+      }
+    } else {
+      final normalizedBlindIndex = _normalizeIndex(
+        shouldApplyOfferDefaults ? widget.defaultBlindIndex : null,
         blindBox.length,
-        allowNegative: true);
-    blindIndex = normalizedBlindIndex >= 0 ? normalizedBlindIndex : null;
+        allowNegative: true,
+      );
+      blindIndex = normalizedBlindIndex >= 0 ? normalizedBlindIndex : null;
+    }
     mechanismIndex = widget.existingItem?.mechanismIndex;
-    _allowAutoMechanism = widget.existingItem?.mechanismIndex == null;
+    _allowAutoMechanism = !isEditMode;
     accessoryIndex = widget.existingItem?.accessoryIndex;
     final profileShtesaOptions = _shtesaOptionsForProfile(profileSetIndex);
     shtesaLeftIndex = _findShtesaOptionIndex(profileShtesaOptions,
