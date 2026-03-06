@@ -233,11 +233,10 @@ class _WindowDoorItemPageState extends State<WindowDoorItemPage> {
     glassIndex = _normalizeIndex(
         widget.existingItem?.glassIndex ?? widget.defaultGlassIndex,
         glassBox.length);
-    final initialBlindSelection = widget.existingItem != null
-        ? widget.existingItem!.blindIndex
-        : widget.defaultBlindIndex;
-    final normalizedBlindIndex = _normalizeIndex(initialBlindSelection,
-        blindBox.length, allowNegative: true);
+    final normalizedBlindIndex = _normalizeIndex(
+        widget.existingItem?.blindIndex ?? widget.defaultBlindIndex,
+        blindBox.length,
+        allowNegative: true);
     blindIndex = normalizedBlindIndex >= 0 ? normalizedBlindIndex : null;
     mechanismIndex = widget.existingItem?.mechanismIndex;
     _allowAutoMechanism = widget.existingItem?.mechanismIndex == null;
