@@ -238,6 +238,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
     );
     int profileColorIndex = item is ProfileSet ? item.colorIndex : 0;
     int glassColorIndex = item is Glass ? item.colorIndex : 0;
+    int blindColorIndex = item is Blind ? item.colorIndex : 0;
 
     showDialog(
       context: context,
@@ -492,6 +493,23 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                     onChanged: (value) =>
                         setState(() => glassColorIndex = value ?? 0),
                   ),
+                if (widget.type == CatalogType.blind)
+                  DropdownButtonFormField<int>(
+                    value:
+                        blindColorIndex.clamp(0, blindColorOptions.length - 1),
+                    decoration: const InputDecoration(
+                      labelText: 'Blind color',
+                    ),
+                    items: [
+                      for (int i = 0; i < blindColorOptions.length; i++)
+                        DropdownMenuItem(
+                          value: i,
+                          child: Text(blindColorOptions[i].label),
+                        ),
+                    ],
+                    onChanged: (value) =>
+                        setState(() => blindColorIndex = value ?? 0),
+                  ),
                 if (widget.type == CatalogType.glass ||
                     widget.type == CatalogType.blind)
                   TextField(
@@ -691,6 +709,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                       massPerM2:
                       double.tryParse(massPerM2Controller.text) ??
                           0,
+                      colorIndex: blindColorIndex,
                     ),
                   );
                   break;
@@ -780,6 +799,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
     String selectedMechanismCompany = '';
     int profileColorIndex = 0;
     int glassColorIndex = 0;
+    int blindColorIndex = 0;
 
     showDialog(
       context: context,
@@ -1025,6 +1045,23 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                     onChanged: (value) =>
                         setState(() => glassColorIndex = value ?? 0),
                   ),
+                if (widget.type == CatalogType.blind)
+                  DropdownButtonFormField<int>(
+                    value:
+                        blindColorIndex.clamp(0, blindColorOptions.length - 1),
+                    decoration: const InputDecoration(
+                      labelText: 'Blind color',
+                    ),
+                    items: [
+                      for (int i = 0; i < blindColorOptions.length; i++)
+                        DropdownMenuItem(
+                          value: i,
+                          child: Text(blindColorOptions[i].label),
+                        ),
+                    ],
+                    onChanged: (value) =>
+                        setState(() => blindColorIndex = value ?? 0),
+                  ),
                 if (widget.type == CatalogType.glass ||
                     widget.type == CatalogType.blind)
                   TextField(
@@ -1207,6 +1244,7 @@ class _CatalogTabPageState extends State<CatalogTabPage> {
                       massPerM2:
                       double.tryParse(massPerM2Controller.text) ??
                           0,
+                      colorIndex: blindColorIndex,
                     ),
                   );
                   break;

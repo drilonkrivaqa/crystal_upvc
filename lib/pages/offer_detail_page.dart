@@ -2475,6 +2475,9 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
     final profileColorIndex =
         profileSetBox.getAt(item.profileSetIndex)?.colorIndex;
     final glassColorIndex = glassBox.getAt(item.glassIndex)?.colorIndex;
+    final blindColorIndex = item.blindIndex != null
+        ? blindBox.getAt(item.blindIndex!)?.colorIndex
+        : null;
 
     return buildWindowDoorDesignPreviewBytes(
       rows: initialRows,
@@ -2487,6 +2490,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
       showBlindBox: item.blindIndex != null,
       profileColorIndex: profileColorIndex,
       glassColorIndex: glassColorIndex,
+      blindColorIndex: blindColorIndex,
     );
   }
 
