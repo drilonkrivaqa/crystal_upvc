@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '../models.dart';
+import '../theme/app_background.dart';
+import '../widgets/glass_card.dart';
 
 class ShtesaCatalogPage extends StatefulWidget {
   const ShtesaCatalogPage({super.key});
@@ -139,86 +141,92 @@ class _ShtesaCatalogPageState extends State<ShtesaCatalogPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Shtesa')),
-      body: ValueListenableBuilder(
-        valueListenable: profileSetBox.listenable(),
-        builder: (context, Box<ProfileSet> box, _) {
-          if (box.isEmpty) {
-            return const Center(
-              child: Text('No profiles found. Add a profile first.'),
-            );
-          }
-          return ListView.builder(
-            padding: const EdgeInsets.all(12),
-            itemCount: box.length,
-            itemBuilder: (context, index) {
-              final profile = box.getAt(index);
-              if (profile == null) return const SizedBox.shrink();
-              final options = _optionsForProfile(index);
-              return Card(
-                margin: const EdgeInsets.only(bottom: 12),
-                clipBehavior: Clip.antiAlias,
-                child: ExpansionTile(
-                  tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  childrenPadding: const EdgeInsets.only(bottom: 8),
-                  title: Text(
-                    profile.name,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  subtitle: Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Text(options.isEmpty
-                        ? 'No Shtesa options yet'
-                        : '${options.length} option(s)'),
-                  ),
-                  children: [
-                    if (options.isEmpty)
-                      const Padding(
-                        padding: EdgeInsets.fromLTRB(16, 4, 16, 12),
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            'Tap "Add Shtesa option" to create your first option.',
-                          ),
-                        ),
-                      ),
-                    for (int i = 0; i < options.length; i++)
-                      ListTile(
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                        title: Text('${options[i]['size']} mm'),
-                        subtitle: Padding(
-                          padding: const EdgeInsets.only(top: 2),
-                          child: Text(
-                            '€${(options[i]['pricePerMeter'] as double).toStringAsFixed(2)} per meter',
-                          ),
-                        ),
-                        trailing: Wrap(
-                          spacing: 4,
-                          children: [
-                            IconButton(
-                              tooltip: 'Edit',
-                              icon: const Icon(Icons.edit_outlined),
-                              onPressed: () => _showOptionDialog(index, editIndex: i),
-                            ),
-                            IconButton(
-                              tooltip: 'Delete',
-                              icon: const Icon(Icons.delete_outline),
-                              onPressed: () => _deleteOption(index, i),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ListTile(
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                      leading: const Icon(Icons.add_circle_outline),
-                      title: const Text('Add Shtesa option'),
-                      onTap: () => _showOptionDialog(index),
-                    ),
-                  ],
-                ),
+      body: AppBackground(
+        child: ValueListenableBuilder(
+          valueListenable: profileSetBox.listenable(),
+          builder: (context, Box<ProfileSet> box, _) {
+            if (box.isEmpty) {
+              return const Center(
+                child: Text('No profiles found. Add a profile first.'),
               );
-            },
-          );
-        },
+            }
+            return ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: box.length,
+              itemBuilder: (context, index) {
+                final profile = box.getAt(index);
+                if (profile == null) return const SizedBox.shrink();
+                final options = _optionsForProfile(index);
+                return GlassCard(
+                  child: ExpansionTile(
+                    tilePadding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    childrenPadding: const EdgeInsets.only(bottom: 8),
+                    title: Text(
+                      profile.name,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    subtitle: Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text(
+                        options.isEmpty
+                            ? 'No Shtesa options yet'
+                            : '${options.length} option(s)',
+                      ),
+                    ),
+                    children: [
+                      if (options.isEmpty)
+                        const Padding(
+                          padding: EdgeInsets.fromLTRB(16, 4, 16, 12),
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              'Tap "Add Shtesa option" to create your first option.',
+                            ),
+                          ),
+                        ),
+                      for (int i = 0; i < options.length; i++)
+                        ListTile(
+                          contentPadding:
+                              const EdgeInsets.symmetric(horizontal: 16),
+                          title: Text('${options[i]['size']} mm'),
+                          subtitle: Padding(
+                            padding: const EdgeInsets.only(top: 2),
+                            child: Text(
+                              '€${(options[i]['pricePerMeter'] as double).toStringAsFixed(2)} per meter',
+                            ),
+                          ),
+                          trailing: Wrap(
+                            spacing: 4,
+                            children: [
+                              IconButton(
+                                tooltip: 'Edit',
+                                icon: const Icon(Icons.edit_outlined),
+                                onPressed: () =>
+                                    _showOptionDialog(index, editIndex: i),
+                              ),
+                              IconButton(
+                                tooltip: 'Delete',
+                                icon: const Icon(Icons.delete_outline),
+                                onPressed: () => _deleteOption(index, i),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ListTile(
+                        contentPadding:
+                            const EdgeInsets.symmetric(horizontal: 16),
+                        leading: const Icon(Icons.add_circle_outline),
+                        title: const Text('Add Shtesa option'),
+                        onTap: () => _showOptionDialog(index),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }
