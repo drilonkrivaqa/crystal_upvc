@@ -1,9 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '../company_details.dart';
@@ -12,7 +10,6 @@ import '../pages/catalogs_page.dart';
 import '../pages/customers_page.dart';
 import '../pages/offers_page.dart';
 import '../pages/production_page.dart';
-import '../services/storage_location_service.dart';
 import '../theme/app_background.dart';
 import '../utils/company_settings.dart';
 import '../widgets/company_logo.dart';
@@ -39,16 +36,11 @@ class _SettingsPageState extends State<SettingsPage> {
   DateTime? _licenseExpiresAt;
   bool _initialized = false;
   bool _settingsUnlocked = false;
-  final StorageLocationService _storageLocationService = StorageLocationService();
-  String _currentStoragePath = '';
-  String? _selectedStoragePath;
-  bool _storageActionInProgress = false;
 
   @override
   void initState() {
     super.initState();
     settingsBox = Hive.box('settings');
-    _loadStoragePaths();
   }
 
   @override
@@ -235,119 +227,6 @@ class _SettingsPageState extends State<SettingsPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(l10n.welcomeInvalidPassword)),
     );
-  }
-
-
-  bool get _supportsCustomStorageFolder {
-    if (kIsWeb) {
-      return false;
-    }
-    return switch (defaultTargetPlatform) {
-      TargetPlatform.windows => true,
-      TargetPlatform.linux => true,
-      TargetPlatform.macOS => true,
-      TargetPlatform.android => false,
-      TargetPlatform.iOS => false,
-      TargetPlatform.fuchsia => false,
-    };
-  }
-
-  Future<void> _loadStoragePaths() async {
-    final active = await _storageLocationService.resolveActiveHiveDirectory();
-    if (!mounted) {
-      return;
-    }
-    setState(() {
-      _currentStoragePath = active;
-      _selectedStoragePath = active;
-    });
-  }
-
-  Future<void> _chooseStorageFolder() async {
-    if (!_supportsCustomStorageFolder) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Custom Hive folder selection is not supported on this platform.',
-          ),
-        ),
-      );
-      return;
-    }
-
-    final selectedPath = await FilePicker.platform.getDirectoryPath();
-    if (selectedPath == null || selectedPath.trim().isEmpty) {
-      return;
-    }
-
-    setState(() {
-      _selectedStoragePath = selectedPath.trim();
-    });
-  }
-
-  Future<void> _moveStorageData() async {
-    final selected = _selectedStoragePath?.trim();
-    if (selected == null || selected.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please choose a folder first.')),
-      );
-      return;
-    }
-
-    if (selected == _currentStoragePath) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Selected folder is already active.')),
-      );
-      return;
-    }
-
-    setState(() => _storageActionInProgress = true);
-    try {
-      final writable = await _storageLocationService.validateDirectoryWritable(
-        selected,
-      );
-      if (!writable) {
-        throw Exception('The selected folder is not writable.');
-      }
-
-      await Hive.close();
-
-      await _storageLocationService.copyHiveStorageFiles(
-        sourceDirectory: _currentStoragePath,
-        targetDirectory: selected,
-      );
-      await _storageLocationService.saveStorageLocation(selected);
-
-      if (!mounted) {
-        return;
-      }
-
-      setState(() {
-        _currentStoragePath = selected;
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Storage location updated. Please restart the app to continue.',
-          ),
-        ),
-      );
-
-      await Future<void>.delayed(const Duration(milliseconds: 400));
-      SystemNavigator.pop();
-    } catch (e) {
-      if (!mounted) {
-        return;
-      }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to move Hive storage: $e')),
-      );
-    } finally {
-      if (mounted) {
-        setState(() => _storageActionInProgress = false);
-      }
-    }
   }
 
   @override
@@ -665,92 +544,6 @@ class _SettingsPageState extends State<SettingsPage> {
                             label: Text(l10n.settingsLicenseRemoveLimit),
                           ),
                         ],
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-                GlassCard(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Storage',
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        'Current storage location:',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      SelectableText(
-                        _currentStoragePath,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: colors.onSurfaceVariant,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        'Selected folder:',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      SelectableText(
-                        _selectedStoragePath ?? _currentStoragePath,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: colors.onSurfaceVariant,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Wrap(
-                        spacing: 12,
-                        runSpacing: 8,
-                        children: [
-                          OutlinedButton.icon(
-                            onPressed: _storageActionInProgress
-                                ? null
-                                : _supportsCustomStorageFolder
-                                    ? _chooseStorageFolder
-                                    : null,
-                            icon: const Icon(Icons.folder_open_outlined),
-                            label: const Text('Choose storage folder'),
-                          ),
-                          ElevatedButton.icon(
-                            onPressed: _storageActionInProgress
-                                ? null
-                                : _supportsCustomStorageFolder
-                                    ? _moveStorageData
-                                    : null,
-                            icon: const Icon(Icons.drive_file_move_outline),
-                            label: const Text('Move data to selected folder'),
-                          ),
-                        ],
-                      ),
-                      if (!_supportsCustomStorageFolder)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 10),
-                          child: Text(
-                            'Storage folder changes are disabled on this platform for safety.',
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: colors.onSurfaceVariant,
-                            ),
-                          ),
-                        ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'This only changes where Hive files are stored. Data content is not modified.',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: colors.onSurfaceVariant,
-                        ),
                       ),
                     ],
                   ),

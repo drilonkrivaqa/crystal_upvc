@@ -14,17 +14,13 @@ import 'pages/welcome_page.dart';
 import 'data_migrations.dart';
 import 'l10n/app_localizations.dart';
 import 'pages/settings_page.dart';
-import 'services/storage_location_service.dart';
 import 'utils/company_settings.dart';
 import 'widgets/company_logo.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final storageLocationService = StorageLocationService();
-  final hiveDirectory = await storageLocationService.resolveActiveHiveDirectory();
-  await storageLocationService.ensureDirectoryExists(hiveDirectory);
-  Hive.init(hiveDirectory);
+  await Hive.initFlutter();
 
   Hive.registerAdapter(CustomerAdapter());
   Hive.registerAdapter(ProfileSetAdapter());
