@@ -1,147 +1,180 @@
 # Crystal UPVC
-Modern UPVC Windows & Doors Manufacturing Software
 
-Crystal UPVC is a complete end-to-end application designed for UPVC windows/doors manufacturers.
-It streamlines the entire workflow — from defining profiles, glass, blinds, mechanisms, and accessories, to generating offers, saving customer data, calculating Uw/Uf values, attaching photos, and exporting beautifully formatted PDFs.
+**Crystal UPVC** is a Flutter-based software solution for **uPVC and aluminium window/door manufacturing workflows**.  
+It is designed to help manufacturers and sales teams manage catalogs, customers, offers, drawings, production-related data, and PDF exports in one offline-first application.
 
-This app is built fully in Flutter, supports offline storage via Hive, and is optimized for manufacturing workflows used in UPVC production companies.
+The goal of the project is to make daily work faster, cleaner, and more professional — from material setup to customer-ready offers.
 
-🚀 Features
-Catalog & Materials Management
+---
 
-Manage Profiles (L/Z/T/Adapter/Llajsne)
+## Overview
 
-Add glass types with Ug, thickness, PSI
+Crystal UPVC is built for companies that work with windows and doors and need a practical desktop/mobile tool for:
 
-Manage blinds, mechanisms, and accessories
+- managing profile and material catalogs
+- creating customer offers
+- organizing customer data
+- preparing technical window/door items
+- attaching photos and visual references
+- exporting professional PDF documents
+- supporting production-oriented workflows
 
-Upload and store photos for each window/door item
+The project is being developed in Flutter with a strong focus on:
+- offline usage
+- practical manufacturing data entry
+- modular structure
+- future scalability
 
-Full editing, deleting, and catalog organization
+---
 
-Offer Management
+## Main Features
 
-Create, edit, duplicate, and delete offers
+### Catalog Management
+The app includes dedicated catalog sections for defining and managing the materials used in offers and production workflows.
 
-Add multiple windows/doors inside an offer
+You can manage:
 
-Auto-generated item preview names & sequencing
+- **Profiles**
+- **Glass**
+- **Blinds / Roleta**
+- **Accessories / Shtesa**
+- **Steel / Hekri**
+- other related configuration data used by window and door items
 
-Attach images to items for client presentation
+This makes it easier to standardize materials and reuse them across offers.
 
-Multilingual labels with Flutter Intl
+---
 
-PDF Export
+### Customer Management
+Crystal UPVC allows you to store and organize customer information so that offer creation becomes faster and more consistent.
 
-Export offers as modern PDF documents
+Supported workflow includes:
 
-Automatically includes:
+- adding and editing customers
+- reusing saved customer data in offers
+- keeping client information organized in one place
 
-Company branding
+---
 
-Customer information
+### Offer Management
+The app includes a full offer workflow for creating and managing sales offers.
 
-Every window/door with measurements
+Key capabilities include:
 
-Photos of each item
+- creating offers
+- editing existing offers
+- organizing multiple window/door items inside one offer
+- associating customer data with offers
+- preparing data for presentation and export
 
-Price tables & totals
+This is one of the core parts of the system and acts as the bridge between catalog data and final documents.
 
-2 items per page layout
+---
 
-Clean, professional styling similar to commercial UPVC software
+### Window / Door Item Builder
+Each offer can contain multiple custom window/door items with their own specifications.
 
-Customer Management
+The item workflow is intended to support practical configuration such as:
 
-Add, edit, and store customer profiles
+- dimensions
+- selected materials
+- visual/technical setup
+- notes and presentation data
+- attached images/photos when needed
 
-Search and filter by name, city, or contact
+This helps turn raw manufacturing data into something both technical and client-friendly.
 
-Quick-select for adding to new offers
+---
 
-Local Storage with Hive
+### Window / Door Designer
+Crystal UPVC also includes a **window/door designer module** that supports visual configuration and drawing-related workflows.
 
-All data is stored and retrieved offline
+This module is intended to improve the way technical items are prepared and presented by making layouts more understandable and more professional.
 
-No internet required for day-to-day work
+---
 
-Supports large catalogs and thousands of items
+### PDF Export
+The project supports generating PDF documents for offers.
 
-Modern UI (Work in Progress)
+The export flow is meant to produce cleaner, more professional output for clients and internal use, including:
 
-Light theme with clean and modern widgets
+- company information
+- customer information
+- configured window/door items
+- measurements
+- prices and totals
+- attached visuals/photos where applicable
 
-Smooth animations (flutter_animate)
+---
 
-Completely redesigned HomePage UI based on your chosen style
+### Production-Oriented Modules
+The repository also includes production-related pages and logic, showing that the app is growing beyond simple offer generation.
 
-🧠 Technical Stack
+This includes modules/pages related to:
 
-Flutter 3.x
+- **production**
+- **cutting optimizer**
+- data preparation for more advanced manufacturing workflows
 
-Hive & Hive Flutter for offline database
+These parts make Crystal UPVC more than just a calculator — it is moving toward a more complete manufacturing management tool.
 
-Intl for localization
+---
 
-PDF & Printing packages for generating and sharing offers
+### Offline-First Storage
+Crystal UPVC is designed to work with **local offline storage**, which is important for factory and office workflows where reliability and speed matter.
 
-Custom widgets & responsive layouts
+Benefits of the offline-first approach:
 
-Modular structure with models.dart as the central Hive schema
+- no constant internet dependency
+- faster local access to data
+- practical day-to-day usage in real work environments
 
-📂 Project Structure
+---
+
+## Tech Stack
+
+Crystal UPVC is built with:
+
+- **Flutter**
+- **Dart**
+- **Hive** for local database storage
+- **PDF / Printing** packages for document generation
+- **Image Picker** and **File Picker** for handling assets
+- **Intl / Flutter Localizations** for localization support
+- **Flutter Animate** for improved UI feel
+
+---
+
+## Project Structure
+
+A simplified view of the project structure:
+
+```text
 lib/
- ├── models.dart
- ├── models.g.dart
- ├── pages/
- │    ├── catalogs_page.dart
- │    ├── customers_page.dart
- │    ├── offers_page.dart
- │    ├── offer_detail_page.dart
- │    └── window_door_item_page.dart
- ├── pdf/
- │    └── offer_pdf.dart
- ├── utils/
- │    ├── custom_input.dart
- │    └── hive_boxes.dart
- └── theme/
-      └── app_colors.dart
-
-🛠 Getting Started
-
-To run the project locally:
-
-1. Clone the repository
-git clone https://github.com/drilonkrivaqa/crystal_upvc.git
-cd crystal_upvc
-
-2. Install packages
-flutter pub get
-
-3. Generate Hive Adapters
-
-(Only needed if you modify models)
-
-flutter packages pub run build_runner build --delete-conflicting-outputs
-
-4. Run the app
-flutter run
-
-📌 Current Development Goals
-
-Complete UI redesign for commercial look
-
-Cutting optimizer module
-
-Window/Door Designer with schematic preview
-
-Advanced PDF layout options
-
-Dark mode & theming
-
-Bulk item entry improvements
-
-🤝 Contributing
-
-Pull requests are welcome.
-For major changes, please open an issue first to discuss what you would like to change.
+├── l10n/
+├── pages/
+│   ├── catalog_tab_page.dart
+│   ├── catalogs_page.dart
+│   ├── customers_page.dart
+│   ├── cutting_optimizer_page.dart
+│   ├── hekri_page.dart
+│   ├── offer_detail_page.dart
+│   ├── offers_page.dart
+│   ├── production_page.dart
+│   ├── profiles_page.dart
+│   ├── roleta_page.dart
+│   ├── settings_page.dart
+│   ├── shtesa_catalog_page.dart
+│   ├── welcome_page.dart
+│   ├── window_door_designer_page.dart
+│   ├── window_door_item_page.dart
+│   └── xhami_page.dart
+├── pdf/
+├── theme/
+├── utils/
+├── widgets/
+├── company_details.dart
+├── data_migrations.dart
+├── main.dart
+├── models.dart
+└── models.g.dart
