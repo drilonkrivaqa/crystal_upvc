@@ -2077,7 +2077,7 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
 
             final startingIndex = offer.items.length;
             final trimmedPrefix = (prefixController.text.trim().isEmpty)
-                ? "Item"
+                ? l10n.bulkAddDialogDefaultPrefix
                 : prefixController.text.trim();
             int seq = 1;
 
@@ -2202,9 +2202,9 @@ class _OfferDetailPageState extends State<OfferDetailPage> {
                       const SizedBox(height: 12),
                       TextField(
                         controller: prefixController,
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: "Name prefix",
-                          hintText: "Item",
+                          hintText: l10n.bulkAddDialogDefaultPrefix,
                         ),
                         onChanged: (_) => updateAndRecompute(() {}),
                       ),
